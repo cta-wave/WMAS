@@ -201,9 +201,12 @@ rewrites = [("GET", "/resources/WebIDLParser.js", "/resources/webidl2/lib/webidl
 
 class RoutesBuilder(object):
     def __init__(self):
+        config = load_config(os.path.join(repo_root, "config.default.json"),
+                             os.path.join(repo_root, "config.json"))
         self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
                                    ("POST", "/tools/runner/update_manifest.py",
-                                    handlers.python_script_handler)]
+                                    handlers.python_script_handler),
+                                   ("*", "/nodejs/*", handlers.WaveProxyHandler(config.ports["wave"][0]))]
 
         self.forbidden = [("*", "/_certs/*", handlers.ErrorHandler(404)),
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
@@ -382,6 +385,8 @@ def start_servers(host, ports, paths, routes, bind_address, config, ssl_config,
 
         for port in ports:
             if port is None:
+                continue
+            if scheme == u'wave':
                 continue
             init_func = {"http":start_http_server,
                          "https":start_https_server,

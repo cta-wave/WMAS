@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$1" == "init" ]; then
+cd ./tools/wave && npm install
+elif [ "$1" == "start" ]; then
+node ./tools/wave/wave-cli.js
+fi

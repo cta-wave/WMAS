@@ -107,7 +107,8 @@ class Config(Mapping):
 
         if override:
             k = next(iter(override))
-            raise KeyError("unknown config override '%s'" % k)
+            if k != u'results':
+                    raise KeyError("unknown config override '%s'" % k)
 
     def _set_override(self, k, v):
         old_v = getattr(self, k)

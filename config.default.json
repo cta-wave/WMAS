@@ -5,7 +5,8 @@
  "ports":{"http":[8000, "auto"],
           "https":[8443],
           "ws":["auto"],
-          "wss":["auto"]},
+          "wss":["auto"],
+          "wave": [8050]},
  "check_subdomains": true,
  "log_level":"debug",
  "bind_address": true,
@@ -23,5 +24,7 @@
          },
          "none": {}
         },
- "aliases": []
+ "aliases": [],
+ "results": "./results",
+ "timeout": 65000
 }
