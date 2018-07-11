@@ -10,7 +10,7 @@
     "nedb": "^1.8.0",
     "useragent": "^2.3.0",
     "uuid": "^3.2.1",
-    "wptreport": "git+ssh://git@gitlab.fokus.fraunhofer.de:dashcenc/wptreport_reffilter.git",
+    "wptreport": "https://github.com/mlasak/wptreport.git",
     "ws": "^5.2.0"
   }
 }
