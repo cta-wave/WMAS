@@ -59,6 +59,11 @@ Start Web Platform Test runner:
 $ ./wpt serve
 ```
 
+Open in Web browser (on the same host):
+```
+http://web-platform.test:8050
+```
+
 ## Configuration
 The default configuration is loaded from the ```config.default.json```
 in the root directory. Configurations from the ```config.json```
@@ -73,16 +78,16 @@ provided with the query in the url of the initial request.
 
 Example:
 ```
-web-platform.test/?path=/2dcontext&types=testharness
+web-platform.test:8050/?path=/2dcontext&types=testharness
 ```
 
 ### Query Parameters
 Parameter|Description|Example
 ------|------|------
-`path`|Specify tests to run. Can be directory or file. Multiple paths can be chained by using `, `. Paths with leading '/' are interpreted as absolute paths, paths without as regular expressions. (Default: ```/```)|```web-platform.test/?path=/2dcontext```
-types|What types of tests to run. Possible types: ```testharness```, ```manual``` and ```reftest``` (Default: ```testharness```)|```web-platform.test/?types=testharness,manual```
-`timeout`|Specify a server side timeout in ms after which a test with no result is timed out|```web-platform.test/?timeout=65000```
-`token` and `resume` |Providing a token of an unfinished session will resume it.|```web-platform.test/?token=2fb0fb80-63db-4425-8a76-2ea3e6f8269d&resume=1```
+`path`|Specify tests to run. Can be directory or file. Multiple paths can be chained by using `, `. Paths with leading '/' are interpreted as absolute paths, paths without as regular expressions. (Default: ```/```)|```web-platform.test:8050/?path=/2dcontext```
+types|What types of tests to run. Possible types: ```testharness```, ```manual``` and ```reftest``` (Default: ```testharness```)|```web-platform.test:8050/?types=testharness,manual```
+`timeout`|Specify a server side timeout in ms after which a test with no result is timed out|```web-platform.test:8050/?timeout=65000```
+`token` and `resume` |Providing a token of an unfinished session will resume it.|```web-platform.test:8050/?token=2fb0fb80-63db-4425-8a76-2ea3e6f8269d&resume=1```
 
 Certificates
 ============
