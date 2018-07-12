@@ -22,6 +22,14 @@ Test server
 The server makes it possible to run all tests in a single window.
 
 ## Setup
+
+Requirements:
+
+* Python 2.7+ (but not Python 3.x)
+* Node.js 8.x.x (LTS recommended)
+* Git 2.4+ (should support sparse checkout)
+* Bash script support (on windows we recommend Git BASH)
+
 Generate hosts file:
 ```
 $ ./wpt make-hosts-file | sudo tee -a /etc/hosts
