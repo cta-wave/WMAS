@@ -137,7 +137,7 @@ class ResultsManager {
 
   _getFileName (userAgent) {
     const { browser: { name, version } } = UserAgentParser.parse(userAgent)
-    const abbreviation = this._abbreviateBrowserName(name)
+    const abbreviation = UserAgentParser.abbreviateBrowserName(name)
     return abbreviation + version + '.json'
   }
 
@@ -157,21 +157,6 @@ class ResultsManager {
     })
 
     return resultsPerApi
-  }
-
-  _abbreviateBrowserName (name) {
-    const shortnames = {
-      'Chrome': 'Ch',
-      'Chrome Mobile WebView': 'Ch',
-      'WebKit': 'Wk', // WebKit build
-      'Safari': 'Sf',
-      'Firefox': 'FF',
-      'IE': 'IE',
-      'Edge': 'Ed',
-      'Opera': 'Op',
-    }
-    let short = shortnames[name]
-    return short || 'Xx'
   }
 
   prepareResult (result) {
