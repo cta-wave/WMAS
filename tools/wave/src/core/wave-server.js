@@ -33,7 +33,9 @@ class WaveServer {
     const httpServer = new HttpServer()
     const database = new Database()
     await database.load(databaseDirectoryPath)
-    const testLoader = new TestLoader()
+    const testLoader = new TestLoader({
+      resultsDirectoryPath
+    })
     const sessionManager = new SessionManager({
       database,
       testTimeout,

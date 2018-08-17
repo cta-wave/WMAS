@@ -49,7 +49,7 @@ class TestApiHandler extends ApiHandler {
       token = request.cookies.sid
     }
 
-    const { path, types, testTimeout, hostname } = this.parseQueryParameters(
+    const { path, reftoken, types, testTimeout, hostname } = this.parseQueryParameters(
       request
     )
 
@@ -57,6 +57,7 @@ class TestApiHandler extends ApiHandler {
     if (!session || session.getStatus() === Session.COMPLETED || path) {
       session = await this._sessionManager.createSession({
         path,
+        reftoken,
         types,
         userAgent,
         testTimeout

@@ -28,15 +28,23 @@ class SessionManager {
     return null
   }
 
-  async createSession ({ userAgent, path, types, testTimeout }) {
+  async createSession ({ userAgent, path, types, reftoken, testTimeout }) {
     path = path || DEFAULT_TEST_PATH
     types = types || DEFAULT_TEST_TYPES
     testTimeout = testTimeout || this._testTimeout
+
+    let refSessions = []
+    if (reftoken) {
+      refSessions = reftoken.split(',')
+      refSessions = refSessions.map(async s => this.getSession(s.trim()))
+      refSessions = await Promise.all(refSessions)
+    }
 
     const token = this.generateUuid()
     const tests = await this._testLoader.getTests({
       userAgent,
       path,
+      refSessions,
       types
     })
 
