@@ -36,22 +36,22 @@ scratch
 /dist
 
 # WMAS2017 APIs
-html/
-css/
-encrypted-media/
-media-source/
-webaudio/
-2dcontext/
-fullscreen/
-websockets/
-xhr/
-fetch/
-content-security-policy/
-WebCryptoAPI/
-webstorage/
-workers/
-IndexedDB/
-webmessaging/
-notifications/
-uievents/
-dom/
+# html/
+# css/
+# encrypted-media/
+# media-source/
+# webaudio/
+# 2dcontext/
+# fullscreen/
+# websockets/
+# xhr/
+# fetch/
+# content-security-policy/
+# WebCryptoAPI/
+# webstorage/
+# workers/
+# IndexedDB/
+# webmessaging/
+# notifications/
+# uievents/
+# dom/
