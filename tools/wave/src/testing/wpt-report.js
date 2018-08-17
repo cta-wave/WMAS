@@ -27,7 +27,7 @@ class WptReport {
           `--spec ${specName} ` +
           `${isMulti ? '--tokenFileName true ' : ''}` +
           `${!referenceDir ? '' :
-            `--pass 50 ` +
+            `--pass 100 ` +
             `--ref ${referenceDir}`
           }`,
         (error, stdout, stderr) => {
