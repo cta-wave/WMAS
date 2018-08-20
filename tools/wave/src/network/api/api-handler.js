@@ -5,7 +5,7 @@ class ApiHandler {
   }
 
   parseQueryParameters (request) {
-    let { token, path, types, timeout, hostname, tokens, api } = request.query
+    let { token, path, types, timeout, hostname, tokens, api, reftoken } = request.query
     token = token || null
     path = path || null
     types = types ? types.split(',') : null
@@ -13,7 +13,8 @@ class ApiHandler {
     hostname = hostname || null
     api = api || null
     tokens = tokens ? tokens.split(',') : null
-    return { token, path, types, testTimeout: timeout, hostname, api, tokens }
+    reftoken = reftoken || null
+    return { token, path, types, testTimeout: timeout, hostname, api, tokens, reftoken }
   }
 
   parseUrl (request) {

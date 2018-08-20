@@ -1,4 +1,7 @@
+const path = require('path')
+
 const FileSystem = require('../utils/file-system')
+const UserAgentParser = require('../utils/user-agent-parser')
 
 // test types
 const TEST_HARNESS_TESTS = 'testharness'
@@ -176,11 +179,23 @@ const EXCLUDED_TESTS = [
 ]
 
 class TestLoader {
-  constructor () {
+  constructor ({ resultsDirectoryPath }) {
+    this._resultsDirectoryPath = resultsDirectoryPath
     this._tests = {}
     this._tests[TEST_HARNESS_TESTS] = []
     this._tests[REF_TESTS] = []
     this._tests[MANUAL_TESTS] = []
+  }
+
+  _getFilePath ({ userAgent, api, token }) {
+    const apiDirectory = path.join(this._resultsDirectoryPath, token, api)
+    return path.join(apiDirectory, this._getFileName(userAgent))
+  }
+
+  _getFileName (userAgent) {
+    const { browser: { name, version } } = UserAgentParser.parse(userAgent)
+    const abbreviation = UserAgentParser.abbreviateBrowserName(name)
+    return abbreviation + version + '.json'
   }
 
   async loadTests (manifestPath) {
@@ -226,10 +241,16 @@ class TestLoader {
     return testPath.split('/')[0]
   }
 
-  async getTests ({ userAgent, types, path }) {
+  async _getRefResults ({ token, userAgent, api }) {
+    const f = await FileSystem.readFile(this._getFilePath({ token, userAgent, api }))
+    return JSON.parse(f).results
+  }
+
+  async getTests ({ types, path, refSessions }) {
     let tests = {}
 
-    path.split(/, ?/).forEach(path => {
+    let paths = path.split(/, ?/)
+    await Promise.all(paths.map(async path => {
       let regex = null
       if (path.startsWith('/')) {
         path = path.substr(1)
@@ -243,12 +264,28 @@ class TestLoader {
           for (let testPath of this._tests[type][api]) {
             if (regex.test(testPath)) {
               if (!tests[api]) tests[api] = []
+
+              let refResults = await Promise.all(refSessions.map(async s => {
+                return await this._getRefResults({
+                  userAgent: s.getUserAgent(),
+                  token: s.getToken(),
+                  api
+                })
+              }))
+
+              // filter out test files that didn't pass in the reference results
+              if (refResults.some(refResult => {
+                let refTest = refResult.find(res => res.test === '/' + testPath)
+                if (!refTest) return false
+                return !(refTest.status === 'OK')
+              })) continue
+
               tests[api].push(testPath)
             }
           }
         }
       }
-    })
+    }))
 
     for (let api in tests) {
       tests[api] = tests[api].sort(
