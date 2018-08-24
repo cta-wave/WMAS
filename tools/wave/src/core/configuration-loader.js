@@ -26,6 +26,11 @@ class ConfigurationLoader {
       configuration.resultsDirectoryPath = path.resolve(resultsDirectoryPath)
     }
 
+    const dbCompactionInterval = configurationLoaded.db_compaction_interval
+    if (dbCompactionInterval) {
+      configuration.dbCompactionInterval = parseInt(dbCompactionInterval)
+    }
+
     const testTimeout = configurationLoaded.timeout
     if (testTimeout) {
       configuration.testTimeout = parseInt(testTimeout)
