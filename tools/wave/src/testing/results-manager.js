@@ -114,6 +114,24 @@ class ResultsManager {
     })
   }
 
+  async getTokensFromHash(element) {
+    let tokens = [];
+    const tempPath = path.join(this._resultsDirectoryPath, element);
+    if (await FileSystem.exists(tempPath)) {
+      const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/
+      const apiNames = await FileSystem.readDirectory(tempPath);
+      const targetFolder = path.join(tempPath, apiNames[0]);
+      tokens = await FileSystem.readDirectory(targetFolder);
+      tokens = tokens.filter( name => {
+        return tokenUaRegex.exec(name);
+      });
+      for (let i = 0; i < tokens.length; i++) {
+        tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, '');
+      }
+    }
+    return tokens;
+  }
+
   async _ensureResultsDirectoryExistence ({ token, api }) {
     if (!await FileSystem.stats(this._resultsDirectoryPath)) {
       await FileSystem.makeDirectory(this._resultsDirectoryPath)
