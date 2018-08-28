@@ -265,9 +265,9 @@
       })
     },
     getFilteredTestResults: (tokenArr, refTokenArr, callback) => {
-      waveService.sendRequest('GET', '/results/' + tokenArr + "/" + refTokenArr, response => {
-        callback(JSON.parse(response));
-      });
+      waveService.sendRequest('GET', '/results/' + tokenArr + '/' + refTokenArr, response => {
+        callback(JSON.parse(response))
+      })
     },
     openHtmlReport: api => {
       const sessions = ui.state.sessions
@@ -380,13 +380,13 @@
               const calcColor = (percent) => {
                 return 'rgb(' + (255 - 255 * percent / 100) + ',' + (128 * percent / 100) + ', 0)'
               }
-              let absolute, percent, color;
+              let absolute, percent, color
               if (ui.state.filteredTestResults) {
-                let token = session.details.token;
+                let token = session.details.token
                 absolute = '-'
-                percent = ui.state.filteredTestResults[token][api];
+                percent = ui.state.filteredTestResults[token][api]
                 color = 'black'
-                color = calcColor(percent);
+                color = calcColor(percent)
               } else {
                 let result = session.result[api]
                 absolute = '-'
@@ -400,7 +400,7 @@
                   const pass = result.pass || 0
                   absolute = pass + '/' + total
                   percent = utils.percent(pass, total)
-                  color = calcColor(percent);
+                  color = calcColor(percent)
 
                   percent = percent + '%'
                 }
@@ -436,9 +436,9 @@
     refreshData: async () => {
       ui.state.sessions = []
       if (ui.state.reftoken) { 
-        const refTokenArr = ui.state.reftoken.split(',');
+        const refTokenArr = ui.state.reftoken.split(',')
         waveService.getFilteredTestResults(ui.state.tokens, refTokenArr, result => {
-          ui.state.filteredTestResults = result;
+          ui.state.filteredTestResults = result
         })
       }
       const collectSessions = session => {

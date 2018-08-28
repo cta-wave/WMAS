@@ -67,25 +67,25 @@ class ResultsApiHandler extends ApiHandler {
             }
           }
           case 3:
-            const tokenArr = url[1].split(",");
-            let refTokenArr = url[2].split(",");
+            const tokenArr = url[1].split(',')
+            let refTokenArr = url[2].split(',')
             for (let i = 0; i < refTokenArr.length; i++) {
-              const element = refTokenArr[i];
+              const element = refTokenArr[i]
               if (element.includes('-')) {
-                continue;
+                continue
               } else {
-                refTokenArr = refTokenArr.filter( e => e !== element);
-                let tokens = await this._resultsManager.getTokensFromHash(element);
+                refTokenArr = refTokenArr.filter( e => e !== element)
+                let tokens = await this._resultsManager.getTokensFromHash(element)
                 for (let i = 0; i < tokens.length; i++) {
-                  refTokenArr.push(tokens[i]);
+                  refTokenArr.push(tokens[i])
                 }
               }
             }
-            let passedRefTests = await this._filterPassedTests(refTokenArr);
-            let refIntersect = this._getIntersect(passedRefTests);
-            let sessionResults = await this._getSessionResults(tokenArr, refIntersect);
-            this.sendJson(sessionResults, response);
-            return;
+            let passedRefTests = await this._filterPassedTests(refTokenArr)
+            let refIntersect = this._getIntersect(passedRefTests)
+            let sessionResults = await this._getSessionResults(tokenArr, refIntersect)
+            this.sendJson(sessionResults, response)
+            return
           case 4: {
             switch (url[3]) {
               case 'json':
@@ -191,51 +191,51 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   _calculateIntersect(a ,b) {
-    var t;
-    if (b.length > a.length) t = b, b = a, a = t;
+    var t
+    if (b.length > a.length) t = b, b = a, a = t
     return a.filter(e => {
-      return b.includes(e);
-    });
+      return b.includes(e)
+    })
   }
 
   async _filterPassedTests(refTokenArr) {
-    let passedRefTests = [];
+    let passedRefTests = []
     for (let i = 0; i < refTokenArr.length; i++) {
-      let passedTests = {};
-      let refSessionResults = await this._resultsManager.getResults(refTokenArr[i]);
+      let passedTests = {}
+      let refSessionResults = await this._resultsManager.getResults(refTokenArr[i])
       for (let api in refSessionResults) {
-        let testsForApi = refSessionResults[api];
-        passedTests[api] = [];
+        let testsForApi = refSessionResults[api]
+        passedTests[api] = []
         for (let k = 0; k < testsForApi.length; k++) {
-          let subtestsArr = testsForApi[k].subtests;
+          let subtestsArr = testsForApi[k].subtests
           for (let m = 0; m < subtestsArr.length; m++) {
-             let subtest = subtestsArr[m];
+             let subtest = subtestsArr[m]
              if (subtest.status === 'PASS') {
-              passedTests[api].push(subtest.name);
+              passedTests[api].push(subtest.name)
              }
           }
         }
       }
-      passedRefTests.push(passedTests);
+      passedRefTests.push(passedTests)
     }
-    return passedRefTests;
+    return passedRefTests
   }
 
   _getIntersect(passedRefTests) {
-    let refIntersect = {};
+    let refIntersect = {}
     for (let i = 0; i < passedRefTests.length; i++) {
       if (i === 0) {
-        refIntersect = passedRefTests[i];
+        refIntersect = passedRefTests[i]
       }
       if (i + 1 === passedRefTests.length) {
-        continue;
+        continue
       }
-      const refTestsNext = passedRefTests[i + 1];
+      const refTestsNext = passedRefTests[i + 1]
       for (let api in refIntersect) {
-        refIntersect[api] = (this._calculateIntersect(refIntersect[api], refTestsNext[api]));
+        refIntersect[api] = (this._calculateIntersect(refIntersect[api], refTestsNext[api]))
       }
     }
-    return refIntersect;
+    return refIntersect
   }
 
   _percent (count, total) {
@@ -247,33 +247,33 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   async _getSessionResults(tokenArr, refIntersect) {
-    let sessionResults = {};
+    let sessionResults = {}
     for (let i = 0; i < tokenArr.length; i++) {
-      const token = tokenArr[i];
-      sessionResults[token] = {};
-      const sessionResult = await this._resultsManager.getResults(token);
+      const token = tokenArr[i]
+      sessionResults[token] = {}
+      const sessionResult = await this._resultsManager.getResults(token)
       for (let api in sessionResult) {
-        sessionResults[token][api] = 0;
-        const apiResult = sessionResult[api];
-        let passedSubTests = 0;
+        sessionResults[token][api] = 0
+        const apiResult = sessionResult[api]
+        let passedSubTests = 0
         for (let result in apiResult) {
-          const subtests = apiResult[result].subtests;
+          const subtests = apiResult[result].subtests
           for (let k = 0; k < subtests.length; k++) {
-            const subtest = subtests[k];
+            const subtest = subtests[k]
             if (subtest.status === 'PASS' && refIntersect[api] && refIntersect[api].includes(subtest.name)) {
-              passedSubTests++;
+              passedSubTests++
             }
           }
         }
         if (refIntersect[api]) {
-          const totalSubtestsForApi = refIntersect[api].length;
-          sessionResults[token][api] = this._percent(passedSubTests, totalSubtestsForApi);
+          const totalSubtestsForApi = refIntersect[api].length
+          sessionResults[token][api] = this._percent(passedSubTests, totalSubtestsForApi)
         } else {
-          sessionResults[token][api] = "not tested";
+          sessionResults[token][api] = 'not tested'
         }
       }
     }
-    return sessionResults;
+    return sessionResults
   }
 }
 
