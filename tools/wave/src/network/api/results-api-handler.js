@@ -207,7 +207,7 @@ class ResultsApiHandler extends ApiHandler {
         let testsForApi = refSessionResults[api]
         passedTests[api] = []
         for (let k = 0; k < testsForApi.length; k++) {
-          let subtestsArr = testsForApi[k].subtests
+          let subtestsArr = testsForApi[k].subtests || []
           for (let m = 0; m < subtestsArr.length; m++) {
              let subtest = subtestsArr[m]
              if (subtest.status === 'PASS') {
@@ -257,7 +257,7 @@ class ResultsApiHandler extends ApiHandler {
         const apiResult = sessionResult[api]
         let passedSubTests = 0
         for (let result in apiResult) {
-          const subtests = apiResult[result].subtests
+          let subtests = apiResult[result].subtests || []
           for (let k = 0; k < subtests.length; k++) {
             const subtest = subtests[k]
             if (subtest.status === 'PASS' && refIntersect[api] && refIntersect[api].includes(subtest.name)) {

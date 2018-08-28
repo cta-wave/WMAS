@@ -387,6 +387,7 @@
                 percent = ui.state.filteredTestResults[token][api]
                 color = 'black'
                 color = calcColor(percent)
+                percent = percent + '%'
               } else {
                 let result = session.result[api]
                 absolute = '-'
@@ -439,6 +440,7 @@
         const refTokenArr = ui.state.reftoken.split(',')
         waveService.getFilteredTestResults(ui.state.tokens, refTokenArr, result => {
           ui.state.filteredTestResults = result
+          ui.displayApiResults()
         })
       }
       const collectSessions = session => {
@@ -446,7 +448,9 @@
         if (ui.state.sessions.length === ui.state.tokens.length) {
           ui.state.sessions = ui.state.sessions.sort(
             (sessionA, sessionB) => sessionA.details.token > sessionB.details.token ? 1 : -1)
-          ui.displayApiResults()
+            if (!ui.state.reftoken) {
+              ui.displayApiResults()
+            }
         }
       }
       ui.state.tokens.forEach(token => {
