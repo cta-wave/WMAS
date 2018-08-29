@@ -264,6 +264,11 @@
         callback(JSON.parse(response))
       })
     },
+    getFilteredTestResults: (tokenArr, refTokenArr, callback) => {
+      waveService.sendRequest('GET', '/results/' + tokenArr + '/' + refTokenArr, response => {
+        callback(JSON.parse(response))
+      })
+    },
     openHtmlReport: api => {
       const sessions = ui.state.sessions
       const url = '/results/html?tokens=' +
@@ -357,109 +362,136 @@
         })).concat([{className: 'controls-wrapper'}])
       }))
 
-      const apis = state.sessions
-        .map(session => Object.keys(session.result))
-        .reduce((acc, apis) => acc.concat(apis
-          .filter(api => acc.indexOf(api) === -1)), [])
-        .sort((apiA, apiB) => (apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1))
+        const apis = state.sessions
+          .map(session => Object.keys(session.result))
+          .reduce((acc, apis) => acc.concat(apis
+            .filter(api => acc.indexOf(api) === -1)), [])
+          .sort((apiA, apiB) => (apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1))
 
-      for (let api of apis) {
-        apiResultsView.appendChild(createElement({
-          className: 'api-wrapper',
-          children: [
-            {
-              text: api,
-              className: 'api-result api-name'
-            }
-          ].concat(state.sessions.map(session => {
-            let result = session.result[api]
-            let absolute = '-'
-            let percent = '-'
-            let color = 'black'
-            if (result) {
-              let total = result.pass || 0
-              total += result.fail || 0
-              total += result.timeout || 0
-              total += result.not_run || 0
-              const pass = result.pass || 0
-              absolute = pass + '/' + total
-              percent = utils.percent(pass, total)
-              color = 'rgb(' + (255 - 255 * percent / 100) + ',' + (128 * percent / 100) + ', 0)'
+        for (let api of apis) {
+          apiResultsView.appendChild(createElement({
+            className: 'api-wrapper',
+            children: [
+              {
+                text: api,
+                className: 'api-result api-name'
+              }
+            ].concat(state.sessions.map(session => {
+              const calcColor = (percent) => {
+                return 'rgb(' + (255 - 255 * percent / 100) + ',' + (128 * percent / 100) + ', 0)'
+              }
+              let absolute, percent, color
+              if (ui.state.filteredTestResults) {
+                let token = session.details.token
+                absolute = '-'
+                percent = ui.state.filteredTestResults[token][api]
+                color = 'black'
+                color = calcColor(percent)
+                percent = percent + '%'
+              } else {
+                let result = session.result[api]
+                absolute = '-'
+                percent = '-'
+                color = 'black'
+                if (result) {
+                  let total = result.pass || 0
+                  total += result.fail || 0
+                  total += result.timeout || 0
+                  total += result.not_run || 0
+                  const pass = result.pass || 0
+                  absolute = pass + '/' + total
+                  percent = utils.percent(pass, total)
+                  color = calcColor(percent)
 
-              percent = percent + '%'
-            }
-            return {
-              className: 'api-result',
-              style: 'color: ' + color,
-              children: [
-                {
-                  className: 'absolute',
-                  text: absolute
-                }, {
-                  className: 'percent',
-                  text: percent
+                  percent = percent + '%'
                 }
-              ]
             }
-          })).concat([
-            {
-              className: 'controls-wrapper',
-              children: [
-                {
-                  className: 'html-report button is-light no-border-radius',
-                  onclick: () => waveService.openHtmlReport(api),
-                  text: 'report'
-                }
-              ]
-            }
-          ])
-        }))
-      }
+              return {
+                className: 'api-result',
+                style: 'color: ' + color,
+                children: [
+                  {
+                    className: 'absolute',
+                    text: absolute
+                  }, {
+                    className: 'percent',
+                    text: percent
+                  }
+                ]
+              }
+            })).concat([
+              {
+                className: 'controls-wrapper',
+                children: [
+                  {
+                    className: 'html-report button is-light no-border-radius',
+                    onclick: () => waveService.openHtmlReport(api),
+                    text: 'report'
+                  }
+                ]
+              }
+            ])
+          }))
+        }
     },
-    refreshData: () => {
+    refreshData: async () => {
+      let readyToDisplay = false
       ui.state.sessions = []
+      if (ui.state.reftoken) { 
+        const refTokenArr = ui.state.reftoken.split(',')
+        waveService.getFilteredTestResults(ui.state.tokens, refTokenArr, result => {
+          ui.state.filteredTestResults = result
+          if (readyToDisplay) {
+            ui.displayApiResults()
+          }
+          readyToDisplay = true
+        })
+      }
       const collectSessions = session => {
         ui.state.sessions.push(session)
         if (ui.state.sessions.length === ui.state.tokens.length) {
           ui.state.sessions = ui.state.sessions.sort(
             (sessionA, sessionB) => sessionA.details.token > sessionB.details.token ? 1 : -1)
-          ui.displayApiResults()
+            if (!ui.state.reftoken || readyToDisplay) {
+              ui.displayApiResults()
+            }
+            readyToDisplay = true
         }
       }
-      ui.state.tokens.forEach(token => {
-        waveService.getSessionDetails(token, details => {
-          waveService.getTestResults(token, result => {
-            const mergeResults = sourceResults => {
-              for (let api in sourceResults) {
-                if (!result[api]) result[api] = {total: 0}
-                if (!result[api].total) result[api].total = 0
-                if (sourceResults[api]) {
-                  result[api].total += sourceResults[api].length
+        ui.state.tokens.forEach(token => {
+          waveService.getSessionDetails(token, details => {
+            waveService.getTestResults(token, result => {
+              const mergeResults = sourceResults => {
+                for (let api in sourceResults) {
+                  if (!result[api]) result[api] = {total: 0}
+                  if (!result[api].total) result[api].total = 0
+                  if (sourceResults[api]) {
+                    result[api].total += sourceResults[api].length
+                  }
                 }
               }
-            }
 
-            mergeResults(details.pending_tests)
-            mergeResults(details.running_tests)
-            mergeResults(details.completed_tests)
+              mergeResults(details.pending_tests)
+              mergeResults(details.running_tests)
+              mergeResults(details.completed_tests)
 
-            const completedTests = details.completed_tests
-            for (let api in completedTests) {
-              if (completedTests[api]) {
-                result[api].complete = completedTests[api].length
+              const completedTests = details.completed_tests
+              for (let api in completedTests) {
+                if (completedTests[api]) {
+                  result[api].complete = completedTests[api].length
+                }
               }
-            }
-            details.token = token
+              details.token = token
 
-            collectSessions({
-              result,
-              details
+              collectSessions({
+                result,
+                details
+              })
             })
           })
         })
-      })
     }
-  }
+} 
 </script>
 </body>
 </html>
