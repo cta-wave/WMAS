@@ -435,12 +435,16 @@
         }
     },
     refreshData: async () => {
+      let readyToDisplay = false
       ui.state.sessions = []
       if (ui.state.reftoken) { 
         const refTokenArr = ui.state.reftoken.split(',')
         waveService.getFilteredTestResults(ui.state.tokens, refTokenArr, result => {
           ui.state.filteredTestResults = result
-          ui.displayApiResults()
+          if (readyToDisplay) {
+            ui.displayApiResults()
+          }
+          readyToDisplay = true
         })
       }
       const collectSessions = session => {
@@ -448,44 +452,45 @@
         if (ui.state.sessions.length === ui.state.tokens.length) {
           ui.state.sessions = ui.state.sessions.sort(
             (sessionA, sessionB) => sessionA.details.token > sessionB.details.token ? 1 : -1)
-            if (!ui.state.reftoken) {
+            if (!ui.state.reftoken || readyToDisplay) {
               ui.displayApiResults()
             }
+            readyToDisplay = true
         }
       }
-      ui.state.tokens.forEach(token => {
-        waveService.getSessionDetails(token, details => {
-          waveService.getTestResults(token, result => {
-            const mergeResults = sourceResults => {
-              for (let api in sourceResults) {
-                if (!result[api]) result[api] = {total: 0}
-                if (!result[api].total) result[api].total = 0
-                if (sourceResults[api]) {
-                  result[api].total += sourceResults[api].length
+        ui.state.tokens.forEach(token => {
+          waveService.getSessionDetails(token, details => {
+            waveService.getTestResults(token, result => {
+              const mergeResults = sourceResults => {
+                for (let api in sourceResults) {
+                  if (!result[api]) result[api] = {total: 0}
+                  if (!result[api].total) result[api].total = 0
+                  if (sourceResults[api]) {
+                    result[api].total += sourceResults[api].length
+                  }
                 }
               }
-            }
 
-            mergeResults(details.pending_tests)
-            mergeResults(details.running_tests)
-            mergeResults(details.completed_tests)
+              mergeResults(details.pending_tests)
+              mergeResults(details.running_tests)
+              mergeResults(details.completed_tests)
 
-            const completedTests = details.completed_tests
-            for (let api in completedTests) {
-              if (completedTests[api]) {
-                result[api].complete = completedTests[api].length
+              const completedTests = details.completed_tests
+              for (let api in completedTests) {
+                if (completedTests[api]) {
+                  result[api].complete = completedTests[api].length
+                }
               }
-            }
-            details.token = token
+              details.token = token
 
-            collectSessions({
-              result,
-              details
+              collectSessions({
+                result,
+                details
+              })
             })
           })
         })
-      })
-  }
+    }
 } 
 </script>
 </body>
