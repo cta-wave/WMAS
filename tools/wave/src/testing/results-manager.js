@@ -74,7 +74,7 @@ class ResultsManager {
 
       directoryPath = hash + '/' + api
     }
-    return directoryPath + '/all.html'
+    return directoryPath + (reftoken ? '/all_filtered.html' : '/all.html')
   }
 
   async saveResult ({ token, result, test }) {
