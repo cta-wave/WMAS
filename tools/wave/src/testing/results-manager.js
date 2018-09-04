@@ -39,9 +39,13 @@ class ResultsManager {
       let hash = crypto.createHash('sha1')
       tokens
         .sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
-        .forEach(token =>
-          token.split('').forEach(letter => hash.update(letter))
-        )
+        .forEach(token => hash.update(token))
+
+      if (reftoken) {
+        // separate reftoken from regular token
+        hash.update(',');
+        hash.update(reftoken);
+      }
 
       hash = hash.digest('hex')
       const comparisonDirectoryPath = path.join(
