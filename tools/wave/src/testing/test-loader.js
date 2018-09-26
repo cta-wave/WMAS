@@ -532,7 +532,11 @@ class TestLoader {
               if (refResults.some(refResult => {
                 let refTest = refResult.find(res => res.test === '/' + testPath)
                 if (!refTest) return false
-                return !(refTest.status === 'OK')
+                let hasSubFailed = false
+                if (refTest.subtests.length) {
+                  hasSubFailed = refTest.subtests.some(sub => !(sub.status === 'PASS'))
+                }
+                return hasSubFailed ? hasSubFailed : !(refTest.status === 'OK')
               })) continue
 
               tests[api].push(testPath)
