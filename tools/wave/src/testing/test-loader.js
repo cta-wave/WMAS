@@ -535,8 +535,10 @@ class TestLoader {
                 let hasSubFailed = false
                 if (refTest.subtests.length) {
                   hasSubFailed = refTest.subtests.some(sub => !(sub.status === 'PASS'))
+                } else {
+                  hasSubFailed = true // no subtests found, so none passed
                 }
-                return hasSubFailed ? hasSubFailed : !(refTest.status === 'OK')
+                return hasSubFailed
               })) continue
 
               tests[api].push(testPath)
