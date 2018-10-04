@@ -82,8 +82,7 @@ class ResultsApiHandler extends ApiHandler {
               }
             }
             let passedRefTests = await this._filterPassedTests(refTokenArr)
-            let refIntersect = this._getIntersect(passedRefTests)
-            let sessionResults = await this._getSessionResults(tokenArr, refIntersect)
+            let sessionResults = await this._getSessionResults(tokenArr, passedRefTests)
             this.sendJson(sessionResults, response)
             return
           case 4: {
@@ -199,43 +198,61 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   async _filterPassedTests(refTokenArr) {
-    let passedRefTests = []
-    for (let i = 0; i < refTokenArr.length; i++) {
-      let passedTests = {}
-      let refSessionResults = await this._resultsManager.getResults(refTokenArr[i])
-      for (let api in refSessionResults) {
-        let testsForApi = refSessionResults[api]
-        passedTests[api] = []
-        for (let k = 0; k < testsForApi.length; k++) {
-          let subtestsArr = testsForApi[k].subtests || []
-          for (let m = 0; m < subtestsArr.length; m++) {
-             let subtest = subtestsArr[m]
-             if (subtest.status === 'PASS') {
-              passedTests[api].push(subtest.name)
-             }
+    let refSessionsResults = await Promise.all(refTokenArr.map(async token => await this._resultsManager.getResults(token)))
+    let passed = {}
+
+    // get all subtests from all referenced sessions
+    for (let i = 0; i < refSessionsResults.length; i++) {
+      let res = refSessionsResults[i]
+      
+      for (let api in res) {
+        passed[api] = passed[api] || {}
+        res[api].forEach(test => {
+          passed[api][test.test] = passed[api][test.test] || []
+          passed[api][test.test].push(test.subtests || [])
+        })
+      }
+    }
+
+    // filter out test files where any subtest of any referenced session didn't pass
+    for (let api in passed) {
+      for (let test in passed[api]) {
+        let testLen = passed[api][test][0].length
+        // remove test file if subtest count of referenced sessions doesn't match
+        if (passed[api][test].some(s => s.length !== testLen)) {
+          passed[api][test] = undefined
+          continue
+        }
+
+        passed[api][test] = passed[api][test].map(fff => {
+          let allSubs = {}
+          fff.forEach(sub => {
+            allSubs[sub.name] = sub.status
+          })
+          return allSubs
+        })
+
+        // check that all subtests passed otherwise exclude that test file
+        let ref = passed[api][test].pop()
+        for (let sub in ref) {
+          if (passed[api][test].some(other => ref[sub] !== 'PASS' || other[sub] !== ref[sub])) {
+            passed[api][test] = undefined
+            break
           }
+        }         
+      }
+      
+      let temp = []
+      for (let test in passed[api]) {
+        if (passed[api][test] && passed[api][test].length) {
+          let out = {}
+          out[test] = Object.keys(passed[api][test][0]).length
+          temp.push(out)
         }
       }
-      passedRefTests.push(passedTests)
+      passed[api] = temp
     }
-    return passedRefTests
-  }
-
-  _getIntersect(passedRefTests) {
-    let refIntersect = {}
-    for (let i = 0; i < passedRefTests.length; i++) {
-      if (i === 0) {
-        refIntersect = passedRefTests[i]
-      }
-      if (i + 1 === passedRefTests.length) {
-        continue
-      }
-      const refTestsNext = passedRefTests[i + 1]
-      for (let api in refIntersect) {
-        refIntersect[api] = (this._calculateIntersect(refIntersect[api], refTestsNext[api]))
-      }
-    }
-    return refIntersect
+    return passed
   }
 
   _percent (count, total) {
@@ -246,7 +263,7 @@ class ResultsApiHandler extends ApiHandler {
     return percent
   }
 
-  async _getSessionResults(tokenArr, refIntersect) {
+  async _getSessionResults(tokenArr, passedRefTests) {
     let sessionResults = {}
     for (let i = 0; i < tokenArr.length; i++) {
       const token = tokenArr[i]
@@ -257,17 +274,20 @@ class ResultsApiHandler extends ApiHandler {
         const apiResult = sessionResult[api]
         let passedSubTests = 0
         for (let result in apiResult) {
+          // don't count subtests if this test didn't pass in reference
+          if (!passedRefTests[api].find(t => t[apiResult[result].test])) continue
+
           let subtests = apiResult[result].subtests || []
           for (let k = 0; k < subtests.length; k++) {
             const subtest = subtests[k]
-            if (subtest.status === 'PASS' && refIntersect[api] && refIntersect[api].includes(subtest.name)) {
+            if (subtest.status === 'PASS') {
               passedSubTests++
             }
           }
         }
-        if (refIntersect[api]) {
-          const totalSubtestsForApi = refIntersect[api].length
-          sessionResults[token][api] = this._percent(passedSubTests, totalSubtestsForApi)
+        if (passedRefTests[api]) {
+          const totalPassedRefSubtests = passedRefTests[api].reduce((acc, test) => acc + test[Object.keys(test)[0]], 0)
+          sessionResults[token][api] = this._percent(passedSubTests, totalPassedRefSubtests)
         } else {
           sessionResults[token][api] = 'not tested'
         }
