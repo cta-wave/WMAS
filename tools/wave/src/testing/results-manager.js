@@ -39,9 +39,13 @@ class ResultsManager {
       let hash = crypto.createHash('sha1')
       tokens
         .sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
-        .forEach(token =>
-          token.split('').forEach(letter => hash.update(letter))
-        )
+        .forEach(token => hash.update(token))
+
+      if (reftoken) {
+        // separate reftoken from regular token
+        hash.update(',');
+        hash.update(reftoken);
+      }
 
       hash = hash.digest('hex')
       const comparisonDirectoryPath = path.join(
@@ -74,7 +78,7 @@ class ResultsManager {
 
       directoryPath = hash + '/' + api
     }
-    return directoryPath + '/all.html'
+    return directoryPath + (reftoken ? '/all_filtered.html' : '/all.html')
   }
 
   async saveResult ({ token, result, test }) {
@@ -112,6 +116,24 @@ class ResultsManager {
       outputHtmlDirectoryPath: dirPath,
       specName: api
     })
+  }
+
+  async getTokensFromHash(element) {
+    let tokens = []
+    const tempPath = path.join(this._resultsDirectoryPath, element)
+    if (await FileSystem.exists(tempPath)) {
+      const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/
+      const apiNames = await FileSystem.readDirectory(tempPath)
+      const targetFolder = path.join(tempPath, apiNames[0])
+      tokens = await FileSystem.readDirectory(targetFolder)
+      tokens = tokens.filter( name => {
+        return tokenUaRegex.exec(name)
+      })
+      for (let i = 0; i < tokens.length; i++) {
+        tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, '')
+      }
+    }
+    return tokens
   }
 
   async _ensureResultsDirectoryExistence ({ token, api }) {

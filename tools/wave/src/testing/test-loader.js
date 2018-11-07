@@ -492,8 +492,13 @@ class TestLoader {
   }
 
   async _getRefResults ({ token, userAgent, api }) {
-    const f = await FileSystem.readFile(this._getFilePath({ token, userAgent, api }))
-    return JSON.parse(f).results
+    try {
+      const f = await FileSystem.readFile(this._getFilePath({ token, userAgent, api }))
+      return JSON.parse(f).results
+    } catch(e) {
+      console.error('warn: could not read json result file:', e);
+      return []
+    }
   }
 
   async getTests ({ types, path, refSessions }) {
@@ -510,24 +515,30 @@ class TestLoader {
       }
 
       for (let type of types) {
+        let refResults = await Promise.all(refSessions.map(async s => {
+          return await this._getRefResults({
+            userAgent: s.getUserAgent(),
+            token: s.getToken(),
+            api: path
+          })
+        }))
+
         for (let api in this._tests[type]) {
           for (let testPath of this._tests[type][api]) {
             if (regex.test(testPath)) {
               if (!tests[api]) tests[api] = []
 
-              let refResults = await Promise.all(refSessions.map(async s => {
-                return await this._getRefResults({
-                  userAgent: s.getUserAgent(),
-                  token: s.getToken(),
-                  api
-                })
-              }))
-
               // filter out test files that didn't pass in the reference results
               if (refResults.some(refResult => {
                 let refTest = refResult.find(res => res.test === '/' + testPath)
                 if (!refTest) return false
-                return !(refTest.status === 'OK')
+                let hasSubFailed = false
+                if (refTest.subtests.length) {
+                  hasSubFailed = refTest.subtests.some(sub => !(sub.status === 'PASS'))
+                } else {
+                  hasSubFailed = true // no subtests found, so none passed
+                }
+                return hasSubFailed
               })) continue
 
               tests[api].push(testPath)

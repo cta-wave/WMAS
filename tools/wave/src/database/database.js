@@ -6,8 +6,9 @@ const Serializer = require('../utils/serializer')
 const Deserializer = require('../utils/deserializer')
 
 class Database {
-  constructor () {
+  constructor ({ dbCompactionInterval }) {
     this._db = {}
+    this.dbCompactionInterval = dbCompactionInterval
   }
 
   async load (databaseDirectoryPath = '.') {
@@ -23,7 +24,7 @@ class Database {
       filename: path.join(databaseDirectoryPath, './sessions.db')
     })
 
-    sessionsDataStore.persistence.setAutocompactionInterval(10000)
+    sessionsDataStore.persistence.setAutocompactionInterval(this.dbCompactionInterval)
     sessionsDataStore = this._wrapDataStore(sessionsDataStore)
     await sessionsDataStore.loadDatabase()
     this._db.sessions = sessionsDataStore

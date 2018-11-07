@@ -8,6 +8,7 @@
           "wss":["auto"],
           "wave": [8050]},
  "check_subdomains": true,
+ "db_compaction_interval": 3600000,
  "log_level":"debug",
  "bind_address": true,
  "ssl": {"type": "pregenerated",

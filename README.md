@@ -1,7 +1,7 @@
-The Web Media API Snapshot Tests Project
+The Web Media API Test Suite 2017
 ========================================
 
-The Web Media API Snapshot Tests Project is a cross-browser testsuite. Writing
+The Web Media API Snapshot Test Suite 2017 is a cross-browser test suite. Writing
 tests in a way that allows them to be run in all browsers gives browser projects
 confidence that they are shipping software that is compatible with other
 implementations, and that later implementations will be compatible with
@@ -12,10 +12,13 @@ layers of abstraction to paper over the gaps left by specification
 editors and implementors.
 
 This project is forked from the original
-[web-platform-tests Project](https://github.com/web-platform-tests/wpt) is customized
+[W3C Web Platform Tests](https://github.com/web-platform-tests/wpt) and is customized
 to run on web browsers for embedded devices and appliances suchs as TV sets,
 set-top boxes, consoles, etc. It supports tests report comparing and testing
 a chosen subset of API tests.
+
+This test suite complies with the [Web Media API Snapshot 2017](https://www.w3.org/2017/12/webmediaapi.html).
+Note: JPEG File Interchange Format [JPEG], Portable Network Graphics (PNG) Specification (Second Edition) [PNG], Graphics Interchange Format [GIF], Open Font Format [OPEN-FONT-FORMAT] and WOFF File Format 1.0 [WOFF] are not sufficiently tested in this test suite, because there are no dedicated tests in the W3C Web Platform Tests.
 
 Test server
 ===========
@@ -114,3 +117,11 @@ To prevent browser SSL warnings when running HTTPS tests locally, the
 web-platform-tests Root CA file `cacert.pem` in [tools/certs](tools/certs)
 must be added as a trusted certificate in your OS/browser.
 
+Remarks to testharness.js Statuses
+==================================
+
+The documentation of testharness.js is available in [testharness.js API](https://web-platform-tests.org/writing-tests/testharness-api.html). Section [Basic Usage](https://web-platform-tests.org/writing-tests/testharness-api.html#basic-usage) says that every single test has as result `PASS`, `FAIL`, `TIMEOUT` and `NOTRUN`. These statuses are also listed in [Callback API](https://web-platform-tests.org/writing-tests/testharness-api.html#callback-api) section. According to [testharness.js#L1469](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L1469), the status of a single test will be initialized with `NOTRUN` and later set to one of the other values. This means if `TIMEOUT` is disabled (using `explicit_timeout` function described in [Setup](https://web-platform-tests.org/writing-tests/testharness-api.html#setup) section) and the test is not completed (neither `PASS` or `FAIL`), the status will remain `NOTRUN`. This is the interpretation after reading the source code of the testharness.js since there is no explanation in the documentation for the semantic of status `NOTRUN`. 
+
+A test file may contain multiple tests and there is also an overall status for the test file which can be one of the following values: `OK`, `ERROR` and `TIMEOUT`. There is no further explanation for each of these statuses but from reading the code, the `ERROR` status will be set if an [unexpected exception occurred (try catch block)](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2107-L2113), [abort() function](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2294) is called, [timeout occurs when test in cleanup phase](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2167) or test file [contains tests with duplicate names](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2337). The status will be [set to `OK`](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2344) at the end if it is not set yet (it was `null`) which means no `TIMEOUT` or `ERROR` occurred.
+
+PS: in test reports with comparison of multiple test sessions, the status "-" (with orange background of the table cell) means that the test was not executed on the corresponding user agent.  This can happen if a test runs only if a certain condition is fulfilled or a specific event is fired.

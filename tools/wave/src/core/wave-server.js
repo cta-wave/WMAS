@@ -23,6 +23,7 @@ class WaveServer {
       resultsDirectoryPath,
       manifestFilePath,
       port,
+      dbCompactionInterval,
       testTimeout,
       wptPort,
       wptSslPort
@@ -31,7 +32,9 @@ class WaveServer {
     this._port = port
 
     const httpServer = new HttpServer()
-    const database = new Database()
+    const database = new Database({
+      dbCompactionInterval
+    })
     await database.load(databaseDirectoryPath)
     const testLoader = new TestLoader({
       resultsDirectoryPath
