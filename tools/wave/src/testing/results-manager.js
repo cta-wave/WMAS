@@ -1,6 +1,7 @@
 const path = require('path')
 const crypto = require('crypto')
 
+const Session = require('../data/session')
 const FileSystem = require('../utils/file-system')
 const UserAgentParser = require('../utils/user-agent-parser')
 const WptReport = require('./wpt-report')
@@ -101,11 +102,49 @@ class ResultsManager {
 
   async saveApiResults ({ token, api }) {
     const apiResults = { results: (await this.getResults(token))[api] }
+    const session = await this._sessionManager.getSession(token)
 
-    await this._ensureResultsDirectoryExistence({ api, token })
+    await this._ensureResultsDirectoryExistence({ api, token, session })
 
     const filePath = await this.getJsonPath({ token, api })
     await FileSystem.writeFile(filePath, JSON.stringify(apiResults, null, 2))
+  }
+
+  async loadResults () {
+    const sessionManager = this._sessionManager
+    const resultsDirectoryPath = this._resultsDirectoryPath
+    if (!(await FileSystem.exists(resultsDirectoryPath))) return
+    const tokens = await FileSystem.readDirectory(resultsDirectoryPath)
+    for (let token of tokens) {
+      // http://webapitests2017.ctawave.org:8050/?
+      //   path=/2dcontext,%20/css,%20/content-security-policy,%20/dom,%20/ecmascript,%20/encrypted-media,%20/fetch,%20/fullscreen,%20/html,%20/IndexedDB,%20/media-source,%20/notifications,%20/uievents,%20/WebCryptoAPI,%20/webaudio,%20/webmessaging,%20/websockets,%20/webstorage,%20/workers,%20/xhr
+      //   &reftoken=ce4aec10-7855-11e8-b81b-6714c602f007
+
+      // http://webapitests2017.ctawave.org:8050/?path=/2dcontext,%20/css,%20/content-security-policy,%20/dom,%20/ecmascript,%20/encrypted-media,%20/fetch,%20/fullscreen,%20/html,%20/IndexedDB,%20/media-source,%20/notifications,%20/uievents,%20/WebCryptoAPI,%20/webaudio,%20/webmessaging,%20/websockets,%20/webstorage,%20/workers,%20/xhr
+      // &reftoken=01d11810-7938-11e8-8749-a6ac1d216fc7,a831a820-7855-11e8-9ce0-d6175576bb4b,c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f,ce4aec10-7855-11e8-b81b-6714c602f007
+      const resultDirectoryPath = path.join(resultsDirectoryPath, token)
+      const infoFilePath = path.join(resultDirectoryPath, 'info.json')
+      if (!(await FileSystem.exists(infoFilePath))) continue
+      const infoFile = await FileSystem.readFile(infoFilePath)
+      const { user_agent: userAgent } = JSON.parse(infoFile)
+      const { browser } = UserAgentParser.parse(userAgent)
+      if (await sessionManager.getSession(token)) continue
+      process.stdout.write(`Loading ${browser.name} ${browser.version} results ...`)
+      const session = new Session(token, {status: Session.COMPLETED, userAgent})
+      await sessionManager.addSession(session)
+      const apis = await FileSystem.readDirectory(resultDirectoryPath)
+      for (let api of apis) {
+        const apiPath = path.join(resultDirectoryPath, api)
+        if (!(await FileSystem.stats(apiPath)).isDirectory()) continue
+        const resultsFile = (await FileSystem.readDirectory(apiPath)).find(file => /\w\w\d{1,3}\.json/.test(file))
+        const resultsFilePath = path.join(apiPath, resultsFile)
+        const { results } = JSON.parse(await FileSystem.readFile(resultsFilePath))
+        for (let result of results) {
+          await this._database.createResult(token, result)
+        }
+      }
+      process.stdout.write(' done.\n')
+    }
   }
 
   async generateReport ({ token, api }) {
@@ -136,7 +175,7 @@ class ResultsManager {
     return tokens
   }
 
-  async _ensureResultsDirectoryExistence ({ token, api }) {
+  async _ensureResultsDirectoryExistence ({ token, api, session }) {
     if (!await FileSystem.stats(this._resultsDirectoryPath)) {
       await FileSystem.makeDirectory(this._resultsDirectoryPath)
     }
@@ -144,6 +183,15 @@ class ResultsManager {
     let directory = path.join(this._resultsDirectoryPath, token)
     if (!await FileSystem.stats(directory)) {
       await FileSystem.makeDirectory(directory)
+    }
+
+    const infoFilePath = path.join(directory, 'info.json')
+    if (!await FileSystem.stats(infoFilePath)) {
+      let info = {}
+      info.user_agent = session.getUserAgent()
+      info.path = session.getPath()
+      info.types = session.getTypes()
+      await FileSystem.writeFile(infoFilePath, JSON.stringify(info, null, '  '))
     }
 
     directory = path.join(directory, api)

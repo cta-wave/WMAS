@@ -61,6 +61,11 @@ class SessionManager {
     return session
   }
 
+  async addSession (session) {
+    await this._database.createSession(session)
+    this._sessions.push(session)
+  }
+
   async updateSession (session) {
     return this._database.updateSession(session)
   }

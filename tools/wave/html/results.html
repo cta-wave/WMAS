@@ -187,14 +187,23 @@
     sendRequest: (method, uri, callback) => {
       const xhr = new XMLHttpRequest()
       xhr.addEventListener('load', () => {
-        callback(xhr.response)
+        callback(xhr.response, xhr.status)
       })
       xhr.open(method, uri, true)
       xhr.send()
     },
+    getOfficialSessions: (callback) => {
+        waveService.sendRequest('GET', '/sessions/official', response => {
+          callback(JSON.parse(response))
+        })
+    },
     getSessionDetails: (token, callback) => {
-      waveService.sendRequest('GET', '/sessions/' + token, response => {
-        callback(JSON.parse(response))
+      waveService.sendRequest('GET', '/sessions/' + token, (response, status) => {
+        if (status === 200) {
+          callback(JSON.parse(response))
+        } else {
+          callback(null)
+        }
       })
     },
     findToken: (fragment, callback) => {
@@ -225,18 +234,20 @@
     addPinnedSession: token => {
       if (!window.localStorage) return
       const storage = window.localStorage
-      const state = JSON.parse(storage.getItem('wave'))
-      if (!state) return
+      let state = JSON.parse(storage.getItem('wave'))
+      if (!state) state = {}
       if (!state.pinned_sessions) state.pinned_sessions = []
+      if (state.pinned_sessions.indexOf(token) !== -1) return
       state.pinned_sessions.unshift(token)
       storage.setItem('wave', JSON.stringify(state))
     },
     addRecentSession: token => {
       if (!window.localStorage) return
       const storage = window.localStorage
-      const state = JSON.parse(storage.getItem('wave'))
-      if (!state) return
+      let state = JSON.parse(storage.getItem('wave'))
+      if (!state) state = {}
       if (!state.recent_sessions) state.recent_sessions = []
+      if (state.recent_sessions.indexOf(token) !== -1) return
       state.recent_sessions.unshift(token)
       storage.setItem('wave', JSON.stringify(state))
     },
@@ -486,6 +497,8 @@
         })
       }
 
+      const officialSessions = waveService.getOfficialSessions()
+
       const pinnedSessions = waveService.getPinnedSessions()
       const recentSessions = waveService.getRecentSessions()
       const pinnedSessionsView = getElement('pinned-sessions')
@@ -494,13 +507,16 @@
       recentSessionsView.innerHTML = ''
 
       let sessionDetails = []
+      let collected = recentSessions.length
       const collectSessionDetails = (token, details, pinned) => {
+        collected --
+        if (!details) return
         sessionDetails.push({
           token,
           details,
           pinned
         })
-        if (sessionDetails.length === recentSessions.length) {
+        if (collected === 0) {
           sessionDetails.sort((sessionA, sessionB) => sessionA.token > sessionB.token ? 1 : -1)
             .forEach(session => {
               if (session.pinned) {

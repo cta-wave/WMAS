@@ -14,7 +14,7 @@ const Route = require('../data/route')
 
 class WaveServer {
   async initialize ({ applicationDirectoryPath, configurationFilePath }) {
-    let config = await ConfigurationLoader.load({
+    const config = await ConfigurationLoader.load({
       applicationDirectoryPath,
       configurationFilePath
     })
@@ -54,6 +54,8 @@ class WaveServer {
       database,
       sessionManager
     })
+    await resultsManager.loadResults()
+
     await testLoader.loadTests(manifestFilePath)
     await httpServer.initialize()
     httpServer.registerStatic(path.join(applicationDirectoryPath, './html'))

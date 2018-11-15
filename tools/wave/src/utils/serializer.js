@@ -1,4 +1,4 @@
-const UserAgentParser = require('../utils/user-agent-parser')
+const UserAgentParser = require('./user-agent-parser')
 
 class Serializer {
   serializeSessions (sessions) {
@@ -16,7 +16,7 @@ class Serializer {
     const running_tests = session.getRunningTests()
     const completed_tests = session.getCompletedTests()
     const status = session.getStatus()
-    const { browser } = UserAgentParser.parse(user_agent)
+    const { browser } = UserAgentParser.parse(session.getUserAgent())
     return {
       token,
       path,
