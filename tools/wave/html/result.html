@@ -546,7 +546,7 @@
             className: 'api-controls',
               children: [
                 (api !== 'Total' ? {
-                  className: 'json-download' +  (' button is-light no-border-radius ' + (completed !== total ?
+                  className: 'json-download' +  (' button is-light no-border-radius ' + (completed !== total || total === 0 ?
                     'disabled' : '')),
                   onclick: () => {
                     if (api !== 'Total' && completed === total) {
@@ -556,7 +556,7 @@
                   text: 'json'
                 } : {className: 'json-download'}),
                 (api !== 'Total' ? {
-                  className: 'html-report button is-light no-border-radius '  + (completed !== total ? 'disabled' : ''),
+                  className: 'html-report button is-light no-border-radius '  + (completed !== total || total === 0 ? 'disabled' : ''),
                   onclick: () => {
                     if (api !== 'Total' && completed === total) {
                       waveService.openHtmlReport(api)
@@ -577,13 +577,15 @@
         .sort((apiA, apiB) => (apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1))
 
       for (let api of apis) {
-        const {complete, total, pass, fail, timeout, timeoutfiles, not_run} = results[api]
+        let {total, pass, fail, timeout, timeoutfiles, not_run} = results[api]
+        let complete = pass + fail + timeout + not_run
+        if (complete > total) total = complete // imported results don't have a total
         const apiResultView = createApiResultView(api, complete, total, pass, fail, timeout,
           timeoutfiles, not_run)
         apiResultsView.appendChild(apiResultView)
       }
 
-      const {complete, total, pass, fail, timeout, not_run} = apis.reduce((sum, api) => {
+      let {total, pass, fail, timeout, not_run} = apis.reduce((sum, api) => {
         Object.keys(sum).forEach(key => sum[key] += results[api][key] ? results[api][key] : 0)
         return sum
       }, {
@@ -594,6 +596,8 @@
         timeout: 0,
         not_run: 0
       })
+      let complete = pass + fail + timeout + not_run
+      if (complete > total) total = complete // imported results don't have a total
       const totalResultView = createApiResultView('Total', complete, total, pass, fail, timeout,
         [], not_run)
 
