@@ -577,15 +577,13 @@
         .sort((apiA, apiB) => (apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1))
 
       for (let api of apis) {
-        let {total, pass, fail, timeout, timeoutfiles, not_run} = results[api]
-        let complete = pass + fail + timeout + not_run
-        if (complete > total) total = complete // imported results don't have a total
+        let { complete, total, pass, fail, timeout, timeoutfiles, not_run } = results[api]
         const apiResultView = createApiResultView(api, complete, total, pass, fail, timeout,
           timeoutfiles, not_run)
         apiResultsView.appendChild(apiResultView)
       }
 
-      let {total, pass, fail, timeout, not_run} = apis.reduce((sum, api) => {
+      let { complete, total, pass, fail, timeout, not_run } = apis.reduce((sum, api) => {
         Object.keys(sum).forEach(key => sum[key] += results[api][key] ? results[api][key] : 0)
         return sum
       }, {
@@ -596,8 +594,6 @@
         timeout: 0,
         not_run: 0
       })
-      let complete = pass + fail + timeout + not_run
-      if (complete > total) total = complete // imported results don't have a total
       const totalResultView = createApiResultView('Total', complete, total, pass, fail, timeout,
         [], not_run)
 
@@ -607,26 +603,29 @@
     refreshData: (toUpdate) => {
       waveService.getSessionDetails(details => {
         waveService.getTestResults(results => {
-          const mergeResults = sourceResults => {
-            for (let api in sourceResults) {
+          const mergeResults = tests => {
+            for (let api in tests) {
               if (!results[api]) results[api] = {total: 0}
               if (!results[api].total) results[api].total = 0
-              if (sourceResults[api]) {
-                results[api].total += sourceResults[api].length
+              if (tests[api]) {
+                results[api].total += tests[api].length
               }
             }
           }
 
+          for (let api in results) {
+            let { pass, fail, timeout, not_run } = results[api]
+            let complete = 0
+            if (pass) complete += pass
+            if (fail) complete += fail
+            if (timeout) complete += timeout
+            if (not_run) complete += not_run
+            results[api].complete = complete
+            results[api].total = complete
+          }
+
           mergeResults(details.pending_tests)
           mergeResults(details.running_tests)
-          mergeResults(details.completed_tests)
-
-          const completedTests = details.completed_tests
-          for (let api in completedTests) {
-            if (completedTests[api]) {
-              results[api].complete = completedTests[api].length
-            }
-          }
 
           switch (toUpdate) {
             case 'complete':
