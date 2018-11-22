@@ -52,6 +52,11 @@ Initialize WAVE Server:
 $ ./wave init
 ```
 
+To run passing subsets of the reference browser, download the test results by running:
+```
+$ ./wave download-reference-results
+```
+
 Start WAVE Server:
 ```
 $ ./wave start
