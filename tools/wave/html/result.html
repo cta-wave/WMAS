@@ -470,17 +470,15 @@
             text: 'Not Run'
           }, {
             className: 'api-result',
-            text: 'Test Files Run'
+            text: 'Tests Run'
           }, {
             className: 'api-controls'
           }
         ]
       }))
 
-      function createApiResultView (api, completed = 0, total = 0, pass = 0, fail = 0, timeout = 0,
-                                    timeoutfiles = [], notRun = 0) {
-        const totalTestResults = pass + fail + timeout + notRun
-
+      function createApiResultView (api, completed = 0, pass = 0, fail = 0, timeout = 0,
+                                    timeoutfiles = [], notRun = 0, isDone = false) {
         return createElement({
           className: 'api-wrapper',
           children: [
@@ -494,7 +492,7 @@
                   text: pass,
                   className: 'absolute'
                 }, {
-                  text: '(' + utils.percent(pass, totalTestResults) + '%)',
+                  text: '(' + utils.percent(pass, completed) + '%)',
                   className: 'percent'
                 }
               ]
@@ -505,7 +503,7 @@
                   text: fail,
                   className: 'absolute'
                 }, {
-                  text: '(' + utils.percent(fail, totalTestResults) + '%)',
+                  text: '(' + utils.percent(fail, completed) + '%)',
                   className: 'percent'
                 }
               ]
@@ -516,7 +514,7 @@
                   text: timeout,
                   className: 'absolute'
                 }, {
-                  text: '(' + utils.percent(timeout, totalTestResults) + '%)',
+                  text: '(' + utils.percent(timeout, completed) + '%)',
                   className: 'percent'
                 }
               ]
@@ -527,7 +525,7 @@
                   text: notRun,
                   className: 'absolute'
                 }, {
-                  text: '(' + utils.percent(notRun, totalTestResults) + '%)',
+                  text: '(' + utils.percent(notRun, completed) + '%)',
                   className: 'percent'
                 }
               ]
@@ -535,36 +533,32 @@
               className: 'api-result',
               children: [
                 {
-                  text: completed + '/' + total,
+                  text: completed,
                   className: 'absolute'
-                }, {
-                  text: '(' + utils.percent(completed, total) + '%)',
-                  className: 'percent'
                 }
               ]
             },{
-            className: 'api-controls',
-              children: [
-                (api !== 'Total' ? {
-                  className: 'json-download' +  (' button is-light no-border-radius ' + (completed !== total || total === 0 ?
-                    'disabled' : '')),
-                  onclick: () => {
-                    if (api !== 'Total' && completed === total) {
-                      waveService.downloadJson(api)
-                    }
-                  },
-                  text: 'json'
-                } : {className: 'json-download'}),
-                (api !== 'Total' ? {
-                  className: 'html-report button is-light no-border-radius '  + (completed !== total || total === 0 ? 'disabled' : ''),
-                  onclick: () => {
-                    if (api !== 'Total' && completed === total) {
-                      waveService.openHtmlReport(api)
-                    }
-                  },
-                  text: 'report'
-                } : {className: 'html-report'})
-              ]
+              className: 'api-controls',
+                children: [
+                  (api !== 'Total' ? {
+                    className: 'json-download' +  (' button is-light no-border-radius ' + (!isDone ? 'disabled' : '')),
+                    onclick: () => {
+                      if (api !== 'Total' && isDone) {
+                        waveService.downloadJson(api)
+                      }
+                    },
+                    text: 'json'
+                  } : {className: 'json-download'}),
+                  (api !== 'Total' ? {
+                    className: 'html-report button is-light no-border-radius '  + (!isDone ? 'disabled' : ''),
+                    onclick: () => {
+                      if (api !== 'Total' && isDone) {
+                        waveService.openHtmlReport(api)
+                      }
+                    },
+                    text: 'report'
+                  } : {className: 'html-report'})
+                ]
             }, {
               className: 'api-result-timeoutfiles',
               html: timeoutfiles.reduce((all, file) => all += file + '<br>', 'Test files with timeout:<br>')
@@ -577,24 +571,23 @@
         .sort((apiA, apiB) => (apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1))
 
       for (let api of apis) {
-        let { complete, total, pass, fail, timeout, timeoutfiles, not_run } = results[api]
-        const apiResultView = createApiResultView(api, complete, total, pass, fail, timeout,
-          timeoutfiles, not_run)
+        let { complete, pass, fail, timeout, timeoutfiles, not_run, isDone } = results[api]
+        const apiResultView = createApiResultView(api, complete, pass, fail, timeout,
+          timeoutfiles, not_run, isDone)
         apiResultsView.appendChild(apiResultView)
       }
 
-      let { complete, total, pass, fail, timeout, not_run } = apis.reduce((sum, api) => {
+      let { complete, pass, fail, timeout, not_run } = apis.reduce((sum, api) => {
         Object.keys(sum).forEach(key => sum[key] += results[api][key] ? results[api][key] : 0)
         return sum
       }, {
         complete: 0,
-        total: 0,
         pass: 0,
         fail: 0,
         timeout: 0,
         not_run: 0
       })
-      const totalResultView = createApiResultView('Total', complete, total, pass, fail, timeout,
+      const totalResultView = createApiResultView('Total', complete, pass, fail, timeout,
         [], not_run)
 
       totalResultView.setAttribute('class', 'total ' + totalResultView.getAttribute('class'))
@@ -603,16 +596,8 @@
     refreshData: (toUpdate) => {
       waveService.getSessionDetails(details => {
         waveService.getTestResults(results => {
-          const mergeResults = tests => {
-            for (let api in tests) {
-              if (!results[api]) results[api] = {total: 0}
-              if (!results[api].total) results[api].total = 0
-              if (tests[api]) {
-                results[api].total += tests[api].length
-              }
-            }
-          }
-
+          Object.keys(details.pending_tests).forEach(api => !results[api] ? results[api] = {} : null)
+          Object.keys(details.running_tests).forEach(api => !results[api] ? results[api] = {} : null)
           for (let api in results) {
             let { pass, fail, timeout, not_run } = results[api]
             let complete = 0
@@ -621,11 +606,17 @@
             if (timeout) complete += timeout
             if (not_run) complete += not_run
             results[api].complete = complete
-            results[api].total = complete
+            let pendingTestsCount = 0
+            if (details.pending_tests[api] && details.pending_tests[api].length) {
+              pendingTestsCount = details.pending_tests[api].length
+            }
+            let runningTestsCount = 0
+            if (details.running_tests[api] && details.running_tests[api].length) {
+              runningTestsCount = details.running_tests[api].length
+            }
+            results[api].isDone = pendingTestsCount === 0 && runningTestsCount === 0
           }
 
-          mergeResults(details.pending_tests)
-          mergeResults(details.running_tests)
 
           switch (toUpdate) {
             case 'complete':
