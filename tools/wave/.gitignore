@@ -4,3 +4,5 @@ data
 !src/data
 node_modules
 .idea
+!html/
+!css/

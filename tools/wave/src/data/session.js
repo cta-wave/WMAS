@@ -1,4 +1,5 @@
 const TestLoader = require('../testing/test-loader')
+const UserAgentParser = require('../utils/user-agent-parser')
 
 const PAUSED = 'paused'
 const RUNNING = 'running'

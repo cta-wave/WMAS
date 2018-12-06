@@ -124,6 +124,8 @@ class TestApiHandler extends ApiHandler {
     }
 
     let test = session.nextTest(this._onTestTimeout.bind(this))
+
+    console.log('TEST', test)
     if (!test) {
       if (session.getStatus() === Session.RUNNING) {
         let query = '?token=' + session.getToken()
@@ -145,7 +147,7 @@ class TestApiHandler extends ApiHandler {
       return
     }
 
-    console.log('TEST', test)
+    // console.log('TEST', test)
 
     const url = this._generateTestUrl({
       test,

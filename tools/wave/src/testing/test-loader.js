@@ -492,13 +492,22 @@ class TestLoader {
   }
 
   async _getRefResults ({ token, userAgent, api }) {
-    try {
-      const f = await FileSystem.readFile(this._getFilePath({ token, userAgent, api }))
-      return JSON.parse(f).results
-    } catch(e) {
-      console.error('warn: could not read json result file:', e);
-      return []
+    const readApiResults = async ({userAgent, token, api}) => {
+      try {
+        const file = await FileSystem.readFile(this._getFilePath({token, userAgent, api}))
+        return JSON.parse(file).results
+      } catch(e) {
+        console.error('warn: could not read json result file:', e);
+        return []
+      }
     }
+
+    if (!api || api === '/') {
+      const apis = await FileSystem.readDirectory(path.join(this._resultsDirectoryPath, token))
+      const results = await Promise.all(apis.map(async api => readApiResults({userAgent, token, api})))
+      return results.reduce((accumulator, current) => (accumulator.concat(current)), [])
+    }
+    return await readApiResults({userAgent, token, api})
   }
 
   async getTests ({ types, path, refSessions }) {
@@ -515,34 +524,33 @@ class TestLoader {
       }
 
       for (let type of types) {
-        let refResults = await Promise.all(refSessions.map(async s => {
+        let refResults = await Promise.all(refSessions.map(async session => {
           return await this._getRefResults({
-            userAgent: s.getUserAgent(),
-            token: s.getToken(),
+            userAgent: session.getUserAgent(),
+            token: session.getToken(),
             api: path
           })
         }))
 
+        // console.log(refResults)
+        // web-platform.test:8050/?path=/2dcontext,/css,/content-security-policy,/dom,/ecmascript,/encrypted-media,/fetch,/fullscreen,/html,/IndexedDB,/media-source,/notifications,/uievents,/WebCryptoAPI,/webaudio,/webmessaging,/websockets,/webstorage,/workers,/xhr&reftoken=01d11810-7938-11e8-8749-a6ac1d216fc7,a831a820-7855-11e8-9ce0-d6175576bb4b,c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f,ce4aec10-7855-11e8-b81b-6714c602f007
         for (let api in this._tests[type]) {
           for (let testPath of this._tests[type][api]) {
-            if (regex.test(testPath)) {
-              if (!tests[api]) tests[api] = []
+            if (!regex.test(testPath)) continue
+            if (!tests[api]) tests[api] = []
 
-              // filter out test files that didn't pass in the reference results
-              if (refResults.some(refResult => {
-                let refTest = refResult.find(res => res.test === '/' + testPath)
-                if (!refTest) return false
-                let hasSubFailed = false
-                if (refTest.subtests.length) {
-                  hasSubFailed = refTest.subtests.some(sub => !(sub.status === 'PASS'))
-                } else {
-                  hasSubFailed = true // no subtests found, so none passed
-                }
-                return hasSubFailed
-              })) continue
+            // filter out test files that didn't pass in the reference results
+            if (refResults.some(refResult => {
+              let refTest = refResult.find(result => result.test === '/' + testPath)
+              if (!refTest) return false
+              let hasSubFailed = true // assuming sub test failed
+              if (refTest.subtests.length) {
+                hasSubFailed = refTest.subtests.some(sub => !(sub.status === 'PASS')) // until its proven wrong
+              }
+              return hasSubFailed
+            })) continue
 
-              tests[api].push(testPath)
-            }
+            tests[api].push(testPath)
           }
         }
       }
