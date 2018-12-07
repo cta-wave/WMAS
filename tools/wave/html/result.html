@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Results - Web Platform Test</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    <script src="jszip.min.js"></script>
 
     <style>
         body {
@@ -239,13 +240,22 @@
       }
       return query
     },
-
     percent: (count, total) => {
       const percent = Math.floor(count / total * 10000) / 100
       if (!percent) {
         return 0
       }
       return percent
+    },
+    saveBlobAsFile: (blob, filename) => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.href = url
+      a.download = filename
+      a.click()
+      document.body.removeChild(a)
     }
   }
 
@@ -253,7 +263,14 @@
     sendRequest: (method, uri, callback) => {
       const xhr = new XMLHttpRequest()
       xhr.addEventListener('load', () => {
-        callback(xhr.response)
+        let headers = {}
+        let rawHeaders = xhr.getAllResponseHeaders()
+        rawHeaders = rawHeaders.split('\r\n')
+        rawHeaders.forEach(rawHeader => {
+          const split = rawHeader.split(': ')
+          headers[split.shift().toLowerCase()] = split.shift()
+        })
+        callback(xhr.response, headers)
       })
       xhr.open(method, uri, true)
       xhr.send()
@@ -289,6 +306,35 @@
     },
     downloadJson: api => {
       location.href = '/results/' + waveService.token + '/' + api + '/json'
+    },
+    downloadJsons: apis => {
+      const shortToken = waveService.token.split('-').shift()
+      let zipFileName = shortToken + '.zip'
+      const createZip = jsons => {
+        const zip = new JSZip()
+        Object.keys(jsons).forEach(api => zip.file(jsons[api].fileName, jsons[api].value))
+        return zip
+      }
+      const jsons = {}
+      apis.forEach(api => {
+        waveService.sendRequest('GET', '/results/' + waveService.token + '/' + api + '/json',
+          (response, headers) => {
+            let fileName = ''
+            try {
+              fileName = headers['content-disposition'].split(';').
+                find(value => value.startsWith('filename')).
+                split('=')[1].replace(/"/g, '')
+              zipFileName = fileName.split('-').filter((part, index) => index !== 1).join('-').replace(/json$/, 'zip')
+            } catch (ignored) {
+              fileName = shortToken + '-' + api + '.json'
+            }
+            jsons[api] = {value: response, fileName}
+            if (Object.keys(jsons).length === apis.length) {
+              const zip = createZip(jsons)
+              zip.generateAsync({type: 'blob'}).then(blob => utils.saveBlobAsFile(blob, zipFileName))
+            }
+          })
+      })
     },
     connect: () => {
       if (!waveService.socket) {
@@ -479,11 +525,12 @@
 
       function createApiResultView (api, completed = 0, pass = 0, fail = 0, timeout = 0,
                                     timeoutfiles = [], notRun = 0, isDone = false) {
+        const apiName = api instanceof Array ? 'Total' : api
         return createElement({
           className: 'api-wrapper',
           children: [
             {
-              text: api,
+              text: apiName,
               className: 'api-result api-name'
             }, {
               className: 'api-result pass',
@@ -540,24 +587,30 @@
             },{
               className: 'api-controls',
                 children: [
-                  (api !== 'Total' ? {
+                  {
                     className: 'json-download' +  (' button is-light no-border-radius ' + (!isDone ? 'disabled' : '')),
                     onclick: () => {
-                      if (api !== 'Total' && isDone) {
+                      if (!isDone) return
+                      if (api instanceof Array) {
+                        waveService.downloadJsons(api)
+                      } else {
                         waveService.downloadJson(api)
                       }
                     },
                     text: 'json'
-                  } : {className: 'json-download'}),
-                  (api !== 'Total' ? {
+                  },
+                  (api instanceof Array ? {className: 'html-report'} :
+                  {
                     className: 'html-report button is-light no-border-radius '  + (!isDone ? 'disabled' : ''),
                     onclick: () => {
-                      if (api !== 'Total' && isDone) {
+                      if (!isDone) return
+                      if (api instanceof Array) {
+                      } else {
                         waveService.openHtmlReport(api)
                       }
                     },
                     text: 'report'
-                  } : {className: 'html-report'})
+                  })
                 ]
             }, {
               className: 'api-result-timeoutfiles',
@@ -587,8 +640,8 @@
         timeout: 0,
         not_run: 0
       })
-      const totalResultView = createApiResultView('Total', complete, pass, fail, timeout,
-        [], not_run)
+      const totalResultView = createApiResultView(apis.filter(api => results[api].isDone), complete, pass, fail,
+        timeout, [], not_run, Object.keys(results).some(api => results[api].isDone))
 
       totalResultView.setAttribute('class', 'total ' + totalResultView.getAttribute('class'))
       apiResultsView.appendChild(totalResultView)
