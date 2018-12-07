@@ -324,7 +324,7 @@
               fileName = headers['content-disposition'].split(';').
                 find(value => value.startsWith('filename')).
                 split('=')[1].replace(/"/g, '')
-              zipFileName = fileName.split('-').filter((part, index) => index !== 1).join('-')
+              zipFileName = fileName.split('-').filter((part, index) => index !== 1).join('-').replace(/json$/, 'zip')
             } catch (ignored) {
               fileName = shortToken + '-' + api + '.json'
             }
