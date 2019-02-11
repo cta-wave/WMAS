@@ -46,10 +46,11 @@ body {
 }
 
 #new-button {
-  display: none
+  display: none;
 }
 
-#token, #test-path {
+#token,
+#test-path {
   font-family: monospace;
   font-size: 12pt;
 }
@@ -81,9 +82,9 @@ body {
 }
 
 .detail div {
-  flex: 1
+  flex: 1;
 }
 
 .mb-2 {
-margin-bottom: 20px;
+  margin-bottom: 20px;
 }
