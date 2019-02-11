@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$1" == "init" ]; then
+cd ./tools/wave && npm install
+elif [ "$1" == "start" ]; then
+node ./tools/wave/wave-cli.js start
+elif [ "$1" == "download-reference-results" ]; then
+node ./tools/wave/wave-cli.js download-reference-results
+fi

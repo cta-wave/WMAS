@@ -1,9 +1,8 @@
-The web-platform-tests Project [![IRC chat](https://goo.gl/6nCIks)](http://irc.w3.org/?channels=testing)
-==============================
+The Web Media API Test Suite 2017
+========================================
 
-The web-platform-tests Project is a W3C-coordinated attempt to build a
-cross-browser testsuite for the Web-platform stack. Writing tests in a way
-that allows them to be run in all browsers gives browser projects
+The Web Media API Snapshot Test Suite 2017 is a cross-browser test suite. Writing
+tests in a way that allows them to be run in all browsers gives browser projects
 confidence that they are shipping software that is compatible with other
 implementations, and that later implementations will be compatible with
 their implementations. This in turn gives Web authors/developers
@@ -12,222 +11,96 @@ the promise of working across browsers and devices without needing extra
 layers of abstraction to paper over the gaps left by specification
 editors and implementors.
 
-Setting Up the Repo
-===================
+This project is forked from the original
+[W3C Web Platform Tests](https://github.com/web-platform-tests/wpt) and is customized
+to run on web browsers for embedded devices and appliances suchs as TV sets,
+set-top boxes, consoles, etc. It supports tests report comparing and testing
+a chosen subset of API tests.
 
-Clone or otherwise get https://github.com/web-platform-tests/wpt.
+This test suite complies with the [Web Media API Snapshot 2017](https://www.w3.org/2017/12/webmediaapi.html).
+Note: JPEG File Interchange Format [JPEG], Portable Network Graphics (PNG) Specification (Second Edition) [PNG], Graphics Interchange Format [GIF], Open Font Format [OPEN-FONT-FORMAT] and WOFF File Format 1.0 [WOFF] are not sufficiently tested in this test suite, because there are no dedicated tests in the W3C Web Platform Tests.
 
-Note: because of the frequent creation and deletion of branches in this
-repo, it is recommended to "prune" stale branches when fetching updates,
-i.e. use `git pull --prune` (or `git fetch -p && git merge`).
+Test server
+===========
+The server makes it possible to run all tests in a single window.
 
-Running the Tests
-=================
+## Setup
 
-The tests are designed to be run from your local computer. The test
-environment requires [Python 2.7+](http://www.python.org/downloads) (but not Python 3.x).
+Requirements:
 
-On Windows, be sure to add the Python directory (`c:\python2x`, by default) to
-your `%Path%` [Environment Variable](http://www.computerhope.com/issues/ch000549.htm),
-and read the [Windows Notes](#windows-notes) section below.
+* Python 2.7+ (but not Python 3.x)
+* Node.js 8.x.x (LTS recommended)
+* Git 2.4+ (should support sparse checkout)
+* Bash script support (on windows we recommend Git BASH)
 
-To get the tests running, you need to set up the test domains in your
-[`hosts` file](http://en.wikipedia.org/wiki/Hosts_%28file%29%23Location_in_the_file_system).
-
-The necessary content can be generated with `./wpt make-hosts-file`; on
-Windows, you will need to precede the prior command with `python` or
-the path to the Python binary (`python wpt make-hosts-file`).
-
-For example, on most UNIX-like systems, you can setup the hosts file with:
-
-```bash
-./wpt make-hosts-file | sudo tee -a /etc/hosts
+Generate hosts file:
+```
+$ ./wpt make-hosts-file | sudo tee -a /etc/hosts
+```
+on Windows:
+```
+$ python wpt make-hosts-file | Out-File %SystemRoot%\System32\drivers\etc\hosts -Encoding ascii -Append
 ```
 
-And on Windows (this must be run in a PowerShell session with Administrator privileges):
-
-```bash
-python wpt make-hosts-file | Out-File $env:systemroot\System32\drivers\etc\hosts -Encoding ascii -Append
+Generate test subset, call from WPT root directory:
+```
+$ ./wmas2017-subset.sh
 ```
 
-If you are behind a proxy, you also need to make sure the domains above are
-excluded from your proxy lookups.
-
-
-Running Tests Manually
-======================
-
-The test server can be started using
+Initialize WAVE Server:
 ```
-./wpt serve
+$ ./wave init
 ```
 
-**On Windows**: You will need to precede the prior command with
-`python` or the path to the python binary.
-```bash
-python wpt serve
+To run passing subsets of the reference browser, download the test results by running:
+```
+$ ./wave download-reference-results
 ```
 
-This will start HTTP servers on two ports and a websockets server on
-one port. By default the web servers start on ports 8000 and 8443 and
-the other ports are randomly-chosen free ports. Tests must be loaded
-from the *first* HTTP server in the output. To change the ports,
-create a `config.json` file in the wpt root directory, and add
-port definitions of your choice e.g.:
-
+Start WAVE Server:
 ```
-{
-  "ports": {
-    "http": [1234, "auto"],
-    "https":[5678]
-  }
-}
+$ ./wave start
 ```
 
-After your `hosts` file is configured, the servers will be locally accessible at:
-
-http://web-platform.test:8000/<br>
-https://web-platform.test:8443/ *
-
-\**See [Trusting Root CA](#trusting-root-ca)*
-
-Running Tests Automatically
----------------------------
-
-Tests can be run automatically in a browser using the `run` command of
-the `wpt` script in the root of the checkout. This requires the hosts
-file setup documented above, but you must *not* have the
-test server already running when calling `wpt run`. The basic command
-line syntax is:
-
-```bash
-./wpt run product [tests]
+Start Web Platform Test runner:
+```
+$ ./wpt serve
 ```
 
-**On Windows**: You will need to precede the prior command with
-`python` or the path to the python binary.
-```bash
-python wpt run product [tests]
+Open in Web browser (on the same host):
+```
+http://web-platform.test:8050
 ```
 
-where `product` is currently `firefox` or `chrome` and `[tests]` is a
-list of paths to tests. This will attempt to automatically locate a
-browser instance and install required dependencies. The command is
-very configurable; for example to specify a particular binary use
-`wpt run --binary=path product`. The full range of options can be see
-with `wpt run --help` and `wpt run --wptrunner-help`.
+## Configuration
+The default configuration is loaded from the ```config.default.json```
+in the root directory. Configurations from the ```config.json```
+in the same format as the ```config.default.json```override those.
 
-Not all dependencies can be automatically installed; in particular the
-`certutil` tool required to run https tests with Firefox must be
-installed using a system package manager or similar.
+Provide a different location with ```--config < path_to_config >``` as a
+start parameter.
 
-On Debian/Ubuntu certutil may be installed using:
+## Test Run Parameters
+It is possible to parameterize a test run with various query parameters
+provided with the query in the url of the initial request.
 
+Example:
 ```
-sudo apt install libnss3-tools
-```
-
-And on macOS with homebrew using:
-
-```
-brew install nss
+web-platform.test:8050/?path=/2dcontext&types=testharness
 ```
 
-On other platforms, download the firefox archive and common.tests.tar.gz
-archive for your platform from
-[Mozilla CI](https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/).
-
-Then extract `certutil[.exe]` from the tests.tar.gz package and
-`libnss3[.so|.dll|.dynlib]` and put the former on your path and the latter on
-your library path.
-
-
-Command Line Tools
-==================
-
-The `wpt` command provides a frontend to a variety of tools for
-working with and running web-platform-tests. Some of the most useful
-commands are:
-
-* `wpt serve` - For starting the wpt http server
-* `wpt run` - For running tests in a browser
-* `wpt lint` - For running the lint against all tests
-* `wpt manifest` - For updating or generating a `MANIFEST.json` test manifest
-* `wpt install` - For installing the latest release of a browser or
-  webdriver server on the local machine.
-
-<span id="submodules">Submodules</span>
-=======================================
-
-Some optional components of web-platform-tests (test components from
-third party software and pieces of the CSS build system) are included
-as submodules. To obtain these components run the following in the
-root of your checkout:
-
-```
-git submodule update --init --recursive
-```
-
-Prior to commit `39d07eb01fab607ab1ffd092051cded1bdd64d78` submodules
-were required for basic functionality. If you are working with an
-older checkout, the above command is required in all cases.
-
-When moving between a commit prior to `39d07eb` and one after it git
-may complain
-
-```
-$ git checkout master
-error: The following untracked working tree files would be overwritten by checkout:
-[…]
-```
-
-...followed by a long list of files. To avoid this error, remove
-the `resources` and `tools` directories before switching branches:
-
-```
-$ rm -r resources/ tools/
-$ git checkout master
-Switched to branch 'master'
-Your branch is up-to-date with 'origin/master'
-```
-
-When moving in the opposite direction, i.e. to a commit that does have
-submodules, you will need to `git submodule update`, as above. If git
-throws an error like:
-
-```
-fatal: No url found for submodule path 'resources/webidl2/test/widlproc' in .gitmodules
-Failed to recurse into submodule path 'resources/webidl2'
-fatal: No url found for submodule path 'tools/html5lib' in .gitmodules
-Failed to recurse into submodule path 'resources'
-Failed to recurse into submodule path 'tools'
-```
-
-...then remove the `tools` and `resources` directories, as above.
-
-<span id="windows-notes">Windows Notes</span>
-=============================================
-
-On Windows `wpt` commands must be prefixed with `python` or the path
-to the python binary (if `python` is not in your `%PATH%`).
-
-```bash
-python wpt [command]
-```
-
-Alternatively, you may also use
-[Bash on Ubuntu on Windows](https://msdn.microsoft.com/en-us/commandline/wsl/about)
-in the Windows 10 Anniversary Update build, then access your windows
-partition from there to launch `wpt` commands.
-
-Please make sure git and your text editor do not automatically convert
-line endings, as it will cause lint errors. For git, please set
-`git config core.autocrlf false` in your working tree.
+### Query Parameters
+Parameter|Description|Example
+------|------|------
+`path`|Specify tests to run. Can be directory or file. Multiple paths can be chained by using `, `. Paths with leading '/' are interpreted as absolute paths, paths without as regular expressions. (Default: ```/```)|```web-platform.test:8050/?path=/2dcontext```
+types|What types of tests to run. Possible types: ```testharness```, ```manual``` and ```reftest``` (Default: ```testharness```)|```web-platform.test:8050/?types=testharness,manual```
+`timeout`|Specify a server side timeout in ms after which a test with no result is timed out|```web-platform.test:8050/?timeout=65000```
+`token` and `resume` |Providing a token of an unfinished session will resume it.|```web-platform.test:8050/?token=2fb0fb80-63db-4425-8a76-2ea3e6f8269d&resume=1```
 
 Certificates
 ============
 
-By default pre-generated certificates for the web-platform.test domain
+By default pregenerated certificates for the web-platform.test domain
 are provided in [`tools/certs`](tools/certs). If you wish to generate new
 certificates for any reason it's possible to use OpenSSL when starting
 the server, or starting a test run, by providing the
@@ -243,219 +116,17 @@ like:
 "ssl": {"openssl": {"binary": "/path/to/openssl"}}
 ```
 
-On Windows using OpenSSL typically requires installing an OpenSSL distribution.
-[Shining Light](https://slproweb.com/products/Win32OpenSSL.html)
-provide a convenient installer that is known to work, but requires a
-little extra setup, i.e.:
-
-Run the installer for Win32_OpenSSL_v1.1.0b (30MB). During installation,
-change the default location for where to Copy OpenSSL Dlls from the
-System directory to the /bin directory.
-
-After installation, ensure that the path to OpenSSL (typically,
-this will be `C:\OpenSSL-Win32\bin`) is in your `%Path%`
-[Environment Variable](http://www.computerhope.com/issues/ch000549.htm).
-If you forget to do this part, you will most likely see a 'File Not Found'
-error when you start wptserve.
-
-Finally, set the path value in the server configuration file to the
-default OpenSSL configuration file location. To do this create a file
-called `config.json`.  Then add the OpenSSL configuration below,
-ensuring that the key `ssl/openssl/base_conf_path` has a value that is
-the path to the OpenSSL config file (typically this will be
-`C:\\OpenSSL-Win32\\bin\\openssl.cfg`):
-
-```
-{
-  "ssl": {
-    "type": "openssl",
-    "encrypt_after_connect": false,
-    "openssl": {
-      "openssl_binary": "openssl",
-      "base_path: "_certs",
-      "force_regenerate": false,
-      "base_conf_path": "C:\\OpenSSL-Win32\\bin\\openssl.cfg"
-    },
-  },
-}
-```
-
 ### Trusting Root CA
 
 To prevent browser SSL warnings when running HTTPS tests locally, the
 web-platform-tests Root CA file `cacert.pem` in [tools/certs](tools/certs)
 must be added as a trusted certificate in your OS/browser.
 
-**NOTE**: The CA should not be installed in any browser profile used
-outside of tests, since it may be used to generate fake
-certificates. For browsers that use the OS certificate store, tests
-should therefore not be run manually outside a dedicated OS instance
-(e.g. a VM). To avoid this problem when running tests in Chrome or
-Firefox use `wpt run`, which disables certificate checks and therefore
-doesn't require the root CA to be trusted.
+Remarks to testharness.js Statuses
+==================================
 
-Publication
-===========
+The documentation of testharness.js is available in [testharness.js API](https://web-platform-tests.org/writing-tests/testharness-api.html). Section [Basic Usage](https://web-platform-tests.org/writing-tests/testharness-api.html#basic-usage) says that every single test has as result `PASS`, `FAIL`, `TIMEOUT` and `NOTRUN`. These statuses are also listed in [Callback API](https://web-platform-tests.org/writing-tests/testharness-api.html#callback-api) section. According to [testharness.js#L1469](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L1469), the status of a single test will be initialized with `NOTRUN` and later set to one of the other values. This means if `TIMEOUT` is disabled (using `explicit_timeout` function described in [Setup](https://web-platform-tests.org/writing-tests/testharness-api.html#setup) section) and the test is not completed (neither `PASS` or `FAIL`), the status will remain `NOTRUN`. This is the interpretation after reading the source code of the testharness.js since there is no explanation in the documentation for the semantic of status `NOTRUN`. 
 
-The master branch is automatically synced to http://w3c-test.org/.
+A test file may contain multiple tests and there is also an overall status for the test file which can be one of the following values: `OK`, `ERROR` and `TIMEOUT`. There is no further explanation for each of these statuses but from reading the code, the `ERROR` status will be set if an [unexpected exception occurred (try catch block)](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2107-L2113), [abort() function](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2294) is called, [timeout occurs when test in cleanup phase](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2167) or test file [contains tests with duplicate names](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2337). The status will be [set to `OK`](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2344) at the end if it is not set yet (it was `null`) which means no `TIMEOUT` or `ERROR` occurred.
 
-Pull requests are
-[automatically mirrored](http://w3c-test.org/submissions/) except those
-that modify sensitive resources (such as `.py`). The latter require
-someone with merge access to comment with "LGTM" or "w3c-test:mirror" to
-indicate the pull request has been checked.
-
-Finding Things
-==============
-
-Each top-level directory matches the shortname used by a standard, with
-some exceptions. (Typically the shortname is from the standard's
-corresponding GitHub repository.)
-
-For some of the specifications, the tree under the top-level directory
-represents the sections of the respective documents, using the section
-IDs for directory names, with a maximum of three levels deep.
-
-So if you're looking for tests in HTML for "The History interface",
-they will be under `html/browsers/history/the-history-interface/`.
-
-Various resources that tests depend on are in `common`, `images`, and
-`fonts`.
-
-Branches
-========
-
-In the vast majority of cases the **only** upstream branch that you
-should need to care about is `master`. If you see other branches in
-the repository, you can generally safely ignore them.
-
-Contributing
-============
-
-Save the Web, Write Some Tests!
-
-Absolutely everyone is welcome (and even encouraged) to contribute to
-test development, so long as you fulfill the contribution requirements
-detailed in the [Contributing Guidelines][contributing]. No test is
-too small or too simple, especially if it corresponds to something for
-which you've noted an interoperability bug in a browser.
-
-The way to contribute is just as usual:
-
-* Fork this repository (and make sure you're still relatively in sync
-  with it if you forked a while ago).
-* Create a branch for your changes:
-  `git checkout -b topic`.
-* Make your changes.
-* Run the lint script described below.
-* Commit locally and push that to your repo.
-* Send in a pull request based on the above.
-
-Issues with web-platform-tests
-------------------------------
-
-If you spot an issue with a test and are not comfortable providing a
-pull request per above to fix it, please
-[file a new issue](https://github.com/web-platform-tests/wpt/issues/new).
-Thank you!
-
-Lint tool
----------
-
-We have a lint tool for catching common mistakes in test files. You
-can run it manually by starting the `lint` executable from the root of
-your local web-platform-tests working directory like this:
-
-```
-./wpt lint
-```
-
-The lint tool is also run automatically for every submitted pull
-request, and reviewers will not merge branches with tests that have
-lint errors, so you must fix any errors the lint tool reports.
-
-In the unusual case of error reports for things essential to a
-certain test or that for other exceptional reasons shouldn't prevent
-a merge of a test, update and commit the `lint.whitelist` file in the
-web-platform-tests root directory to suppress the error reports.
-
-For more details, see the [lint-tool documentation][lint-tool].
-
-[lint-tool]: https://web-platform-tests.org/writing-tests/lint-tool.html
-
-Adding command-line scripts ("tools" subdirs)
----------------------------------------------
-
-Sometimes you may want to add a script to the repository that's meant
-to be used from the command line, not from a browser (e.g., a script
-for generating test files). If you want to ensure (e.g., for security
-reasons) that such scripts won't be handled by the HTTP server, but
-will instead only be usable from the command line, then place them in
-either:
-
-* the `tools` subdir at the root of the repository, or
-
-* the `tools` subdir at the root of any top-level directory in the
-  repository which contains the tests the script is meant to be used
-  with
-
-Any files in those `tools` directories won't be handled by the HTTP
-server; instead the server will return a 404 if a user navigates to
-the URL for a file within them.
-
-If you want to add a script for use with a particular set of tests but
-there isn't yet any `tools` subdir at the root of a top-level
-directory in the repository containing those tests, you can create a
-`tools` subdir at the root of that top-level directory and place your
-scripts there.
-
-For example, if you wanted to add a script for use with tests in the
-`notifications` directory, create the `notifications/tools` subdir and
-put your script there.
-
-Test Review
-===========
-
-We can sometimes take a little while to go through pull requests
-because we have to go through all the tests and ensure that they match
-the specification correctly. But we look at all of them, and take
-everything that we can.
-
-META.yml files are used only to indicate who should be notified of pull
-requests.  If you are interested in receiving notifications of proposed
-changes to tests in a given directory, feel free to add yourself to the
-META.yml file. Anyone with expertise in the specification under test can
-approve a pull request.  In particular, if a test change has already
-been adequately reviewed "upstream" in another repository, it can be
-pushed here without any further review by supplying a link to the
-upstream review.
-
-Search filters to find things to review:
-
-* [Open PRs (excluding vendor exports)](https://github.com/web-platform-tests/wpt/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aopen+-label%3A%22mozilla%3Agecko-sync%22+-label%3A%22chromium-export%22+-label%3A%22webkit-export%22+-label%3A%22servo-export%22+-label%3Avendor-imports)
-* [Reviewed but still open PRs (excluding vendor exports)](https://github.com/web-platform-tests/wpt/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aopen+-label%3Amozilla%3Agecko-sync+-label%3Achromium-export+-label%3Awebkit-export+-label%3Aservo-export+-label%3Avendor-imports+review%3Aapproved+-label%3A%22do+not+merge+yet%22+-label%3A%22status%3Aneeds-spec-decision%22) (Merge? Something left to fix? Ping other reviewer?)
-* [Open PRs without reviewers](https://github.com/web-platform-tests/wpt/pulls?q=is%3Apr+is%3Aopen+label%3Astatus%3Aneeds-reviewers)
-* [Open PRs with label `infra` (excluding vendor exports)](https://github.com/web-platform-tests/wpt/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aopen+label%3Ainfra+-label%3A%22mozilla%3Agecko-sync%22+-label%3A%22chromium-export%22+-label%3A%22webkit-export%22+-label%3A%22servo-export%22+-label%3Avendor-imports)
-* [Open PRs with label `docs` (excluding vendor exports)](https://github.com/web-platform-tests/wpt/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aopen+label%3Adocs+-label%3A%22mozilla%3Agecko-sync%22+-label%3A%22chromium-export%22+-label%3A%22webkit-export%22+-label%3A%22servo-export%22+-label%3Avendor-imports)
-
-Getting Involved
-================
-
-If you wish to contribute actively, you're very welcome to join the
-public-test-infra@w3.org mailing list (low traffic) by
-[signing up to our mailing list](mailto:public-test-infra-request@w3.org?subject=subscribe).
-The mailing list is [archived][mailarchive].
-
-Join us on irc #testing ([irc.w3.org][ircw3org], port 6665). The channel
-is [archived][ircarchive].
-
-[contributing]: https://github.com/web-platform-tests/wpt/blob/master/CONTRIBUTING.md
-[ircw3org]: https://www.w3.org/wiki/IRC
-[ircarchive]: https://w3.logbot.info/testing
-[mailarchive]: https://lists.w3.org/Archives/Public/public-test-infra/
-
-Documentation
-=============
-
-* [How to write and review tests](https://web-platform-tests.org/)
-* [Documentation for the wptserve server](http://wptserve.readthedocs.org/en/latest/)
+PS: in test reports with comparison of multiple test sessions, the status "-" (with orange background of the table cell) means that the test was not executed on the corresponding user agent.  This can happen if a test runs only if a certain condition is fulfilled or a specific event is fired.

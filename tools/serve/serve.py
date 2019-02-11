@@ -303,9 +303,11 @@ rewrites = [("GET", "/resources/WebIDLParser.js", "/resources/webidl2/lib/webidl
 
 class RoutesBuilder(object):
     def __init__(self):
-        self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
-                                   ("POST", "/tools/runner/update_manifest.py",
-                                    handlers.python_script_handler)]
+        with build_config(os.path.join(repo_root, "config.json")) as config:
+            self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
+                                    ("POST", "/tools/runner/update_manifest.py",
+                                        handlers.python_script_handler),
+                                    ("*", "/nodejs/*", handlers.WaveProxyHandler(config["ports"]["wave"][0]))]
 
         self.forbidden = [("*", "/_certs/*", handlers.ErrorHandler(404)),
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
@@ -505,6 +507,8 @@ def start_servers(host, ports, paths, routes, bind_address, config, **kwargs):
 
         for port in ports:
             if port is None:
+                continue
+            if scheme == u'wave':
                 continue
             init_func = {"http":start_http_server,
                          "https":start_https_server,
@@ -747,8 +751,10 @@ class ConfigBuilder(config.ConfigBuilder):
             "https": [8443],
             "ws": ["auto"],
             "wss": ["auto"],
+            "wave": [8050]
         },
         "check_subdomains": True,
+        "db_compaction_interval": 3600000,
         "log_level": "debug",
         "bind_address": True,
         "ssl": {
@@ -766,7 +772,9 @@ class ConfigBuilder(config.ConfigBuilder):
             },
             "none": {}
         },
-        "aliases": []
+        "aliases": [],
+        "results": "./results",
+        "timeout": 65000
     }
 
     computed_properties = ["ws_doc_root"] + config.ConfigBuilder.computed_properties

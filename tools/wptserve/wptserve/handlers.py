@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import traceback
+import httplib
 
 from six.moves.urllib.parse import parse_qs, quote, unquote, urljoin
 from six import iteritems
@@ -16,7 +17,7 @@ from .utils import HTTPException
 
 __all__ = ["file_handler", "python_script_handler",
            "FunctionHandler", "handler", "json_handler",
-           "as_is_handler", "ErrorHandler", "BasicAuthHandler"]
+           "as_is_handler", "ErrorHandler", "BasicAuthHandler", "WaveProxyHandler"]
 
 
 def guess_content_type(path):
@@ -448,3 +449,28 @@ class StaticHandler(StringHandler):
             data = f.read() % format_args
 
         return super(StaticHandler, self).__init__(data, content_type, **headers)
+
+
+class WaveProxyHandler(object):
+    def __init__(self, wave_port):
+        self._wave_port = wave_port
+
+    def __call__(self, request, response):
+        host = 'localhost'
+        port = str(self._wave_port)
+        uri = request.url_parts.path.replace('/nodejs', '')
+        uri = uri + "?" + request.url_parts.query
+        data = request.raw_input.read(request.headers.get('Content-Length'))
+        method = request.method
+
+        try:
+            proxy_connection = httplib.HTTPConnection(host, port)
+            proxy_connection.request(method, uri, data, request.headers)
+            proxy_response = proxy_connection.getresponse()
+            response.content = proxy_response.read()
+            response.headers = proxy_response.getheaders()
+            response.status = proxy_response.status
+
+        except IOError as e:
+            print('Failed to connect to wave server!')
+            print(e)
