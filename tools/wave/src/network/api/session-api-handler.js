@@ -52,6 +52,7 @@ class SessionApiHandler extends ApiHandler {
   async _stopSession(token) {
     const session = await this._sessionManager.getSession(token);
     session.setStatus(Session.ABORTED);
+    this._sessionManager.updateSession(session);
   }
 
   async _findToken({ response, fragment }) {
