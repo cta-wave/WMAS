@@ -11,7 +11,8 @@ class Serializer {
     const types = session.getTypes();
     const user_agent = session.getUserAgent();
     const test_timeout = session.getTestTimeout();
-    const total_tests_count = session.getTotalTestsCount();
+    const test_files_count = session.getTestFilesCount();
+    const test_files_completed = session.getTestFilesCompleted();
     const pending_tests = session.getPendingTests();
     const running_tests = session.getRunningTests();
     const completed_tests = session.getCompletedTests();
@@ -23,7 +24,8 @@ class Serializer {
       types,
       user_agent,
       test_timeout,
-      total_tests_count,
+      test_files_count,
+      test_files_completed,
       pending_tests,
       running_tests,
       completed_tests,

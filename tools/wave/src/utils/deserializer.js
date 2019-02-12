@@ -17,6 +17,8 @@ class Deserializer {
     const runningTests = sessionObject.running_tests;
     const completedTests = sessionObject.completed_tests;
     const status = sessionObject.status;
+    const testFilesCount = sessionObject.test_files_count;
+    const testFilesCompleted = sessionObject.test_files_completed;
     return new Session(token, {
       path,
       types,
@@ -25,7 +27,9 @@ class Deserializer {
       pendingTests,
       runningTests,
       completedTests,
-      status
+      status,
+      testFilesCount,
+      testFilesCompleted
     });
   }
 }

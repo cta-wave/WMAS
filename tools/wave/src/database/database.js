@@ -176,7 +176,6 @@ class Database {
   }
 
   async _deleteTests(token) {
-    console.log("DELETING TESTS");
     delete this._db.tests[token];
     await FileSystem.removeFile(
       path.join(this._testsDirectoryPath, token + ".db")

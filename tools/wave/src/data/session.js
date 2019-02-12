@@ -19,7 +19,9 @@ class Session {
       runningTests,
       completedTests,
       testTimeout,
-      status
+      status,
+      testFilesCount,
+      testFilesCompleted
     }
   ) {
     this._token = token;
@@ -35,25 +37,22 @@ class Session {
       this._runningTests = runningTests || {};
       this._completedTests = completedTests || {};
     }
-    this._totalTestsCount = this._calculateTotalTests();
+    this._testFilesCount =
+      testFilesCount || this._calculateTestFilesCount(tests);
+    this._testFilesCompleted =
+      testFilesCompleted || this._calculateTestFilesCount(completedTests);
     this._testTimeout = testTimeout || null;
     this._timeouts = [];
     this._status = status || UNKNOWN;
     this._clients = [];
   }
 
-  _calculateTotalTests() {
-    let totalTestsCount = 0;
-    for (let api in this._pendingTests) {
-      totalTestsCount += this._pendingTests[api].length;
+  _calculateTestFilesCount(tests) {
+    let testFilesCount = {};
+    for (let api in tests) {
+      testFilesCount[api] = tests[api].length;
     }
-    for (let api in this._runningTests) {
-      totalTestsCount += this._runningTests[api].length;
-    }
-    for (let api in this._completedTests) {
-      totalTestsCount += this._completedTests[api].length;
-    }
-    return totalTestsCount;
+    return testFilesCount;
   }
 
   nextTest(onTimeout) {
@@ -138,6 +137,10 @@ class Session {
     if (testList[api] && testList[api].indexOf(test) !== -1) return;
     if (!testList[api]) testList[api] = [];
     testList[api].push(test);
+    if (testList === this._completedTests)
+      this._testFilesCompleted = this._calculateTestFilesCount(
+        this._completedTests
+      );
   }
 
   isTestComplete(needleTest) {
@@ -217,7 +220,7 @@ class Session {
     this._pendingTests = tests;
     this._runningTests = {};
     this._completedTests = {};
-    this._totalTestsCount = this._calculateTotalTests();
+    this._testFilesCount = this._calculateTestFilesCount(tests);
     return this;
   }
 
@@ -252,8 +255,12 @@ class Session {
     return this._testTimeout;
   }
 
-  getTotalTestsCount() {
-    return this._totalTestsCount;
+  getTestFilesCount() {
+    return this._testFilesCount;
+  }
+
+  getTestFilesCompleted() {
+    return this._testFilesCompleted;
   }
 
   getStatus() {

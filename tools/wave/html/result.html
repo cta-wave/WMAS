@@ -541,11 +541,14 @@
         },
         displaySessionDetails: details => {
           const { getElement } = ui;
+          const { test_files_count } = details;
           getElement("token").innerText = waveService.token;
           getElement("user-agent").innerText = details.user_agent;
           getElement("test-path").innerText = details.path;
           getElement("test-types").innerText = details.types.join(", ");
-          getElement("total-tests").innerText = details.total_tests_count;
+          getElement("total-tests").innerText = Object.keys(
+            test_files_count
+          ).reduce((sum, api) => (sum += test_files_count[api]), 0);
           getElement("status").innerText = details.status;
           getElement("test-timeout").innerText = details.test_timeout;
         },
@@ -589,16 +592,18 @@
             })
           );
 
-          function createApiResultView(
+          function createApiResultView({
             api,
-            completed = 0,
+            complete = 0,
             pass = 0,
             fail = 0,
             timeout = 0,
             timeoutfiles = [],
             notRun = 0,
-            isDone = false
-          ) {
+            isDone = false,
+            testFilesCount,
+            testFilesCompleted
+          }) {
             const apiName = api instanceof Array ? "Total" : api;
             return createElement({
               className: "api-wrapper",
@@ -615,7 +620,7 @@
                       className: "absolute"
                     },
                     {
-                      text: "(" + utils.percent(pass, completed) + "%)",
+                      text: "(" + utils.percent(pass, complete) + "%)",
                       className: "percent"
                     }
                   ]
@@ -628,7 +633,7 @@
                       className: "absolute"
                     },
                     {
-                      text: "(" + utils.percent(fail, completed) + "%)",
+                      text: "(" + utils.percent(fail, complete) + "%)",
                       className: "percent"
                     }
                   ]
@@ -641,7 +646,7 @@
                       className: "absolute"
                     },
                     {
-                      text: "(" + utils.percent(timeout, completed) + "%)",
+                      text: "(" + utils.percent(timeout, complete) + "%)",
                       className: "percent"
                     }
                   ]
@@ -654,7 +659,7 @@
                       className: "absolute"
                     },
                     {
-                      text: "(" + utils.percent(notRun, completed) + "%)",
+                      text: "(" + utils.percent(notRun, complete) + "%)",
                       className: "percent"
                     }
                   ]
@@ -663,7 +668,10 @@
                   className: "api-result",
                   children: [
                     {
-                      text: completed,
+                      text: `${complete} (${utils.percent(
+                        testFilesCompleted,
+                        testFilesCount
+                      )}%)`,
                       className: "absolute"
                     }
                   ]
@@ -719,29 +727,13 @@
           );
 
           for (let api of apis) {
-            let {
-              complete,
-              pass,
-              fail,
-              timeout,
-              timeoutfiles,
-              not_run,
-              isDone
-            } = results[api];
-            const apiResultView = createApiResultView(
-              api,
-              complete,
-              pass,
-              fail,
-              timeout,
-              timeoutfiles,
-              not_run,
-              isDone
-            );
+            const result = results[api];
+            result.api = api;
+            const apiResultView = createApiResultView(result);
             apiResultsView.appendChild(apiResultView);
           }
 
-          let { complete, pass, fail, timeout, not_run } = apis.reduce(
+          const stats = apis.reduce(
             (sum, api) => {
               Object.keys(sum).forEach(
                 key => (sum[key] += results[api][key] ? results[api][key] : 0)
@@ -756,16 +748,18 @@
               not_run: 0
             }
           );
-          const totalResultView = createApiResultView(
-            apis.filter(api => results[api].isDone),
-            complete,
-            pass,
-            fail,
-            timeout,
-            [],
-            not_run,
-            Object.keys(results).some(api => results[api].isDone)
+          stats.api = apis.filter(api => results[api].isDone);
+          stats.timeoutfiles = [];
+          stats.isDone = Object.keys(results).some(api => results[api].isDone);
+          stats.testFilesCount = Object.keys(results).reduce(
+            (sum, api) => (sum += results[api].testFilesCount),
+            0
           );
+          stats.testFilesCompleted = Object.keys(results).reduce(
+            (sum, api) => (sum += results[api].testFilesCompleted || 0),
+            0
+          );
+          const totalResultView = createApiResultView(stats);
 
           totalResultView.setAttribute(
             "class",
@@ -776,10 +770,8 @@
         refreshData: toUpdate => {
           waveService.getSessionDetails(details => {
             waveService.getTestResults(results => {
-              Object.keys(details.pending_tests).forEach(api =>
-                !results[api] ? (results[api] = {}) : null
-              );
-              Object.keys(details.running_tests).forEach(api =>
+              console.log(details);
+              Object.keys(details.test_files_count).forEach(api =>
                 !results[api] ? (results[api] = {}) : null
               );
               for (let api in results) {
@@ -790,22 +782,11 @@
                 if (timeout) complete += timeout;
                 if (not_run) complete += not_run;
                 results[api].complete = complete;
-                let pendingTestsCount = 0;
-                if (
-                  details.pending_tests[api] &&
-                  details.pending_tests[api].length
-                ) {
-                  pendingTestsCount = details.pending_tests[api].length;
-                }
-                let runningTestsCount = 0;
-                if (
-                  details.running_tests[api] &&
-                  details.running_tests[api].length
-                ) {
-                  runningTestsCount = details.running_tests[api].length;
-                }
+                const { test_files_count, test_files_completed } = details;
                 results[api].isDone =
-                  pendingTestsCount === 0 && runningTestsCount === 0;
+                  test_files_count[api] === test_files_completed[api];
+                results[api].testFilesCount = test_files_count[api];
+                results[api].testFilesCompleted = test_files_completed[api];
               }
 
               switch (toUpdate) {
