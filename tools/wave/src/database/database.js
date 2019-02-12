@@ -4,6 +4,7 @@ const DataStore = require("nedb");
 const FileSystem = require("../utils/file-system");
 const Serializer = require("../utils/serializer");
 const Deserializer = require("../utils/deserializer");
+const Session = require("../data/session");
 
 class Database {
   constructor({ dbCompactionInterval }) {
@@ -42,28 +43,26 @@ class Database {
   }
 
   async loadSessions(sessions) {
-    await Promise.all(
-      sessions.map(session => {
-        const token = session.getToken();
-        this._loadSubDatabases(token);
-      })
-    );
+    await Promise.all(sessions.map(session => this._loadSubDatabases(session)));
   }
 
   async createSession(session) {
     const token = session.getToken();
     const sessionObject = Serializer.serializeSession(session);
 
-    await this._loadSubDatabases(token);
+    await this._loadSubDatabases(session);
 
-    const sessionTests = this._db.tests[token];
-    const { pending_tests, running_tests, completed_tests } = sessionObject;
-    await sessionTests.insert({
-      token,
-      pending_tests,
-      running_tests,
-      completed_tests
-    });
+    const { COMPLETED, ABORTED } = Session;
+    if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
+      const sessionTests = this._db.tests[token];
+      const { pending_tests, running_tests, completed_tests } = sessionObject;
+      await sessionTests.insert({
+        token,
+        pending_tests,
+        running_tests,
+        completed_tests
+      });
+    }
 
     const sessionsDataStore = this._db.sessions;
     delete sessionObject.completed_tests;
@@ -76,17 +75,22 @@ class Database {
     const token = session.getToken();
     const sessionObject = Serializer.serializeSession(session);
 
-    const sessionTests = this._db.tests[token];
-    const { pending_tests, running_tests, completed_tests } = sessionObject;
-    await sessionTests.update(
-      { token },
-      {
-        token,
-        pending_tests,
-        running_tests,
-        completed_tests
-      }
-    );
+    const { COMPLETED, ABORTED } = Session;
+    if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
+      const sessionTests = this._db.tests[token];
+      const { pending_tests, running_tests, completed_tests } = sessionObject;
+      await sessionTests.update(
+        { token },
+        {
+          token,
+          pending_tests,
+          running_tests,
+          completed_tests
+        }
+      );
+    } else {
+      await this._deleteTests(token);
+    }
 
     const sessionDataStore = this._db.sessions;
     delete sessionObject.completed_tests;
@@ -103,13 +107,16 @@ class Database {
     }
     const session = Deserializer.deserializeSession(result[0]);
 
-    const sessionTests = this._db.tests[token];
-    const tests = await sessionTests.find({ token });
-    if (tests && tests[0]) {
-      const { pending_tests, running_tests, completed_tests } = tests[0];
-      if (pending_tests) session.setPendingTests(pending_tests);
-      if (completed_tests) session.setCompletedTests(completed_tests);
-      if (running_tests) session.setRunningTests(running_tests);
+    const { COMPLETED, ABORTED } = Session;
+    if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
+      const sessionTests = this._db.tests[token];
+      const tests = await sessionTests.find({ token });
+      if (tests && tests[0]) {
+        const { pending_tests, running_tests, completed_tests } = tests[0];
+        if (pending_tests) session.setPendingTests(pending_tests);
+        if (completed_tests) session.setCompletedTests(completed_tests);
+        if (running_tests) session.setRunningTests(running_tests);
+      }
     }
 
     return session;
@@ -142,7 +149,8 @@ class Database {
     return resultsDataStore.find({});
   }
 
-  async _loadSubDatabases(token) {
+  async _loadSubDatabases(session) {
+    const token = session.getToken();
     if (!this._db.results[token]) {
       let sessionResults = new DataStore({
         filename: path.join(this._resultsDirectoryPath, token + ".db")
@@ -152,7 +160,12 @@ class Database {
       this._db.results[token] = sessionResults;
     }
 
-    if (!this._db.tests[token]) {
+    const { COMPLETED, ABORTED } = Session;
+    if (
+      session.getStatus() !== COMPLETED &&
+      session.getStatus() !== ABORTED &&
+      !this._db.tests[token]
+    ) {
       let sessionTests = new DataStore({
         filename: path.join(this._testsDirectoryPath, token + ".db")
       });
@@ -160,6 +173,14 @@ class Database {
       sessionTests.loadDatabase();
       this._db.tests[token] = sessionTests;
     }
+  }
+
+  async _deleteTests(token) {
+    console.log("DELETING TESTS");
+    delete this._db.tests[token];
+    await FileSystem.removeFile(
+      path.join(this._testsDirectoryPath, token + ".db")
+    );
   }
 
   // get rid of callbacks and use promises
