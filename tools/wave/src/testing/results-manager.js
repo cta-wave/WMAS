@@ -6,6 +6,9 @@ const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
 
+const print = text => process.stdout.write(text);
+const println = text => console.log(text);
+
 class ResultsManager {
   constructor({ resultsDirectoryPath, database, sessionManager }) {
     this._resultsDirectoryPath = resultsDirectoryPath;
@@ -115,6 +118,7 @@ class ResultsManager {
     const resultsDirectoryPath = this._resultsDirectoryPath;
     if (!(await FileSystem.exists(resultsDirectoryPath))) return;
     const tokens = await FileSystem.readDirectory(resultsDirectoryPath);
+    println("Looking for results to import ...");
     for (let token of tokens) {
       // http://webapitests2017.ctawave.org:8050/?
       //   path=/2dcontext,%20/css,%20/content-security-policy,%20/dom,%20/ecmascript,%20/encrypted-media,%20/fetch,%20/fullscreen,%20/html,%20/IndexedDB,%20/media-source,%20/notifications,%20/uievents,%20/WebCryptoAPI,%20/webaudio,%20/webmessaging,%20/websockets,%20/webstorage,%20/workers,%20/xhr
@@ -129,9 +133,7 @@ class ResultsManager {
       const { user_agent: userAgent } = JSON.parse(infoFile);
       const { browser } = UserAgentParser.parse(userAgent);
       if (await sessionManager.getSession(token)) continue;
-      process.stdout.write(
-        `Loading ${browser.name} ${browser.version} results ...`
-      );
+      print(`Loading ${browser.name} ${browser.version} results ...`);
       const session = new Session(token, {
         status: Session.COMPLETED,
         userAgent
@@ -152,7 +154,7 @@ class ResultsManager {
           await this._database.createResult(token, result);
         }
       }
-      process.stdout.write(" done.\n");
+      println(" done.");
     }
   }
 

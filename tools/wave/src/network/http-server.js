@@ -20,7 +20,7 @@ class HttpServer {
     this._server = http.createServer(this._app);
   }
 
-  async initialize() {
+  initialize() {
     this._app.use((request, response, next) => {
       response.set("Access-Control-Allow-Credentials", "true");
       response.set("Access-Control-Allow-Origin", request.get("Origin"));

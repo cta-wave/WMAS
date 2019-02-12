@@ -19,7 +19,6 @@ class Session {
       runningTests,
       completedTests,
       testTimeout,
-      paused,
       status
     }
   ) {
@@ -226,12 +225,27 @@ class Session {
     return this._pendingTests;
   }
 
+  setPendingTests(pendingTests) {
+    this._pendingTests = pendingTests;
+    return this;
+  }
+
   getRunningTests() {
     return this._runningTests;
   }
 
+  setRunningTests(runningTests) {
+    this._runningTests = runningTests;
+    return this;
+  }
+
   getCompletedTests() {
     return this._completedTests;
+  }
+
+  setCompletedTests(completedTests) {
+    this._completedTests = completedTests;
+    return this;
   }
 
   getTestTimeout() {

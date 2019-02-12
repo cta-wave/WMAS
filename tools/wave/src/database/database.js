@@ -19,6 +19,13 @@ class Database {
     if (!(await FileSystem.exists(resultsDirectoryPath))) {
       await FileSystem.makeDirectory(resultsDirectoryPath);
     }
+    this._resultsDirectoryPath = resultsDirectoryPath;
+
+    const testsDirectoryPath = path.join(databaseDirectoryPath, "./tests");
+    if (!(await FileSystem.exists(testsDirectoryPath))) {
+      await FileSystem.makeDirectory(testsDirectoryPath);
+    }
+    this._testsDirectoryPath = testsDirectoryPath;
 
     let sessionsDataStore = new DataStore({
       filename: path.join(databaseDirectoryPath, "./sessions.db")
@@ -31,44 +38,60 @@ class Database {
     await sessionsDataStore.loadDatabase();
     this._db.sessions = sessionsDataStore;
     this._db.results = {};
-
-    this._resultsDirectoryPath = resultsDirectoryPath;
+    this._db.tests = {};
   }
 
   async loadSessions(sessions) {
-    const newSessionDataStores = [];
-    sessions.forEach(session => {
-      const token = session.getToken();
-      let sessionDataStore = new DataStore({
-        filename: path.join(this._resultsDirectoryPath, token + ".db")
-      });
-      sessionDataStore = this._wrapDataStore(sessionDataStore);
-      newSessionDataStores.push(sessionDataStore);
-      this._db.results[token] = sessionDataStore;
-    });
     await Promise.all(
-      newSessionDataStores.map(dataStore => dataStore.loadDatabase())
+      sessions.map(session => {
+        const token = session.getToken();
+        this._loadSubDatabases(token);
+      })
     );
   }
 
   async createSession(session) {
-    const sessionObject = Serializer.serializeSession(session);
-    const sessionsDataStore = this._db.sessions;
-    await sessionsDataStore.insert(sessionObject);
-
     const token = session.getToken();
-    let resultDataStore = new DataStore({
-      filename: path.join(this._resultsDirectoryPath, token + ".db")
+    const sessionObject = Serializer.serializeSession(session);
+
+    await this._loadSubDatabases(token);
+
+    const sessionTests = this._db.tests[token];
+    const { pending_tests, running_tests, completed_tests } = sessionObject;
+    await sessionTests.insert({
+      token,
+      pending_tests,
+      running_tests,
+      completed_tests
     });
-    resultDataStore = this._wrapDataStore(resultDataStore);
-    await resultDataStore.loadDatabase();
-    this._db.results[token] = resultDataStore;
+
+    const sessionsDataStore = this._db.sessions;
+    delete sessionObject.completed_tests;
+    delete sessionObject.running_tests;
+    delete sessionObject.pending_tests;
+    await sessionsDataStore.insert(sessionObject);
   }
 
   async updateSession(session) {
     const token = session.getToken();
-    const sessionDataStore = this._db.sessions;
     const sessionObject = Serializer.serializeSession(session);
+
+    const sessionTests = this._db.tests[token];
+    const { pending_tests, running_tests, completed_tests } = sessionObject;
+    await sessionTests.update(
+      { token },
+      {
+        token,
+        pending_tests,
+        running_tests,
+        completed_tests
+      }
+    );
+
+    const sessionDataStore = this._db.sessions;
+    delete sessionObject.completed_tests;
+    delete sessionObject.running_tests;
+    delete sessionObject.pending_tests;
     await sessionDataStore.update({ token }, sessionObject);
   }
 
@@ -78,7 +101,18 @@ class Database {
     if (!result || result.length === 0) {
       return null;
     }
-    return Deserializer.deserializeSession(result[0]);
+    const session = Deserializer.deserializeSession(result[0]);
+
+    const sessionTests = this._db.tests[token];
+    const tests = await sessionTests.find({ token });
+    if (tests && tests[0]) {
+      const { pending_tests, running_tests, completed_tests } = tests[0];
+      if (pending_tests) session.setPendingTests(pending_tests);
+      if (completed_tests) session.setCompletedTests(completed_tests);
+      if (running_tests) session.setRunningTests(running_tests);
+    }
+
+    return session;
   }
 
   async readSessions() {
@@ -106,6 +140,26 @@ class Database {
   async getResults(token) {
     const resultsDataStore = this._db.results[token];
     return resultsDataStore.find({});
+  }
+
+  async _loadSubDatabases(token) {
+    if (!this._db.results[token]) {
+      let sessionResults = new DataStore({
+        filename: path.join(this._resultsDirectoryPath, token + ".db")
+      });
+      sessionResults = this._wrapDataStore(sessionResults);
+      sessionResults.loadDatabase();
+      this._db.results[token] = sessionResults;
+    }
+
+    if (!this._db.tests[token]) {
+      let sessionTests = new DataStore({
+        filename: path.join(this._testsDirectoryPath, token + ".db")
+      });
+      sessionTests = this._wrapDataStore(sessionTests);
+      sessionTests.loadDatabase();
+      this._db.tests[token] = sessionTests;
+    }
   }
 
   // get rid of callbacks and use promises

@@ -12,8 +12,12 @@ const ConfigurationLoader = require("../core/configuration-loader");
 const WebSocketServer = require("../network/web-socket-server");
 const Route = require("../data/route");
 
+const print = text => process.stdout.write(text);
+const println = text => console.log(text);
+
 class WaveServer {
   async initialize({ applicationDirectoryPath, configurationFilePath }) {
+    print("Loading configuration ...");
     const config = await ConfigurationLoader.load({
       applicationDirectoryPath,
       configurationFilePath
@@ -28,6 +32,7 @@ class WaveServer {
       wptPort,
       wptSslPort
     } = config;
+    println(" done.");
 
     this._port = port;
 
@@ -35,7 +40,9 @@ class WaveServer {
     const database = new Database({
       dbCompactionInterval
     });
+    print("Loading database ...");
     await database.load(databaseDirectoryPath);
+    println(" done.");
     const testLoader = new TestLoader({
       resultsDirectoryPath
     });
@@ -48,7 +55,9 @@ class WaveServer {
       sessionManager,
       server: httpServer.getServer()
     });
+    print("Loading sessions ...");
     await sessionManager.initialize();
+    println(" done.");
     const resultsManager = new ResultsManager({
       resultsDirectoryPath,
       database,
@@ -56,8 +65,10 @@ class WaveServer {
     });
     await resultsManager.loadResults();
 
+    print("Loading tests ...");
     await testLoader.loadTests(manifestFilePath);
-    await httpServer.initialize();
+    println(" done.");
+    httpServer.initialize();
     httpServer.registerStatic(path.join(applicationDirectoryPath, "./html"));
     httpServer.registerRoute(
       new Route("/", (request, response) => {
@@ -85,7 +96,9 @@ class WaveServer {
   }
 
   async start(port = this._port) {
+    print("Starting http server ...");
     await this._httpServer.start(port);
+    println(" done.");
   }
 
   getPort() {
