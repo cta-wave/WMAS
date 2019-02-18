@@ -14,6 +14,7 @@ class ResultsManager {
     this._resultsDirectoryPath = resultsDirectoryPath;
     this._database = database;
     this._sessionManager = sessionManager;
+    this._generatingComparisons = [];
   }
 
   async getJsonPath({ token, api }) {
@@ -168,9 +169,9 @@ class ResultsManager {
     });
   }
 
-  async getTokensFromHash(element) {
+  async getTokensFromHash(hash) {
     let tokens = [];
-    const tempPath = path.join(this._resultsDirectoryPath, element);
+    const tempPath = path.join(this._resultsDirectoryPath, hash);
     if (await FileSystem.exists(tempPath)) {
       const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/;
       const apiNames = await FileSystem.readDirectory(tempPath);
@@ -272,6 +273,177 @@ class ResultsManager {
     result.status = harness_status_map[result.status];
 
     return result;
+  }
+
+  async saveComparison(comparisonResult, tokens, refTokens) {
+    const comparisonDirectory = this.getComparisonDirectoryName(
+      tokens,
+      refTokens
+    );
+    const comparisonDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      comparisonDirectory
+    );
+    if (!(await FileSystem.exists(comparisonDirectoryPath))) {
+      await FileSystem.makeDirectory(comparisonDirectoryPath);
+    }
+    const comparisonResultPath = path.join(
+      comparisonDirectoryPath,
+      "manifest.json"
+    );
+    await FileSystem.writeFile(
+      comparisonResultPath,
+      JSON.stringify(comparisonResult, null, 2)
+    );
+  }
+
+  async loadComparison(tokens, refTokens) {
+    const comparisonDirectory = this.getComparisonDirectoryName(
+      tokens,
+      refTokens
+    );
+    const comparisonDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      comparisonDirectory
+    );
+    const comparisonResultPath = path.join(
+      comparisonDirectoryPath,
+      "manifest.json"
+    );
+    if (!(await FileSystem.exists(comparisonResultPath))) return null;
+    const comparisonJson = await FileSystem.readFile(comparisonResultPath);
+    return JSON.parse(comparisonJson);
+  }
+
+  getComparisonDirectoryName(tokens, refTokens) {
+    let comparisonDirectory = "comparison";
+    comparisonDirectory += tokens
+      .map(token => token.split("-")[0])
+      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .reduce((string, token) => `${string}-${token}`, "");
+    let hash = crypto.createHash("sha1");
+    refTokens
+      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .forEach(token => hash.update(token));
+    tokens
+      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .forEach(token => hash.update(token));
+    hash = hash.digest("hex");
+    comparisonDirectory += `-${hash.substr(0, 8)}`;
+    return comparisonDirectory;
+  }
+
+  async generateComparisonResults(tokens, refTokens) {
+    const passedRefTests = await this._filterPassedTests(refTokens);
+    let sessionResults = {};
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      sessionResults[token] = {};
+      const sessionResult = await this.getResults(token);
+      for (let api in sessionResult) {
+        sessionResults[token][api] = 0;
+        const apiResult = sessionResult[api];
+        let passedSubTests = 0;
+        for (let result in apiResult) {
+          // don't count subtests if this test didn't pass in reference
+          if (!passedRefTests[api].find(t => t[apiResult[result].test]))
+            continue;
+
+          let subtests = apiResult[result].subtests || [];
+          for (let k = 0; k < subtests.length; k++) {
+            const subtest = subtests[k];
+            if (subtest.status === "PASS") {
+              passedSubTests++;
+            }
+          }
+        }
+        if (passedRefTests[api]) {
+          const totalPassedRefSubtests = passedRefTests[api].reduce(
+            (acc, test) => acc + test[Object.keys(test)[0]],
+            0
+          );
+          sessionResults[token][api] = this._percent(
+            passedSubTests,
+            totalPassedRefSubtests
+          );
+        } else {
+          sessionResults[token][api] = "not tested";
+        }
+      }
+    }
+    return sessionResults;
+  }
+
+  _percent(count, total) {
+    const percent = Math.floor((count / total) * 10000) / 100;
+    if (!percent) {
+      return 0;
+    }
+    return percent;
+  }
+
+  async _filterPassedTests(refTokens) {
+    let refSessionsResults = await Promise.all(
+      refTokens.map(async token => await this.getResults(token))
+    );
+    let passed = {};
+
+    // get all subtests from all referenced sessions
+    for (let i = 0; i < refSessionsResults.length; i++) {
+      let res = refSessionsResults[i];
+
+      for (let api in res) {
+        passed[api] = passed[api] || {};
+        res[api].forEach(test => {
+          passed[api][test.test] = passed[api][test.test] || [];
+          passed[api][test.test].push(test.subtests || []);
+        });
+      }
+    }
+
+    // filter out test files where any subtest of any referenced session didn't pass
+    for (let api in passed) {
+      for (let test in passed[api]) {
+        let testLen = passed[api][test][0].length;
+        // remove test file if subtest count of referenced sessions doesn't match
+        if (passed[api][test].some(s => s.length !== testLen)) {
+          passed[api][test] = undefined;
+          continue;
+        }
+
+        passed[api][test] = passed[api][test].map(fff => {
+          let allSubs = {};
+          fff.forEach(sub => {
+            allSubs[sub.name] = sub.status;
+          });
+          return allSubs;
+        });
+
+        // check that all subtests passed otherwise exclude that test file
+        let ref = passed[api][test].pop();
+        for (let sub in ref) {
+          if (
+            passed[api][test].some(
+              other => ref[sub] !== "PASS" || other[sub] !== ref[sub]
+            )
+          ) {
+            passed[api][test] = undefined;
+            break;
+          }
+        }
+      }
+
+      let temp = [];
+      for (let test in passed[api]) {
+        if (passed[api][test] && passed[api][test].length) {
+          let out = {};
+          out[test] = Object.keys(passed[api][test][0]).length;
+          temp.push(out);
+        }
+      }
+      passed[api] = temp;
+    }
+    return passed;
   }
 }
 

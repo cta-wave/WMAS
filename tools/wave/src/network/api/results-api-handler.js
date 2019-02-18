@@ -1,11 +1,17 @@
+const EventEmitter = require("events");
+
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
+
+const COMPARISON_GENERATION_FINISHED = "comparison_generation_finished";
 
 class ResultsApiHandler extends ApiHandler {
   constructor(resultsManager) {
     super();
     this._routes = this._createRoutes();
     this._resultsManager = resultsManager;
+    this._eventEmitter = new EventEmitter();
+    this._generatingComparisons = [];
   }
 
   _createRoutes() {
@@ -74,28 +80,64 @@ class ResultsApiHandler extends ApiHandler {
             }
           }
           case 3:
-            const tokenArr = url[1].split(",");
-            let refTokenArr = url[2].split(",");
-            for (let i = 0; i < refTokenArr.length; i++) {
-              const element = refTokenArr[i];
-              if (element.includes("-")) {
-                continue;
-              } else {
-                refTokenArr = refTokenArr.filter(e => e !== element);
-                let tokens = await this._resultsManager.getTokensFromHash(
-                  element
+            const tokens = url[1].split(",");
+            let refTokens = url[2].split(",");
+            const hashes = refTokens.filter(token => !token.includes("-"));
+            await Promise.all(
+              hashes.map(async hash => {
+                refTokens.splice(refTokens.indexOf(hash), 1);
+                const hashTokens = await this._resultsManager.getTokensFromHash(
+                  hash
                 );
-                for (let i = 0; i < tokens.length; i++) {
-                  refTokenArr.push(tokens[i]);
-                }
+                refTokens = refTokens.concat(hashTokens);
+              })
+            );
+            let comparisonResult = await this._resultsManager.loadComparison(
+              tokens,
+              refTokens
+            );
+
+            if (!comparisonResult) {
+              const comparisonDirectory = this._resultsManager.getComparisonDirectoryName(
+                tokens,
+                refTokens
+              );
+              if (this._generatingComparisons.includes(comparisonDirectory)) {
+                comparisonResult = await new Promise(resolve => {
+                  const onComparisonGenerationFinished = finishedDirectory => {
+                    if (finishedDirectory === comparisonDirectory) {
+                      this._eventEmitter.removeListener(
+                        COMPARISON_GENERATION_FINISHED,
+                        onComparisonGenerationFinished
+                      );
+                      resolve(
+                        this._resultsManager.loadComparison(tokens, refTokens)
+                      );
+                    }
+                  };
+                  this._eventEmitter.on(
+                    COMPARISON_GENERATION_FINISHED,
+                    onComparisonGenerationFinished
+                  );
+                });
+              } else {
+                this._generatingComparisons.push(comparisonDirectory);
+                comparisonResult = await this._resultsManager.generateComparisonResults(
+                  tokens,
+                  refTokens
+                );
+                await this._resultsManager.saveComparison(
+                  comparisonResult,
+                  tokens,
+                  refTokens
+                );
+                this._eventEmitter.emit(
+                  COMPARISON_GENERATION_FINISHED,
+                  comparisonDirectory
+                );
               }
             }
-            let passedRefTests = await this._filterPassedTests(refTokenArr);
-            let sessionResults = await this._getSessionResults(
-              tokenArr,
-              passedRefTests
-            );
-            this.sendJson(sessionResults, response);
+            this.sendJson(comparisonResult, response);
             return;
           case 4: {
             switch (url[3]) {
@@ -205,128 +247,6 @@ class ResultsApiHandler extends ApiHandler {
       }
     }
     return flattenedResults;
-  }
-
-  _calculateIntersect(a, b) {
-    var t;
-    if (b.length > a.length) (t = b), (b = a), (a = t);
-    return a.filter(e => {
-      return b.includes(e);
-    });
-  }
-
-  async _filterPassedTests(refTokenArr) {
-    let refSessionsResults = await Promise.all(
-      refTokenArr.map(
-        async token => await this._resultsManager.getResults(token)
-      )
-    );
-    let passed = {};
-
-    // get all subtests from all referenced sessions
-    for (let i = 0; i < refSessionsResults.length; i++) {
-      let res = refSessionsResults[i];
-
-      for (let api in res) {
-        passed[api] = passed[api] || {};
-        res[api].forEach(test => {
-          passed[api][test.test] = passed[api][test.test] || [];
-          passed[api][test.test].push(test.subtests || []);
-        });
-      }
-    }
-
-    // filter out test files where any subtest of any referenced session didn't pass
-    for (let api in passed) {
-      for (let test in passed[api]) {
-        let testLen = passed[api][test][0].length;
-        // remove test file if subtest count of referenced sessions doesn't match
-        if (passed[api][test].some(s => s.length !== testLen)) {
-          passed[api][test] = undefined;
-          continue;
-        }
-
-        passed[api][test] = passed[api][test].map(fff => {
-          let allSubs = {};
-          fff.forEach(sub => {
-            allSubs[sub.name] = sub.status;
-          });
-          return allSubs;
-        });
-
-        // check that all subtests passed otherwise exclude that test file
-        let ref = passed[api][test].pop();
-        for (let sub in ref) {
-          if (
-            passed[api][test].some(
-              other => ref[sub] !== "PASS" || other[sub] !== ref[sub]
-            )
-          ) {
-            passed[api][test] = undefined;
-            break;
-          }
-        }
-      }
-
-      let temp = [];
-      for (let test in passed[api]) {
-        if (passed[api][test] && passed[api][test].length) {
-          let out = {};
-          out[test] = Object.keys(passed[api][test][0]).length;
-          temp.push(out);
-        }
-      }
-      passed[api] = temp;
-    }
-    return passed;
-  }
-
-  _percent(count, total) {
-    const percent = Math.floor((count / total) * 10000) / 100;
-    if (!percent) {
-      return 0;
-    }
-    return percent;
-  }
-
-  async _getSessionResults(tokenArr, passedRefTests) {
-    let sessionResults = {};
-    for (let i = 0; i < tokenArr.length; i++) {
-      const token = tokenArr[i];
-      sessionResults[token] = {};
-      const sessionResult = await this._resultsManager.getResults(token);
-      for (let api in sessionResult) {
-        sessionResults[token][api] = 0;
-        const apiResult = sessionResult[api];
-        let passedSubTests = 0;
-        for (let result in apiResult) {
-          // don't count subtests if this test didn't pass in reference
-          if (!passedRefTests[api].find(t => t[apiResult[result].test]))
-            continue;
-
-          let subtests = apiResult[result].subtests || [];
-          for (let k = 0; k < subtests.length; k++) {
-            const subtest = subtests[k];
-            if (subtest.status === "PASS") {
-              passedSubTests++;
-            }
-          }
-        }
-        if (passedRefTests[api]) {
-          const totalPassedRefSubtests = passedRefTests[api].reduce(
-            (acc, test) => acc + test[Object.keys(test)[0]],
-            0
-          );
-          sessionResults[token][api] = this._percent(
-            passedSubTests,
-            totalPassedRefSubtests
-          );
-        } else {
-          sessionResults[token][api] = "not tested";
-        }
-      }
-    }
-    return sessionResults;
   }
 }
 
