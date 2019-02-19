@@ -203,6 +203,8 @@ class ResultsManager {
       info.user_agent = session.getUserAgent();
       info.path = session.getPath();
       info.types = session.getTypes();
+      info.date_started = session.getDateStarted();
+      info.date_finished = session.getDateFinished();
       await FileSystem.writeFile(
         infoFilePath,
         JSON.stringify(info, null, "  ")

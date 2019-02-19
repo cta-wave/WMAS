@@ -261,6 +261,17 @@
           a.download = filename;
           a.click();
           document.body.removeChild(a);
+        },
+        millisToTimeString(totalMilliseconds) {
+          let milliseconds = (totalMilliseconds % 1000) + "";
+          milliseconds = milliseconds.padStart(3, "0");
+          let seconds = (Math.floor(totalMilliseconds / 1000) % 60) + "";
+          seconds = seconds.padStart(2, "0");
+          let minutes = (Math.floor(totalMilliseconds / 60000) % 60) + "";
+          minutes = minutes.padStart(2, "0");
+          let hours = Math.floor(totalMilliseconds / 3600000) + "";
+          hours = hours.padStart(2, "0");
+          return `${hours}:${minutes}:${seconds}`;
         }
       };
 
@@ -501,6 +512,18 @@
                   children: [{ text: "Test Timeout:" }, { id: "test-timeout" }]
                 },
                 {
+                  className: "detail",
+                  children: [{ text: "Started:" }, { id: "date-started" }]
+                },
+                {
+                  className: "detail",
+                  children: [{ text: "Finished:" }, { id: "date-finished" }]
+                },
+                {
+                  className: "detail",
+                  children: [{ text: "Duration:" }, { id: "duration" }]
+                },
+                {
                   type: "h2",
                   text: "API Results"
                 },
@@ -551,6 +574,19 @@
           ).reduce((sum, api) => (sum += test_files_count[api]), 0);
           getElement("status").innerText = details.status;
           getElement("test-timeout").innerText = details.test_timeout;
+          const dateStarted = parseInt(details.date_started);
+          getElement("date-started").innerText = new Date(
+            dateStarted
+          ).toLocaleString();
+          let dateFinished = parseInt(details.date_finished);
+          if (dateFinished) {
+            getElement("date-finished").innerText = new Date(
+              dateFinished
+            ).toLocaleString();
+          } else dateFinished = Date.now();
+          getElement("duration").innerText = utils.millisToTimeString(
+            dateFinished - dateStarted
+          );
         },
         displayApiResults: results => {
           const { getElement, createElement } = ui;

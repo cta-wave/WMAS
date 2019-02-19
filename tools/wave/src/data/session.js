@@ -21,7 +21,9 @@ class Session {
       testTimeout,
       status,
       testFilesCount,
-      testFilesCompleted
+      testFilesCompleted,
+      dateStarted = null,
+      dateFinished = null
     }
   ) {
     this._token = token;
@@ -45,6 +47,8 @@ class Session {
     this._timeouts = [];
     this._status = status || UNKNOWN;
     this._clients = [];
+    this._dateStarted = dateStarted || Date.now();
+    this._dateFinished = dateFinished;
   }
 
   _calculateTestFilesCount(tests) {
@@ -270,7 +274,18 @@ class Session {
   setStatus(status) {
     this._status = status;
     this._clients.forEach(client => client.send("status"));
+    if (status === COMPLETED || status === ABORTED) {
+      this._dateFinished = Date.now();
+    }
     return this;
+  }
+
+  getDateStarted() {
+    return this._dateStarted;
+  }
+
+  getDateFinished() {
+    return this._dateFinished;
   }
 }
 

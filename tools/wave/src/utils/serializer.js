@@ -17,6 +17,8 @@ class Serializer {
     const running_tests = session.getRunningTests();
     const completed_tests = session.getCompletedTests();
     const status = session.getStatus();
+    const date_started = session.getDateStarted();
+    const date_finished = session.getDateFinished();
     const { browser } = UserAgentParser.parse(session.getUserAgent());
     return {
       token,
@@ -30,7 +32,9 @@ class Serializer {
       running_tests,
       completed_tests,
       status,
-      browser
+      browser,
+      date_started,
+      date_finished
     };
   }
 }

@@ -19,6 +19,8 @@ class Deserializer {
     const status = sessionObject.status;
     const testFilesCount = sessionObject.test_files_count;
     const testFilesCompleted = sessionObject.test_files_completed;
+    const dateStarted = sessionObject.date_started;
+    const dateFinished = sessionObject.date_finished;
     return new Session(token, {
       path,
       types,
@@ -29,7 +31,9 @@ class Deserializer {
       completedTests,
       status,
       testFilesCount,
-      testFilesCompleted
+      testFilesCompleted,
+      dateStarted,
+      dateFinished
     });
   }
 }
