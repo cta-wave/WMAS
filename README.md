@@ -44,7 +44,7 @@ $ python wpt make-hosts-file | Out-File %SystemRoot%\System32\drivers\etc\hosts 
 
 Generate test subset, call from WPT root directory:
 ```
-$ ./wmas2017-subset.sh
+$ ./wmas2018-subset.sh
 ```
 
 Initialize WAVE Server:
