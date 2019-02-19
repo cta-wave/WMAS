@@ -330,6 +330,13 @@
             callback
           );
         },
+        deleteSession: callback => {
+          waveService.sendRequest(
+            "GET",
+            "/sessions/" + waveService.token + "/delete",
+            callback
+          );
+        },
         findToken: (fragment, callback) => {
           waveService.sendRequest(
             "GET",
@@ -536,30 +543,112 @@
           const { getElement, createElement } = ui;
           const controlsWrapper = getElement("controls-wrapper");
           controlsWrapper.innerHTML = "";
-          if (status === "aborted" || status === "completed") return;
-          const controls = [
-            createElement({
-              id: "pause-resume-button",
-              className: "button is-light is-medium",
-              style: "margin-right: 20px",
-              text: status === "running" ? "Pause" : "Resume",
-              onclick: function() {
-                if (status === "running") {
-                  waveService.pauseSession(ui.refreshData);
-                } else {
-                  waveService.resumeSession(ui.refreshData);
+          const controls = [];
+          if (status !== "aborted" && status !== "completed") {
+            controls.push(
+              createElement({
+                id: "pause-resume-button",
+                className: "button is-light is-medium",
+                style: "margin-right: 20px",
+                text: status === "running" ? "Pause" : "Resume",
+                onclick: function() {
+                  if (status === "running") {
+                    waveService.pauseSession(ui.refreshData);
+                  } else {
+                    waveService.resumeSession(ui.refreshData);
+                  }
                 }
-              }
-            }),
+              })
+            );
+            controls.push(
+              createElement({
+                id: "stop-button",
+                className: "button is-light is-medium",
+                text: "Stop",
+                onclick: () => {
+                  waveService.stopSession(ui.refreshData);
+                }
+              })
+            );
+          }
+          controls.push(
             createElement({
-              id: "stop-button",
+              id: "delete-button",
               className: "button is-light is-medium",
-              text: "Stop",
+              style: "margin-left: 20px",
+              text: "Delete",
               onclick: () => {
-                waveService.stopSession(ui.refreshData);
+                const modal = ui.getElement("delete-modal");
+                let className = modal.getAttribute("class");
+                modal.setAttribute("class", className + " is-active");
               }
             })
-          ];
+          );
+          controls.push(
+            createElement({
+              id: "delete-modal",
+              className: "modal",
+              children: [
+                {
+                  className: "modal-background",
+                  onclick: () => {
+                    const modal = ui.getElement("delete-modal");
+                    let className = modal.getAttribute("class");
+                    className = className.replace(" is-active", "");
+                    modal.setAttribute("class", className);
+                  }
+                },
+                {
+                  className: "modal-card",
+                  children: [
+                    {
+                      className: "modal-card-head",
+                      children: [
+                        {
+                          type: "p",
+                          className: "modal-card-title",
+                          text: "Delete Session"
+                        }
+                      ]
+                    },
+                    {
+                      className: "modal-card-body",
+                      children: [
+                        {
+                          type: "p",
+                          text: "Are you sure you want to delete this session?"
+                        },
+                        { type: "p", text: "This action cannot be undone." }
+                      ]
+                    },
+                    {
+                      className: "modal-card-foot",
+                      children: [
+                        {
+                          className: "button is-danger",
+                          text: "Delete Session",
+                          onclick: () => {
+                            waveService.deleteSession();
+                            document.location = "/results.html";
+                          }
+                        },
+                        {
+                          className: "button",
+                          text: "Cancel",
+                          onclick: () => {
+                            const modal = ui.getElement("delete-modal");
+                            let className = modal.getAttribute("class");
+                            className = className.replace(" is-active", "");
+                            modal.setAttribute("class", className);
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            })
+          );
           controls.forEach(control => controlsWrapper.appendChild(control));
         },
         displaySessionDetails: details => {

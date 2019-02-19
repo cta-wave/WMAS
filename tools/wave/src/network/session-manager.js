@@ -90,6 +90,14 @@ class SessionManager {
   async getSessions() {
     return await this._database.readSessions();
   }
+
+  async deleteSession(token) {
+    this._sessions.splice(
+      this._sessions.findIndex(session => session.getToken() === token),
+      1
+    );
+    this._database.deleteSession(token);
+  }
 }
 
 module.exports = SessionManager;

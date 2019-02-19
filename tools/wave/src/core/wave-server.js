@@ -86,7 +86,10 @@ class WaveServer {
     });
     httpServer.registerRoutes(testApiHandler.getRoutes());
 
-    const sessionApiHandler = new SessionApiHandler(sessionManager);
+    const sessionApiHandler = new SessionApiHandler(
+      sessionManager,
+      resultsManager
+    );
     httpServer.registerRoutes(sessionApiHandler.getRoutes());
 
     const resultsApiHandler = new ResultsApiHandler(resultsManager);

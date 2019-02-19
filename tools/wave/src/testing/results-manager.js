@@ -114,6 +114,12 @@ class ResultsManager {
     await FileSystem.writeFile(filePath, JSON.stringify(apiResults, null, 2));
   }
 
+  async deleteResults(token) {
+    const resultDirectory = path.join(this._resultsDirectoryPath, token);
+    if (!(await FileSystem.exists(resultDirectory))) return;
+    await FileSystem.removeDirectory(resultDirectory);
+  }
+
   async loadResults() {
     const sessionManager = this._sessionManager;
     const resultsDirectoryPath = this._resultsDirectoryPath;

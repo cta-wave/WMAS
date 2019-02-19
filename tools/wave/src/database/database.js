@@ -149,6 +149,13 @@ class Database {
     return resultsDataStore.find({});
   }
 
+  async deleteSession(token) {
+    const sessionDataStore = this._db.sessions;
+    await sessionDataStore.remove({ token });
+    await this._deleteTests(token);
+    await this._deleteResults(token);
+  }
+
   async _loadSubDatabases(session) {
     const token = session.getToken();
     if (!this._db.results[token]) {
@@ -177,9 +184,16 @@ class Database {
 
   async _deleteTests(token) {
     delete this._db.tests[token];
-    await FileSystem.removeFile(
-      path.join(this._testsDirectoryPath, token + ".db")
-    );
+    const databaseFile = path.join(this._testsDirectoryPath, token + ".db");
+    if (!(await FileSystem.exists(databaseFile))) return;
+    await FileSystem.removeFile(databaseFile);
+  }
+
+  async _deleteResults(token) {
+    delete this._db.results[token];
+    const databaseFile = path.join(this._resultsDirectoryPath, token + ".db");
+    if (!(await FileSystem.exists(databaseFile))) return;
+    await FileSystem.removeFile(databaseFile);
   }
 
   // get rid of callbacks and use promises
@@ -209,6 +223,14 @@ class Database {
           database.update(needle, document, (error, document) => {
             if (error) reject(error);
             resolve(document);
+          });
+        });
+      },
+      async remove(needle, removeAll = false) {
+        return new Promise((resolve, reject) => {
+          database.remove(needle, { multi: removeAll }, (error, numRemoved) => {
+            if (error) reject(error);
+            resolve(numRemoved);
           });
         });
       }

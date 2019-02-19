@@ -4,10 +4,11 @@ const ApiHandler = require("./api-handler");
 const Session = require("../../data/session");
 
 class SessionApiHandler extends ApiHandler {
-  constructor(sessionManager) {
+  constructor(sessionManager, resultsManager) {
     super();
     this._routes = this._createRoutes();
     this._sessionManager = sessionManager;
+    this._resultsManager = resultsManager;
   }
 
   _createRoutes() {
@@ -43,6 +44,9 @@ class SessionApiHandler extends ApiHandler {
               case "stop":
                 response.send();
                 return this._stopSession(url[1]);
+              case "delete":
+                response.send();
+                return this._deleteSession(url[1]);
             }
         }
     }
@@ -72,6 +76,11 @@ class SessionApiHandler extends ApiHandler {
     if (session.getStatus() === Session.PAUSED) {
       session.setStatus(Session.RUNNING);
     }
+  }
+
+  async _deleteSession(token) {
+    await this._sessionManager.deleteSession(token);
+    await this._resultsManager.deleteResults(token);
   }
 
   async _getSessions({ request, response }) {
