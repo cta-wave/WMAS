@@ -69,7 +69,7 @@ class WaveServer {
     await testLoader.loadTests(manifestFilePath);
     println(" done.");
     httpServer.initialize();
-    httpServer.registerStatic(path.join(applicationDirectoryPath, "./html"));
+    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
     httpServer.registerRoute(
       new Route("/", (request, response) => {
         response.sendFile(path.join(applicationDirectoryPath, "index.html"));
