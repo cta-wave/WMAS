@@ -250,6 +250,7 @@
           const { getElement } = UI;
           const { test_files_count } = details;
           const detailsTable = getElement("details-table");
+          detailsTable.innerHTML = "";
           detailsTable.appendChild(
             UI.createElement({
               type: "tbody",
