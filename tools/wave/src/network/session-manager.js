@@ -15,11 +15,6 @@ class SessionManager {
     this._testLoader = testLoader;
   }
 
-  async initialize() {
-    const sessions = await this.getSessions();
-    await this._database.loadSessions(sessions);
-  }
-
   async findToken(fragment) {
     const tokens = await this._database.findTokens(fragment);
     if (tokens.length === 1) {

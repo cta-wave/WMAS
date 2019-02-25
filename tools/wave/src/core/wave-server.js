@@ -1,7 +1,7 @@
 const path = require("path");
 
 const TestLoader = require("../testing/test-loader");
-const Database = require("../database/database");
+const Database = require("../database");
 const HttpServer = require("../network/http-server");
 const SessionManager = require("../network/session-manager");
 const SessionApiHandler = require("../network/api/session-api-handler");
@@ -40,8 +40,8 @@ class WaveServer {
     const database = new Database({
       dbCompactionInterval
     });
-    print("Loading database ...");
-    await database.load(databaseDirectoryPath);
+    print("Initializing database ...");
+    await database.initialize(databaseDirectoryPath);
     println(" done.");
     const testLoader = new TestLoader({
       resultsDirectoryPath
@@ -55,9 +55,7 @@ class WaveServer {
       sessionManager,
       server: httpServer.getServer()
     });
-    print("Loading sessions ...");
-    await sessionManager.initialize();
-    println(" done.");
+
     const resultsManager = new ResultsManager({
       resultsDirectoryPath,
       database,
