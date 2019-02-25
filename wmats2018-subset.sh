@@ -384,6 +384,9 @@ node tools/wave/ecmascript/generate-tests.js $DISTDIR
 # Remove the dist folder before manifest generation
 rm -rf dist
 
+# Remove tests listed in the exceptions file
+node tools/wave/src/testing/exceptions/delete_exceptions.js
+
 # build the MANIFEST.json
 ./wpt manifest --no-download --work
 
