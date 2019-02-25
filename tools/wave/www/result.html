@@ -4,209 +4,11 @@
     <meta charset="UTF-8" />
     <title>Results - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/result.css" />
     <script src="lib/jszip.min.js"></script>
-
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        font-family: sans-serif;
-        overflow-y: auto;
-        overflow-x: hidden;
-        background-color: white;
-        color: #000;
-      }
-
-      .site-logo {
-        max-width: 300px;
-        margin: 50px 0 30px -15px;
-      }
-
-      .content {
-        width: 1000px;
-        padding: 0 10px;
-      }
-
-      .prompt {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        width: 700px;
-      }
-
-      .detail {
-        margin: 2px 0;
-        display: flex;
-        width: 100%;
-      }
-
-      .detail :first-child {
-        width: 150px;
-        flex: none;
-        font-weight: bold;
-      }
-
-      .detail div {
-        flex: 1;
-      }
-
-      #test-path,
-      #token {
-        font-family: monospace;
-        font-size: 12pt;
-      }
-
-      #api-results {
-        margin-bottom: 50px;
-        border: 1px solid grey;
-        border-radius: 3px;
-      }
-
-      #api-results-header {
-        font-weight: bold;
-        background-color: rgb(245, 245, 245);
-        border-bottom: solid black 1px;
-        border-top: none;
-        /* margin-bottom: 5px; */
-      }
-
-      .api-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        border-top: 1px grey solid;
-        padding: 5px;
-      }
-
-      .api-wrapper:nth-child(2) {
-        border-top: none;
-      }
-
-      .api-wrapper:nth-child(odd) {
-        background-color: rgb(230, 230, 230);
-      }
-
-      .api-wrapper.total {
-        background-color: rgb(245, 245, 245);
-      }
-
-      .api-result {
-        flex: 1;
-        padding: 5px;
-        display: flex;
-        align-items: center;
-      }
-
-      .pass {
-        color: green;
-      }
-
-      .fail {
-        color: red;
-      }
-
-      .timeout {
-        color: rgb(224, 127, 0);
-      }
-
-      .api-result-timeoutfiles {
-        display: none; /* don't display for now */
-        flex-basis: 100%;
-      }
-
-      .not-run {
-        color: blue;
-      }
-
-      .absolute {
-        flex: 1;
-        font-weight: bold;
-      }
-
-      .percent {
-        flex: 1;
-        font-size: 10pt;
-      }
-
-      .api-name {
-        flex: none;
-        width: 180px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .total {
-        border-top: solid black 1px;
-        padding: 7px 0;
-        /* margin-top: 5px; */
-        background-color: white;
-      }
-
-      .total > .api-name {
-        font-weight: bold;
-      }
-
-      .button.disabled {
-        color: grey;
-        cursor: not-allowed;
-      }
-
-      .button.disabled:hover {
-        background-color: rgb(245, 245, 245);
-        color: grey;
-      }
-
-      #header {
-        display: flex;
-        align-items: center;
-      }
-
-      #header > :first-child {
-        flex: 1;
-      }
-
-      #controls-wrapper {
-        display: flex;
-      }
-
-      .error {
-        background-color: rgb(255, 230, 230);
-        color: red;
-        padding: 10px;
-        margin: 10px 0 0 0;
-      }
-
-      .api-controls {
-        width: 100px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .json-download.button,
-      .html-report.button {
-        font-size: 11pt;
-        margin: 2px;
-        padding: 3px;
-      }
-
-      .overview-banner {
-        padding: 3px;
-        cursor: pointer;
-        width: 170px;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 30px;
-      }
-
-      .no-border-radius {
-        border-radius: 0;
-      }
-    </style>
+    <script src="lib/utils.js"></script>
+    <script src="lib/wave-service.js"></script>
+    <script src="lib/ui.js"></script>
   </head>
   <body>
     <script>
@@ -214,9 +16,9 @@
         const query = utils.parseQuery(location.search);
         const token = query.token;
         if (token) {
-          waveService.token = token;
-          ui.renderResults();
-          ui.refreshData();
+          WaveService.setDefaultToken(token);
+          resultUi.render();
+          resultUi.refreshData();
         } else {
           location.href = "/results.html" + location.search;
         }
@@ -237,313 +39,102 @@
         }
       };
 
-      const utils = {
-        parseQuery: queryString => {
-          if (queryString.indexOf("?") === -1) return {};
-          queryString = queryString.split("?")[1];
-          const query = {};
-          for (let part of queryString.split("&")) {
-            const keyValue = part.split("=");
-            query[keyValue[0]] = keyValue[1] ? keyValue[1] : null;
-          }
-          return query;
-        },
-        percent: (count, total) => {
-          const percent = Math.floor((count / total) * 10000) / 100;
-          if (!percent) {
-            return 0;
-          }
-          return percent;
-        },
-        saveBlobAsFile: (blob, filename) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.style.display = "none";
-          document.body.appendChild(a);
-          a.href = url;
-          a.download = filename;
-          a.click();
-          document.body.removeChild(a);
-        },
-        millisToTimeString(totalMilliseconds) {
-          let milliseconds = (totalMilliseconds % 1000) + "";
-          milliseconds = milliseconds.padStart(3, "0");
-          let seconds = (Math.floor(totalMilliseconds / 1000) % 60) + "";
-          seconds = seconds.padStart(2, "0");
-          let minutes = (Math.floor(totalMilliseconds / 60000) % 60) + "";
-          minutes = minutes.padStart(2, "0");
-          let hours = Math.floor(totalMilliseconds / 3600000) + "";
-          hours = hours.padStart(2, "0");
-          return `${hours}:${minutes}:${seconds}`;
-        }
-      };
-
-      const waveService = {
-        sendRequest: (method, uri, callback) => {
-          const xhr = new XMLHttpRequest();
-          xhr.addEventListener("load", () => {
-            let headers = {};
-            let rawHeaders = xhr.getAllResponseHeaders();
-            rawHeaders = rawHeaders.split("\r\n");
-            rawHeaders.forEach(rawHeader => {
-              const split = rawHeader.split(": ");
-              headers[split.shift().toLowerCase()] = split.shift();
-            });
-            callback(xhr.response, headers);
-          });
-          xhr.open(method, uri, true);
-          xhr.send();
-        },
-        getSessionDetails: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + waveService.token,
-            response => {
-              callback(JSON.parse(response));
-            }
-          );
-        },
-        getTestResults: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/results/" + waveService.token,
-            response => {
-              callback(JSON.parse(response));
-            }
-          );
-        },
-        pauseSession: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + waveService.token + "/pause",
-            callback
-          );
-        },
-        resumeSession: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + waveService.token + "/resume",
-            callback
-          );
-        },
-        stopSession: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + waveService.token + "/stop",
-            callback
-          );
-        },
-        deleteSession: callback => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + waveService.token + "/delete",
-            callback
-          );
-        },
-        findToken: (fragment, callback) => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + fragment + "/token",
-            response => {
-              response = JSON.parse(response);
-              if (response.token) {
-                callback(response.token);
-              } else {
-                callback(null);
-              }
-            }
-          );
-        },
-        downloadJson: api => {
-          location.href = "/results/" + waveService.token + "/" + api + "/json";
-        },
-        downloadJsons: apis => {
-          const shortToken = waveService.token.split("-").shift();
-          let zipFileName = shortToken + ".zip";
-          const createZip = jsons => {
-            const zip = new JSZip();
-            Object.keys(jsons).forEach(api =>
-              zip.file(jsons[api].fileName, jsons[api].value)
-            );
-            return zip;
-          };
-          const jsons = {};
-          apis.forEach(api => {
-            waveService.sendRequest(
-              "GET",
-              "/results/" + waveService.token + "/" + api + "/json",
-              (response, headers) => {
-                let fileName = "";
-                try {
-                  fileName = headers["content-disposition"]
-                    .split(";")
-                    .find(value => value.startsWith("filename"))
-                    .split("=")[1]
-                    .replace(/"/g, "");
-                  zipFileName = fileName
-                    .split("-")
-                    .filter((part, index) => index !== 1)
-                    .join("-")
-                    .replace(/json$/, "zip");
-                } catch (ignored) {
-                  fileName = shortToken + "-" + api + ".json";
-                }
-                jsons[api] = { value: response, fileName };
-                if (Object.keys(jsons).length === apis.length) {
-                  const zip = createZip(jsons);
-                  zip
-                    .generateAsync({ type: "blob" })
-                    .then(blob => utils.saveBlobAsFile(blob, zipFileName));
-                }
-              }
-            );
-          });
-        },
-        connect: () => {
-          if (!waveService.socket) {
-            const url = "ws://" + location.host;
-            console.log("Connecting to " + url);
-            waveService.socket = new WebSocket(url);
-            waveService.socket.onopen = () => {
-              waveService.socket.send(
-                JSON.stringify({ token: waveService.token })
+      const resultUi = {
+        refreshData: toUpdate => {
+          WaveService.getSessionDetails(details => {
+            WaveService.getTestResults(results => {
+              Object.keys(details.test_files_count).forEach(api =>
+                !results[api] ? (results[api] = {}) : null
               );
-            };
-            waveService.socket.onmessage = message => {
-              ui.refreshData(message.data);
-            };
-          }
-        },
-        openHtmlReport: api => {
-          const reportUrl =
-            "/results/" + waveService.token + "/" + api + "/all.html";
-          window.open(reportUrl, "_blank");
-        }
-      };
+              for (let api in results) {
+                let { pass, fail, timeout, not_run } = results[api];
+                let complete = 0;
+                if (pass) complete += pass;
+                if (fail) complete += fail;
+                if (timeout) complete += timeout;
+                if (not_run) complete += not_run;
+                results[api].complete = complete;
+                const { test_files_count, test_files_completed } = details;
+                results[api].isDone =
+                  test_files_count[api] === test_files_completed[api];
+                results[api].testFilesCount = test_files_count[api];
+                results[api].testFilesCompleted = test_files_completed[api];
+              }
 
-      const ui = {
-        createElement: config => {
-          const type = config.type || "div";
-          const element = document.createElement(type);
+              switch (toUpdate) {
+                case "complete":
+                  resultUi.displayApiResults(results);
+                  break;
+                case "status":
+                  resultUi.displayControls(details.status);
+                  break;
+                case "":
+                case null:
+                case undefined:
+                  resultUi.displayApiResults(results);
+                  resultUi.displayControls(details.status);
+                  resultUi.displaySessionDetails(details, results);
+                  break;
+              }
 
-          if (config.hasOwnProperty("className"))
-            element.setAttribute("class", config.className);
-          if (config.hasOwnProperty("id"))
-            element.setAttribute("id", config.id);
-          if (config.hasOwnProperty("text")) element.innerText = config.text;
-          if (config.hasOwnProperty("html")) element.innerHTML = config.html;
-          if (config.hasOwnProperty("style"))
-            element.setAttribute("style", config.style);
-          if (config.hasOwnProperty("onclick"))
-            element.onclick = config.onclick.bind(element);
-          if (config.hasOwnProperty("onchange"))
-            element.onchange = config.onchange.bind(element);
-          if (config.hasOwnProperty("src"))
-            element.setAttribute("src", config.src);
-          if (type === "input") {
-            if (config.hasOwnProperty("inputType"))
-              element.setAttribute("type", config.inputType);
-          }
-          if (config.children) {
-            config.children.forEach(child =>
-              element.appendChild(ui.createElement(child))
-            );
-          }
-          return element;
+              if (
+                !WaveService.socket &&
+                details.status !== "completed" &&
+                details.status !== "aborted"
+              ) {
+                WaveService.connect();
+                WaveService.onMessage(message => {
+                  resultUi.refreshData(message.data);
+                });
+              }
+            });
+          });
         },
-        getElement: id => {
-          return document.getElementById(id);
-        },
-        getRoot: () => {
-          return document.getElementsByTagName("body")[0];
-        },
-        renderResults: () => {
-          const { getRoot, createElement } = ui;
-          getRoot().appendChild(
+        render: () => {
+          const { getRoot, createElement } = UI;
+          const root = getRoot();
+          root.innerHTML = "";
+          root.appendChild(
             createElement({
               className: "content",
               children: [
                 {
-                  type: "img",
-                  src: "res/wavelogo_2016.jpg",
-                  className: "site-logo"
-                },
-                {
-                  className: "button is-light overview-banner",
-                  text: "< Results Overview",
-                  onclick: () => (location.href = "/results.html")
-                },
-                {
-                  id: "header",
+                  className: "header",
                   children: [
                     {
-                      type: "h1",
-                      text: "Result"
+                      children: [
+                        {
+                          type: "img",
+                          src: "res/wavelogo_2016.jpg",
+                          className: "site-logo"
+                        }
+                      ]
                     },
                     {
-                      id: "controls-wrapper"
+                      className: "button is-light",
+                      text: "❮ Results Overview",
+                      onclick: () => (location.href = "/results.html")
                     }
                   ]
                 },
                 {
-                  type: "h2",
-                  text: "Session details"
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Token:" }, { id: "token" }]
-                },
-                {},
-                {
-                  className: "detail",
-                  children: [{ text: "User Agent:" }, { id: "user-agent" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Test Path:" }, { id: "test-path" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Test Types:" }, { id: "test-types" }]
-                },
-                {
-                  className: "detail",
+                  id: "header",
                   children: [
-                    { text: "Total Test Files:" },
-                    { id: "total-tests" }
+                    { className: "title", text: "Result" },
+                    { id: "controls-wrapper" }
                   ]
                 },
-                {
-                  className: "detail",
-                  children: [{ text: "Status:" }, { id: "status" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Test Timeout:" }, { id: "test-timeout" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Started:" }, { id: "date-started" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Finished:" }, { id: "date-finished" }]
-                },
-                {
-                  className: "detail",
-                  children: [{ text: "Duration:" }, { id: "duration" }]
-                },
-                {
-                  type: "h2",
-                  text: "API Results"
-                },
-                { id: "api-results" }
+                { text: "Session details", className: "title is-4" },
+                { id: "details-table", type: "table" },
+                { text: "API Results", className: "title is-4" },
+                { id: "api-results" },
+                { id: "timeout-files" }
               ]
             })
           );
         },
         displayControls: status => {
-          const { getElement, createElement } = ui;
+          const { getElement, createElement } = UI;
           const controlsWrapper = getElement("controls-wrapper");
           controlsWrapper.innerHTML = "";
           const controls = [];
@@ -556,9 +147,9 @@
                 text: status === "running" ? "Pause" : "Resume",
                 onclick: function() {
                   if (status === "running") {
-                    waveService.pauseSession(ui.refreshData);
+                    WaveService.pauseSession(resultUi.refreshData);
                   } else {
-                    waveService.resumeSession(ui.refreshData);
+                    WaveService.resumeSession(resultUi.refreshData);
                   }
                 }
               })
@@ -569,7 +160,7 @@
                 className: "button is-light is-medium",
                 text: "Stop",
                 onclick: () => {
-                  waveService.stopSession(ui.refreshData);
+                  WaveService.stopSession(resultUi.refreshData);
                 }
               })
             );
@@ -581,7 +172,7 @@
               style: "margin-left: 20px",
               text: "Delete",
               onclick: () => {
-                const modal = ui.getElement("delete-modal");
+                const modal = UI.getElement("delete-modal");
                 let className = modal.getAttribute("class");
                 modal.setAttribute("class", className + " is-active");
               }
@@ -595,7 +186,7 @@
                 {
                   className: "modal-background",
                   onclick: () => {
-                    const modal = ui.getElement("delete-modal");
+                    const modal = UI.getElement("delete-modal");
                     let className = modal.getAttribute("class");
                     className = className.replace(" is-active", "");
                     modal.setAttribute("class", className);
@@ -619,7 +210,8 @@
                       children: [
                         {
                           type: "p",
-                          text: "Are you sure you want to delete this session?"
+                          text:
+                            "Are you sure you want to delete resultUi session?"
                         },
                         { type: "p", text: "This action cannot be undone." }
                       ]
@@ -631,7 +223,7 @@
                           className: "button is-danger",
                           text: "Delete Session",
                           onclick: () => {
-                            waveService.deleteSession();
+                            WaveService.deleteSession();
                             document.location = "/results.html";
                           }
                         },
@@ -639,7 +231,7 @@
                           className: "button",
                           text: "Cancel",
                           onclick: () => {
-                            const modal = ui.getElement("delete-modal");
+                            const modal = UI.getElement("delete-modal");
                             let className = modal.getAttribute("class");
                             className = className.replace(" is-active", "");
                             modal.setAttribute("class", className);
@@ -655,70 +247,127 @@
           controls.forEach(control => controlsWrapper.appendChild(control));
         },
         displaySessionDetails: details => {
-          const { getElement } = ui;
+          const { getElement } = UI;
           const { test_files_count } = details;
-          getElement("token").innerText = waveService.token;
-          getElement("user-agent").innerText = details.user_agent;
-          getElement("test-path").innerText = details.path;
-          getElement("test-types").innerText = details.types.join(", ");
-          getElement("total-tests").innerText = Object.keys(
-            test_files_count
-          ).reduce((sum, api) => (sum += test_files_count[api]), 0);
-          getElement("status").innerText = details.status;
-          getElement("test-timeout").innerText = details.test_timeout;
-          const dateStarted = parseInt(details.date_started);
-          getElement("date-started").innerText = new Date(
-            dateStarted
-          ).toLocaleString();
-          let dateFinished = parseInt(details.date_finished);
-          if (dateFinished) {
-            getElement("date-finished").innerText = new Date(
-              dateFinished
-            ).toLocaleString();
-          } else dateFinished = Date.now();
-          getElement("duration").innerText = utils.millisToTimeString(
-            dateFinished - dateStarted
-          );
-        },
-        displayApiResults: results => {
-          const { getElement, createElement } = ui;
-          const apiResultsView = getElement("api-results");
-          apiResultsView.innerHTML = "";
-          apiResultsView.appendChild(
-            createElement({
-              className: "api-wrapper",
-              id: "api-results-header",
+          const detailsTable = getElement("details-table");
+          detailsTable.appendChild(
+            UI.createElement({
+              type: "tbody",
               children: [
                 {
-                  className: "api-name api-result",
-                  text: "API"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Token:" },
+                    { type: "td", text: WaveService.getDefaultToken() || "" }
+                  ]
                 },
                 {
-                  className: "api-result",
-                  text: "Pass"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "User Agent:" },
+                    { type: "td", text: details.user_agent || "" }
+                  ]
                 },
                 {
-                  className: "api-result",
-                  text: "Fail"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Test Path:" },
+                    { type: "td", text: details.path || "" }
+                  ]
                 },
                 {
-                  className: "api-result",
-                  text: "Timeout"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Total Test Files:" },
+                    {
+                      type: "td",
+                      text: Object.keys(test_files_count).reduce(
+                        (sum, api) => (sum += test_files_count[api]),
+                        0
+                      )
+                    }
+                  ]
                 },
                 {
-                  className: "api-result",
-                  text: "Not Run"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Status:" },
+                    { type: "td", text: details.status || "" }
+                  ]
                 },
                 {
-                  className: "api-result",
-                  text: "Test Files Run"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Test Timeout:" },
+                    { type: "td", text: details.test_timeout || "" }
+                  ]
                 },
                 {
-                  className: "api-controls"
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Started:" },
+                    {
+                      type: "td",
+                      text: new Date(details.date_started).toLocaleString()
+                    }
+                  ]
+                },
+                {
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Finished:" },
+                    {
+                      type: "td",
+                      text: details.date_finished
+                        ? new Date(details.date_finished).toLocaleString()
+                        : ""
+                    }
+                  ]
+                },
+                {
+                  type: "tr",
+                  children: [
+                    { type: "td", text: "Duration:" },
+                    {
+                      type: "td",
+                      text: utils.millisToTimeString(
+                        details.date_finished
+                          ? details.date_finished
+                          : Date.now() - parseInt(details.date_started)
+                      )
+                    }
+                  ]
                 }
               ]
             })
           );
+        },
+        displayApiResults: results => {
+          const { getElement, createElement } = UI;
+          const resultsTable = {
+            type: "table",
+            className: "table",
+            id: "results-table",
+            children: [
+              {
+                type: "thead",
+                children: [
+                  {
+                    type: "tr",
+                    children: [
+                      { type: "th", text: "API" },
+                      { type: "th", text: "Pass" },
+                      { type: "th", text: "Fail" },
+                      { type: "th", text: "Timeout" },
+                      { type: "th", text: "Not Run" },
+                      { type: "th", text: "Test Files Run" },
+                      { type: "th", text: "" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          };
 
           function createApiResultView({
             api,
@@ -733,8 +382,8 @@
             testFilesCompleted = 0
           }) {
             const apiName = api instanceof Array ? "Total" : api;
-            return createElement({
-              className: "api-wrapper",
+            return {
+              type: "tr",
               style: `background-image: linear-gradient(to right, rgb(220, 220, 220) ${utils.percent(
                 testFilesCompleted,
                 testFilesCount
@@ -743,130 +392,77 @@
                 testFilesCount
               )}%)`,
               children: [
+                { type: "td", text: apiName },
                 {
-                  text: apiName,
-                  className: "api-result api-name"
+                  type: "td",
+                  className: "pass",
+                  text: `${pass} (${utils.percent(pass, complete)}%)`
                 },
                 {
-                  className: "api-result pass",
+                  type: "td",
+                  className: "fail",
+                  text: `${fail} (${utils.percent(fail, complete)}%)`
+                },
+                {
+                  type: "td",
+                  className: "timeout",
+                  text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                },
+                {
+                  type: "td",
+                  className: "not-run",
+                  text: `${notRun} (${utils.percent(notRun, complete)}%)`
+                },
+                {
+                  type: "td",
+                  className: "",
+                  text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
+                    testFilesCompleted,
+                    testFilesCount
+                  )}%)`
+                },
+                {
+                  type: "td",
+                  className: "",
                   children: [
                     {
-                      text: pass,
-                      className: "absolute"
+                      className: "button is-dark is-small",
+                      disabled: !isDone,
+                      onclick: () =>
+                        isDone ? WaveService.downloadJson(api) : null,
+                      text: "json"
                     },
                     {
-                      text: "(" + utils.percent(pass, complete) + "%)",
-                      className: "percent"
-                    }
-                  ]
-                },
-                {
-                  className: "api-result fail",
-                  children: [
-                    {
-                      text: fail,
-                      className: "absolute"
-                    },
-                    {
-                      text: "(" + utils.percent(fail, complete) + "%)",
-                      className: "percent"
-                    }
-                  ]
-                },
-                {
-                  className: "api-result timeout",
-                  children: [
-                    {
-                      text: timeout,
-                      className: "absolute"
-                    },
-                    {
-                      text: "(" + utils.percent(timeout, complete) + "%)",
-                      className: "percent"
-                    }
-                  ]
-                },
-                {
-                  className: "api-result not-run",
-                  children: [
-                    {
-                      text: notRun,
-                      className: "absolute"
-                    },
-                    {
-                      text: "(" + utils.percent(notRun, complete) + "%)",
-                      className: "percent"
-                    }
-                  ]
-                },
-                {
-                  className: "api-result",
-                  children: [
-                    {
-                      text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
-                        testFilesCompleted,
-                        testFilesCount
-                      )}%)`,
-                      className: "absolute"
-                    }
-                  ]
-                },
-                {
-                  className: "api-controls",
-                  children: [
-                    {
-                      className:
-                        "json-download" +
-                        (" button is-light no-border-radius " +
-                          (!isDone ? "disabled" : "")),
+                      className: "button is-dark is-small",
+                      disabled: !isDone,
                       onclick: () => {
                         if (!isDone) return;
                         if (api instanceof Array) {
-                          waveService.downloadJsons(api);
                         } else {
-                          waveService.downloadJson(api);
+                          WaveService.openHtmlReport(api);
                         }
                       },
-                      text: "json"
-                    },
-                    api instanceof Array
-                      ? { className: "html-report" }
-                      : {
-                          className:
-                            "html-report button is-light no-border-radius " +
-                            (!isDone ? "disabled" : ""),
-                          onclick: () => {
-                            if (!isDone) return;
-                            if (api instanceof Array) {
-                            } else {
-                              waveService.openHtmlReport(api);
-                            }
-                          },
-                          text: "report"
-                        }
+                      text: "report"
+                    }
                   ]
-                },
-                {
-                  className: "api-result-timeoutfiles",
-                  html: timeoutfiles.reduce(
-                    (all, file) => (all += file + "<br>"),
-                    "Test files with timeout:<br>"
-                  )
                 }
               ]
-            });
+            };
           }
 
           const apis = Object.keys(results).sort((apiA, apiB) =>
             apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1
           );
 
+          const tableBody = { type: "tbody", children: [] };
+
           for (let api of apis) {
             const result = results[api];
             result.api = api;
             const apiResultView = createApiResultView(result);
-            apiResultsView.appendChild(apiResultView);
+            tableBody.children.push(apiResultView);
           }
+          resultsTable.children.push(tableBody);
 
           const stats = apis.reduce(
             (sum, api) => {
@@ -894,61 +490,84 @@
             (sum, api) => (sum += results[api].testFilesCompleted || 0),
             0
           );
-          const totalResultView = createApiResultView(stats);
-
-          totalResultView.setAttribute(
-            "class",
-            "total " + totalResultView.getAttribute("class")
-          );
-          apiResultsView.appendChild(totalResultView);
-        },
-        refreshData: toUpdate => {
-          waveService.getSessionDetails(details => {
-            waveService.getTestResults(results => {
-              console.log(details);
-              Object.keys(details.test_files_count).forEach(api =>
-                !results[api] ? (results[api] = {}) : null
-              );
-              for (let api in results) {
-                let { pass, fail, timeout, not_run } = results[api];
-                let complete = 0;
-                if (pass) complete += pass;
-                if (fail) complete += fail;
-                if (timeout) complete += timeout;
-                if (not_run) complete += not_run;
-                results[api].complete = complete;
-                const { test_files_count, test_files_completed } = details;
-                results[api].isDone =
-                  test_files_count[api] === test_files_completed[api];
-                results[api].testFilesCount = test_files_count[api];
-                results[api].testFilesCompleted = test_files_completed[api];
+          const {
+            pass,
+            fail,
+            timeout,
+            not_run,
+            complete,
+            testFilesCount,
+            testFilesCompleted,
+            isDone,
+            api
+          } = stats;
+          resultsTable.children.push({
+            type: "tfoot",
+            style: `background-image: linear-gradient(to right, rgb(220, 220, 220) ${utils.percent(
+              testFilesCompleted,
+              testFilesCount
+            )}%, rgb(240, 240, 240) ${utils.percent(
+              testFilesCompleted,
+              testFilesCount
+            )}%)`,
+            children: [
+              {
+                type: "tr",
+                children: [
+                  { type: "th", text: "Total" },
+                  {
+                    type: "th",
+                    text: `${pass} (${utils.percent(pass, complete)}%)`
+                  },
+                  {
+                    type: "th",
+                    text: `${fail} (${utils.percent(fail, complete)}%)`
+                  },
+                  {
+                    type: "th",
+                    text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                  },
+                  {
+                    type: "th",
+                    text: `${not_run} (${utils.percent(not_run, complete)}%)`
+                  },
+                  {
+                    type: "th",
+                    text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
+                      testFilesCompleted,
+                      testFilesCount
+                    )}%)`
+                  },
+                  {
+                    type: "th",
+                    children: [
+                      {
+                        className: "button is-dark is-small",
+                        disabled: !isDone,
+                        onclick: () =>
+                          isDone ? WaveService.downloadJsons(api) : null,
+                        text: "json"
+                      }
+                    ]
+                  }
+                ]
               }
-
-              switch (toUpdate) {
-                case "complete":
-                  ui.displayApiResults(results);
-                  break;
-                case "status":
-                  ui.displayControls(details.status);
-                  break;
-                case "":
-                case null:
-                case undefined:
-                  ui.displayApiResults(results);
-                  ui.displayControls(details.status);
-                  ui.displaySessionDetails(details, results);
-                  break;
-              }
-
-              if (
-                !waveService.socket &&
-                details.status !== "completed" &&
-                details.status !== "aborted"
-              ) {
-                waveService.connect();
-              }
-            });
+            ]
           });
+          const apiResultsView = getElement("api-results");
+          apiResultsView.innerHTML = "";
+          apiResultsView.appendChild(createElement(resultsTable));
+
+          const { timeoutfiles } = stats;
+          UI.getElement("timeout-files").appendChild(
+            createElement({
+              className: "api-result-timeoutfiles",
+              html: timeoutfiles.reduce(
+                (all, file) => (all += file + "<br>"),
+                "Test files with timeout:<br>"
+              )
+            })
+          );
         }
       };
     </script>
