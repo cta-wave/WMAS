@@ -294,6 +294,12 @@ echo "WebCryptoAPI/*" >> .git/info/sparse-checkout
 # 3.9 Other web specifications
 # Devices MUST be conforming implementations of the following specifications:
 #
+# File API [FILEAPI]
+echo "FileAPI/*" >> .git/info/sparse-checkout
+# Page Visibility Level 2 [PAGE-VISIBILITY-2]
+echo "page-visibility/*" >> .git/info/sparse-checkout
+# Service Workers 1 [SERVICE-WORKERS-1]
+echo "service-workers/*" >> .git/info/sparse-checkout
 # Web Storage [WEBSTORAGE]
 echo "webstorage/*" >> .git/info/sparse-checkout
 # Web Workers [WORKERS]
