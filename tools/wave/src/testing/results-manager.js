@@ -237,7 +237,7 @@ class ResultsManager {
   }
 
   async getResults(token) {
-    const results = await this._database.getResults(token);
+    const results = await this._database.readResults(token);
     const resultsPerApi = {};
     results.forEach(result => {
       let api;
@@ -354,7 +354,10 @@ class ResultsManager {
         let passedSubTests = 0;
         for (let result in apiResult) {
           // don't count subtests if this test didn't pass in reference
-          if (!passedRefTests[api].find(t => t[apiResult[result].test]))
+          if (
+            !passedRefTests[api] ||
+            !passedRefTests[api].find(t => t[apiResult[result].test])
+          )
             continue;
 
           let subtests = apiResult[result].subtests || [];

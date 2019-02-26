@@ -83,62 +83,12 @@ class ResultsApiHandler extends ApiHandler {
             const tokens = url[1].split(",");
             let refTokens = url[2].split(",");
             const hashes = refTokens.filter(token => !token.includes("-"));
-            await Promise.all(
-              hashes.map(async hash => {
-                refTokens.splice(refTokens.indexOf(hash), 1);
-                const hashTokens = await this._resultsManager.getTokensFromHash(
-                  hash
-                );
-                refTokens = refTokens.concat(hashTokens);
-              })
-            );
-            let comparisonResult = await this._resultsManager.loadComparison(
-              tokens,
-              refTokens
-            );
-
-            if (!comparisonResult) {
-              const comparisonDirectory = this._resultsManager.getComparisonDirectoryName(
-                tokens,
-                refTokens
-              );
-              if (this._generatingComparisons.includes(comparisonDirectory)) {
-                comparisonResult = await new Promise(resolve => {
-                  const onComparisonGenerationFinished = finishedDirectory => {
-                    if (finishedDirectory === comparisonDirectory) {
-                      this._eventEmitter.removeListener(
-                        COMPARISON_GENERATION_FINISHED,
-                        onComparisonGenerationFinished
-                      );
-                      resolve(
-                        this._resultsManager.loadComparison(tokens, refTokens)
-                      );
-                    }
-                  };
-                  this._eventEmitter.on(
-                    COMPARISON_GENERATION_FINISHED,
-                    onComparisonGenerationFinished
-                  );
-                });
-              } else {
-                this._generatingComparisons.push(comparisonDirectory);
-                comparisonResult = await this._resultsManager.generateComparisonResults(
-                  tokens,
-                  refTokens
-                );
-                await this._resultsManager.saveComparison(
-                  comparisonResult,
-                  tokens,
-                  refTokens
-                );
-                this._eventEmitter.emit(
-                  COMPARISON_GENERATION_FINISHED,
-                  comparisonDirectory
-                );
-              }
+            try {
+              return this._sendComparison(tokens, refTokens, hashes, response);
+            } catch (error) {
+              console.error(error);
+              response.send(500);
             }
-            this.sendJson(comparisonResult, response);
-            return;
           case 4: {
             switch (url[3]) {
               case "json":
@@ -190,6 +140,60 @@ class ResultsApiHandler extends ApiHandler {
     }
     if (test.startsWith("/")) test = test.substr(1);
     await this._resultsManager.saveResult({ token, test, result });
+  }
+
+  async _sendComparison(tokens, refTokens, hashes, response) {
+    await Promise.all(
+      hashes.map(async hash => {
+        refTokens.splice(refTokens.indexOf(hash), 1);
+        const hashTokens = await this._resultsManager.getTokensFromHash(hash);
+        refTokens = refTokens.concat(hashTokens);
+      })
+    );
+    let comparisonResult = await this._resultsManager.loadComparison(
+      tokens,
+      refTokens
+    );
+
+    if (!comparisonResult) {
+      const comparisonDirectory = this._resultsManager.getComparisonDirectoryName(
+        tokens,
+        refTokens
+      );
+      if (this._generatingComparisons.includes(comparisonDirectory)) {
+        comparisonResult = await new Promise(resolve => {
+          const onComparisonGenerationFinished = finishedDirectory => {
+            if (finishedDirectory === comparisonDirectory) {
+              this._eventEmitter.removeListener(
+                COMPARISON_GENERATION_FINISHED,
+                onComparisonGenerationFinished
+              );
+              resolve(this._resultsManager.loadComparison(tokens, refTokens));
+            }
+          };
+          this._eventEmitter.on(
+            COMPARISON_GENERATION_FINISHED,
+            onComparisonGenerationFinished
+          );
+        });
+      } else {
+        this._generatingComparisons.push(comparisonDirectory);
+        comparisonResult = await this._resultsManager.generateComparisonResults(
+          tokens,
+          refTokens
+        );
+        await this._resultsManager.saveComparison(
+          comparisonResult,
+          tokens,
+          refTokens
+        );
+        this._eventEmitter.emit(
+          COMPARISON_GENERATION_FINISHED,
+          comparisonDirectory
+        );
+      }
+    }
+    this.sendJson(comparisonResult, response);
   }
 
   _flattenResults(results) {
