@@ -116,7 +116,7 @@ class SessionsDatabase {
   }
 
   async deleteSession(token) {
-    const sessionDataStore = this._db.sessions;
+    const sessionDataStore = this._db;
     await sessionDataStore.remove({ token });
     await this._testsDatabase.deleteTests(token);
     await this._resultsDatabase.deleteResults(token);
