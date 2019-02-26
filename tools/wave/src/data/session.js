@@ -1,5 +1,4 @@
 const TestLoader = require("../testing/test-loader");
-const UserAgentParser = require("../utils/user-agent-parser");
 
 const PAUSED = "paused";
 const RUNNING = "running";
@@ -276,6 +275,7 @@ class Session {
     this._clients.forEach(client => client.send("status"));
     if (status === COMPLETED || status === ABORTED) {
       this._dateFinished = Date.now();
+      this._timeouts.forEach(timeout => clearTimeout(timeout));
     }
     return this;
   }

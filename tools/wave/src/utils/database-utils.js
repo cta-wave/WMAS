@@ -39,6 +39,15 @@ const DatabaseUtils = {
             }
           );
         });
+      },
+      compactDatafile() {
+        return dataStore.persistence.compactDatafile();
+      },
+      setAutocompactionInterval(interval) {
+        return dataStore.persistence.setAutocompactionInterval(interval);
+      },
+      stopAutocompaction() {
+        return dataStore.persistence.stopAutocompaction();
       }
     };
   }

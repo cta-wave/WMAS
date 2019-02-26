@@ -4,15 +4,26 @@ const DataStore = require("nedb");
 const DatabaseUtils = require("../utils/database-utils");
 const Deserializer = require("../utils/deserializer");
 const Serializer = require("../utils/serializer");
+const JobQueue = require("../utils/job-queue");
 const Session = require("../data/session");
 
 const { promisifyNedbDataStore } = DatabaseUtils;
 const DEFAULT_DIRECTORY_PATH = ".";
 const DEFAULT_COMPACTION_INTERVAL = 60000;
 
+const READ_JOB_GROUP = "read";
+const MAX_ACCESS_JOBS = 1;
+const MAX_GROUP_JOBS = 5;
+
 class SessionsDatabase {
   constructor({ compactionInterval = DEFAULT_COMPACTION_INTERVAL } = {}) {
     this._compactionInterval = compactionInterval;
+    this._sessionsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
+      groupLimit: MAX_GROUP_JOBS
+    });
+    this._queueSessionsAccess = this._sessionsAccessQueue.queueJob.bind(
+      this._sessionsAccessQueue
+    );
   }
 
   async initialize({
@@ -35,7 +46,12 @@ class SessionsDatabase {
   }
 
   async createSession(session) {
+    return this._queueSessionsAccess(() => this._createSession(session));
+  }
+
+  async _createSession(session) {
     const token = session.getToken();
+    console.log("CREATE SESSION", token);
     const sessionObject = Serializer.serializeSession(session);
 
     await this._resultsDatabase.loadDatabase(token);
@@ -58,6 +74,13 @@ class SessionsDatabase {
   }
 
   async readSession(token) {
+    return this._queueSessionsAccess(() => this._readSession(token), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readSession(token) {
+    console.log("READ SESSION", token);
     const result = await this._db.find({ token });
     if (!result || result.length === 0) {
       return null;
@@ -80,6 +103,13 @@ class SessionsDatabase {
   }
 
   async readSessions() {
+    return this._queueSessionsAccess(() => this._readSessions(), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readSessions() {
+    console.log("READ SESSIONS");
     const result = await this._db.find({});
     if (!result) {
       return [];
@@ -88,7 +118,12 @@ class SessionsDatabase {
   }
 
   async updateSession(session) {
+    return this._queueSessionsAccess(() => this._updateSession(session));
+  }
+
+  async _updateSession(session) {
     const token = session.getToken();
+    console.log("UPDATE SESSION", token);
     const result = await this._db.find({ token });
     if (!result || result.length === 0) {
       return null;
@@ -116,13 +151,24 @@ class SessionsDatabase {
   }
 
   async deleteSession(token) {
+    return this._queueSessionsAccess(() => this._deleteSession(token));
+  }
+
+  async _deleteSession(token) {
+    console.log("DELETE SESSION", token);
     const sessionDataStore = this._db;
-    await sessionDataStore.remove({ token });
+    await sessionDataStore.remove({ token }, true);
     await this._testsDatabase.deleteTests(token);
     await this._resultsDatabase.deleteResults(token);
   }
 
   async findTokens(fragment) {
+    return this._queueSessionsAccess(() => this._findTokens(fragment), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _findTokens(fragment) {
     const results = await this._db.find({
       token: new RegExp("^" + fragment)
     });
