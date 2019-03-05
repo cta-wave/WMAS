@@ -24,6 +24,7 @@ class UserAgentParser {
     const shortnames = {
       Chrome: "Ch",
       "Chrome Mobile WebView": "Ch",
+      Chromium: "Cm",
       WebKit: "Wk", // WebKit build
       Safari: "Sf",
       Firefox: "FF",
