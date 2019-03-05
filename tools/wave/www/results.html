@@ -48,6 +48,22 @@
         state: {
           comparison: []
         },
+        addSession() {
+          const tokenFragmentInput = UI.getElement("token-fragment");
+          const fragment = tokenFragmentInput.value;
+          if (!fragment || fragment.length < 8) return;
+          WaveService.findToken(fragment, token => {
+            if (token) {
+              WaveService.addRecentSession(token);
+              WaveService.addPinnedSession(token);
+              resultsUi.renderSessions();
+              tokenFragmentInput.value = "";
+            } else {
+              const errorBox = getElement("find-error");
+              errorBox.setAttribute("style", "display: block");
+            }
+          });
+        },
         render: () => {
           const { getRoot, createElement, getElement } = UI;
           getRoot().appendChild(
@@ -94,7 +110,11 @@
                               className: "input is-family-monospace",
                               id: "token-fragment",
                               placeholder:
-                                "First 8 characters or more of session token"
+                                "First 8 characters or more of session token",
+                              onKeyDown: event => {
+                                if (event.key !== "Enter") return;
+                                resultsUi.addSession();
+                              }
                             }
                           ]
                         },
@@ -118,25 +138,7 @@
                               ],
                               style: "margin-left: 20px",
                               onclick: () => {
-                                const tokenFragmentInput = getElement(
-                                  "token-fragment"
-                                );
-                                const fragment = tokenFragmentInput.value;
-                                if (!fragment || fragment.length < 8) return;
-                                WaveService.findToken(fragment, token => {
-                                  if (token) {
-                                    WaveService.addRecentSession(token);
-                                    WaveService.addPinnedSession(token);
-                                    resultsUi.renderSessions();
-                                    tokenFragmentInput.value = "";
-                                  } else {
-                                    const errorBox = getElement("find-error");
-                                    errorBox.setAttribute(
-                                      "style",
-                                      "display: block"
-                                    );
-                                  }
-                                });
+                                resultsUi.addSession();
                               }
                             }
                           ]

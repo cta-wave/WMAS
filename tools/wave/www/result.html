@@ -69,13 +69,14 @@
                   break;
                 case "status":
                   resultUi.displayControls(details.status);
+                  resultUi.displaySessionDetails(details);
                   break;
                 case "":
                 case null:
                 case undefined:
                   resultUi.displayApiResults(results);
                   resultUi.displayControls(details.status);
-                  resultUi.displaySessionDetails(details, results);
+                  resultUi.displaySessionDetails(details);
                   break;
               }
 
@@ -477,7 +478,7 @@
             fail = 0,
             timeout = 0,
             timeoutfiles = [],
-            notRun = 0,
+            not_run: notRun = 0,
             isDone = false,
             testFilesCount,
             testFilesCompleted = 0
