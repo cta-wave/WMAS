@@ -49,7 +49,6 @@ class TestsDatabase {
   }
 
   async _createTests(token, tests) {
-    console.log("CREATE TESTS", token);
     const sessionTests = this._db[token];
     tests.token = token;
     await sessionTests.insert(tests);
@@ -62,7 +61,6 @@ class TestsDatabase {
   }
 
   async _readTests(token) {
-    console.log("READ TESTS", token);
     const sessionTests = this._db[token];
     const tests = await sessionTests.find({});
     if (tests && tests[0]) {
@@ -76,7 +74,6 @@ class TestsDatabase {
   }
 
   async _updateTests(token, tests) {
-    console.log("UPDATE TESTS", token);
     const sessionTests = this._db[token];
     tests.token = token;
     await sessionTests.update({ token }, tests);

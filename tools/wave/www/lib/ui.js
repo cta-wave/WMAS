@@ -1,7 +1,8 @@
 const UI = {
   createElement: config => {
-    const type = config.type || "div";
-    const element = document.createElement(type);
+    if (!config) return document.createElement("div");
+    const elementType = config.element || "div";
+    const element = document.createElement(elementType);
 
     if (config.hasOwnProperty("className"))
       element.setAttribute("class", config.className);
@@ -15,9 +16,9 @@ const UI = {
     if (config.hasOwnProperty("onchange"))
       element.onchange = config.onchange.bind(element);
     if (config.hasOwnProperty("src")) element.setAttribute("src", config.src);
-    if (type === "input") {
-      if (config.hasOwnProperty("inputType"))
-        element.setAttribute("type", config.inputType);
+    if (elementType === "input") {
+      if (config.hasOwnProperty("type"))
+        element.setAttribute("type", config.type);
     }
     if (config.children) {
       config.children.forEach(child =>
@@ -26,6 +27,12 @@ const UI = {
     }
     if (config.hasOwnProperty("disabled") && config.disabled) {
       element.setAttribute("disabled", true);
+    }
+    if (config.hasOwnProperty("placeholder")) {
+      element.setAttribute("placeholder", config.placeholder);
+    }
+    if (config.hasOwnProperty("title")) {
+      element.setAttribute("title", config.title);
     }
     return element;
   },

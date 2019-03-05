@@ -51,7 +51,6 @@ class SessionsDatabase {
 
   async _createSession(session) {
     const token = session.getToken();
-    console.log("CREATE SESSION", token);
     const sessionObject = Serializer.serializeSession(session);
 
     await this._resultsDatabase.loadDatabase(token);
@@ -80,7 +79,6 @@ class SessionsDatabase {
   }
 
   async _readSession(token) {
-    console.log("READ SESSION", token);
     const result = await this._db.find({ token });
     if (!result || result.length === 0) {
       return null;
@@ -109,7 +107,6 @@ class SessionsDatabase {
   }
 
   async _readSessions() {
-    console.log("READ SESSIONS");
     const result = await this._db.find({});
     if (!result) {
       return [];
@@ -123,7 +120,6 @@ class SessionsDatabase {
 
   async _updateSession(session) {
     const token = session.getToken();
-    console.log("UPDATE SESSION", token);
     const result = await this._db.find({ token });
     if (!result || result.length === 0) {
       return null;
@@ -155,7 +151,6 @@ class SessionsDatabase {
   }
 
   async _deleteSession(token) {
-    console.log("DELETE SESSION", token);
     const sessionDataStore = this._db;
     await sessionDataStore.remove({ token }, true);
     await this._testsDatabase.deleteTests(token);

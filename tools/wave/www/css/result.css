@@ -5,7 +5,7 @@ body {
   height: 100vh;
   display: flex;
   justify-content: center;
-  font-family: sans-serif;
+  font-family: "Noto Sans" sans-serif;
   background-color: white;
   color: #000;
 }
@@ -37,7 +37,7 @@ body {
 
 #api-results {
   margin-bottom: 50px;
-  border: 2px solid lightgrey;
+  border: 2px solid hsl(0, 0%, 86%);
   border-radius: 3px;
 }
 
@@ -79,7 +79,7 @@ body {
   border-radius: 0;
 }
 
-#details-table tbody tr :first-child {
+#details-table tbody tr > :first-child {
   width: 140px;
 }
 

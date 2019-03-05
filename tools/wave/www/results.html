@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <title>Results - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
+    <script src="lib/utils.js"></script>
+    <script src="lib/wave-service.js"></script>
+    <script src="lib/ui.js"></script>
     <style>
       body {
         margin: 0;
@@ -12,7 +16,7 @@
         height: 100vh;
         display: flex;
         justify-content: center;
-        font-family: sans-serif;
+        font-family: "Noto Sans" sans-serif;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: white;
@@ -28,126 +32,6 @@
         width: 1000px;
         padding: 0 10px;
       }
-
-      .prompt {
-        display: flex;
-        flex-direction: column;
-        width: 1000px;
-      }
-
-      .test-path,
-      .token {
-        font-family: monospace;
-        font-size: 12pt;
-      }
-
-      .button.disabled {
-        color: grey;
-        cursor: not-allowed;
-      }
-
-      .button.disabled:hover {
-        background-color: rgb(245, 245, 245);
-        color: grey;
-      }
-
-      .error {
-        background-color: rgb(255, 230, 230);
-        color: red;
-        padding: 10px;
-        margin: 10px 0 0 0;
-      }
-
-      .session-list {
-        display: flex;
-        flex-direction: column;
-        border: solid 1px lightgrey;
-        border-radius: 3px;
-      }
-
-      .session-wrapper {
-        display: flex;
-        cursor: pointer;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .session-wrapper:not(:first-child) {
-        border-top: solid lightgrey 1px;
-      }
-
-      .session-wrapper:hover {
-        background-color: rgb(225, 225, 225);
-      }
-
-      .session-wrapper * {
-        padding: 10px;
-      }
-
-      .session-wrapper .button {
-        border: none;
-        background-color: inherit;
-        border-radius: unset;
-      }
-
-      .session-wrapper .button:hover {
-        background-color: rgb(150, 150, 150);
-        color: white;
-      }
-
-      .session-wrapper .user-agent {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex: 1;
-      }
-
-      .session-wrapper .status {
-        width: 100px;
-        padding: 0;
-      }
-
-      .badge {
-        /*color: red;*/
-        padding: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        /*font-weight: bold;*/
-        font-size: 11pt;
-        border-radius: 5px;
-        border: 1px solid red;
-      }
-
-      .checkbox {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding-right: 0;
-      }
-
-      .checkbox > input {
-        width: 18px;
-        height: 18px;
-        margin: 0;
-        padding: 0;
-      }
-
-      .head {
-        display: flex;
-        align-items: center;
-      }
-
-      .head > h1 {
-        flex: 1;
-      }
-
-      .browser {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100px;
-      }
     </style>
   </head>
   <body>
@@ -157,460 +41,428 @@
         if (query.token) {
           location.href = "result.html" + location.search;
         }
-        ui.render();
-        ui.refreshData();
+        resultsUi.render();
       };
 
-      const utils = {
-        parseQuery: queryString => {
-          if (queryString.indexOf("?") === -1) return {};
-          queryString = queryString.split("?")[1];
-          const query = {};
-          for (let part of queryString.split("&")) {
-            const keyValue = part.split("=");
-            query[keyValue[0]] = keyValue[1] ? keyValue[1] : null;
-          }
-          return query;
-        },
-
-        percent: (count, total) => {
-          const percent = Math.floor((count / total) * 10000) / 100;
-          if (!percent) {
-            return 0;
-          }
-          return percent;
-        }
-      };
-
-      const waveService = {
-        sendRequest: (method, uri, callback) => {
-          const xhr = new XMLHttpRequest();
-          xhr.addEventListener("load", () => {
-            callback(xhr.response, xhr.status);
-          });
-          xhr.open(method, uri, true);
-          xhr.send();
-        },
-        getOfficialSessions: callback => {
-          waveService.sendRequest("GET", "/sessions/official", response => {
-            callback(JSON.parse(response));
-          });
-        },
-        getSessionDetails: (token, callback) => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + token,
-            (response, status) => {
-              if (status === 200) {
-                callback(JSON.parse(response));
-              } else {
-                callback(null);
-              }
-            }
-          );
-        },
-        findToken: (fragment, callback) => {
-          waveService.sendRequest(
-            "GET",
-            "/sessions/" + fragment + "/token",
-            response => {
-              response = JSON.parse(response);
-              if (response.token) {
-                callback(response.token);
-              } else {
-                callback(null);
-              }
-            }
-          );
-        },
-        getRecentSessions: () => {
-          if (!window.localStorage) return [];
-          const storage = window.localStorage;
-          const state = JSON.parse(storage.getItem("wave"));
-          if (!state) return [];
-          return state.recent_sessions.filter(
-            session => typeof session === "string"
-          );
-        },
-        getPinnedSessions: () => {
-          if (!window.localStorage) return [];
-          const storage = window.localStorage;
-          const state = JSON.parse(storage.getItem("wave"));
-          if (!state) return [];
-          if (!state.pinned_sessions) return [];
-          return state.pinned_sessions.filter(
-            session => typeof session === "string"
-          );
-        },
-        addPinnedSession: token => {
-          if (!window.localStorage) return;
-          const storage = window.localStorage;
-          let state = JSON.parse(storage.getItem("wave"));
-          if (!state) state = {};
-          if (!state.pinned_sessions) state.pinned_sessions = [];
-          if (state.pinned_sessions.indexOf(token) !== -1) return;
-          state.pinned_sessions.unshift(token);
-          storage.setItem("wave", JSON.stringify(state));
-        },
-        addRecentSession: token => {
-          if (!window.localStorage) return;
-          const storage = window.localStorage;
-          let state = JSON.parse(storage.getItem("wave"));
-          if (!state) state = {};
-          if (!state.recent_sessions) state.recent_sessions = [];
-          if (state.recent_sessions.indexOf(token) !== -1) return;
-          state.recent_sessions.unshift(token);
-          storage.setItem("wave", JSON.stringify(state));
-        },
-        removePinnedSession: token => {
-          if (!window.localStorage) return;
-          const storage = window.localStorage;
-          const state = JSON.parse(storage.getItem("wave"));
-          if (!state) return;
-          if (!state.pinned_sessions) return;
-          state.pinned_sessions.splice(state.pinned_sessions.indexOf(token), 1);
-          storage.setItem("wave", JSON.stringify(state));
-        },
-        removeRecentSession: token => {
-          if (!window.localStorage) return;
-          const storage = window.localStorage;
-          const state = JSON.parse(storage.getItem("wave"));
-          if (!state) return;
-          if (!state.recent_sessions) return;
-          state.recent_sessions.splice(state.recent_sessions.indexOf(token), 1);
-          storage.setItem("wave", JSON.stringify(state));
-        }
-      };
-
-      const ui = {
+      const resultsUi = {
         state: {
           comparison: []
         },
-        createElement: config => {
-          const type = config.type || "div";
-          const element = document.createElement(type);
-
-          if (config.hasOwnProperty("className"))
-            element.setAttribute("class", config.className);
-          if (config.hasOwnProperty("id"))
-            element.setAttribute("id", config.id);
-          if (config.hasOwnProperty("text")) element.innerText = config.text;
-          if (config.hasOwnProperty("style"))
-            element.setAttribute("style", config.style);
-          if (config.hasOwnProperty("placeholder"))
-            element.setAttribute("placeholder", config.placeholder);
-          if (config.hasOwnProperty("onclick"))
-            element.onclick = config.onclick.bind(element);
-          if (config.hasOwnProperty("onchange"))
-            element.onchange = config.onchange.bind(element);
-          if (config.hasOwnProperty("src"))
-            element.setAttribute("src", config.src);
-          if (type === "input") {
-            if (config.hasOwnProperty("inputType"))
-              element.setAttribute("type", config.inputType);
-          }
-          if (config.children) {
-            config.children.forEach(child =>
-              element.appendChild(ui.createElement(child))
-            );
-          }
-          return element;
-        },
-        getElement: id => {
-          return document.getElementById(id);
-        },
-        getRoot: () => {
-          return document.getElementsByTagName("body")[0];
-        },
         render: () => {
-          const { getRoot, createElement, getElement } = ui;
+          const { getRoot, createElement, getElement } = UI;
           getRoot().appendChild(
             createElement({
               className: "content",
               children: [
                 {
-                  type: "img",
+                  element: "img",
                   src: "res/wavelogo_2016.jpg",
                   className: "site-logo"
                 },
+                { text: "Results", className: "title" },
+                { text: "Manage Sessions", className: "title is-4" },
                 {
-                  className: "head",
+                  className: "columns",
                   children: [
                     {
-                      type: "h1",
-                      text: "Results",
-                      className: "title"
+                      className: "column",
+                      children: [
+                        { text: "Add Sessions", className: "title is-5" },
+                        {
+                          element: "article",
+                          className: "message is-danger",
+                          id: "find-error",
+                          children: [
+                            {
+                              text:
+                                "Could not find any sessions! Try adding more characters of the token.",
+                              className: "message-body"
+                            }
+                          ],
+                          style: "display: none"
+                        },
+                        {
+                          element: "label",
+                          text: "Session token:"
+                        },
+                        {
+                          style: "display: flex; margin-bottom: 10px;",
+                          children: [
+                            {
+                              element: "input",
+                              inputType: "text",
+                              className: "input is-family-monospace",
+                              id: "token-fragment",
+                              placeholder:
+                                "First 8 characters or more of session token"
+                            }
+                          ]
+                        },
+                        {
+                          style: "text-align: right",
+                          children: [
+                            {
+                              className: "button is-dark is-outlined",
+                              children: [
+                                {
+                                  element: "span",
+                                  className: "icon",
+                                  children: [
+                                    {
+                                      element: "i",
+                                      className: "fas fa-plus"
+                                    }
+                                  ]
+                                },
+                                { text: "Add Session", element: "span" }
+                              ],
+                              style: "margin-left: 20px",
+                              onclick: () => {
+                                const tokenFragmentInput = getElement(
+                                  "token-fragment"
+                                );
+                                const fragment = tokenFragmentInput.value;
+                                if (!fragment || fragment.length < 8) return;
+                                WaveService.findToken(fragment, token => {
+                                  if (token) {
+                                    WaveService.addRecentSession(token);
+                                    WaveService.addPinnedSession(token);
+                                    resultsUi.renderSessions();
+                                    tokenFragmentInput.value = "";
+                                  } else {
+                                    const errorBox = getElement("find-error");
+                                    errorBox.setAttribute(
+                                      "style",
+                                      "display: block"
+                                    );
+                                  }
+                                });
+                              }
+                            }
+                          ]
+                        }
+                        // {
+                        //   className: "button is-dark is-outlined",
+                        //   text: "View Results",
+                        //   onclick: () => {
+                        //     const fragment = getElement("token-fragment").value;
+                        //     if (!fragment || fragment.length < 8) return;
+                        //     WaveService.findToken(fragment, token => {
+                        //       if (token) {
+                        //         location.href = "/result.html?token=" + token;
+                        //       } else {
+                        //         const errorBox = getElement("find-error");
+                        //         errorBox.setAttribute(
+                        //           "style",
+                        //           "display: block"
+                        //         );
+                        //       }
+                        //     });
+                        //   }
+                        // }
+                      ]
+                    },
+                    {
+                      className: "column",
+                      children: [
+                        { text: "Compare Sessions", className: "title is-5" },
+                        {
+                          element: "label",
+                          text: "Session token as reference (optional):"
+                        },
+                        {
+                          style: "display: flex; margin-bottom: 10px",
+                          children: [
+                            {
+                              element: "input",
+                              className: "input is-family-monospace",
+                              style: "flex: 1;",
+                              id: "token-reference",
+                              placeholder:
+                                "First 8 characters or more of session token"
+                            }
+                          ]
+                        },
+                        {
+                          style: "text-align: right",
+                          children: [
+                            {
+                              className: "button is-dark is-outlined",
+                              disabled: true,
+                              id: "compare-button",
+                              children: [
+                                {
+                                  element: "span",
+                                  className: "icon",
+                                  children: [
+                                    {
+                                      element: "i",
+                                      className: "fas fa-balance-scale"
+                                    }
+                                  ]
+                                },
+                                { text: "Compare Selected", element: "span" }
+                              ],
+                              onclick: () => {
+                                if (
+                                  UI.getElement("compare-button").hasAttribute(
+                                    "disabled"
+                                  )
+                                )
+                                  return;
+                                const reftoken = UI.getElement(
+                                  "token-reference"
+                                ).value;
+                                resultsUi.compareSessions(
+                                  resultsUi.state.comparison,
+                                  reftoken
+                                );
+                              }
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
-                {
-                  type: "h2",
-                  text: "Find Session"
-                },
-                {
-                  text:
-                    "Enter the first section (8 characters) or more of a session token to view results:"
-                },
-                {
-                  style: "display: flex; margin-bottom: 20px;",
-                  children: [
-                    {
-                      type: "input",
-                      style:
-                        "padding: 5px; font-size: 14pt; font-family: monospace; flex: 1;",
-                      id: "token-fragment"
-                    },
-                    {
-                      className: "button is-light",
-                      text: "Add Session",
-                      style: "margin-left: 20px",
-                      onclick: () => {
-                        const tokenFragmentInput = getElement("token-fragment");
-                        const fragment = tokenFragmentInput.value;
-                        if (!fragment || fragment.length < 8) return;
-                        waveService.findToken(fragment, token => {
-                          if (token) {
-                            waveService.addRecentSession(token);
-                            waveService.addPinnedSession(token);
-                            ui.refreshData();
-                            tokenFragmentInput.value = "";
-                          } else {
-                            const errorBox = getElement("find-error");
-                            errorBox.setAttribute("style", "display: block");
-                          }
-                        });
-                      }
-                    },
-                    {
-                      className: "button is-light",
-                      text: "View Results",
-                      style: "margin-left: 20px",
-                      onclick: () => {
-                        const fragment = getElement("token-fragment").value;
-                        if (!fragment || fragment.length < 8) return;
-                        waveService.findToken(fragment, token => {
-                          if (token) {
-                            location.href = "/result.html?token=" + token;
-                          } else {
-                            const errorBox = getElement("find-error");
-                            errorBox.setAttribute("style", "display: block");
-                          }
-                        });
-                      }
-                    }
-                  ]
-                },
-                {
-                  text:
-                    "Could not find any sessions! Try adding more characters of the token.",
-                  className: "error",
-                  id: "find-error",
-                  style: "display: none"
-                },
-                {
-                  style: "display: flex",
-                  children: [
-                    {
-                      type: "input",
-                      style:
-                        "padding: 5px; font-size: 14pt; font-family: monospace; flex: 1;",
-                      id: "token-reference",
-                      placeholder: "optional session token as reference"
-                    },
-                    {
-                      className: "button disabled is-light",
-                      id: "compare-button",
-                      style: "margin-left: 20px",
-                      text: "Compare Selected",
-                      onclick: () => {
-                        const reftoken = getElement("token-reference").value;
-                        ui.compareSessions(ui.state.comparison, reftoken);
-                      }
-                    }
-                  ]
-                },
-                {
-                  type: "h2",
-                  text: "Pinned Sessions"
-                },
-                {
-                  id: "pinned-sessions",
-                  className: "session-list"
-                },
-                {
-                  type: "h2",
-                  text: "Recent Sessions"
-                },
-                {
-                  id: "recent-sessions",
-                  className: "session-list"
-                }
+
+                { id: "sessions" }
               ]
             })
           );
+          resultsUi.renderSessions();
         },
-        refreshData: () => {
-          const { getElement, createElement } = ui;
-          const createSessionElement = (token, details, pinned) => {
-            const badgeColors = status => {
-              let color;
-              switch (status) {
-                case "completed":
-                  color = "green";
-                  break;
-                case "running":
-                  color = "blue";
-                  break;
-                case "aborted":
-                  color = "red";
-                  break;
-                case "paused":
-                  color = "darkorange";
-                  break;
-              }
-              return "border-color: " + color + "; color: " + color + "; ";
-            };
-            return createElement({
-              className: "session-wrapper",
-              onclick: () => {
-                location.href = "result.html?token=" + token;
-              },
-              children: [
-                {
-                  className: "checkbox",
-                  onclick: event => event.stopPropagation(),
-                  children: [
-                    {
-                      type: "input",
-                      inputType: "checkbox",
-                      onchange: event => {
-                        if (event.target.checked) {
-                          ui.addSessionToComparison(token);
-                        } else {
-                          ui.removeSessionFromComparison(token);
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
-                  className: "token",
-                  text: token.split("-").shift()
-                },
-                {
-                  className: "browser",
-                  text: details.browser.name + " " + details.browser.version
-                },
-                {
-                  className: "status",
-                  children: [
-                    {
-                      className: "badge",
-                      style: badgeColors(details.status),
-                      text: details.status
-                    }
-                  ]
-                },
-                {
-                  className: "user-agent",
-                  text: details.user_agent
-                },
-                {
-                  className: "pin button",
-                  text: pinned ? "Unpin" : "Pin",
-                  onclick: event => {
-                    event.stopPropagation();
-                    if (pinned) {
-                      waveService.removePinnedSession(token);
-                      ui.refreshData();
-                    } else {
-                      waveService.addPinnedSession(token);
-                      ui.refreshData();
-                    }
-                  }
-                },
-                {
-                  className: "pin button",
-                  text: "Remove",
-                  onclick: event => {
-                    event.stopPropagation();
-                    waveService.removeRecentSession(token);
-                    ui.refreshData();
-                  }
-                }
-              ]
-            });
-          };
+        renderSessions() {
+          const sessionsView = UI.getElement("sessions");
+          sessionsView.innerHTML = "";
+          sessionsView.appendChild(
+            UI.createElement({ text: "Sessions", className: "title is-4" })
+          );
+          const pinnedSessions = WaveService.getPinnedSessions();
+          const recentSessions = WaveService.getRecentSessions();
 
-          const pinnedSessions = waveService.getPinnedSessions();
-          const recentSessions = waveService.getRecentSessions();
-          const pinnedSessionsView = getElement("pinned-sessions");
-          const recentSessionsView = getElement("recent-sessions");
-          pinnedSessionsView.innerHTML = "";
-          recentSessionsView.innerHTML = "";
+          WaveService.getSessionDetails(recentSessions, sessionDetails => {
+            recentSessions
+              .filter(
+                token =>
+                  !sessionDetails
+                    .filter(details => !!details)
+                    .some(session => session.token === token)
+              )
+              .forEach(token => WaveService.removeRecentSession(token));
+            sessionDetails = sessionDetails
+              .filter(session => !!session)
+              .sort(
+                (sessionA, sessionB) =>
+                  sessionB.date_started - sessionA.date_started
+              );
+            const pinnedSessionsView = resultsUi.createPinnedSessionsView(
+              sessionDetails.filter(
+                session => pinnedSessions.indexOf(session.token) !== -1
+              )
+            );
+            sessionsView.appendChild(pinnedSessionsView);
 
-          let sessionDetails = [];
-          let collected = recentSessions.length;
-          const collectSessionDetails = (token, details, pinned) => {
-            collected--;
-            if (!details) return;
-            sessionDetails.push({
-              token,
-              details,
-              pinned
-            });
-            if (collected === 0) {
-              sessionDetails
-                .sort((sessionA, sessionB) =>
-                  sessionA.token > sessionB.token ? 1 : -1
-                )
-                .forEach(session => {
-                  if (session.pinned) {
-                    pinnedSessionsView.appendChild(
-                      createSessionElement(session.token, session.details, true)
-                    );
-                  } else {
-                    recentSessionsView.appendChild(
-                      createSessionElement(
-                        session.token,
-                        session.details,
-                        false
-                      )
-                    );
-                  }
-                });
+            const recentSessionsView = resultsUi.createRecentSessionsView(
+              sessionDetails.filter(
+                session => pinnedSessions.indexOf(session.token) === -1
+              )
+            );
+            sessionsView.appendChild(recentSessionsView);
+          });
+        },
+        createPinnedSessionsView(sessions) {
+          const pinnedSessionsView = UI.createElement();
+          if (!sessions || sessions.length === 0) return pinnedSessionsView;
+          pinnedSessionsView.appendChild(
+            UI.createElement({ text: "Pinned", className: "title is-5" })
+          );
+          pinnedSessionsView.appendChild(
+            resultsUi.createSessionsTable(sessions, true)
+          );
+          pinnedSessionsView.appendChild(
+            UI.createElement({ style: "content: ''; margin-bottom: 40px" })
+          );
+          return pinnedSessionsView;
+        },
+        createRecentSessionsView(sessions) {
+          const recentSessionsView = UI.createElement();
+          if (!sessions || sessions.length === 0) return recentSessionsView;
+          recentSessionsView.appendChild(
+            UI.createElement({ text: "Recent", className: "title is-5" })
+          );
+          recentSessionsView.appendChild(
+            resultsUi.createSessionsTable(sessions, false)
+          );
+          recentSessionsView.appendChild(
+            UI.createElement({ style: "content: ''; margin-bottom: 40px" })
+          );
+          return recentSessionsView;
+        },
+        createSessionsTable(sessions, pinned) {
+          const getTagStyle = status => {
+            switch (status) {
+              case "completed":
+                return "is-success";
+              case "running":
+                return "is-info";
+              case "aborted":
+                return "is-danger";
+              case "paused":
+                return "is-warning";
             }
           };
-          recentSessions.forEach(token =>
-            waveService.getSessionDetails(token, details => {
-              collectSessionDetails(
-                token,
-                details,
-                pinnedSessions.indexOf(token) !== -1
-              );
-            })
-          );
+          return UI.createElement({
+            element: "table",
+            className: "table is-bordered is-hoverable is-fullwidth",
+            children: [
+              {
+                element: "tbody",
+                children: sessions.map(session => ({
+                  element: "tr",
+                  style: "cursor: pointer",
+                  onclick: () => {
+                    location.href = `result.html?token=${session.token}`;
+                  },
+                  children: [
+                    {
+                      element: "td",
+                      onclick: event => event.stopPropagation(),
+                      style: "text-align: center;",
+                      children: [
+                        {
+                          element: "input",
+                          className: "checkbox",
+                          style:
+                            "width: 18px; height: 18px; vertical-align: middle;",
+                          type: "checkbox",
+                          onchange: event => {
+                            if (event.target.checked) {
+                              resultsUi.addSessionToComparison(session.token);
+                            } else {
+                              resultsUi.removeSessionFromComparison(
+                                session.token
+                              );
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      element: "td",
+                      className: "is-family-monospace",
+                      style: "vertical-align: middle;",
+                      text: session.token.split("-").shift()
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle",
+                      text: session.browser.name + " " + session.browser.version
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle; text-align: center",
+                      children: [
+                        {
+                          className: `tag ${getTagStyle(session.status)}`,
+                          text: session.status
+                        }
+                      ]
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle",
+                      text: `${session.user_agent.substr(0, 30)} ...`,
+                      title: session.user_agent
+                    },
+                    {
+                      element: "td",
+                      text: new Date(session.date_started).toLocaleString()
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle; text-align: center",
+                      className: "is-paddingless",
+                      children: [
+                        {
+                          className: "button is-dark is-outlined is-small",
+                          style: "margin: 5px",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                {
+                                  element: "i",
+                                  className: "fas fa-thumbtack",
+                                  style: pinned
+                                    ? ""
+                                    : "transform: rotate(45deg)"
+                                }
+                              ]
+                            }
+                          ],
+                          onclick: event => {
+                            event.stopPropagation();
+                            if (pinned) {
+                              WaveService.removePinnedSession(session.token);
+                              resultsUi.renderSessions();
+                            } else {
+                              WaveService.addPinnedSession(session.token);
+                              resultsUi.renderSessions();
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle; text-align: center",
+                      className: "is-paddingless",
+                      children: [
+                        {
+                          className: "button is-dark is-outlined is-small",
+                          style: "margin: 5px",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                { element: "i", className: "fas fa-trash-alt" }
+                              ]
+                            }
+                          ],
+                          onclick: event => {
+                            event.stopPropagation();
+                            WaveService.removeRecentSession(session.token);
+                            resultsUi.renderSessions();
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }))
+              }
+            ]
+          });
         },
         addSessionToComparison: token => {
-          if (ui.state.comparison.indexOf(token) !== -1) return;
-          ui.state.comparison.push(token);
-          ui.updateCompareButton();
+          if (resultsUi.state.comparison.indexOf(token) !== -1) return;
+          resultsUi.state.comparison.push(token);
+          resultsUi.updateCompareButton();
         },
         removeSessionFromComparison: token => {
-          const index = ui.state.comparison.indexOf(token);
+          const index = resultsUi.state.comparison.indexOf(token);
           if (index === -1) return;
-          ui.state.comparison.splice(index, 1);
-          ui.updateCompareButton();
+          resultsUi.state.comparison.splice(index, 1);
+          resultsUi.updateCompareButton();
         },
         updateCompareButton: () => {
-          const compareButton = ui.getElement("compare-button");
-          if (ui.state.comparison.length > 0) {
-            compareButton.className = compareButton.className
-              .split(" ")
-              .filter(name => name !== "disabled")
-              .join(" ");
+          const compareButton = UI.getElement("compare-button");
+          if (resultsUi.state.comparison.length > 0) {
+            compareButton.removeAttribute("disabled");
           } else {
-            compareButton.className += " disabled";
+            compareButton.setAttribute("disabled", true);
           }
         },
         compareSessions: (tokens, reftoken) => {
