@@ -6,16 +6,23 @@ const Session = require("../data/session");
 const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
+const Serializer = require("../utils/serializer");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
 
 class ResultsManager {
-  constructor({ resultsDirectoryPath, database, sessionManager }) {
+  constructor({
+    resultsDirectoryPath,
+    database,
+    sessionManager,
+    exportTemplateDirectoryPath
+  }) {
     this._resultsDirectoryPath = resultsDirectoryPath;
     this._database = database;
     this._sessionManager = sessionManager;
     this._generatingComparisons = [];
+    this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
   }
 
   async getJsonPath({ token, api }) {
@@ -522,11 +529,49 @@ class ResultsManager {
   }
 
   async exportResults(token) {
+    const zip = new JSZip();
+
     const flattenedResults = await this.getFlattenedResults(token);
     const resultsScript =
       "const results = " + JSON.stringify(flattenedResults, null, 2);
-    const zip = new JSZip();
     zip.file("results.json.js", resultsScript);
+
+    const session = await this._sessionManager.getSession(token);
+    const sessionJson = Serializer.serializeSession(session);
+    delete sessionJson.running_tests;
+    delete sessionJson.completed_tests;
+    delete sessionJson.pending_tests;
+    const detailsScript =
+      "const details = " + JSON.stringify(sessionJson, null, 2);
+    zip.file("details.json.js", detailsScript);
+
+    const readDirectoryFiles = async directoryPath => {
+      const fileNames = await FileSystem.readDirectory(directoryPath);
+      let files = [];
+      for (let fileName of fileNames) {
+        const filePath = path.join(directoryPath, fileName);
+        const stats = await FileSystem.stats(filePath);
+        if (stats.isDirectory()) {
+          files = files.concat(await readDirectoryFiles(filePath));
+        } else {
+          files.push({
+            filePath,
+            data: await FileSystem.readFile(filePath)
+          });
+        }
+      }
+      return files;
+    };
+
+    const files = await readDirectoryFiles(this._exportTemplateDirectoryPath);
+    files.forEach(file => {
+      const filePath = file.filePath.replace(
+        this._exportTemplateDirectoryPath,
+        ""
+      );
+      zip.file(filePath, file.data);
+    });
+
     return zip.generateAsync({ type: "nodebuffer" });
   }
 }

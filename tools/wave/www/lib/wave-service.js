@@ -175,6 +175,7 @@ const WaveService = {
     const storage = window.localStorage;
     const state = JSON.parse(storage.getItem("wave"));
     if (!state) return [];
+    console.log(state);
     return state.recent_sessions.filter(session => typeof session === "string");
   },
   getPinnedSessions: () => {
@@ -211,7 +212,9 @@ const WaveService = {
     const state = JSON.parse(storage.getItem("wave"));
     if (!state) return;
     if (!state.pinned_sessions) return;
-    state.pinned_sessions.splice(state.pinned_sessions.indexOf(token), 1);
+    const index = state.pinned_sessions.indexOf(token);
+    if (index === -1) return;
+    state.pinned_sessions.splice(index, 1);
     storage.setItem("wave", JSON.stringify(state));
   },
   removeRecentSession: token => {
@@ -220,7 +223,9 @@ const WaveService = {
     const state = JSON.parse(storage.getItem("wave"));
     if (!state) return;
     if (!state.recent_sessions) return;
-    state.recent_sessions.splice(state.recent_sessions.indexOf(token), 1);
+    const index = state.recent_sessions.indexOf(token);
+    if (index === -1) return;
+    state.recent_sessions.splice(index, 1);
     storage.setItem("wave", JSON.stringify(state));
     WaveService.removePinnedSession(token);
   }

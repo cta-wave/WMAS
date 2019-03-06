@@ -270,7 +270,6 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   async _sendZip({ blob, response, token }) {
-    console.log("SENDING ZIP");
     const fileName = token.split("-")[0] + "_results_html.zip";
     response.set(
       "Content-Disposition",

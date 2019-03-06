@@ -64,174 +64,175 @@
             }
           });
         },
-        render: () => {
+        render() {
           const { getRoot, createElement, getElement } = UI;
-          getRoot().appendChild(
-            createElement({
-              className: "content",
-              children: [
-                {
-                  element: "img",
-                  src: "res/wavelogo_2016.jpg",
-                  className: "site-logo"
-                },
-                { text: "Results", className: "title" },
-                { text: "Manage Sessions", className: "title is-4" },
-                {
-                  className: "columns",
-                  children: [
-                    {
-                      className: "column",
-                      children: [
-                        { text: "Add Sessions", className: "title is-5" },
-                        {
-                          element: "article",
-                          className: "message is-danger",
-                          id: "find-error",
-                          children: [
-                            {
-                              text:
-                                "Could not find any sessions! Try adding more characters of the token.",
-                              className: "message-body"
+          const resultsView = UI.createElement({
+            className: "content",
+            children: [
+              {
+                element: "img",
+                src: "res/wavelogo_2016.jpg",
+                className: "site-logo"
+              },
+              { text: "Results", className: "title" },
+              { text: "Manage Sessions", className: "title is-4" },
+              {
+                className: "columns",
+                children: [
+                  {
+                    className: "column",
+                    children: [
+                      { text: "Add Sessions", className: "title is-5" },
+                      {
+                        element: "article",
+                        className: "message is-danger",
+                        id: "find-error",
+                        children: [
+                          {
+                            text:
+                              "Could not find any sessions! Try adding more characters of the token.",
+                            className: "message-body"
+                          }
+                        ],
+                        style: "display: none"
+                      },
+                      {
+                        element: "label",
+                        text: "Session token:"
+                      },
+                      {
+                        style: "display: flex; margin-bottom: 10px;",
+                        children: [
+                          {
+                            element: "input",
+                            inputType: "text",
+                            className: "input is-family-monospace",
+                            id: "token-fragment",
+                            placeholder:
+                              "First 8 characters or more of session token",
+                            onKeyDown: event =>
+                              event.key === "Enter"
+                                ? resultsUi.addSession()
+                                : null
+                          }
+                        ]
+                      },
+                      {
+                        style: "text-align: right",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-plus"
+                                  }
+                                ]
+                              },
+                              { text: "Add Session", element: "span" }
+                            ],
+                            style: "margin-left: 20px",
+                            onclick: () => {
+                              resultsUi.addSession();
                             }
-                          ],
-                          style: "display: none"
-                        },
-                        {
-                          element: "label",
-                          text: "Session token:"
-                        },
-                        {
-                          style: "display: flex; margin-bottom: 10px;",
-                          children: [
-                            {
-                              element: "input",
-                              inputType: "text",
-                              className: "input is-family-monospace",
-                              id: "token-fragment",
-                              placeholder:
-                                "First 8 characters or more of session token",
-                              onKeyDown: event => {
-                                if (event.key !== "Enter") return;
-                                resultsUi.addSession();
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          style: "text-align: right",
-                          children: [
-                            {
-                              className: "button is-dark is-outlined",
-                              children: [
-                                {
-                                  element: "span",
-                                  className: "icon",
-                                  children: [
-                                    {
-                                      element: "i",
-                                      className: "fas fa-plus"
-                                    }
-                                  ]
-                                },
-                                { text: "Add Session", element: "span" }
-                              ],
-                              style: "margin-left: 20px",
-                              onclick: () => {
-                                resultsUi.addSession();
-                              }
-                            }
-                          ]
-                        }
-                        // {
-                        //   className: "button is-dark is-outlined",
-                        //   text: "View Results",
-                        //   onclick: () => {
-                        //     const fragment = getElement("token-fragment").value;
-                        //     if (!fragment || fragment.length < 8) return;
-                        //     WaveService.findToken(fragment, token => {
-                        //       if (token) {
-                        //         location.href = "/result.html?token=" + token;
-                        //       } else {
-                        //         const errorBox = getElement("find-error");
-                        //         errorBox.setAttribute(
-                        //           "style",
-                        //           "display: block"
-                        //         );
-                        //       }
-                        //     });
-                        //   }
-                        // }
-                      ]
-                    },
-                    {
-                      className: "column",
-                      children: [
-                        { text: "Compare Sessions", className: "title is-5" },
-                        {
-                          element: "label",
-                          text: "Session token as reference (optional):"
-                        },
-                        {
-                          style: "display: flex; margin-bottom: 10px",
-                          children: [
-                            {
-                              element: "input",
-                              className: "input is-family-monospace",
-                              style: "flex: 1;",
-                              id: "token-reference",
-                              placeholder:
-                                "First 8 characters or more of session token"
-                            }
-                          ]
-                        },
-                        {
-                          style: "text-align: right",
-                          children: [
-                            {
-                              className: "button is-dark is-outlined",
-                              disabled: true,
-                              id: "compare-button",
-                              children: [
-                                {
-                                  element: "span",
-                                  className: "icon",
-                                  children: [
-                                    {
-                                      element: "i",
-                                      className: "fas fa-balance-scale"
-                                    }
-                                  ]
-                                },
-                                { text: "Compare Selected", element: "span" }
-                              ],
-                              onclick: () => {
-                                if (
-                                  UI.getElement("compare-button").hasAttribute(
-                                    "disabled"
-                                  )
+                          }
+                        ]
+                      }
+                      // {
+                      //   className: "button is-dark is-outlined",
+                      //   text: "View Results",
+                      //   onclick: () => {
+                      //     const fragment = getElement("token-fragment").value;
+                      //     if (!fragment || fragment.length < 8) return;
+                      //     WaveService.findToken(fragment, token => {
+                      //       if (token) {
+                      //         location.href = "/result.html?token=" + token;
+                      //       } else {
+                      //         const errorBox = getElement("find-error");
+                      //         errorBox.setAttribute(
+                      //           "style",
+                      //           "display: block"
+                      //         );
+                      //       }
+                      //     });
+                      //   }
+                      // }
+                    ]
+                  },
+                  {
+                    className: "column",
+                    children: [
+                      { text: "Compare Sessions", className: "title is-5" },
+                      {
+                        element: "label",
+                        text: "Session token as reference (optional):"
+                      },
+                      {
+                        style: "display: flex; margin-bottom: 10px",
+                        children: [
+                          {
+                            element: "input",
+                            className: "input is-family-monospace",
+                            style: "flex: 1;",
+                            id: "token-reference",
+                            placeholder:
+                              "First 8 characters or more of session token"
+                          }
+                        ]
+                      },
+                      {
+                        style: "text-align: right",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            disabled: true,
+                            id: "compare-button",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-balance-scale"
+                                  }
+                                ]
+                              },
+                              { text: "Compare Selected", element: "span" }
+                            ],
+                            onclick: () => {
+                              if (
+                                UI.getElement("compare-button").hasAttribute(
+                                  "disabled"
                                 )
-                                  return;
-                                const reftoken = UI.getElement(
-                                  "token-reference"
-                                ).value;
-                                resultsUi.compareSessions(
-                                  resultsUi.state.comparison,
-                                  reftoken
-                                );
-                              }
+                              )
+                                return;
+                              const reftoken = UI.getElement("token-reference")
+                                .value;
+                              resultsUi.compareSessions(
+                                resultsUi.state.comparison,
+                                reftoken
+                              );
                             }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { id: "sessions" }
+            ]
+          });
 
-                { id: "sessions" }
-              ]
-            })
-          );
+          const root = UI.getRoot();
+          root.innerHTML = "";
+          root.appendChild(resultsView);
+
           resultsUi.renderSessions();
         },
         renderSessions() {
