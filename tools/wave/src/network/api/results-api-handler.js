@@ -33,7 +33,6 @@ class ResultsApiHandler extends ApiHandler {
     if (!token) {
       token = request.get("token");
     }
-
     switch (method) {
       case "POST":
         response.send();
@@ -73,21 +72,38 @@ class ResultsApiHandler extends ApiHandler {
                 });
               default:
                 token = url[1];
-                let results = await this._resultsManager.getResults(token);
-                results = this._flattenResults(results);
+                const results = await this._resultsManager.getFlattenedResults(
+                  token
+                );
                 this.sendJson(results, response);
                 return;
             }
           }
           case 3:
-            const tokens = url[1].split(",");
-            let refTokens = url[2].split(",");
-            const hashes = refTokens.filter(token => !token.includes("-"));
-            try {
-              return this._sendComparison(tokens, refTokens, hashes, response);
-            } catch (error) {
-              console.error(error);
-              response.send(500);
+            token = url[1];
+            switch (url[2]) {
+              case "html":
+                return this._sendZip({
+                  blob: await this._resultsManager.exportResults(token),
+                  response,
+                  token
+                });
+              default:
+                const tokens = url[1].split(",");
+                let refTokens = url[2].split(",");
+                const hashes = refTokens.filter(token => !token.includes("-"));
+                try {
+                  return this._sendComparison(
+                    tokens,
+                    refTokens,
+                    hashes,
+                    response
+                  );
+                } catch (error) {
+                  console.error(error);
+                  response.send(500);
+                  return;
+                }
             }
           case 4: {
             switch (url[3]) {
@@ -251,6 +267,17 @@ class ResultsApiHandler extends ApiHandler {
       }
     }
     return flattenedResults;
+  }
+
+  async _sendZip({ blob, response, token }) {
+    console.log("SENDING ZIP");
+    const fileName = token.split("-")[0] + "_results_html.zip";
+    response.set(
+      "Content-Disposition",
+      'attachment;filename="' + fileName + '"'
+    );
+    response.set("Content-Type", "application/x-compressed");
+    response.send(blob);
   }
 }
 

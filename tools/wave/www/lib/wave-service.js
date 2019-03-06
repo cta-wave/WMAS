@@ -146,6 +146,10 @@ const WaveService = {
       );
     });
   },
+  downloadHtmlZip: token => {
+    if (typeof token !== "string") token = WaveService.defaultToken;
+    location.href = `/results/${token}/html`;
+  },
   connect: token => {
     if (typeof token !== "string") token = WaveService.defaultToken;
     if (!WaveService.socket) {

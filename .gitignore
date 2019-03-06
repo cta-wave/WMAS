@@ -25,3 +25,10 @@ scratch
 .vscode/
 .DS_Store
 *.rej
+
+# tmp
+*
+!.gitignore
+!./tools/wave/**/*
+!./tools/wave/*
+!./tools/wave

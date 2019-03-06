@@ -14,7 +14,7 @@
     "wave": [8050]
   },
   "check_subdomains": true,
-  "db_compaction_interval": 3600000,
+  "db_compaction_interval": 60000,
   "log_level": "debug",
   "bind_address": true,
   "ssl": {

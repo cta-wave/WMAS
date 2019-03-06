@@ -1,5 +1,6 @@
 const path = require("path");
 const crypto = require("crypto");
+const JSZip = require("jszip");
 
 const Session = require("../data/session");
 const FileSystem = require("../utils/file-system");
@@ -125,8 +126,10 @@ class ResultsManager {
     const resultsDirectoryPath = this._resultsDirectoryPath;
     if (!(await FileSystem.exists(resultsDirectoryPath))) return;
     const tokens = await FileSystem.readDirectory(resultsDirectoryPath);
+    const sessions = await sessionManager.getSessions();
     println("Looking for results to import ...");
     for (let token of tokens) {
+      if (sessions.find(session => session.getToken() === token)) continue;
       // http://webapitests2017.ctawave.org:8050/?
       //   path=/2dcontext,%20/css,%20/content-security-policy,%20/dom,%20/ecmascript,%20/encrypted-media,%20/fetch,%20/fullscreen,%20/html,%20/IndexedDB,%20/media-source,%20/notifications,%20/uievents,%20/WebCryptoAPI,%20/webaudio,%20/webmessaging,%20/websockets,%20/webstorage,%20/workers,%20/xhr
       //   &reftoken=ce4aec10-7855-11e8-b81b-6714c602f007
@@ -139,7 +142,6 @@ class ResultsManager {
       const infoFile = await FileSystem.readFile(infoFilePath);
       const { user_agent: userAgent } = JSON.parse(infoFile);
       const { browser } = UserAgentParser.parse(userAgent);
-      if (await sessionManager.getSession(token)) continue;
       print(`Loading ${browser.name} ${browser.version} results ...`);
       const session = new Session(token, {
         status: Session.COMPLETED,
@@ -252,6 +254,11 @@ class ResultsManager {
     });
 
     return resultsPerApi;
+  }
+
+  async getFlattenedResults(token) {
+    const results = await this.getResults(token);
+    return this._flattenResults(results);
   }
 
   prepareResult(result) {
@@ -455,6 +462,72 @@ class ResultsManager {
       passed[api] = temp;
     }
     return passed;
+  }
+
+  _flattenResults(results) {
+    const flattenedResults = {};
+    for (let api in results) {
+      if (!flattenedResults[api]) {
+        flattenedResults[api] = {
+          pass: 0,
+          fail: 0,
+          timeout: 0,
+          timeoutfiles: [],
+          not_run: 0
+        };
+      }
+      for (let result of results[api]) {
+        if (!result.subtests) {
+          switch (result.status) {
+            case "OK":
+              flattenedResults[api].pass++;
+              break;
+            case "ERROR":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+          if (results.xstatus === "SERVERTIMEOUT") {
+            flattenedResults[api].timeoutfiles.push(result.test);
+          }
+          continue;
+        }
+        for (let test of result.subtests) {
+          switch (test.status) {
+            case "PASS":
+              flattenedResults[api].pass++;
+              break;
+            case "FAIL":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+          if (test.xstatus === "SERVERTIMEOUT") {
+            flattenedResults[api].timeoutfiles.push(result.test);
+          }
+        }
+      }
+    }
+    return flattenedResults;
+  }
+
+  async exportResults(token) {
+    const flattenedResults = await this.getFlattenedResults(token);
+    const resultsScript =
+      "const results = " + JSON.stringify(flattenedResults, null, 2);
+    const zip = new JSZip();
+    zip.file("results.json.js", resultsScript);
+    return zip.generateAsync({ type: "nodebuffer" });
   }
 }
 

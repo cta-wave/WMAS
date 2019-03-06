@@ -650,6 +650,11 @@
                         onclick: () =>
                           isDone ? WaveService.downloadJsons(api) : null,
                         text: "json"
+                      },
+                      {
+                        className: "button is-dark is-small",
+                        text: "html",
+                        onclick: () => WaveService.downloadHtmlZip()
                       }
                     ]
                   }
