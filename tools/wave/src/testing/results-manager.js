@@ -1,20 +1,28 @@
 const path = require("path");
 const crypto = require("crypto");
+const JSZip = require("jszip");
 
 const Session = require("../data/session");
 const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
+const Serializer = require("../utils/serializer");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
 
 class ResultsManager {
-  constructor({ resultsDirectoryPath, database, sessionManager }) {
+  constructor({
+    resultsDirectoryPath,
+    database,
+    sessionManager,
+    exportTemplateDirectoryPath
+  }) {
     this._resultsDirectoryPath = resultsDirectoryPath;
     this._database = database;
     this._sessionManager = sessionManager;
     this._generatingComparisons = [];
+    this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
   }
 
   async getJsonPath({ token, api }) {
@@ -125,8 +133,10 @@ class ResultsManager {
     const resultsDirectoryPath = this._resultsDirectoryPath;
     if (!(await FileSystem.exists(resultsDirectoryPath))) return;
     const tokens = await FileSystem.readDirectory(resultsDirectoryPath);
+    const sessions = await sessionManager.getSessions();
     println("Looking for results to import ...");
     for (let token of tokens) {
+      if (sessions.find(session => session.getToken() === token)) continue;
       // http://webapitests2017.ctawave.org:8050/?
       //   path=/2dcontext,%20/css,%20/content-security-policy,%20/dom,%20/ecmascript,%20/encrypted-media,%20/fetch,%20/fullscreen,%20/html,%20/IndexedDB,%20/media-source,%20/notifications,%20/uievents,%20/WebCryptoAPI,%20/webaudio,%20/webmessaging,%20/websockets,%20/webstorage,%20/workers,%20/xhr
       //   &reftoken=ce4aec10-7855-11e8-b81b-6714c602f007
@@ -139,7 +149,6 @@ class ResultsManager {
       const infoFile = await FileSystem.readFile(infoFilePath);
       const { user_agent: userAgent } = JSON.parse(infoFile);
       const { browser } = UserAgentParser.parse(userAgent);
-      if (await sessionManager.getSession(token)) continue;
       print(`Loading ${browser.name} ${browser.version} results ...`);
       const session = new Session(token, {
         status: Session.COMPLETED,
@@ -252,6 +261,11 @@ class ResultsManager {
     });
 
     return resultsPerApi;
+  }
+
+  async getFlattenedResults(token) {
+    const results = await this.getResults(token);
+    return this._flattenResults(results);
   }
 
   prepareResult(result) {
@@ -455,6 +469,110 @@ class ResultsManager {
       passed[api] = temp;
     }
     return passed;
+  }
+
+  _flattenResults(results) {
+    const flattenedResults = {};
+    for (let api in results) {
+      if (!flattenedResults[api]) {
+        flattenedResults[api] = {
+          pass: 0,
+          fail: 0,
+          timeout: 0,
+          timeoutfiles: [],
+          not_run: 0
+        };
+      }
+      for (let result of results[api]) {
+        if (!result.subtests) {
+          switch (result.status) {
+            case "OK":
+              flattenedResults[api].pass++;
+              break;
+            case "ERROR":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+          if (results.xstatus === "SERVERTIMEOUT") {
+            flattenedResults[api].timeoutfiles.push(result.test);
+          }
+          continue;
+        }
+        for (let test of result.subtests) {
+          switch (test.status) {
+            case "PASS":
+              flattenedResults[api].pass++;
+              break;
+            case "FAIL":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+          if (test.xstatus === "SERVERTIMEOUT") {
+            flattenedResults[api].timeoutfiles.push(result.test);
+          }
+        }
+      }
+    }
+    return flattenedResults;
+  }
+
+  async exportResults(token) {
+    const zip = new JSZip();
+
+    const flattenedResults = await this.getFlattenedResults(token);
+    const resultsScript =
+      "const results = " + JSON.stringify(flattenedResults, null, 2);
+    zip.file("results.json.js", resultsScript);
+
+    const session = await this._sessionManager.getSession(token);
+    const sessionJson = Serializer.serializeSession(session);
+    delete sessionJson.running_tests;
+    delete sessionJson.completed_tests;
+    delete sessionJson.pending_tests;
+    const detailsScript =
+      "const details = " + JSON.stringify(sessionJson, null, 2);
+    zip.file("details.json.js", detailsScript);
+
+    const readDirectoryFiles = async directoryPath => {
+      const fileNames = await FileSystem.readDirectory(directoryPath);
+      let files = [];
+      for (let fileName of fileNames) {
+        const filePath = path.join(directoryPath, fileName);
+        const stats = await FileSystem.stats(filePath);
+        if (stats.isDirectory()) {
+          files = files.concat(await readDirectoryFiles(filePath));
+        } else {
+          files.push({
+            filePath,
+            data: await FileSystem.readFile(filePath)
+          });
+        }
+      }
+      return files;
+    };
+
+    const files = await readDirectoryFiles(this._exportTemplateDirectoryPath);
+    files.forEach(file => {
+      const filePath = file.filePath.replace(
+        this._exportTemplateDirectoryPath,
+        ""
+      );
+      zip.file(filePath, file.data);
+    });
+
+    return zip.generateAsync({ type: "nodebuffer" });
   }
 }
 

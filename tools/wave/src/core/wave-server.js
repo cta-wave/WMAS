@@ -59,7 +59,11 @@ class WaveServer {
     const resultsManager = new ResultsManager({
       resultsDirectoryPath,
       database,
-      sessionManager
+      sessionManager,
+      exportTemplateDirectoryPath: path.join(
+        applicationDirectoryPath,
+        "./export"
+      )
     });
     await resultsManager.loadResults();
 
