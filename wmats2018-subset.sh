@@ -204,7 +204,7 @@ echo "css/CSS2/*" >> .git/info/sparse-checkout
 # CSS Syntax Module Level 3 [CSS-SYNTAX-3]
 echo "css/css-syntax/*" >> .git/info/sparse-checkout
 # CSS Style Attributes [CSS-STYLE-ATTR]
-echo "css/css-syntax/*" >> .git/info/sparse-checkout
+echo "css/css-style-attr/*" >> .git/info/sparse-checkout
 # Media Queries [CSS3-MEDIAQUERIES]
 echo "css/mediaqueries/*" >> .git/info/sparse-checkout
 # CSS Conditional Rules Module Level 3 [CSS3-CONDITIONAL]
