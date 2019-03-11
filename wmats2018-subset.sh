@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DISTDIR=dist/wmats2018
-BRANCHORCOMMITID=a8a8377b1ecb700709c923f3e72b513eedb3c0c2
+BRANCHORCOMMITID=4bdeca6b451519a7f60f592468600e0a6cbfc42b
 
 WPTBASEDIR=`pwd`
 
@@ -204,7 +204,7 @@ echo "css/CSS2/*" >> .git/info/sparse-checkout
 # CSS Syntax Module Level 3 [CSS-SYNTAX-3]
 echo "css/css-syntax/*" >> .git/info/sparse-checkout
 # CSS Style Attributes [CSS-STYLE-ATTR]
-echo "css/css-syntax/*" >> .git/info/sparse-checkout
+echo "css/css-style-attr/*" >> .git/info/sparse-checkout
 # Media Queries [CSS3-MEDIAQUERIES]
 echo "css/mediaqueries/*" >> .git/info/sparse-checkout
 # CSS Conditional Rules Module Level 3 [CSS3-CONDITIONAL]
@@ -269,7 +269,7 @@ echo "[GIF] TO BE INTEGRATED"
 # Devices MUST be conforming implementations of the following specifications:
 #
 # Open Font Format [OPEN-FONT-FORMAT]
-echo "[OPEN-FONT-FORMAT] TO BE INTEGRATED"
+echo "fonts/*" >> .git/info/sparse-checkout
 # WOFF File Format 1.0 [WOFF]
 echo "[WOFF] TO BE INTEGRATED"
 
@@ -294,6 +294,14 @@ echo "WebCryptoAPI/*" >> .git/info/sparse-checkout
 # 3.9 Other web specifications
 # Devices MUST be conforming implementations of the following specifications:
 #
+# File API [FILEAPI]
+echo "FileAPI/*" >> .git/info/sparse-checkout
+# Web Notifications [notifications]
+echo "notifications/*" >> .git/info/sparse-checkout
+# Page Visibility Level 2 [PAGE-VISIBILITY-2]
+echo "page-visibility/*" >> .git/info/sparse-checkout
+# Service Workers 1 [SERVICE-WORKERS-1]
+echo "service-workers/*" >> .git/info/sparse-checkout
 # Web Storage [WEBSTORAGE]
 echo "webstorage/*" >> .git/info/sparse-checkout
 # Web Workers [WORKERS]
@@ -319,7 +327,7 @@ echo "css/cssom-view/*" >> .git/info/sparse-checkout
 echo "dom/*" >> .git/info/sparse-checkout
 
 git pull origin master
-git checkout -b WMAS2017 $BRANCHORCOMMITID
+git checkout -b WMAS2018_SUBSET $BRANCHORCOMMITID
 
 # copy subset back to root since many tests have assumptions to have them there
 rm -rf $WPTBASEDIR/html/
@@ -350,22 +358,10 @@ rm -rf .git/info/sparse-checkout
 # Exceptions: Array key path and array keys are not yet widely supported.
 echo "IndexedDB/*" >> .git/info/sparse-checkout
 git read-tree -mu HEAD
-git checkout -b WMAS2017-IndexedDB $BRANCHORCOMMITID
+git checkout -b WMAS2018-IndexedDB $BRANCHORCOMMITID
 rm -rf $WPTBASEDIR/IndexedDB/
 cp -R ./* $WPTBASEDIR
 
-# Separate checkout for specific version of notifications
-
-BRANCHORCOMMITID=7632a8cb9383898ded73af1880c92f3714f4bac4
-rm -rf .git/info/sparse-checkout
-
-# Web Notifications [notifications-20151022]
-# Separate checkout. See below.
-echo "notifications/*" >> .git/info/sparse-checkout
-git read-tree -mu HEAD
-git checkout -b WMAS2017-notifications $BRANCHORCOMMITID
-rm -rf $WPTBASEDIR/notifications/
-cp -R ./* $WPTBASEDIR
 
 # Integrate ECMASCRIPT tests [ECMASCRIPT-5.1]
 DISTDIR=dist/es5-tests
@@ -377,6 +373,9 @@ node tools/wave/ecmascript/generate-tests.js $DISTDIR
 
 # Remove the dist folder before manifest generation
 rm -rf dist
+
+# Remove tests listed in the exceptions file
+node tools/wave/src/testing/exceptions/delete_exceptions.js
 
 # build the MANIFEST.json
 ./wpt manifest --no-download --work
