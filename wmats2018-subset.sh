@@ -269,7 +269,7 @@ echo "[GIF] TO BE INTEGRATED"
 # Devices MUST be conforming implementations of the following specifications:
 #
 # Open Font Format [OPEN-FONT-FORMAT]
-echo "[OPEN-FONT-FORMAT] TO BE INTEGRATED"
+echo "fonts/*" >> .git/info/sparse-checkout
 # WOFF File Format 1.0 [WOFF]
 echo "[WOFF] TO BE INTEGRATED"
 
