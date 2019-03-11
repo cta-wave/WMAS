@@ -296,6 +296,8 @@ echo "WebCryptoAPI/*" >> .git/info/sparse-checkout
 #
 # File API [FILEAPI]
 echo "FileAPI/*" >> .git/info/sparse-checkout
+# Web Notifications [notifications]
+echo "notifications/*" >> .git/info/sparse-checkout
 # Page Visibility Level 2 [PAGE-VISIBILITY-2]
 echo "page-visibility/*" >> .git/info/sparse-checkout
 # Service Workers 1 [SERVICE-WORKERS-1]
@@ -360,18 +362,6 @@ git checkout -b WMAS2017-IndexedDB $BRANCHORCOMMITID
 rm -rf $WPTBASEDIR/IndexedDB/
 cp -R ./* $WPTBASEDIR
 
-# Separate checkout for specific version of notifications
-
-BRANCHORCOMMITID=7632a8cb9383898ded73af1880c92f3714f4bac4
-rm -rf .git/info/sparse-checkout
-
-# Web Notifications [notifications-20151022]
-# Separate checkout. See below.
-echo "notifications/*" >> .git/info/sparse-checkout
-git read-tree -mu HEAD
-git checkout -b WMAS2017-notifications $BRANCHORCOMMITID
-rm -rf $WPTBASEDIR/notifications/
-cp -R ./* $WPTBASEDIR
 
 # Integrate ECMASCRIPT tests [ECMASCRIPT-5.1]
 DISTDIR=dist/es5-tests
