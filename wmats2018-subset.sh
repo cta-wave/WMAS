@@ -327,7 +327,7 @@ echo "css/cssom-view/*" >> .git/info/sparse-checkout
 echo "dom/*" >> .git/info/sparse-checkout
 
 git pull origin master
-git checkout -b WMAS2017 $BRANCHORCOMMITID
+git checkout -b WMAS2018_SUBSET $BRANCHORCOMMITID
 
 # copy subset back to root since many tests have assumptions to have them there
 rm -rf $WPTBASEDIR/html/
@@ -358,7 +358,7 @@ rm -rf .git/info/sparse-checkout
 # Exceptions: Array key path and array keys are not yet widely supported.
 echo "IndexedDB/*" >> .git/info/sparse-checkout
 git read-tree -mu HEAD
-git checkout -b WMAS2017-IndexedDB $BRANCHORCOMMITID
+git checkout -b WMAS2018-IndexedDB $BRANCHORCOMMITID
 rm -rf $WPTBASEDIR/IndexedDB/
 cp -R ./* $WPTBASEDIR
 
