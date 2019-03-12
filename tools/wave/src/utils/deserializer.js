@@ -21,6 +21,7 @@ class Deserializer {
     const testFilesCompleted = sessionObject.test_files_completed;
     const dateStarted = sessionObject.date_started;
     const dateFinished = sessionObject.date_finished;
+    const isPublic = sessionObject.is_public;
     return new Session(token, {
       path,
       types,
@@ -33,7 +34,8 @@ class Deserializer {
       testFilesCount,
       testFilesCompleted,
       dateStarted,
-      dateFinished
+      dateFinished,
+      isPublic
     });
   }
 }

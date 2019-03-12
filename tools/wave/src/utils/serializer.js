@@ -20,6 +20,7 @@ class Serializer {
     const date_started = session.getDateStarted();
     const date_finished = session.getDateFinished();
     const { browser } = UserAgentParser.parse(session.getUserAgent());
+    const is_public = session.isPublic();
     return {
       token,
       path,
@@ -34,7 +35,8 @@ class Serializer {
       status,
       browser,
       date_started,
-      date_finished
+      date_finished,
+      is_public
     };
   }
 }

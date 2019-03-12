@@ -86,6 +86,10 @@ class SessionManager {
     return await this._database.readSessions();
   }
 
+  async getPublicSessions() {
+    return await this._database.readPublicSessions();
+  }
+
   async deleteSession(token) {
     this._sessions.splice(
       this._sessions.findIndex(session => session.getToken() === token),

@@ -147,12 +147,15 @@ class ResultsManager {
       const infoFilePath = path.join(resultDirectoryPath, "info.json");
       if (!(await FileSystem.exists(infoFilePath))) continue;
       const infoFile = await FileSystem.readFile(infoFilePath);
-      const { user_agent: userAgent } = JSON.parse(infoFile);
+      const { user_agent: userAgent, is_public: isPublic } = JSON.parse(
+        infoFile
+      );
       const { browser } = UserAgentParser.parse(userAgent);
       print(`Loading ${browser.name} ${browser.version} results ...`);
       const session = new Session(token, {
         status: Session.COMPLETED,
-        userAgent
+        userAgent,
+        isPublic
       });
       await sessionManager.addSession(session);
       const apis = await FileSystem.readDirectory(resultDirectoryPath);

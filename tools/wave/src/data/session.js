@@ -22,7 +22,8 @@ class Session {
       testFilesCount,
       testFilesCompleted,
       dateStarted = null,
-      dateFinished = null
+      dateFinished = null,
+      isPublic = false
     }
   ) {
     this._token = token;
@@ -48,6 +49,7 @@ class Session {
     this._clients = [];
     this._dateStarted = dateStarted || Date.now();
     this._dateFinished = dateFinished;
+    this._public = isPublic;
   }
 
   _calculateTestFilesCount(tests) {
@@ -286,6 +288,10 @@ class Session {
 
   getDateFinished() {
     return this._dateFinished;
+  }
+
+  isPublic() {
+    return this._public;
   }
 }
 

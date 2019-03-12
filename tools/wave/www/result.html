@@ -46,7 +46,7 @@
           }
         },
         refreshSessionDetails(callback = () => {}) {
-          WaveService.getSessionDetails(details => {
+          WaveService.getSession(details => {
             resultUi.state.details = details;
             resultUi.renderControls();
             resultUi.renderSessionDetails();
@@ -70,6 +70,8 @@
               if (not_run) complete += not_run;
               results[api].complete = complete;
               const { test_files_count, test_files_completed } = details;
+              if (!test_files_count[api]) test_files_count[api] = 0;
+              if (!test_files_completed[api]) test_files_completed[api] = 0;
               results[api].isDone =
                 test_files_count[api] === test_files_completed[api];
               results[api].testFilesCount = test_files_count[api];
@@ -192,7 +194,7 @@
         renderControls() {
           const { state } = resultUi;
           if (!state.details) return;
-          const { status } = state.details;
+          const { status, is_public } = state.details;
           const controlsView = UI.createElement();
           if (status && status !== "aborted" && status !== "completed") {
             const pauseResumeButton = UI.createElement({
@@ -249,29 +251,31 @@
             });
             controlsView.appendChild(stopButton);
           }
-          const deleteButton = UI.createElement({
-            id: "delete-button",
-            className: "button is-dark is-outlined",
-            style: "margin-left: 20px",
-            onclick: resultUi.showDeleteModal,
-            children: [
-              {
-                element: "span",
-                className: "icon",
-                children: [
-                  {
-                    element: "i",
-                    className: "fas fa-trash-alt"
-                  }
-                ]
-              },
-              {
-                text: "Delete",
-                element: "span"
-              }
-            ]
-          });
-          controlsView.appendChild(deleteButton);
+          if (!is_public) {
+            const deleteButton = UI.createElement({
+              id: "delete-button",
+              className: "button is-dark is-outlined",
+              style: "margin-left: 20px",
+              onclick: resultUi.showDeleteModal,
+              children: [
+                {
+                  element: "span",
+                  className: "icon",
+                  children: [
+                    {
+                      element: "i",
+                      className: "fas fa-trash-alt"
+                    }
+                  ]
+                },
+                {
+                  text: "Delete",
+                  element: "span"
+                }
+              ]
+            });
+            controlsView.appendChild(deleteButton);
+          }
 
           const deleteModal = UI.createElement({
             id: "delete-modal",
