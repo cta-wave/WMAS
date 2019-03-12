@@ -508,12 +508,13 @@
       let collected = recentSessions.length
       const collectSessionDetails = (token, details, pinned) => {
         collected --
-        if (!details) return
-        sessionDetails.push({
-          token,
-          details,
-          pinned
-        })
+        if (details) {
+          sessionDetails.push({
+            token,
+            details,
+            pinned
+          })
+        }
         if (collected === 0) {
           sessionDetails.sort((sessionA, sessionB) => sessionA.token > sessionB.token ? 1 : -1)
             .forEach(session => {
