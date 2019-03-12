@@ -147,6 +147,7 @@ class TestApiHandler extends ApiHandler {
         }
         session.setStatus(Session.COMPLETED);
         await this._sessionManager.updateSession(session);
+        await this._resultsManager.createInfoFile(session);
       }
       return;
     }

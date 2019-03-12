@@ -10,44 +10,42 @@ class Session {
   constructor(
     token,
     {
-      path,
-      types,
-      userAgent,
+      path = "",
+      types = [TestLoader.TEST_HARNESS_TESTS],
+      userAgent = null,
       tests,
-      pendingTests,
-      runningTests,
-      completedTests,
-      testTimeout,
-      status,
-      testFilesCount,
-      testFilesCompleted,
-      dateStarted = null,
+      pendingTests = {},
+      runningTests = {},
+      completedTests = {},
+      testTimeout = null,
+      status = COMPLETED,
+      testFilesCount = this._calculateTestFilesCount(tests),
+      testFilesCompleted = this._calculateTestFilesCount(completedTests),
+      dateStarted = Date.now(),
       dateFinished = null,
       isPublic = false
-    }
+    } = {}
   ) {
     this._token = token;
-    this._path = path || "";
-    this._types = types || [TestLoader.TEST_HARNESS_TESTS];
-    this._userAgent = userAgent || null;
+    this._path = path;
+    this._types = types;
+    this._userAgent = userAgent;
     if (tests) {
       this._pendingTests = tests;
       this._runningTests = {};
       this._completedTests = {};
     } else {
-      this._pendingTests = pendingTests || {};
-      this._runningTests = runningTests || {};
-      this._completedTests = completedTests || {};
+      this._pendingTests = pendingTests;
+      this._runningTests = runningTests;
+      this._completedTests = completedTests;
     }
-    this._testFilesCount =
-      testFilesCount || this._calculateTestFilesCount(tests);
-    this._testFilesCompleted =
-      testFilesCompleted || this._calculateTestFilesCount(completedTests);
-    this._testTimeout = testTimeout || null;
+    this._testFilesCount = testFilesCount;
+    this._testFilesCompleted = testFilesCompleted;
+    this._testTimeout = testTimeout;
     this._timeouts = [];
-    this._status = status || UNKNOWN;
+    this._status = status;
     this._clients = [];
-    this._dateStarted = dateStarted || Date.now();
+    this._dateStarted = dateStarted;
     this._dateFinished = dateFinished;
     this._public = isPublic;
   }

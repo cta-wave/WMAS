@@ -2,11 +2,11 @@ const path = require("path");
 const crypto = require("crypto");
 const JSZip = require("jszip");
 
-const Session = require("../data/session");
 const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
 const Serializer = require("../utils/serializer");
+const Deserializer = require("../utils/deserializer");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -147,16 +147,11 @@ class ResultsManager {
       const infoFilePath = path.join(resultDirectoryPath, "info.json");
       if (!(await FileSystem.exists(infoFilePath))) continue;
       const infoFile = await FileSystem.readFile(infoFilePath);
-      const { user_agent: userAgent, is_public: isPublic } = JSON.parse(
-        infoFile
-      );
-      const { browser } = UserAgentParser.parse(userAgent);
+      const info = JSON.parse(infoFile);
+      info.token = token;
+      const { browser } = UserAgentParser.parse(info.user_agent);
       print(`Loading ${browser.name} ${browser.version} results ...`);
-      const session = new Session(token, {
-        status: Session.COMPLETED,
-        userAgent,
-        isPublic
-      });
+      const session = Deserializer.deserializeSession(info);
       await sessionManager.addSession(session);
       const apis = await FileSystem.readDirectory(resultDirectoryPath);
       for (let api of apis) {
@@ -215,24 +210,26 @@ class ResultsManager {
       await FileSystem.makeDirectory(directory);
     }
 
-    const infoFilePath = path.join(directory, "info.json");
-    if (!(await FileSystem.stats(infoFilePath))) {
-      let info = {};
-      info.user_agent = session.getUserAgent();
-      info.path = session.getPath();
-      info.types = session.getTypes();
-      info.date_started = session.getDateStarted();
-      info.date_finished = session.getDateFinished();
-      await FileSystem.writeFile(
-        infoFilePath,
-        JSON.stringify(info, null, "  ")
-      );
-    }
-
     directory = path.join(directory, api);
     if (!(await FileSystem.stats(directory))) {
       await FileSystem.makeDirectory(directory);
     }
+
+    this.createInfoFile(session);
+  }
+
+  async createInfoFile(session) {
+    const token = session.getToken();
+    const infoFilePath = path.join(
+      this._resultsDirectoryPath,
+      token,
+      "info.json"
+    );
+    let info = Serializer.serializeSession(session);
+    delete info.running_tests;
+    delete info.pending_tests;
+    delete info.completed_tests;
+    await FileSystem.writeFile(infoFilePath, JSON.stringify(info, null, "  "));
   }
 
   _getFilePath({ userAgent, api, token }) {
