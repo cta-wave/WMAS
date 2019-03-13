@@ -363,12 +363,15 @@ rm -rf $WPTBASEDIR/IndexedDB/
 cp -R ./* $WPTBASEDIR
 
 
-# Integrate ECMASCRIPT tests [ECMASCRIPT-5.1]
-DISTDIR=dist/es5-tests
+# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+DISTDIR=dist/es6-tests
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/ecmascript
 rm -rf $DISTDIR
-git clone https://github.com/tc39/test262.git -b es5-tests $DISTDIR
+git clone https://github.com/tc39/test262.git $DISTDIR
+cd $DISTDIR
+git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
+cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 
 # Remove the dist folder before manifest generation
