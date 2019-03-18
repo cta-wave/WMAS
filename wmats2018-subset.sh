@@ -188,9 +188,9 @@ git config core.sparsecheckout true
 # 3.2 HTML core specifications
 # Devices MUST be conforming implementations of the following specifications:
 
-# HTML 5.1 [HTML51], devices acting as Web browsers that support the HTML syntax and the XHTML syntax, scripting, and the suggested default rendering.
+# HTML [HTML],
 echo "html/*" >> .git/info/sparse-checkout
-# ECMAScript Language Specification, Edition 5.1 [ECMASCRIPT-5.1]
+# ECMAScript Language Specification, Edition 6 [ECMASCRIPT-6]
 # Separate checkout. See below.
 
 # 3.3 CSS specifications
@@ -313,8 +313,6 @@ echo "workers/*" >> .git/info/sparse-checkout
 # Cross-document messaging [WEB-MESSAGING]
 # Channel messaging [CHANNEL-MESSAGING]
 echo "webmessaging/*" >> .git/info/sparse-checkout
-# Web Notifications [notifications-20151022]
-# Separate checkout. See below.
 
 # Additionally requested tests
 # uievents
@@ -323,7 +321,7 @@ echo "uievents/*" >> .git/info/sparse-checkout
 # already in, see above
 # cssom-view
 echo "css/cssom-view/*" >> .git/info/sparse-checkout
-# dom4
+# dom
 echo "dom/*" >> .git/info/sparse-checkout
 
 git pull origin master
