@@ -307,9 +307,9 @@ echo "webstorage/*" >> .git/info/sparse-checkout
 # Web Workers [WORKERS]
 # Exceptions: Shared Workers are not yet widely supported.
 echo "workers/*" >> .git/info/sparse-checkout
-# Indexed Database API [IndexedDB-20150108]
+# Indexed Database API [IndexedDB]
 # Exceptions: Array key path and array keys are not yet widely supported.
-# Separate checkout. See below.
+echo "IndexedDB/*" >> .git/info/sparse-checkout
 # Cross-document messaging [WEB-MESSAGING]
 # Channel messaging [CHANNEL-MESSAGING]
 echo "webmessaging/*" >> .git/info/sparse-checkout
@@ -351,15 +351,6 @@ cp -R ./* $WPTBASEDIR
 
 BRANCHORCOMMITID=eaf5d6035d68da3593b0b50b8b25a0cb64fc1f5e
 rm -rf .git/info/sparse-checkout
-
-# Indexed Database API [IndexedDB-20150108]
-# Exceptions: Array key path and array keys are not yet widely supported.
-echo "IndexedDB/*" >> .git/info/sparse-checkout
-git read-tree -mu HEAD
-git checkout -b WMAS2018-IndexedDB $BRANCHORCOMMITID
-rm -rf $WPTBASEDIR/IndexedDB/
-cp -R ./* $WPTBASEDIR
-
 
 # Integrate ECMASCRIPT tests [ECMASCRIPT-6]
 DISTDIR=dist/es6-tests
