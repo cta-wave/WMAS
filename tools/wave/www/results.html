@@ -16,7 +16,7 @@
         height: 100vh;
         display: flex;
         justify-content: center;
-        font-family: "Noto Sans" sans-serif;
+        font-family: "Noto Sans", sans-serif;
         overflow-y: auto;
         overflow-x: hidden;
         background-color: white;
@@ -169,12 +169,29 @@
           location.href = `result.html?token=${token}`;
         },
         compareSessions(reftoken) {
+          if (!resultsUi.isComparisonValid()) return;
           const tokens = resultsUi.state.comparison;
           if (!tokens || tokens.length === 0) return;
           const refQuery = reftoken ? `&reftoken=${reftoken}` : "";
           location.href = `/comparison.html?tokens=${tokens.join(
             ","
           )}${refQuery}`;
+        },
+        isComparisonValid() {
+          const { comparison, sessions } = resultsUi.state;
+          if (!comparison) return false;
+          if (comparison.length === 0) return false;
+          const comparingSessions = comparison.map(token => sessions[token]);
+          const referenceTokens = comparingSessions[0].reference_tokens;
+          for (let comparingSession of comparingSessions) {
+            const comparingReferenceTokens = comparingSession.reference_tokens;
+            if (referenceTokens.length !== comparingReferenceTokens.length)
+              return false;
+            for (let token of comparingReferenceTokens) {
+              if (referenceTokens.indexOf(token) === -1) return false;
+            }
+          }
+          return true;
         },
         addSessionToComparison(token) {
           if (resultsUi.state.comparison.indexOf(token) !== -1) return;
@@ -344,6 +361,13 @@
                               )
                           }
                         ]
+                      },
+                      {
+                        element: "p",
+                        style: "margin-top: 15px",
+                        className: "is-size-7",
+                        text:
+                          "(Tip: Only sessions with the exact same set of reference sessions can be compared.)"
                       }
                     ]
                   }
@@ -599,6 +623,7 @@
                       style: "v-align: middle",
                       title: session.reference_tokens
                         .map(token => token.split("-").shift())
+                        .sort((tokenA, tokenB) => tokenA - tokenB)
                         .join("\n"),
                       children: (() => {
                         const tokens = session.reference_tokens.slice();
@@ -717,7 +742,7 @@
         },
         updateCompareButton: () => {
           const compareButton = UI.getElement("compare-button");
-          if (resultsUi.state.comparison.length > 0) {
+          if (resultsUi.isComparisonValid()) {
             compareButton.removeAttribute("disabled");
           } else {
             compareButton.setAttribute("disabled", true);

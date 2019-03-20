@@ -3,7 +3,7 @@ body {
   padding: 0;
   display: flex;
   justify-content: center;
-  font-family: "Noto Sans" sans-serif;
+  font-family: "Noto Sans", sans-serif;
   background-color: white;
   color: #000;
 }

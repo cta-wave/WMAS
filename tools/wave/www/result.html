@@ -530,7 +530,11 @@
                     className: getBrowserIcon(browser.name)
                   }
                 },
-                { element: "span", text: token.split("-").shift() }
+                {
+                  element: "span",
+                  className: "is-family-monospace",
+                  text: token.split("-").shift()
+                }
               ]
             });
             referenceSessionsList.appendChild(referenceSessionItem);
