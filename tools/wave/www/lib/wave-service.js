@@ -68,10 +68,10 @@ const WaveService = {
       callback(JSON.parse(response));
     });
   },
-  getFilteredTestResults: (tokenArr, refTokenArr, callback) => {
+  getFilteredTestResults: (tokens, refTokens, callback) => {
     WaveService.sendRequest(
       "GET",
-      "/results/" + tokenArr + "/" + refTokenArr,
+      `/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(",")}`,
       response => {
         callback(JSON.parse(response));
       }

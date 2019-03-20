@@ -335,7 +335,10 @@
                 .concat(
                   tokens.map(token => ({
                     element: "td",
-                    text: results[token][api]
+                    text: `${utils.percent(
+                      results[token][api].passed,
+                      results[token][api].total
+                    )}%`
                   }))
                 )
                 .concat([
