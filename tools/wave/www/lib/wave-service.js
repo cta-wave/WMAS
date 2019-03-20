@@ -33,6 +33,7 @@ const WaveService = {
   },
   getSessions(tokens, callback, options) {
     let requestsLeft = tokens.length;
+    if (requestsLeft === 0) callback([]);
     const sessions = [];
     tokens.forEach(token =>
       WaveService.getSession(

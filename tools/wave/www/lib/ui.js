@@ -17,6 +17,9 @@ const UI = {
         case "classname":
           element.setAttribute("class", value);
           return;
+        case "colspan":
+          element.setAttribute("colspan", value);
+          return;
         case "text":
           element.innerText = value;
           return;

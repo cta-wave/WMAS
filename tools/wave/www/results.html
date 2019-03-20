@@ -91,14 +91,29 @@
               resultsUi.state.pinnedSessions = WaveService.getPinnedSessions();
               resultsUi.state.recentSessions = WaveService.getRecentSessions();
 
-              resultsUi.state.sessions = {};
+              const sessions = {};
               sessionDetails.forEach(
-                session => (resultsUi.state.sessions[session.token] = session)
+                session => (sessions[session.token] = session)
               );
+              resultsUi.state.sessions = sessions;
 
-              resultsUi.renderPublicSessions();
-              resultsUi.renderPinnedSessions();
-              resultsUi.renderRecentSessions();
+              const referenceTokens = [];
+              const loadedSessionsTokens = Object.keys(sessions);
+              sessionDetails.forEach(session =>
+                session.reference_tokens
+                  .filter(token => loadedSessionsTokens.indexOf(token) === -1)
+                  .forEach(token => referenceTokens.push(token))
+              );
+              console.log(referenceTokens);
+              WaveService.getSessionDetails(referenceTokens, sessionDetails => {
+                const { sessions } = resultsUi.state;
+                sessionDetails.forEach(
+                  session => (sessions[session.token] = session)
+                );
+                resultsUi.renderPublicSessions();
+                resultsUi.renderPinnedSessions();
+                resultsUi.renderRecentSessions();
+              });
             });
           });
         },
@@ -478,7 +493,6 @@
           }
         },
         createSessionsTable(sessions, { pinned = false, static = false } = {}) {
-          console.log("TABLE", sessions);
           const getTagStyle = status => {
             switch (status) {
               case "completed":
@@ -495,6 +509,34 @@
             element: "table",
             className: "table is-bordered is-hoverable is-fullwidth",
             children: [
+              {
+                element: "thead",
+                children: {
+                  element: "tr",
+                  children: [
+                    {
+                      element: "td",
+                      style: "text-decoration: underline dotted",
+                      text: "Cp",
+                      title: "Select for comparison"
+                    },
+                    { element: "td", text: "Token" },
+                    { element: "td", text: "Browser" },
+                    { element: "td", text: "Status" },
+                    { element: "td", text: "User Agent" },
+                    { element: "td", text: "Date Started" },
+                    {
+                      element: "td",
+                      text: "RefS",
+                      title: "Reference Sessions",
+                      style: "text-decoration: underline dotted"
+                    },
+                    static
+                      ? null
+                      : { element: "td", colspan: 2, text: "Options" }
+                  ]
+                }
+              },
               {
                 element: "tbody",
                 children: sessions.map(session => ({
@@ -545,13 +587,62 @@
                     },
                     {
                       element: "td",
-                      style: "vertical-align: middle",
-                      text: `${session.user_agent.substr(0, 30)} ...`,
+                      text: `${session.user_agent.substr(0, 25)} ...`,
                       title: session.user_agent
                     },
                     {
                       element: "td",
                       text: new Date(session.date_started).toLocaleString()
+                    },
+                    {
+                      element: "td",
+                      style: "v-align: middle",
+                      title: session.reference_tokens
+                        .map(token => token.split("-").shift())
+                        .join("\n"),
+                      children: (() => {
+                        const tokens = session.reference_tokens.slice();
+                        let overflow = 0;
+                        if (tokens.length > 3) {
+                          overflow = tokens.length - 2;
+                        }
+                        if (overflow > 0) tokens.splice(2, overflow + 2);
+                        const children = tokens.map(token => {
+                          let icon = "";
+                          const session = resultsUi.state.sessions[token];
+                          switch (session.browser.name.toLowerCase()) {
+                            case "firefox":
+                              icon = "fab fa-firefox";
+                              break;
+                            case "edge":
+                              icon = "fab fa-edge";
+                              break;
+                            case "chrome":
+                            case "chromium":
+                              icon = "fab fa-chrome";
+                              break;
+                            case "safari":
+                            case "webkit":
+                              icon = "fab fa-safari";
+                              break;
+                          }
+                          return {
+                            element: "span",
+                            style: "margin-right: 5px; vertical-align: middle;",
+                            children: { element: "i", className: icon }
+                          };
+                        });
+
+                        if (overflow > 0)
+                          children.push({
+                            element: "span",
+                            style: "vertical-align: middle",
+                            className: "is-size-7",
+                            text: `+${overflow}`
+                          });
+
+                        return children;
+                      })()
                     },
                     static
                       ? null
