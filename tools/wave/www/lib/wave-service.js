@@ -233,6 +233,9 @@ const WaveService = {
     state.recent_sessions.unshift(token);
     WaveService.setState(state);
   },
+  addRecentSessions(tokens) {
+    tokens.forEach(token => WaveService.addRecentSession(token));
+  },
   setRecentSessions(sessionTokens) {
     const state = WaveService.getState();
     state.recent_sessions = sessionTokens;
