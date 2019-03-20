@@ -544,7 +544,6 @@
         },
         renderApiResults() {
           const { results } = resultUi.state;
-          if (results) return;
 
           const apiResultsView = UI.createElement({
             style: "margin-bottom: 20px"
@@ -555,6 +554,32 @@
             className: "title is-4"
           });
           apiResultsView.appendChild(heading);
+
+          if (!results) {
+            const loadingIndicator = UI.createElement({
+              className: "level",
+              children: {
+                element: "span",
+                className: "level-item icon",
+                children: [
+                  {
+                    element: "i",
+                    className: "fas fa-spinner fa-pulse"
+                  },
+                  {
+                    style: "margin-left: 0.4em;",
+                    text: "Loading results ..."
+                  }
+                ]
+              }
+            });
+            apiResultsView.appendChild(loadingIndicator);
+
+            const apiResults = UI.getElement("api-results");
+            apiResults.innerHTML = "";
+            apiResults.appendChild(apiResultsView);
+            return;
+          }
 
           const header = UI.createElement({
             element: "thead",
