@@ -369,6 +369,9 @@ rm -rf dist
 # Remove tests listed in the exceptions file
 node tools/wave/src/testing/exceptions/delete_exceptions.js
 
+# delete old MANIFEST.json
+rm MANIFEST.json
+
 # build the MANIFEST.json
 ./wpt manifest --no-download --work
 
