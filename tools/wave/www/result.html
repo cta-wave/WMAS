@@ -27,7 +27,7 @@
       };
 
       const resultUi = {
-        state: { details: null, results: null },
+        state: { details: null, results: null, referenceSessions: [] },
         refreshData: toUpdate => {
           switch (toUpdate) {
             case "complete":
@@ -52,6 +52,18 @@
             resultUi.renderSessionDetails();
             if (details.status !== "completed" && details.status !== "aborted")
               resultUi.connectWebSocket();
+            callback(details);
+            resultUi.refreshReferenceSessions();
+          });
+        },
+        refreshReferenceSessions(callback = () => {}) {
+          const { details } = resultUi.state;
+          if (!details) return;
+          const { reference_tokens } = details;
+          if (!reference_tokens) return;
+          WaveService.getSessionDetails(reference_tokens, details => {
+            resultUi.state.referenceSessions = details;
+            resultUi.renderReferenceSessions();
             callback(details);
           });
         },
@@ -379,7 +391,7 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Token:", style: "width: 140px;" },
+                    { element: "td", text: "Token:", style: "width: 175px;" },
                     {
                       element: "td",
                       text: token,
@@ -401,6 +413,7 @@
                     { element: "td", text: details.path || "" }
                   ]
                 },
+                { id: "reference-sessions", element: "tr" },
                 {
                   element: "tr",
                   children: [
@@ -482,10 +495,56 @@
           const sessionDetails = UI.getElement("session-details");
           sessionDetails.innerHTML = "";
           sessionDetails.appendChild(sessionDetailsView);
+          resultUi.renderReferenceSessions();
+        },
+        renderReferenceSessions() {
+          const { referenceSessions } = resultUi.state;
+          if (!referenceSessions || referenceSessions.length === 0) return;
+          const referenceSessionsList = UI.createElement({ element: "td" });
+          const getBrowserIcon = browser => {
+            switch (browser.toLowerCase()) {
+              case "firefox":
+                return "fab fa-firefox";
+              case "edge":
+                return "fab fa-edge";
+              case "chrome":
+              case "chromium":
+                return "fab fa-chrome";
+              case "safari":
+              case "webkit":
+                return "fab fa-safari";
+            }
+          };
+          referenceSessions.forEach(session => {
+            const { token, browser } = session;
+            const referenceSessionItem = UI.createElement({
+              style: "margin-right: 10px",
+              className: "button is-dark is-small is-rounded is-outlined",
+              onClick: () => WaveService.openSession(token),
+              children: [
+                {
+                  element: "span",
+                  className: "icon",
+                  children: {
+                    element: "i",
+                    className: getBrowserIcon(browser.name)
+                  }
+                },
+                { element: "span", text: token.split("-").shift() }
+              ]
+            });
+            referenceSessionsList.appendChild(referenceSessionItem);
+          });
+          const referenceSessionsTarget = UI.getElement("reference-sessions");
+          referenceSessionsTarget.innerHTML = "";
+          referenceSessionsTarget.appendChild(
+            UI.createElement({ element: "td", text: "Reference Sessions:" })
+          );
+          referenceSessionsTarget.appendChild(referenceSessionsList);
         },
         renderApiResults() {
           const { results } = resultUi.state;
-          if (!results) return;
+          if (results) return;
 
           const apiResultsView = UI.createElement({
             style: "margin-bottom: 20px"

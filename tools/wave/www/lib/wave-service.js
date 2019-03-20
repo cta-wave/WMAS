@@ -184,6 +184,11 @@ const WaveService = {
     const reportUrl = `/results/${token}/${api}/all.html`;
     window.open(reportUrl, "_blank");
   },
+  openSession(token) {
+    if (!token) return;
+    const sessionUrl = `/results.html?token=${token}`;
+    window.open(sessionUrl, "_blank");
+  },
   getRecentSessions() {
     const state = WaveService.getState();
     if (!state || !state.recent_sessions) return [];
