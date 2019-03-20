@@ -88,8 +88,8 @@
                   WaveService.removeRecentSession(token);
                 });
               resultsUi.state.publicSessions = publicSessions;
-              resultsUi.state.pinnedSessions = pinnedSessions;
-              resultsUi.state.recentSessions = recentSessions;
+              resultsUi.state.pinnedSessions = WaveService.getPinnedSessions();
+              resultsUi.state.recentSessions = WaveService.getRecentSessions();
 
               resultsUi.state.sessions = {};
               sessionDetails.forEach(
