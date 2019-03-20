@@ -62,7 +62,7 @@ class TestApiHandler extends ApiHandler {
       testTimeout,
       hostname
     } = this.parseQueryParameters(request);
-    const referenceTokens = reftoken.split(",");
+    const referenceTokens = reftoken.split(",").filter(token => !!token);
 
     let session = await this._sessionManager.getSession(token);
     if (!session || session.getStatus() === Session.COMPLETED || path) {
