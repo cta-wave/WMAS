@@ -22,7 +22,7 @@ class ApiHandler {
     hostname = hostname || null;
     api = api || null;
     tokens = tokens ? tokens.split(",") : null;
-    reftoken = reftoken || null;
+    reftoken = reftoken || "";
     return {
       token,
       path,

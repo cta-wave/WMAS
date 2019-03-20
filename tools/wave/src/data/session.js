@@ -6,6 +6,9 @@ const COMPLETED = "completed";
 const ABORTED = "aborted";
 const UNKNOWN = "unknown";
 
+/**
+ * @module Session
+ */
 class Session {
   constructor(
     token,
@@ -23,7 +26,8 @@ class Session {
       testFilesCompleted = this._calculateTestFilesCount(completedTests),
       dateStarted = Date.now(),
       dateFinished = null,
-      isPublic = false
+      isPublic = false,
+      referenceTokens = []
     } = {}
   ) {
     this._token = token;
@@ -48,6 +52,7 @@ class Session {
     this._dateStarted = dateStarted;
     this._dateFinished = dateFinished;
     this._public = isPublic;
+    this._referenceTokens = referenceTokens;
   }
 
   _calculateTestFilesCount(tests) {
@@ -290,6 +295,10 @@ class Session {
 
   isPublic() {
     return this._public;
+  }
+
+  getReferenceTokens() {
+    return this._referenceTokens;
   }
 }
 
