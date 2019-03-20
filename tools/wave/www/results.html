@@ -168,11 +168,11 @@
         openSessionResult(token) {
           location.href = `result.html?token=${token}`;
         },
-        compareSessions(reftoken) {
+        compareSessions(reftokens) {
           if (!resultsUi.isComparisonValid()) return;
           const tokens = resultsUi.state.comparison;
           if (!tokens || tokens.length === 0) return;
-          const refQuery = reftoken ? `&reftoken=${reftoken}` : "";
+          const refQuery = reftokens ? `&reftokens=${reftokens}` : "";
           location.href = `/comparison.html?tokens=${tokens.join(
             ","
           )}${refQuery}`;
@@ -620,7 +620,6 @@
                     },
                     {
                       element: "td",
-                      style: "v-align: middle",
                       title: session.reference_tokens
                         .map(token => token.split("-").shift())
                         .sort((tokenA, tokenB) => tokenA - tokenB)

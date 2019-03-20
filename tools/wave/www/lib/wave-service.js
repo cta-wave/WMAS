@@ -68,6 +68,15 @@ const WaveService = {
       callback(JSON.parse(response));
     });
   },
+  getFilteredTestResults: (tokenArr, refTokenArr, callback) => {
+    WaveService.sendRequest(
+      "GET",
+      "/results/" + tokenArr + "/" + refTokenArr,
+      response => {
+        callback(JSON.parse(response));
+      }
+    );
+  },
   pauseSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
@@ -177,13 +186,21 @@ const WaveService = {
   onMessage(callback) {
     WaveService.socket.onmessage = callback;
   },
-  openHtmlReport(token, api) {
+  openHtmlReport(token, api, reftoken) {
     if (!api) {
       api = token;
       token = WaveService.defaultToken;
     }
-    const reportUrl = `/results/${token}/${api}/all.html`;
-    window.open(reportUrl, "_blank");
+    console.log(token);
+    if (token instanceof Array) {
+      const reportUrl = `/results/html?tokens=${token.join(",")}&api=${api}${
+        reftoken ? `&token=${reftoken}` : ""
+      }`;
+      window.open(reportUrl, "_blank");
+    } else {
+      const reportUrl = `/results/${token}/${api}/all.html`;
+      window.open(reportUrl, "_blank");
+    }
   },
   openSession(token) {
     if (!token) return;
