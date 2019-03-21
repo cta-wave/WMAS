@@ -41,7 +41,7 @@ function evaluate(error) {
 }
 
 function getSource(loadedCallback) {
-  var path = document.getElementById("test").src;
+  var path = testUrl;
   var xhr = new XMLHttpRequest();
   xhr.addEventListener("load", function(content) {
     loadedCallback(content.srcElement.response);
@@ -88,3 +88,8 @@ var errorEventListener = function(error) {
 };
 
 window.addEventListener("error", errorEventListener);
+
+// /ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/builtin-coerce-global.html "Aw Snap"
+// /ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/coerce-global.html "Aw Snap"
+// /ecmascript/tests/built-ins/RegExp/prototype/Symbol.replace/coerce-global.html "Aw Snap"
+// /ecmascript/tests/language/statements/for-of/iterator-next-reference.html "Website unresponsive"
