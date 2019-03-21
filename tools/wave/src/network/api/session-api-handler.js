@@ -30,6 +30,10 @@ class SessionApiHandler extends ApiHandler {
           case 1:
             return this._getSessions({ request, response });
           case 2:
+            const token = url[1];
+            if (token === "public") {
+              return this._getPublicSessions({ response });
+            }
             return this._getSession({ response, token: url[1] });
           case 3:
             switch (url[2].toLowerCase()) {
@@ -47,6 +51,12 @@ class SessionApiHandler extends ApiHandler {
               case "delete":
                 response.send();
                 return this._deleteSession(url[1]);
+              case "details":
+                return this._getSession({
+                  response,
+                  token: url[1],
+                  detailsOnly: true
+                });
             }
         }
     }
@@ -89,14 +99,27 @@ class SessionApiHandler extends ApiHandler {
     this.sendJson(sessionsObject, response);
   }
 
-  async _getSession({ response, token }) {
+  async _getSession({ response, token, detailsOnly = false } = {}) {
     const session = await this._sessionManager.getSession(token);
     if (!session) {
       response.status(404).send();
     } else {
       const sessionObject = Serializer.serializeSession(session);
+      if (detailsOnly) {
+        delete sessionObject.running_tests;
+        delete sessionObject.completed_tests;
+        delete sessionObject.pending_tests;
+      }
       this.sendJson(sessionObject, response);
     }
+  }
+
+  async _getPublicSessions({ response }) {
+    const publicSessions = await this._sessionManager.getPublicSessions();
+    const publicSessionsJson = publicSessions.map(session =>
+      session.getToken()
+    );
+    this.sendJson(publicSessionsJson, response);
   }
 }
 

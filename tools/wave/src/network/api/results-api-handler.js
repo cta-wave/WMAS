@@ -2,10 +2,15 @@ const EventEmitter = require("events");
 
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
+const ResultsManager = require("../../testing/results-manager");
 
 const COMPARISON_GENERATION_FINISHED = "comparison_generation_finished";
 
 class ResultsApiHandler extends ApiHandler {
+  /**
+   * @constructor
+   * @param {ResultsManager} resultsManager
+   */
   constructor(resultsManager) {
     super();
     this._routes = this._createRoutes();
@@ -29,7 +34,7 @@ class ResultsApiHandler extends ApiHandler {
     const { method } = request;
     const url = this.parseUrl(request);
     const test = request.get("test");
-    let { token, tokens, api } = this.parseQueryParameters(request);
+    let { token, tokens, api, reftokens } = this.parseQueryParameters(request);
     if (!token) {
       token = request.get("token");
     }
@@ -88,9 +93,9 @@ class ResultsApiHandler extends ApiHandler {
                   response,
                   token
                 });
-              default:
+              case "compare":
                 const tokens = url[1].split(",");
-                let refTokens = url[2].split(",");
+                const refTokens = reftokens ? reftokens.split(",") : [];
                 const hashes = refTokens.filter(token => !token.includes("-"));
                 try {
                   return this._sendComparison(

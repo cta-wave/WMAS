@@ -1,8 +1,14 @@
 const Route = require("../../data/route");
 const Session = require("../../data/session");
 const ApiHandler = require("./api-handler");
+const SessionManager = require("../session-manager");
 
 class TestApiHandler extends ApiHandler {
+  /**
+   * @constructor
+   * @param {Object} config
+   * @param {SessionManager} config.sessionManager
+   */
   constructor({
     wavePort,
     wptPort,
@@ -56,12 +62,13 @@ class TestApiHandler extends ApiHandler {
       testTimeout,
       hostname
     } = this.parseQueryParameters(request);
+    const referenceTokens = reftoken.split(",").filter(token => !!token);
 
     let session = await this._sessionManager.getSession(token);
     if (!session || session.getStatus() === Session.COMPLETED || path) {
       session = await this._sessionManager.createSession({
         path,
-        reftoken,
+        referenceTokens,
         types,
         userAgent,
         testTimeout
@@ -147,6 +154,7 @@ class TestApiHandler extends ApiHandler {
         }
         session.setStatus(Session.COMPLETED);
         await this._sessionManager.updateSession(session);
+        await this._resultsManager.createInfoFile(session);
       }
       return;
     }

@@ -7,6 +7,9 @@ const TestLoader = require("../testing/test-loader");
 const DEFAULT_TEST_PATH = "/";
 const DEFAULT_TEST_TYPES = [TestLoader.TEST_HARNESS_TESTS];
 
+/**
+ * @module SessionManager
+ */
 class SessionManager {
   constructor({ database, testTimeout, testLoader }) {
     this._database = database;
@@ -23,23 +26,26 @@ class SessionManager {
     return null;
   }
 
-  async createSession({ userAgent, path, types, reftoken, testTimeout }) {
+  async createSession({
+    userAgent,
+    path,
+    types,
+    referenceTokens = [],
+    testTimeout
+  } = {}) {
     path = path || DEFAULT_TEST_PATH;
     types = types || DEFAULT_TEST_TYPES;
     testTimeout = testTimeout || this._testTimeout;
 
-    let refSessions = [];
-    if (reftoken) {
-      refSessions = reftoken.split(",");
-      refSessions = refSessions.map(async s => this.getSession(s.trim()));
-      refSessions = await Promise.all(refSessions);
-    }
+    const referenceSessions = await Promise.all(
+      referenceTokens.map(async token => this.getSession(token.trim()))
+    );
 
     const token = this.generateUuid();
     const tests = await this._testLoader.getTests({
       userAgent,
       path,
-      refSessions,
+      refSessions: referenceSessions,
       types
     });
 
@@ -49,7 +55,8 @@ class SessionManager {
       types,
       testTimeout,
       tests,
-      status: Session.RUNNING
+      status: Session.RUNNING,
+      referenceTokens
     });
     await this._database.createSession(session);
     this._sessions.push(session);
@@ -84,6 +91,10 @@ class SessionManager {
 
   async getSessions() {
     return await this._database.readSessions();
+  }
+
+  async getPublicSessions() {
+    return await this._database.readPublicSessions();
   }
 
   async deleteSession(token) {
