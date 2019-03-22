@@ -363,8 +363,19 @@ git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID fro
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 
+# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+DISTDIR=dist/webgl
+cd $WPTBASEDIR
+rm -rf $WPTBASEDIR/webgl
+rm -rf $DISTDIR
+git clone https://github.com/KhronosGroup/WebGL $DISTDIR
+cd $DISTDIR
+git checkout 001bacd966136341c1f3b583150aa93da7071c2c #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
+cd $WPTBASEDIR
+node tools/wave/webgl/prepare-tests.js $DISTDIR
+
 # Remove the dist folder before manifest generation
-rm -rf dist
+#rm -rf dist
 
 # Remove tests listed in the exceptions file
 node tools/wave/src/testing/exceptions/delete_exceptions.js
