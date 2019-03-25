@@ -320,21 +320,27 @@
                       { text: "Compare Sessions", className: "title is-5" },
                       {
                         element: "label",
-                        text: "Session token as reference (optional):"
+                        text:
+                          "Compare sessions by selecting them in the list below. " +
+                          "Only sessions with the same set of reference sessions can be compared."
                       },
-                      {
-                        style: "display: flex; margin-bottom: 10px",
-                        children: [
-                          {
-                            element: "input",
-                            className: "input is-family-monospace",
-                            style: "flex: 1;",
-                            id: "token-reference",
-                            placeholder:
-                              "First 8 characters or more of session token"
-                          }
-                        ]
-                      },
+                      // {
+                      //   element: "label",
+                      //   text: "Session token as reference (optional):"
+                      // },
+                      // {
+                      //   style: "display: flex; margin-bottom: 10px",
+                      //   children: [
+                      //     {
+                      //       element: "input",
+                      //       className: "input is-family-monospace",
+                      //       style: "flex: 1;",
+                      //       id: "token-reference",
+                      //       placeholder:
+                      //         "First 8 characters or more of session token"
+                      //     }
+                      //   ]
+                      // },
                       {
                         style: "text-align: right",
                         children: [
@@ -355,19 +361,9 @@
                               },
                               { text: "Compare Selected", element: "span" }
                             ],
-                            onclick: () =>
-                              resultsUi.compareSessions(
-                                UI.getElement("token-reference").value
-                              )
+                            onclick: resultsUi.compareSessions
                           }
                         ]
-                      },
-                      {
-                        element: "p",
-                        style: "margin-top: 15px",
-                        className: "is-size-7",
-                        text:
-                          "(Tip: Only sessions with the exact same set of reference sessions can be compared.)"
                       }
                     ]
                   }
