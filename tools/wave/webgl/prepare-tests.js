@@ -1,16 +1,7 @@
 const fs = require("fs");
+const fse = require('fs-extra');
 const path = require("path");
 
-const readDirectory = async directoryPath => {
-  return new Promise((resolve, reject) => {
-    fs.readdir(directoryPath, (error, files) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(files);
-    });
-  });
-};
 
 const makeDirectory = async directoryPath => {
   return new Promise((resolve, reject) => {
@@ -34,52 +25,6 @@ const readStats = async path => {
   });
 };
 
-const readFile = async path => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(
-      path,
-      {
-        encoding: "UTF-8"
-      },
-      (error, data) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(data);
-      }
-      );
-  });
-};
-
-const writeFile = async (path, data) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(path, data, error => {
-      if (error) {
-        reject(error);
-      }
-      resolve();
-    });
-  });
-};
-
-const copyFile = async (sourcePath, destinationPath) => {
-  return writeFile(destinationPath, await readFile(sourcePath));
-};
-
-const copyDirectory = async (sourceDir, destinationDir) => {
-  if (!(await readStats(destinationDir))) await makeDirectory(destinationDir);
-  const files = await readDirectory(sourceDir);
-  for (let file of files) {
-    const sourceFile = path.join(sourceDir, file);
-    const destinationFile = path.join(destinationDir, file);
-    const stats = await readStats(sourceFile);
-    if (stats.isDirectory()) {
-      await copyDirectory(sourceFile, destinationFile);
-    } else {
-      await copyFile(sourceFile, destinationFile);
-    }
-  }
-};
 
 const addHarnessToTestsHeader = async(testsPath,testsListPath) =>{
 
@@ -137,9 +82,9 @@ const addHarnessToTestsHeader = async(testsPath,testsListPath) =>{
   
   if (!(await readStats(SUB_DIR_NAME))) await makeDirectory(SUB_DIR_NAME);
 
-  await copyDirectory(v1_0_3_harnessDir, testsOutputPath);
-  await copyFile(preTestsPath, presTestDestinationPath);
-  await copyFile(unitTestPath, unitTestDestinationputPath);
+  await fse.copy(v1_0_3_harnessDir, testsOutputPath);
+  await fse.copy(preTestsPath, presTestDestinationPath);
+  await fse.copy(unitTestPath, unitTestDestinationputPath);
   const numberOfTestFiles = await addHarnessToTestsHeader(testsOutputPath,testsListPath);
   console.log(`Total of ${numberOfTestFiles} webGl tests integrated`, testsListPath);
 })();

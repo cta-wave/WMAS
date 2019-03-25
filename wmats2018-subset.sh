@@ -375,7 +375,7 @@ cd $WPTBASEDIR
 node tools/wave/webgl/prepare-tests.js $DISTDIR
 
 # Remove the dist folder before manifest generation
-#rm -rf dist
+rm -rf dist
 
 # Remove tests listed in the exceptions file
 node tools/wave/src/testing/exceptions/delete_exceptions.js
