@@ -74,15 +74,15 @@ function nonKhronosFrameworkNotifyDone() {
 }
 
 function reportTestResultsToHarness(success, msg) {
-  var test = async_test(msg);
+  var testTitle = "["+ subTests.length + "] " + msg;
+  var test = async_test(testTitle);
   test.step(function() {
-    assert_true(success, "["+ subTests.length + "] " + msg + " should be true");
+    assert_true(success, testTitle+ " should be true");
   });
   subTests.push(test);
 }
 
 function notifyFinishedToHarness() {
-  console.log("Report test ", subTests)
   for(var i=0; i < subTests.length ; i++){
     subTests[i].done();
   }

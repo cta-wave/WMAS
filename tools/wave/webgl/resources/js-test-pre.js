@@ -74,9 +74,9 @@ function nonKhronosFrameworkNotifyDone() {
 }
 
 function reportTestResultsToHarness(success, msg) {
-  var test = async_test(msg);
+  var testTitle = "["+ subTests.length + "] " + msg;
+  var test = async_test(testTitle);
   test.step(function() {
-    var testTitle = "["+ subTests.length + "] " + msg
     assert_true(success, testTitle + " should be true");
   });
   subTests.push(test);
