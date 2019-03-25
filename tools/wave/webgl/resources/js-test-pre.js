@@ -29,8 +29,6 @@ var subTests = [];
 (function() {
   var testHarnessInitialized = false;
 
-  setup({explicit_timeout: true});
-
   var initNonKhronosFramework = function() {
     if (testHarnessInitialized) {
       return;
@@ -80,6 +78,9 @@ function reportTestResultsToHarness(success, msg) {
     assert_true(success, testTitle + " should be true");
   });
   subTests.push(test);
+  if (window.parent.webglTestHarness) {
+    window.parent.webglTestHarness.reportResults(window.location.pathname, success, msg);
+  }
 }
 
 function notifyFinishedToHarness() {

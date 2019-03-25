@@ -370,7 +370,7 @@ rm -rf $WPTBASEDIR/webgl
 rm -rf $DISTDIR
 git clone https://github.com/KhronosGroup/WebGL $DISTDIR
 cd $DISTDIR
-git checkout 001bacd966136341c1f3b583150aa93da7071c2c #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
+git checkout 0c1173e509ccbc3a1135f86ea6f3b3e4757bb96c #this is the Commit ID from 06 Dec 2018. ES6 was released in June 2016
 cd $WPTBASEDIR
 node tools/wave/webgl/prepare-tests.js $DISTDIR
 
