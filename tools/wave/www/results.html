@@ -32,6 +32,11 @@
         width: 1000px;
         padding: 0 10px;
       }
+
+      .disabled-row {
+        color: gray;
+        background: lightgray;
+      }
     </style>
   </head>
   <body>
@@ -180,7 +185,7 @@
         isComparisonValid() {
           const { comparison, sessions } = resultsUi.state;
           if (!comparison) return false;
-          if (comparison.length === 0) return false;
+          if (comparison.length <= 1) return false;
           const comparingSessions = comparison.map(token => sessions[token]);
           const referenceTokens = comparingSessions[0].reference_tokens;
           for (let comparingSession of comparingSessions) {
@@ -193,16 +198,39 @@
           }
           return true;
         },
+        isSessionValidForComparison(session) {
+          if (!session) return false;
+          const sessionRefTokens = session.reference_tokens;
+          const comparisonSession =
+            resultsUi.state.sessions[resultsUi.state.comparison[0]];
+          if (!comparisonSession) return true;
+          const comparisonRefTokens = comparisonSession.reference_tokens;
+          if (!comparisonRefTokens) return true;
+          if (sessionRefTokens.length !== comparisonRefTokens.length)
+            return false;
+          if (
+            sessionRefTokens.some(
+              token => comparisonRefTokens.indexOf(token) === -1
+            )
+          )
+            return false;
+          return true;
+        },
+        isSessionSelectedForComparison(session) {
+          return resultsUi.state.comparison.indexOf(session.token) !== -1;
+        },
         addSessionToComparison(token) {
           if (resultsUi.state.comparison.indexOf(token) !== -1) return;
           resultsUi.state.comparison.push(token);
           resultsUi.updateCompareButton();
+          resultsUi.renderSessions();
         },
         removeSessionFromComparison(token) {
           const index = resultsUi.state.comparison.indexOf(token);
           if (index === -1) return;
           resultsUi.state.comparison.splice(index, 1);
           resultsUi.updateCompareButton();
+          resultsUi.renderSessions();
         },
         handleAddSession() {
           const tokenFragmentInput = UI.getElement("token-fragment");
@@ -561,6 +589,9 @@
                 element: "tbody",
                 children: sessions.map(session => ({
                   element: "tr",
+                  className: !resultsUi.isSessionValidForComparison(session)
+                    ? "disabled-row"
+                    : "",
                   style: "cursor: pointer",
                   onclick: () => resultsUi.openSessionResult(session.token),
                   children: [
@@ -575,6 +606,12 @@
                           style:
                             "width: 18px; height: 18px; vertical-align: middle;",
                           type: "checkbox",
+                          disabled: !resultsUi.isSessionValidForComparison(
+                            session
+                          ),
+                          checked: resultsUi.isSessionSelectedForComparison(
+                            session
+                          ),
                           onchange: event =>
                             event.target.checked
                               ? resultsUi.addSessionToComparison(session.token)
