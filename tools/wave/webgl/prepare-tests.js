@@ -35,18 +35,10 @@ const addHarnessToTestsHeader = async(testsPath,testsListPath) =>{
     filename = path.join(testsPath,files[i]);
     if(fs.existsSync(filename)){
       if(fileExtension == "html" || fileExtension == "htm"){
-        var contents = fs.readFileSync(filename, 'utf8');
-        var position = contents.indexOf('<head>') ;
-        var temp = contents.substring(1,position + 10);
-        position = temp.lastIndexOf('\n');
-        if(position !== -1 ){
-          numberOfTestFiles = numberOfTestFiles + 1;
-          contents = contents.substring(position +1 );
-          var file = fs.openSync(filename,'r+');
-          var bufferedText = new Buffer('\n<script src="/resources/testharness.js"></script> \n<script src="/resources/testharnessreport.js"></script> \n' + contents);
-          fs.writeSync(file, bufferedText, 0, bufferedText.length, position + 3);
-          fs.close(file);
-        }
+         var content = fs.readFileSync(filename, 'utf8');
+         content = content.replace("<head>", '<head> \n<script src="/resources/testharness.js"></script> \n<script src="/resources/testharnessreport.js"></script> \n');
+         var file = fs.openSync(filename,'r+');
+         fs.writeSync(file, content);
       }
     }
   }
