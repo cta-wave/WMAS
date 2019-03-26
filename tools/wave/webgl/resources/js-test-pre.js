@@ -29,6 +29,8 @@ var subTests = [];
 (function() {
   var testHarnessInitialized = false;
 
+  setup({explicit_timeout: true});
+
   var initNonKhronosFramework = function() {
     if (testHarnessInitialized) {
       return;
