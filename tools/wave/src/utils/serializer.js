@@ -1,10 +1,20 @@
 const UserAgentParser = require("./user-agent-parser");
+const Session = require("../data/session");
 
+/**
+ * @module Serializer
+ */
 class Serializer {
+  /**
+   * @param {Session[]} sessions
+   */
   serializeSessions(sessions) {
     return sessions.map(session => this.serializeSession(session));
   }
 
+  /**
+   * @param {Session} session
+   */
   serializeSession(session) {
     const token = session.getToken();
     const path = session.getPath();
@@ -20,6 +30,8 @@ class Serializer {
     const date_started = session.getDateStarted();
     const date_finished = session.getDateFinished();
     const { browser } = UserAgentParser.parse(session.getUserAgent());
+    const is_public = session.isPublic();
+    const reference_tokens = session.getReferenceTokens();
     return {
       token,
       path,
@@ -34,7 +46,9 @@ class Serializer {
       status,
       browser,
       date_started,
-      date_finished
+      date_finished,
+      is_public,
+      reference_tokens
     };
   }
 }

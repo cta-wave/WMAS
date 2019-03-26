@@ -1,11 +1,11 @@
 const WaveService = {
-  setDefaultToken: token => {
+  setDefaultToken(token) {
     WaveService.defaultToken = token;
   },
-  getDefaultToken: () => {
+  getDefaultToken() {
     return WaveService.defaultToken;
   },
-  sendRequest: (method, uri, callback) => {
+  sendRequest(method, uri, callback) {
     const xhr = new XMLHttpRequest();
     xhr.addEventListener("load", () => {
       let headers = {};
@@ -20,33 +20,46 @@ const WaveService = {
     xhr.open(method, uri, true);
     xhr.send();
   },
-  getSessionDetails: (token, callback) => {
-    if (token instanceof Array) {
-      let requestsLeft = token.length;
-      let responses = [];
-      token.forEach(token =>
-        WaveService.sendRequest("GET", `/sessions/${token}`, response => {
+  getSession(token, callback, { detailsOnly = false } = {}) {
+    if (typeof token !== "string") {
+      callback = token;
+      token = WaveService.defaultToken;
+    }
+    let url = `/sessions/${token}`;
+    if (detailsOnly) url = `${url}/details`;
+    WaveService.sendRequest("GET", url, response =>
+      callback(response ? JSON.parse(response) : null)
+    );
+  },
+  getSessions(tokens, callback, options) {
+    let requestsLeft = tokens.length;
+    if (requestsLeft === 0) callback([]);
+    const sessions = [];
+    tokens.forEach(token =>
+      WaveService.getSession(
+        token,
+        session => {
           requestsLeft--;
-          responses.push(response ? JSON.parse(response) : null);
-          if (requestsLeft === 0) callback(responses);
-        })
-      );
+          sessions.push(session);
+          if (requestsLeft === 0) callback(sessions);
+        },
+        options
+      )
+    );
+  },
+  getSessionDetails(token, callback) {
+    if (token instanceof Array) {
+      return WaveService.getSessions(token, callback, { detailsOnly: true });
     } else {
-      if (typeof token !== "string") {
-        callback = token;
-        token = WaveService.defaultToken;
-      }
-      WaveService.sendRequest("GET", `/sessions/${token}`, response =>
-        callback(response ? JSON.parse(response) : null)
-      );
+      return WaveService.getSession(token, callback, { detailsOnly: true });
     }
   },
-  getOfficialSessions: callback => {
-    WaveService.sendRequest("GET", "/sessions/official", response => {
+  getPublicSessions(callback) {
+    WaveService.sendRequest("GET", "/sessions/public", response => {
       callback(JSON.parse(response));
     });
   },
-  getTestResults: (token, callback) => {
+  getTestResults(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
@@ -55,35 +68,44 @@ const WaveService = {
       callback(JSON.parse(response));
     });
   },
-  pauseSession: (token, callback) => {
+  getFilteredTestResults: (tokens, refTokens, callback) => {
+    WaveService.sendRequest(
+      "GET",
+      `/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(",")}`,
+      response => {
+        callback(JSON.parse(response));
+      }
+    );
+  },
+  pauseSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
     WaveService.sendRequest("GET", `/sessions/${token}/pause`, callback);
   },
-  resumeSession: (token, callback) => {
+  resumeSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
     WaveService.sendRequest("GET", `/sessions/${token}/resume`, callback);
   },
-  stopSession: (token, callback) => {
+  stopSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
     WaveService.sendRequest("GET", `/sessions/${token}/stop`, callback);
   },
-  deleteSession: (token, callback) => {
+  deleteSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
     WaveService.sendRequest("GET", `/sessions/${token}/delete`, callback);
   },
-  findToken: (fragment, callback) => {
+  findToken(fragment, callback) {
     WaveService.sendRequest("GET", `/sessions/${fragment}/token`, response => {
       response = JSON.parse(response);
       if (response.token) {
@@ -93,14 +115,14 @@ const WaveService = {
       }
     });
   },
-  downloadJson: (token, api) => {
+  downloadJson(token, api) {
     if (!api) {
       api = token;
       token = WaveService.defaultToken;
     }
     location.href = `/results/${token}/${api}/json`;
   },
-  downloadJsons: (token, apis) => {
+  downloadJsons(token, apis) {
     if (typeof token !== "string") {
       apis = token;
       token = WaveService.defaultToken;
@@ -146,11 +168,11 @@ const WaveService = {
       );
     });
   },
-  downloadHtmlZip: token => {
+  downloadHtmlZip(token) {
     if (typeof token !== "string") token = WaveService.defaultToken;
     location.href = `/results/${token}/html`;
   },
-  connect: token => {
+  connect(token) {
     if (typeof token !== "string") token = WaveService.defaultToken;
     if (!WaveService.socket) {
       const url = `ws://${location.host}`;
@@ -161,72 +183,91 @@ const WaveService = {
       };
     }
   },
-  onMessage: callback => (WaveService.socket.onmessage = callback),
-  openHtmlReport: (token, api) => {
+  onMessage(callback) {
+    WaveService.socket.onmessage = callback;
+  },
+  openHtmlReport(token, api, reftoken) {
     if (!api) {
       api = token;
       token = WaveService.defaultToken;
     }
-    const reportUrl = `/results/${token}/${api}/all.html`;
-    window.open(reportUrl, "_blank");
+    console.log(token);
+    if (token instanceof Array) {
+      const reportUrl = `/results/html?tokens=${token.join(",")}&api=${api}${
+        reftoken ? `&token=${reftoken}` : ""
+      }`;
+      window.open(reportUrl, "_blank");
+    } else {
+      const reportUrl = `/results/${token}/${api}/all.html`;
+      window.open(reportUrl, "_blank");
+    }
   },
-  getRecentSessions: () => {
-    if (!window.localStorage) return [];
-    const storage = window.localStorage;
-    const state = JSON.parse(storage.getItem("wave"));
-    if (!state) return [];
-    console.log(state);
-    return state.recent_sessions.filter(session => typeof session === "string");
+  openSession(token) {
+    if (!token) return;
+    const sessionUrl = `/results.html?token=${token}`;
+    window.open(sessionUrl, "_blank");
   },
-  getPinnedSessions: () => {
-    if (!window.localStorage) return [];
-    const storage = window.localStorage;
-    const state = JSON.parse(storage.getItem("wave"));
-    if (!state) return [];
-    if (!state.pinned_sessions) return [];
-    return state.pinned_sessions.filter(session => typeof session === "string");
+  getRecentSessions() {
+    const state = WaveService.getState();
+    if (!state || !state.recent_sessions) return [];
+    return state.recent_sessions;
   },
-  addPinnedSession: token => {
-    if (!window.localStorage) return;
-    const storage = window.localStorage;
-    let state = JSON.parse(storage.getItem("wave"));
-    if (!state) state = {};
+  getPinnedSessions() {
+    const state = WaveService.getState();
+    if (!state || !state.pinned_sessions) return [];
+    return state.pinned_sessions;
+  },
+  addPinnedSession(token) {
+    if (!token) return;
+    const state = WaveService.getState();
     if (!state.pinned_sessions) state.pinned_sessions = [];
     if (state.pinned_sessions.indexOf(token) !== -1) return;
     state.pinned_sessions.unshift(token);
-    storage.setItem("wave", JSON.stringify(state));
+    WaveService.setState(state);
   },
-  addRecentSession: token => {
-    if (!window.localStorage) return;
-    const storage = window.localStorage;
-    let state = JSON.parse(storage.getItem("wave"));
-    if (!state) state = {};
+  addRecentSession(token) {
+    if (!token) return;
+    const state = WaveService.getState();
     if (!state.recent_sessions) state.recent_sessions = [];
     if (state.recent_sessions.indexOf(token) !== -1) return;
     state.recent_sessions.unshift(token);
-    storage.setItem("wave", JSON.stringify(state));
+    WaveService.setState(state);
   },
-  removePinnedSession: token => {
-    if (!window.localStorage) return;
-    const storage = window.localStorage;
-    const state = JSON.parse(storage.getItem("wave"));
-    if (!state) return;
+  addRecentSessions(tokens) {
+    tokens.forEach(token => WaveService.addRecentSession(token));
+  },
+  setRecentSessions(sessionTokens) {
+    const state = WaveService.getState();
+    state.recent_sessions = sessionTokens;
+    WaveService.setState(state);
+  },
+  removePinnedSession(token) {
+    if (!token) return;
+    const state = WaveService.getState();
     if (!state.pinned_sessions) return;
     const index = state.pinned_sessions.indexOf(token);
     if (index === -1) return;
     state.pinned_sessions.splice(index, 1);
-    storage.setItem("wave", JSON.stringify(state));
+    WaveService.setState(state);
   },
-  removeRecentSession: token => {
-    if (!window.localStorage) return;
-    const storage = window.localStorage;
-    const state = JSON.parse(storage.getItem("wave"));
-    if (!state) return;
+  removeRecentSession(token) {
+    const state = WaveService.getState();
     if (!state.recent_sessions) return;
     const index = state.recent_sessions.indexOf(token);
     if (index === -1) return;
     state.recent_sessions.splice(index, 1);
+    WaveService.setState(state);
+  },
+  getState() {
+    if (!window.localStorage) return null;
+    const storage = window.localStorage;
+    const state = JSON.parse(storage.getItem("wave"));
+    if (!state) return {};
+    return state;
+  },
+  setState(state) {
+    if (!window.localStorage) return null;
+    const storage = window.localStorage;
     storage.setItem("wave", JSON.stringify(state));
-    WaveService.removePinnedSession(token);
   }
 };

@@ -2,15 +2,18 @@ const path = require("path");
 const crypto = require("crypto");
 const JSZip = require("jszip");
 
-const Session = require("../data/session");
 const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
 const Serializer = require("../utils/serializer");
+const Deserializer = require("../utils/deserializer");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
 
+/**
+ * @module
+ */
 class ResultsManager {
   constructor({
     resultsDirectoryPath,
@@ -147,13 +150,11 @@ class ResultsManager {
       const infoFilePath = path.join(resultDirectoryPath, "info.json");
       if (!(await FileSystem.exists(infoFilePath))) continue;
       const infoFile = await FileSystem.readFile(infoFilePath);
-      const { user_agent: userAgent } = JSON.parse(infoFile);
-      const { browser } = UserAgentParser.parse(userAgent);
+      const info = JSON.parse(infoFile);
+      info.token = token;
+      const { browser } = UserAgentParser.parse(info.user_agent);
       print(`Loading ${browser.name} ${browser.version} results ...`);
-      const session = new Session(token, {
-        status: Session.COMPLETED,
-        userAgent
-      });
+      const session = Deserializer.deserializeSession(info);
       await sessionManager.addSession(session);
       const apis = await FileSystem.readDirectory(resultDirectoryPath);
       for (let api of apis) {
@@ -212,24 +213,26 @@ class ResultsManager {
       await FileSystem.makeDirectory(directory);
     }
 
-    const infoFilePath = path.join(directory, "info.json");
-    if (!(await FileSystem.stats(infoFilePath))) {
-      let info = {};
-      info.user_agent = session.getUserAgent();
-      info.path = session.getPath();
-      info.types = session.getTypes();
-      info.date_started = session.getDateStarted();
-      info.date_finished = session.getDateFinished();
-      await FileSystem.writeFile(
-        infoFilePath,
-        JSON.stringify(info, null, "  ")
-      );
-    }
-
     directory = path.join(directory, api);
     if (!(await FileSystem.stats(directory))) {
       await FileSystem.makeDirectory(directory);
     }
+
+    this.createInfoFile(session);
+  }
+
+  async createInfoFile(session) {
+    const token = session.getToken();
+    const infoFilePath = path.join(
+      this._resultsDirectoryPath,
+      token,
+      "info.json"
+    );
+    let info = Serializer.serializeSession(session);
+    delete info.running_tests;
+    delete info.pending_tests;
+    delete info.completed_tests;
+    await FileSystem.writeFile(infoFilePath, JSON.stringify(info, null, "  "));
   }
 
   _getFilePath({ userAgent, api, token }) {
@@ -357,46 +360,39 @@ class ResultsManager {
 
   async generateComparisonResults(tokens, refTokens) {
     const passedRefTests = await this._filterPassedTests(refTokens);
-    let sessionResults = {};
+    let comparisonResults = {};
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
-      sessionResults[token] = {};
-      const sessionResult = await this.getResults(token);
-      for (let api in sessionResult) {
-        sessionResults[token][api] = 0;
-        const apiResult = sessionResult[api];
-        let passedSubTests = 0;
-        for (let result in apiResult) {
-          // don't count subtests if this test didn't pass in reference
-          if (
-            !passedRefTests[api] ||
-            !passedRefTests[api].find(t => t[apiResult[result].test])
-          )
-            continue;
+      comparisonResults[token] = {};
+      const result = await this.getResults(token);
+      for (let api in result) {
+        comparisonResults[token][api] = { passed: 0, total: 0 };
 
-          let subtests = apiResult[result].subtests || [];
-          for (let k = 0; k < subtests.length; k++) {
-            const subtest = subtests[k];
-            if (subtest.status === "PASS") {
-              passedSubTests++;
-            }
+        result[api].forEach(apiResult => {
+          const { test } = apiResult;
+          if (passedRefTests && !passedRefTests[api].includes(test)) return;
+          const passed = !apiResult.subtests.some(
+            test => test.status !== "PASS"
+          );
+          if (passed) comparisonResults[token][api].passed++;
+          if (passedRefTests) {
+            comparisonResults[token][api].total = passedRefTests[api].length;
+          } else {
+            comparisonResults[token][api].total++;
           }
-        }
-        if (passedRefTests[api]) {
-          const totalPassedRefSubtests = passedRefTests[api].reduce(
-            (acc, test) => acc + test[Object.keys(test)[0]],
-            0
-          );
-          sessionResults[token][api] = this._percent(
-            passedSubTests,
-            totalPassedRefSubtests
-          );
-        } else {
-          sessionResults[token][api] = "not tested";
-        }
+        });
       }
     }
-    return sessionResults;
+
+    // const total = {};
+    // if (passedRefTests) {
+    //   Object.keys(passedRefTests).forEach(
+    //     api => (total[api] = passedRefTests[api].length)
+    //   );
+    // }
+    // comparisonResults["total"] = total;
+
+    return comparisonResults;
   }
 
   _percent(count, total) {
@@ -408,67 +404,39 @@ class ResultsManager {
   }
 
   async _filterPassedTests(refTokens) {
-    let refSessionsResults = await Promise.all(
+    if (!refTokens || refTokens.length === 0) return null;
+
+    const refSessionsResults = await Promise.all(
       refTokens.map(async token => await this.getResults(token))
     );
-    let passed = {};
 
-    // get all subtests from all referenced sessions
-    for (let i = 0; i < refSessionsResults.length; i++) {
-      let res = refSessionsResults[i];
-
-      for (let api in res) {
-        passed[api] = passed[api] || {};
-        res[api].forEach(test => {
-          passed[api][test.test] = passed[api][test.test] || [];
-          passed[api][test.test].push(test.subtests || []);
-        });
-      }
-    }
-
-    // filter out test files where any subtest of any referenced session didn't pass
-    for (let api in passed) {
-      for (let test in passed[api]) {
-        let testLen = passed[api][test][0].length;
-        // remove test file if subtest count of referenced sessions doesn't match
-        if (passed[api][test].some(s => s.length !== testLen)) {
-          passed[api][test] = undefined;
-          continue;
-        }
-
-        passed[api][test] = passed[api][test].map(fff => {
-          let allSubs = {};
-          fff.forEach(sub => {
-            allSubs[sub.name] = sub.status;
-          });
-          return allSubs;
-        });
-
-        // check that all subtests passed otherwise exclude that test file
-        let ref = passed[api][test].pop();
-        for (let sub in ref) {
-          if (
-            passed[api][test].some(
-              other => ref[sub] !== "PASS" || other[sub] !== ref[sub]
-            )
-          ) {
-            passed[api][test] = undefined;
-            break;
+    const passedTests = {};
+    const failedTests = {};
+    refSessionsResults.forEach(result => {
+      Object.keys(result).forEach(api => {
+        if (!passedTests[api]) passedTests[api] = [];
+        if (!failedTests[api]) failedTests[api] = [];
+        result[api].forEach(apiResult => {
+          const passed = !apiResult.subtests.some(
+            test => test.status !== "PASS"
+          );
+          const { test } = apiResult;
+          if (passed) {
+            if (failedTests[api].includes(test)) return;
+            if (passedTests[api].includes(test)) return;
+            passedTests[api].push(test);
+          } else {
+            if (passedTests[api].includes(test)) {
+              passedTests[api].splice(passedTests[api].indexOf(test), 1);
+            }
+            if (failedTests[api].includes(test)) return;
+            failedTests[api].push(test);
           }
-        }
-      }
+        });
+      });
+    });
 
-      let temp = [];
-      for (let test in passed[api]) {
-        if (passed[api][test] && passed[api][test].length) {
-          let out = {};
-          out[test] = Object.keys(passed[api][test][0]).length;
-          temp.push(out);
-        }
-      }
-      passed[api] = temp;
-    }
-    return passed;
+    return passedTests;
   }
 
   _flattenResults(results) {

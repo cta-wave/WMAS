@@ -89,7 +89,11 @@
         const testTypes = document.getElementById("test-types");
         testTypes.innerText = details.types.join(", ");
         const totalTests = document.getElementById("total-tests");
-        totalTests.innerText = details.total_tests_count;
+        const { test_files_count } = details;
+        totalTests.innerText = Object.keys(test_files_count).reduce(
+          (sum, api) => (sum += test_files_count[api]),
+          0
+        );
         const testTimeout = document.getElementById("test-timeout");
         testTimeout.innerText = details.test_timeout;
       }

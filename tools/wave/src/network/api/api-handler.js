@@ -13,7 +13,8 @@ class ApiHandler {
       hostname,
       tokens,
       api,
-      reftoken
+      reftoken,
+      reftokens
     } = request.query;
     token = token || null;
     path = path || null;
@@ -22,7 +23,8 @@ class ApiHandler {
     hostname = hostname || null;
     api = api || null;
     tokens = tokens ? tokens.split(",") : null;
-    reftoken = reftoken || null;
+    reftoken = reftoken || "";
+    reftokens = reftokens || "";
     return {
       token,
       path,
@@ -31,7 +33,8 @@ class ApiHandler {
       hostname,
       api,
       tokens,
-      reftoken
+      reftoken,
+      reftokens
     };
   }
 

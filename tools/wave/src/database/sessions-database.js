@@ -114,6 +114,20 @@ class SessionsDatabase {
     return Deserializer.deserializeSessions(result);
   }
 
+  async readPublicSessions() {
+    return this._queueSessionsAccess(() => this._readPublicSessions(), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readPublicSessions() {
+    const result = await this._db.find({ is_public: true });
+    if (!result) {
+      return [];
+    }
+    return Deserializer.deserializeSessions(result);
+  }
+
   async updateSession(session) {
     return this._queueSessionsAccess(() => this._updateSession(session));
   }
