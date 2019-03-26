@@ -98,7 +98,7 @@ function dump_test_results(tests, status) {
   parent.appendChild(screenConsole);
   window.onerror = logToConsole;
 
-  finishTest(data);
+  finishWptTest(data);
 }
 
 add_completion_callback(dump_test_results);
@@ -161,7 +161,7 @@ function loadNext() {
   }
 }
 
-function finishTest(data) {
+function finishWptTest(data) {
   if (resultSent) {
     loadNext();
   } else {

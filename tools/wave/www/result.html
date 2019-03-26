@@ -27,7 +27,7 @@
       };
 
       const resultUi = {
-        state: { details: null, results: null },
+        state: { details: null, results: null, referenceSessions: [] },
         refreshData: toUpdate => {
           switch (toUpdate) {
             case "complete":
@@ -46,12 +46,24 @@
           }
         },
         refreshSessionDetails(callback = () => {}) {
-          WaveService.getSessionDetails(details => {
+          WaveService.getSession(details => {
             resultUi.state.details = details;
             resultUi.renderControls();
             resultUi.renderSessionDetails();
             if (details.status !== "completed" && details.status !== "aborted")
               resultUi.connectWebSocket();
+            callback(details);
+            resultUi.refreshReferenceSessions();
+          });
+        },
+        refreshReferenceSessions(callback = () => {}) {
+          const { details } = resultUi.state;
+          if (!details) return;
+          const { reference_tokens } = details;
+          if (!reference_tokens) return;
+          WaveService.getSessionDetails(reference_tokens, details => {
+            resultUi.state.referenceSessions = details;
+            resultUi.renderReferenceSessions();
             callback(details);
           });
         },
@@ -70,6 +82,8 @@
               if (not_run) complete += not_run;
               results[api].complete = complete;
               const { test_files_count, test_files_completed } = details;
+              if (!test_files_count[api]) test_files_count[api] = 0;
+              if (!test_files_completed[api]) test_files_completed[api] = 0;
               results[api].isDone =
                 test_files_count[api] === test_files_completed[api];
               results[api].testFilesCount = test_files_count[api];
@@ -192,7 +206,7 @@
         renderControls() {
           const { state } = resultUi;
           if (!state.details) return;
-          const { status } = state.details;
+          const { status, is_public } = state.details;
           const controlsView = UI.createElement();
           if (status && status !== "aborted" && status !== "completed") {
             const pauseResumeButton = UI.createElement({
@@ -249,29 +263,31 @@
             });
             controlsView.appendChild(stopButton);
           }
-          const deleteButton = UI.createElement({
-            id: "delete-button",
-            className: "button is-dark is-outlined",
-            style: "margin-left: 20px",
-            onclick: resultUi.showDeleteModal,
-            children: [
-              {
-                element: "span",
-                className: "icon",
-                children: [
-                  {
-                    element: "i",
-                    className: "fas fa-trash-alt"
-                  }
-                ]
-              },
-              {
-                text: "Delete",
-                element: "span"
-              }
-            ]
-          });
-          controlsView.appendChild(deleteButton);
+          if (!is_public) {
+            const deleteButton = UI.createElement({
+              id: "delete-button",
+              className: "button is-dark is-outlined",
+              style: "margin-left: 20px",
+              onclick: resultUi.showDeleteModal,
+              children: [
+                {
+                  element: "span",
+                  className: "icon",
+                  children: [
+                    {
+                      element: "i",
+                      className: "fas fa-trash-alt"
+                    }
+                  ]
+                },
+                {
+                  text: "Delete",
+                  element: "span"
+                }
+              ]
+            });
+            controlsView.appendChild(deleteButton);
+          }
 
           const deleteModal = UI.createElement({
             id: "delete-modal",
@@ -375,7 +391,7 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Token:", style: "width: 140px;" },
+                    { element: "td", text: "Token:", style: "width: 175px;" },
                     {
                       element: "td",
                       text: token,
@@ -397,6 +413,7 @@
                     { element: "td", text: details.path || "" }
                   ]
                 },
+                { id: "reference-sessions", element: "tr" },
                 {
                   element: "tr",
                   children: [
@@ -478,10 +495,59 @@
           const sessionDetails = UI.getElement("session-details");
           sessionDetails.innerHTML = "";
           sessionDetails.appendChild(sessionDetailsView);
+          resultUi.renderReferenceSessions();
+        },
+        renderReferenceSessions() {
+          const { referenceSessions } = resultUi.state;
+          if (!referenceSessions || referenceSessions.length === 0) return;
+          const referenceSessionsList = UI.createElement({ element: "td" });
+          const getBrowserIcon = browser => {
+            switch (browser.toLowerCase()) {
+              case "firefox":
+                return "fab fa-firefox";
+              case "edge":
+                return "fab fa-edge";
+              case "chrome":
+              case "chromium":
+                return "fab fa-chrome";
+              case "safari":
+              case "webkit":
+                return "fab fa-safari";
+            }
+          };
+          referenceSessions.forEach(session => {
+            const { token, browser } = session;
+            const referenceSessionItem = UI.createElement({
+              style: "margin-right: 10px",
+              className: "button is-dark is-small is-rounded is-outlined",
+              onClick: () => WaveService.openSession(token),
+              children: [
+                {
+                  element: "span",
+                  className: "icon",
+                  children: {
+                    element: "i",
+                    className: getBrowserIcon(browser.name)
+                  }
+                },
+                {
+                  element: "span",
+                  className: "is-family-monospace",
+                  text: token.split("-").shift()
+                }
+              ]
+            });
+            referenceSessionsList.appendChild(referenceSessionItem);
+          });
+          const referenceSessionsTarget = UI.getElement("reference-sessions");
+          referenceSessionsTarget.innerHTML = "";
+          referenceSessionsTarget.appendChild(
+            UI.createElement({ element: "td", text: "Reference Sessions:" })
+          );
+          referenceSessionsTarget.appendChild(referenceSessionsList);
         },
         renderApiResults() {
           const { results } = resultUi.state;
-          if (!results) return;
 
           const apiResultsView = UI.createElement({
             style: "margin-bottom: 20px"
@@ -492,6 +558,32 @@
             className: "title is-4"
           });
           apiResultsView.appendChild(heading);
+
+          if (!results) {
+            const loadingIndicator = UI.createElement({
+              className: "level",
+              children: {
+                element: "span",
+                className: "level-item icon",
+                children: [
+                  {
+                    element: "i",
+                    className: "fas fa-spinner fa-pulse"
+                  },
+                  {
+                    style: "margin-left: 0.4em;",
+                    text: "Loading results ..."
+                  }
+                ]
+              }
+            });
+            apiResultsView.appendChild(loadingIndicator);
+
+            const apiResults = UI.getElement("api-results");
+            apiResults.innerHTML = "";
+            apiResults.appendChild(apiResultsView);
+            return;
+          }
 
           const header = UI.createElement({
             element: "thead",

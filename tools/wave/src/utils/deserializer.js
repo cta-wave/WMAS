@@ -1,26 +1,37 @@
 const Session = require("../data/session");
 
+/**
+ * @module Deserializer
+ */
 class Deserializer {
-  deserializeSessions(sessionsObject) {
-    return sessionsObject.map(sessionObject =>
+  /**
+   * @param {Object[]} sessionJsons
+   */
+  deserializeSessions(sessionJsons) {
+    return sessionJsons.map(sessionObject =>
       this.deserializeSession(sessionObject)
     );
   }
 
-  deserializeSession(sessionObject) {
-    const token = sessionObject.token;
-    const path = sessionObject.path;
-    const types = sessionObject.types;
-    const userAgent = sessionObject.user_agent;
-    const testTimeout = sessionObject.test_timeout;
-    const pendingTests = sessionObject.pending_tests;
-    const runningTests = sessionObject.running_tests;
-    const completedTests = sessionObject.completed_tests;
-    const status = sessionObject.status;
-    const testFilesCount = sessionObject.test_files_count;
-    const testFilesCompleted = sessionObject.test_files_completed;
-    const dateStarted = sessionObject.date_started;
-    const dateFinished = sessionObject.date_finished;
+  /**
+   * @param {Object} sessionJson
+   */
+  deserializeSession(sessionJson) {
+    const token = sessionJson.token;
+    const path = sessionJson.path;
+    const types = sessionJson.types;
+    const userAgent = sessionJson.user_agent;
+    const testTimeout = sessionJson.test_timeout;
+    const pendingTests = sessionJson.pending_tests;
+    const runningTests = sessionJson.running_tests;
+    const completedTests = sessionJson.completed_tests;
+    const status = sessionJson.status;
+    const testFilesCount = sessionJson.test_files_count;
+    const testFilesCompleted = sessionJson.test_files_completed;
+    const dateStarted = sessionJson.date_started;
+    const dateFinished = sessionJson.date_finished;
+    const isPublic = sessionJson.is_public;
+    const referenceTokens = sessionJson.reference_tokens;
     return new Session(token, {
       path,
       types,
@@ -33,7 +44,9 @@ class Deserializer {
       testFilesCount,
       testFilesCompleted,
       dateStarted,
-      dateFinished
+      dateFinished,
+      isPublic,
+      referenceTokens
     });
   }
 }

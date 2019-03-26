@@ -41,6 +41,9 @@ class Database {
     this.createSession = sessionsDatabase.createSession.bind(sessionsDatabase);
     this.readSession = sessionsDatabase.readSession.bind(sessionsDatabase);
     this.readSessions = sessionsDatabase.readSessions.bind(sessionsDatabase);
+    this.readPublicSessions = sessionsDatabase.readPublicSessions.bind(
+      sessionsDatabase
+    );
     this.updateSession = sessionsDatabase.updateSession.bind(sessionsDatabase);
     this.deleteSession = sessionsDatabase.deleteSession.bind(sessionsDatabase);
     this.findTokens = sessionsDatabase.findTokens.bind(sessionsDatabase);
