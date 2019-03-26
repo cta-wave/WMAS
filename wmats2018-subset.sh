@@ -217,6 +217,8 @@ echo "css/selectors/*" >> .git/info/sparse-checkout
 echo "css/css-cascade/*" >> .git/info/sparse-checkout
 # CSS Values and Units Module Level 3 [CSS-VALUES]
 echo "css/css-values/*" >> .git/info/sparse-checkout
+# CSS Writing Modes Level 3 [CSS-WRITING-MODES-3]
+echo "css/css-writing-modes/*" >> .git/info/sparse-checkout
 # CSS Color Module Level 3 [CSS3-COLOR]
 echo "css/css-color/*" >> .git/info/sparse-checkout
 # CSS Backgrounds and Borders Module Level 3 [CSS3-BACKGROUND]
