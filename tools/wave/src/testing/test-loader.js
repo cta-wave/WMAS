@@ -58,8 +58,7 @@ const EXCLUDED_APIS = [
   "mediasession",
   "mixed-content",
   "service-workers",
-  "url",
-  "webgl"
+  "url"
 ];
 
 const EXCLUDED_TESTS = [

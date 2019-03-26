@@ -217,6 +217,8 @@ echo "css/selectors/*" >> .git/info/sparse-checkout
 echo "css/css-cascade/*" >> .git/info/sparse-checkout
 # CSS Values and Units Module Level 3 [CSS-VALUES]
 echo "css/css-values/*" >> .git/info/sparse-checkout
+# CSS Writing Modes Level 3 [CSS-WRITING-MODES-3]
+echo "css/css-writing-modes/*" >> .git/info/sparse-checkout
 # CSS Color Module Level 3 [CSS3-COLOR]
 echo "css/css-color/*" >> .git/info/sparse-checkout
 # CSS Backgrounds and Borders Module Level 3 [CSS3-BACKGROUND]
@@ -362,6 +364,17 @@ cd $DISTDIR
 git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
+
+# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+DISTDIR=dist/webgl
+cd $WPTBASEDIR
+rm -rf $WPTBASEDIR/webgl
+rm -rf $DISTDIR
+git clone https://github.com/KhronosGroup/WebGL $DISTDIR
+cd $DISTDIR
+git checkout 0c1173e509ccbc3a1135f86ea6f3b3e4757bb96c #this is the Commit ID from 06 Dec 2018. ES6 was released in June 2016
+cd $WPTBASEDIR
+node tools/wave/webgl/prepare-tests.js $DISTDIR
 
 # Remove the dist folder before manifest generation
 rm -rf dist
