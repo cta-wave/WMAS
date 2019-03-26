@@ -198,6 +198,8 @@
         },
         isSessionValidForComparison(session) {
           if (!session) return false;
+          if (session.status !== "completed" && session.status !== "aborted")
+            return false;
           const sessionRefTokens = session.reference_tokens;
           const comparisonSession =
             resultsUi.state.sessions[resultsUi.state.comparison[0]];
@@ -216,6 +218,12 @@
         },
         isSessionSelectedForComparison(session) {
           return resultsUi.state.comparison.indexOf(session.token) !== -1;
+        },
+        isSessionDisabled(session) {
+          return (
+            resultsUi.state.comparison.length > 0 &&
+            !resultsUi.isSessionValidForComparison(session)
+          );
         },
         addSessionToComparison(token) {
           if (resultsUi.state.comparison.indexOf(token) !== -1) return;
@@ -348,7 +356,8 @@
                         element: "label",
                         text:
                           "Compare sessions by selecting them in the list below. " +
-                          "Only sessions with the same set of reference sessions can be compared."
+                          "Only sessions with the same set of reference sessions can be compared. " +
+                          "Sessions have to be finished."
                       },
                       // {
                       //   element: "label",
@@ -590,7 +599,7 @@
                 element: "tbody",
                 children: sessions.map(session => ({
                   element: "tr",
-                  className: !resultsUi.isSessionValidForComparison(session)
+                  className: resultsUi.isSessionDisabled(session)
                     ? "disabled-row"
                     : "",
                   style: "cursor: pointer",
