@@ -383,21 +383,29 @@
               element: "tr",
               children: [{ element: "td", text: api }]
                 .concat(
-                  tokens.map(token => ({
-                    element: "td",
-                    style:
-                      "text-align: center; font-weight: bold;" +
-                      `color: ${getColor(
-                        utils.percent(
-                          results[token][api].passed,
-                          results[token][api].total
-                        )
-                      )}`,
-                    text: `${utils.percent(
-                      results[token][api].passed,
-                      results[token][api].total
-                    )}%`
-                  }))
+                  tokens.map(token =>
+                    results[token][api]
+                      ? {
+                          element: "td",
+                          style:
+                            "text-align: center; font-weight: bold;" +
+                            `color: ${getColor(
+                              utils.percent(
+                                results[token][api].passed,
+                                results[token][api].total
+                              )
+                            )}`,
+                          text: `${utils.percent(
+                            results[token][api].passed,
+                            results[token][api].total
+                          )}%`
+                        }
+                      : {
+                          element: "td",
+                          text: "Not Tested",
+                          style: "text-align: center;"
+                        }
+                  )
                 )
                 .concat([
                   {
