@@ -31,25 +31,35 @@
         refreshData: toUpdate => {
           switch (toUpdate) {
             case "complete":
-              resultUi.refreshSessionResults();
+              resultUi.refreshSessionDetails(() => {
+                resultUi.refreshSessionResults(() => {
+                  resultUi.renderApiResults();
+                });
+              });
               break;
             case "status":
-              resultUi.refreshSessionDetails();
+              resultUi.refreshSessionDetails(() => {
+                resultUi.renderControls();
+                resultUi.renderSessionDetails();
+              });
               break;
             case "":
             case null:
             case undefined:
-              resultUi.refreshSessionDetails(() =>
-                resultUi.refreshSessionResults()
-              );
+              resultUi.refreshSessionDetails(() => {
+                resultUi.renderControls();
+                resultUi.renderSessionDetails();
+              });
+
+              resultUi.refreshSessionResults(() => {
+                resultUi.renderApiResults();
+              });
               break;
           }
         },
         refreshSessionDetails(callback = () => {}) {
           WaveService.getSession(details => {
             resultUi.state.details = details;
-            resultUi.renderControls();
-            resultUi.renderSessionDetails();
             if (details.status !== "completed" && details.status !== "aborted")
               resultUi.connectWebSocket();
             callback(details);
@@ -90,7 +100,6 @@
               results[api].testFilesCompleted = test_files_completed[api];
             }
             resultUi.state.results = results;
-            resultUi.renderApiResults();
             callback(results);
           });
         },

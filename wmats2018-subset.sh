@@ -188,9 +188,9 @@ git config core.sparsecheckout true
 # 3.2 HTML core specifications
 # Devices MUST be conforming implementations of the following specifications:
 
-# HTML 5.1 [HTML51], devices acting as Web browsers that support the HTML syntax and the XHTML syntax, scripting, and the suggested default rendering.
+# HTML [HTML],
 echo "html/*" >> .git/info/sparse-checkout
-# ECMAScript Language Specification, Edition 5.1 [ECMASCRIPT-5.1]
+# ECMAScript Language Specification, Edition 6 [ECMASCRIPT-6]
 # Separate checkout. See below.
 
 # 3.3 CSS specifications
@@ -217,6 +217,8 @@ echo "css/selectors/*" >> .git/info/sparse-checkout
 echo "css/css-cascade/*" >> .git/info/sparse-checkout
 # CSS Values and Units Module Level 3 [CSS-VALUES]
 echo "css/css-values/*" >> .git/info/sparse-checkout
+# CSS Writing Modes Level 3 [CSS-WRITING-MODES-3]
+echo "css/css-writing-modes/*" >> .git/info/sparse-checkout
 # CSS Color Module Level 3 [CSS3-COLOR]
 echo "css/css-color/*" >> .git/info/sparse-checkout
 # CSS Backgrounds and Borders Module Level 3 [CSS3-BACKGROUND]
@@ -307,14 +309,12 @@ echo "webstorage/*" >> .git/info/sparse-checkout
 # Web Workers [WORKERS]
 # Exceptions: Shared Workers are not yet widely supported.
 echo "workers/*" >> .git/info/sparse-checkout
-# Indexed Database API [IndexedDB-20150108]
+# Indexed Database API [IndexedDB]
 # Exceptions: Array key path and array keys are not yet widely supported.
-# Separate checkout. See below.
+echo "IndexedDB/*" >> .git/info/sparse-checkout
 # Cross-document messaging [WEB-MESSAGING]
 # Channel messaging [CHANNEL-MESSAGING]
 echo "webmessaging/*" >> .git/info/sparse-checkout
-# Web Notifications [notifications-20151022]
-# Separate checkout. See below.
 
 # Additionally requested tests
 # uievents
@@ -323,7 +323,7 @@ echo "uievents/*" >> .git/info/sparse-checkout
 # already in, see above
 # cssom-view
 echo "css/cssom-view/*" >> .git/info/sparse-checkout
-# dom4
+# dom
 echo "dom/*" >> .git/info/sparse-checkout
 
 git pull origin master
@@ -354,28 +354,36 @@ cp -R ./* $WPTBASEDIR
 BRANCHORCOMMITID=eaf5d6035d68da3593b0b50b8b25a0cb64fc1f5e
 rm -rf .git/info/sparse-checkout
 
-# Indexed Database API [IndexedDB-20150108]
-# Exceptions: Array key path and array keys are not yet widely supported.
-echo "IndexedDB/*" >> .git/info/sparse-checkout
-git read-tree -mu HEAD
-git checkout -b WMAS2018-IndexedDB $BRANCHORCOMMITID
-rm -rf $WPTBASEDIR/IndexedDB/
-cp -R ./* $WPTBASEDIR
-
-
-# Integrate ECMASCRIPT tests [ECMASCRIPT-5.1]
-DISTDIR=dist/es5-tests
+# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+DISTDIR=dist/es6-tests
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/ecmascript
 rm -rf $DISTDIR
-git clone https://github.com/tc39/test262.git -b es5-tests $DISTDIR
+git clone https://github.com/tc39/test262.git $DISTDIR
+cd $DISTDIR
+git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
+cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
+
+# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+DISTDIR=dist/webgl
+cd $WPTBASEDIR
+rm -rf $WPTBASEDIR/webgl
+rm -rf $DISTDIR
+git clone https://github.com/KhronosGroup/WebGL $DISTDIR
+cd $DISTDIR
+git checkout 0c1173e509ccbc3a1135f86ea6f3b3e4757bb96c #this is the Commit ID from 06 Dec 2018. ES6 was released in June 2016
+cd $WPTBASEDIR
+node tools/wave/webgl/prepare-tests.js $DISTDIR
 
 # Remove the dist folder before manifest generation
 rm -rf dist
 
 # Remove tests listed in the exceptions file
 node tools/wave/src/testing/exceptions/delete_exceptions.js
+
+# delete old MANIFEST.json
+rm MANIFEST.json
 
 # build the MANIFEST.json
 ./wpt manifest --no-download --work
