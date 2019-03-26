@@ -426,7 +426,10 @@
           publicSessionsView.innerHTML = "";
           if (!publicSessions || publicSessions.length === 0) return;
           publicSessionsView.appendChild(
-            UI.createElement({ text: "Public", className: "title is-5" })
+            UI.createElement({
+              text: "Reference Browsers",
+              className: "title is-5"
+            })
           );
           publicSessionsView.appendChild(
             resultsUi.createSessionsTable(
