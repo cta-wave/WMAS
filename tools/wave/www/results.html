@@ -81,12 +81,11 @@
             WaveService.setRecentSessions(recentSessions);
             allSessions = allSessions.concat(publicSessions);
             WaveService.getSessionDetails(allSessions, sessionDetails => {
+              sessionDetails = sessionDetails.filter(session => !!session);
               allSessions
                 .filter(
                   token =>
-                    !sessionDetails
-                      .filter(details => !!details)
-                      .some(session => session.token === token)
+                    !sessionDetails.some(session => session.token === token)
                 )
                 .forEach(token => {
                   WaveService.removePinnedSession(token);
@@ -109,7 +108,6 @@
                   .filter(token => loadedSessionsTokens.indexOf(token) === -1)
                   .forEach(token => referenceTokens.push(token))
               );
-              console.log(referenceTokens);
               WaveService.getSessionDetails(referenceTokens, sessionDetails => {
                 const { sessions } = resultsUi.state;
                 sessionDetails.forEach(
