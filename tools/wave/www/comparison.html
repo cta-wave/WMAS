@@ -40,6 +40,22 @@
       .header :first-child {
         flex: 1;
       }
+
+      .session-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .session-header div {
+        padding: 5px;
+        font-weight: bold;
+      }
+
+      .session-header:hover div {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
@@ -180,14 +196,7 @@
               children: [
                 {
                   element: "tr",
-                  children: [
-                    {
-                      element: "td",
-                      text: "Reference Sessions:",
-                      style: "width: 175px"
-                    },
-                    { element: "td", id: "reference-sessions" }
-                  ]
+                  id: "reference-sessions"
                 }
               ]
             }
@@ -201,25 +210,21 @@
         },
         renderReferenceSessions() {
           const { sessions, refTokens } = comparisonUi.state;
+          if (!refTokens || refTokens.length === 0) return;
           if (!Object.keys(sessions) || Object.keys(sessions).length === 0)
             return;
           const referenceSessions = refTokens.map(token => sessions[token]);
           const referenceSessionsTarget = UI.getElement("reference-sessions");
           referenceSessionsTarget.innerHTML = "";
-          const getBrowserIcon = browser => {
-            switch (browser.toLowerCase()) {
-              case "firefox":
-                return "fab fa-firefox";
-              case "edge":
-                return "fab fa-edge";
-              case "chrome":
-              case "chromium":
-                return "fab fa-chrome";
-              case "safari":
-              case "webkit":
-                return "fab fa-safari";
-            }
-          };
+
+          const referenceSessionsLabel = UI.createElement({
+            element: "td",
+            text: "Reference Sessions:",
+            style: "width: 175px"
+          });
+          referenceSessionsTarget.appendChild(referenceSessionsLabel);
+
+          const referenceSessionsList = UI.createElement({ element: "td" });
           referenceSessions.forEach(session => {
             const { token, browser } = session;
             const referenceSessionItem = UI.createElement({
@@ -232,7 +237,7 @@
                   className: "icon",
                   children: {
                     element: "i",
-                    className: getBrowserIcon(browser.name)
+                    className: utils.getBrowserIcon(browser.name)
                   }
                 },
                 {
@@ -242,8 +247,9 @@
                 }
               ]
             });
-            referenceSessionsTarget.appendChild(referenceSessionItem);
+            referenceSessionsList.appendChild(referenceSessionItem);
           });
+          referenceSessionsTarget.appendChild(referenceSessionsList);
         },
         renderApiResults() {
           const apiResultsView = UI.createElement({
@@ -271,7 +277,7 @@
                   },
                   {
                     style: "margin-left: 0.4em;",
-                    text: "Loading results ..."
+                    text: "Loading comparison ..."
                   }
                 ]
               }
@@ -289,6 +295,29 @@
           });
           apiResultsView.appendChild(resultsTable);
 
+          const getColor = percent => {
+            const tRed = 28;
+            const tGreen = 166;
+            const tBlue = 76;
+            const mRed = 204;
+            const mGreen = 163;
+            const mBlue = 0;
+            const bRed = 255;
+            const bGreen = 56;
+            const bBlue = 96;
+            if (percent > 50) {
+              const red = mRed + ((percent - 50) / 50) * (tRed - mRed);
+              const green = mGreen + ((percent - 50) / 50) * (tGreen - mGreen);
+              const blue = mBlue + ((percent - 50) / 50) * (tBlue - mBlue);
+              return `rgb(${red}, ${green}, ${blue})`;
+            } else {
+              const red = bRed + (percent / 50) * (mRed - bRed);
+              const green = bGreen + (percent / 50) * (mGreen - bGreen);
+              const blue = bBlue + (percent / 50) * (mBlue - bBlue);
+              return `rgb(${red}, ${green}, ${blue})`;
+            }
+          };
+
           const resultsTableHeader = UI.createElement({
             element: "thead",
             children: {
@@ -304,11 +333,32 @@
                   tokens.map(token => ({
                     element: "td",
                     children: {
-                      className: "button is-white",
                       onClick: () => WaveService.openSession(token),
-                      text: `${token.split("-").shift()}\n${
-                        sessions[token].browser.name
-                      } ${sessions[token].browser.version}`
+                      className: "session-header",
+                      children: [
+                        {
+                          element: "i",
+                          style: "font-size: 1.5em; margin-right: 0.1em",
+                          className: utils.getBrowserIcon(
+                            sessions[token].browser.name
+                          )
+                        },
+                        {
+                          children: [
+                            {
+                              style: "margin: 0; padding: 0;",
+                              className: "is-family-monospace",
+                              text: `${token.split("-").shift()}`
+                            },
+                            {
+                              style: "margin: 0; padding: 0;",
+                              text: `${sessions[token].browser.name} ${
+                                sessions[token].browser.version
+                              }`
+                            }
+                          ]
+                        }
+                      ]
                     }
                   }))
                 )
@@ -333,13 +383,29 @@
               element: "tr",
               children: [{ element: "td", text: api }]
                 .concat(
-                  tokens.map(token => ({
-                    element: "td",
-                    text: `${utils.percent(
-                      results[token][api].passed,
-                      results[token][api].total
-                    )}%`
-                  }))
+                  tokens.map(token =>
+                    results[token][api]
+                      ? {
+                          element: "td",
+                          style:
+                            "text-align: center; font-weight: bold;" +
+                            `color: ${getColor(
+                              utils.percent(
+                                results[token][api].passed,
+                                results[token][api].total
+                              )
+                            )}`,
+                          text: `${utils.percent(
+                            results[token][api].passed,
+                            results[token][api].total
+                          )}%`
+                        }
+                      : {
+                          element: "td",
+                          text: "Not Tested",
+                          style: "text-align: center;"
+                        }
+                  )
                 )
                 .concat([
                   {

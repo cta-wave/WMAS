@@ -7,14 +7,21 @@ const UserAgentParser = require("../utils/user-agent-parser");
 const WptReport = require("./wpt-report");
 const Serializer = require("../utils/serializer");
 const Deserializer = require("../utils/deserializer");
+const SessionManager = require("../network/session-manager");
+const Session = require("../data/session");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
 
 /**
- * @module
+ * @module ResultsManager
  */
 class ResultsManager {
+  /**
+   * @constructor
+   * @param {Object} config
+   * @param {SessionManager} config.sessionManager
+   */
   constructor({
     resultsDirectoryPath,
     database,
@@ -111,6 +118,18 @@ class ResultsManager {
         await this.saveApiResults({ token, api });
         await this.generateReport({ token, api });
       }
+    }
+    const testFilesCompleted = session.getTestFilesCompleted();
+    const testFilesCount = session.getTestFilesCount();
+    if (
+      !Object.keys(testFilesCount).some(
+        api =>
+          !testFilesCompleted[api] ||
+          testFilesCompleted[api] !== testFilesCount[api]
+      )
+    ) {
+      session.setStatus(Session.COMPLETED);
+      await this.createInfoFile(session);
     }
     await this._sessionManager.updateSession(session);
   }

@@ -36,5 +36,19 @@ const utils = {
     let hours = Math.floor(totalMilliseconds / 3600000) + "";
     hours = hours.padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
+  },
+  getBrowserIcon(browser) {
+    switch (browser.toLowerCase()) {
+      case "firefox":
+        return "fab fa-firefox";
+      case "edge":
+        return "fab fa-edge";
+      case "chrome":
+      case "chromium":
+        return "fab fa-chrome";
+      case "safari":
+      case "webkit":
+        return "fab fa-safari";
+    }
   }
 };

@@ -54,6 +54,9 @@ const UI = {
         case "disabled":
           if (value) element.setAttribute("disabled", true);
           return;
+        case "checked":
+          if (value) element.setAttribute("checked", true);
+          return;
       }
     });
     return element;

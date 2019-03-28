@@ -79,6 +79,10 @@ class SessionManager {
     });
   }
 
+  /**
+   * @param {String} token
+   * @return {Session}
+   */
   async getSession(token) {
     if (!token) return null;
     let session = this._sessions.find(session => session.getToken() === token);

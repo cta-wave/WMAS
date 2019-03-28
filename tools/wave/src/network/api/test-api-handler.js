@@ -2,12 +2,14 @@ const Route = require("../../data/route");
 const Session = require("../../data/session");
 const ApiHandler = require("./api-handler");
 const SessionManager = require("../session-manager");
+const ResultsManager = require("../../testing/results-manager");
 
 class TestApiHandler extends ApiHandler {
   /**
    * @constructor
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
+   * @param {ResultsManager} config.resultsManager
    */
   constructor({
     wavePort,
@@ -152,9 +154,7 @@ class TestApiHandler extends ApiHandler {
         } else {
           response.send(url);
         }
-        session.setStatus(Session.COMPLETED);
         await this._sessionManager.updateSession(session);
-        await this._resultsManager.createInfoFile(session);
       }
       return;
     }
