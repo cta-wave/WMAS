@@ -27,7 +27,6 @@ const readStats = async path => {
 
 
 const addHarnessToTestsHeader = async(testsPath,testsListPath) =>{
-
   var files = fs.readFileSync(testsListPath).toString().split("\n");
   var numberOfTestFiles = 0;
   for(var i=0; i<files.length ; i++){
@@ -39,6 +38,7 @@ const addHarnessToTestsHeader = async(testsPath,testsListPath) =>{
          content = content.replace("<head>", '<head> \n<script src="/resources/testharness.js"></script> \n<script src="/resources/testharnessreport.js"></script> \n');
          var file = fs.openSync(filename,'r+');
          fs.writeSync(file, content);
+         numberOfTestFiles += 1;
       }
     }
   }
