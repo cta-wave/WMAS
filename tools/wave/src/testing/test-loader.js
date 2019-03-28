@@ -57,7 +57,6 @@ const EXCLUDED_APIS = [
   "mediacapture-streams",
   "mediasession",
   "mixed-content",
-  "service-workers",
   "url"
 ];
 
