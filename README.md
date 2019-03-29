@@ -1,7 +1,7 @@
-The Web Media API Test Suite 2017
+The Web Media API Test Suite 2018 (Work in progress)
 ========================================
 
-The Web Media API Snapshot Test Suite 2017 is a cross-browser test suite. Writing
+The Web Media API Snapshot Test Suite 2018 is a cross-browser test suite. Writing
 tests in a way that allows them to be run in all browsers gives browser projects
 confidence that they are shipping software that is compatible with other
 implementations, and that later implementations will be compatible with
@@ -17,8 +17,6 @@ to run on web browsers for embedded devices and appliances suchs as TV sets,
 set-top boxes, consoles, etc. It supports tests report comparing and testing
 a chosen subset of API tests.
 
-This test suite complies with the [Web Media API Snapshot 2017](https://www.w3.org/2017/12/webmediaapi.html).
-Note: JPEG File Interchange Format [JPEG], Portable Network Graphics (PNG) Specification (Second Edition) [PNG], Graphics Interchange Format [GIF], Open Font Format [OPEN-FONT-FORMAT] and WOFF File Format 1.0 [WOFF] are not sufficiently tested in this test suite, because there are no dedicated tests in the W3C Web Platform Tests.
 
 Test server
 ===========
