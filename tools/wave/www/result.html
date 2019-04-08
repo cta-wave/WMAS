@@ -717,7 +717,10 @@
             style: `background-image: linear-gradient(to right, hsl(0, 0%, 86%) ${utils.percent(
               testFilesCompleted,
               testFilesCount
-            )}%, white ${utils.percent(testFilesCompleted, testFilesCount)}%)`,
+            )}%, white ${utils.percent(
+              testFilesCompleted,
+              testFilesCount
+            )}%); background-attachment: fixed;`,
             children: [
               {
                 element: "tr",
