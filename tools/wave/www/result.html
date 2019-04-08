@@ -556,7 +556,7 @@
           referenceSessionsTarget.appendChild(referenceSessionsList);
         },
         renderApiResults() {
-          const { results } = resultUi.state;
+          const { results, details } = resultUi.state;
 
           const apiResultsView = UI.createElement({
             style: "margin-bottom: 20px"
@@ -594,6 +594,7 @@
             return;
           }
 
+          const width = details.status === "running" ? "130px" : "auto";
           const header = UI.createElement({
             element: "thead",
             children: [
@@ -601,11 +602,15 @@
                 element: "tr",
                 children: [
                   { element: "th", text: "API" },
-                  { element: "th", text: "Pass" },
-                  { element: "th", text: "Fail" },
-                  { element: "th", text: "Timeout" },
-                  { element: "th", text: "Not Run" },
-                  { element: "th", text: "Test Files Run" },
+                  { element: "th", text: "Pass", style: `width: ${width}` },
+                  { element: "th", text: "Fail", style: `width: ${width}` },
+                  { element: "th", text: "Timeout", style: `width: ${width}` },
+                  { element: "th", text: "Not Run", style: `width: ${width}` },
+                  {
+                    element: "th",
+                    text: "Test Files Run",
+                    style: `width: ${width}`
+                  },
                   { element: "th", text: "Export" }
                 ]
               }

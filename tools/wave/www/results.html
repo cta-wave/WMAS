@@ -583,12 +583,14 @@
                     { element: "td", text: "Status" },
                     { element: "td", text: "User Agent" },
                     { element: "td", text: "Date Started" },
-                    {
-                      element: "td",
-                      text: "RefS",
-                      title: "Reference Sessions",
-                      style: "text-decoration: underline dotted"
-                    },
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          text: "RefS",
+                          title: "Reference Sessions",
+                          style: "text-decoration: underline dotted"
+                        },
                     static
                       ? null
                       : { element: "td", colspan: 2, text: "Options" }
@@ -661,56 +663,59 @@
                       element: "td",
                       text: new Date(session.date_started).toLocaleString()
                     },
-                    {
-                      element: "td",
-                      title: session.reference_tokens
-                        .map(token => token.split("-").shift())
-                        .sort((tokenA, tokenB) => tokenA - tokenB)
-                        .join("\n"),
-                      children: (() => {
-                        const tokens = session.reference_tokens.slice();
-                        let overflow = 0;
-                        if (tokens.length > 3) {
-                          overflow = tokens.length - 2;
-                        }
-                        if (overflow > 0) tokens.splice(2, overflow + 2);
-                        const children = tokens.map(token => {
-                          let icon = "";
-                          const session = resultsUi.state.sessions[token];
-                          switch (session.browser.name.toLowerCase()) {
-                            case "firefox":
-                              icon = "fab fa-firefox";
-                              break;
-                            case "edge":
-                              icon = "fab fa-edge";
-                              break;
-                            case "chrome":
-                            case "chromium":
-                              icon = "fab fa-chrome";
-                              break;
-                            case "safari":
-                            case "webkit":
-                              icon = "fab fa-safari";
-                              break;
-                          }
-                          return {
-                            element: "span",
-                            style: "margin-right: 5px; vertical-align: middle;",
-                            children: { element: "i", className: icon }
-                          };
-                        });
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          title: session.reference_tokens
+                            .map(token => token.split("-").shift())
+                            .sort((tokenA, tokenB) => tokenA - tokenB)
+                            .join("\n"),
+                          children: (() => {
+                            const tokens = session.reference_tokens.slice();
+                            let overflow = 0;
+                            if (tokens.length > 3) {
+                              overflow = tokens.length - 2;
+                            }
+                            if (overflow > 0) tokens.splice(2, overflow + 2);
+                            const children = tokens.map(token => {
+                              let icon = "";
+                              const session = resultsUi.state.sessions[token];
+                              switch (session.browser.name.toLowerCase()) {
+                                case "firefox":
+                                  icon = "fab fa-firefox";
+                                  break;
+                                case "edge":
+                                  icon = "fab fa-edge";
+                                  break;
+                                case "chrome":
+                                case "chromium":
+                                  icon = "fab fa-chrome";
+                                  break;
+                                case "safari":
+                                case "webkit":
+                                  icon = "fab fa-safari";
+                                  break;
+                              }
+                              return {
+                                element: "span",
+                                style:
+                                  "margin-right: 5px; vertical-align: middle;",
+                                children: { element: "i", className: icon }
+                              };
+                            });
 
-                        if (overflow > 0)
-                          children.push({
-                            element: "span",
-                            style: "vertical-align: middle",
-                            className: "is-size-7",
-                            text: `+${overflow}`
-                          });
+                            if (overflow > 0)
+                              children.push({
+                                element: "span",
+                                style: "vertical-align: middle",
+                                className: "is-size-7",
+                                text: `+${overflow}`
+                              });
 
-                        return children;
-                      })()
-                    },
+                            return children;
+                          })()
+                        },
                     static
                       ? null
                       : {
