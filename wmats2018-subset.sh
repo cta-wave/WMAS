@@ -376,6 +376,15 @@ git checkout 0c1173e509ccbc3a1135f86ea6f3b3e4757bb96c #this is the Commit ID fro
 cd $WPTBASEDIR
 node tools/wave/webgl/prepare-tests.js $DISTDIR
 
+# Checkout the wave cookies und url tests
+DISTDIR=wave-extra
+cd $WPTBASEDIR
+rm -rf $DISTDIR
+git clone https://gitlab.fokus.fraunhofer.de/dashcenc/WMATS2018-cookies.git $DISTDIR
+cd $DISTDIR
+git checkout d88669bdac7181f4d868a704758e5dcff9f182a0
+cd $WPTBASEDIR
+
 # Remove the dist folder before manifest generation
 rm -rf dist
 
