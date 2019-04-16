@@ -14,7 +14,8 @@ class ApiHandler {
       tokens,
       api,
       reftoken,
-      reftokens
+      reftokens,
+      resume
     } = request.query;
     token = token || null;
     path = path || null;
@@ -25,6 +26,7 @@ class ApiHandler {
     tokens = tokens ? tokens.split(",") : null;
     reftoken = reftoken || "";
     reftokens = reftokens || "";
+    resume = resume ? resume !== "false" ? true : false : false
     return {
       token,
       path,

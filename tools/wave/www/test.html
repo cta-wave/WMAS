@@ -58,10 +58,10 @@
       }
 
       log("Requesting first step ...");
-      sendRequest("GET", "/next", null, function(response) {
-        log('Received url "' + response + '"');
+      sendRequest("POST", "/sessions", null, function(response) {
+        log('Received token "' + response + '"');
         log("Redirecting ...");
-        location.href = response;
+        location.href = "/newsession.html?token=" + response;
       });
     </script>
   </body>
