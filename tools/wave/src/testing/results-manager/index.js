@@ -2,13 +2,14 @@ const path = require("path");
 const crypto = require("crypto");
 const JSZip = require("jszip");
 
-const FileSystem = require("../utils/file-system");
-const UserAgentParser = require("../utils/user-agent-parser");
-const WptReport = require("./wpt-report");
-const Serializer = require("../utils/serializer");
-const Deserializer = require("../utils/deserializer");
-const SessionManager = require("../network/session-manager");
-const Session = require("../data/session");
+const FileSystem = require("../../utils/file-system");
+const UserAgentParser = require("../../utils/user-agent-parser");
+const WptReport = require("../wpt-report");
+const Serializer = require("../../utils/serializer");
+const Deserializer = require("../../utils/deserializer");
+const SessionManager = require("../../network/session-manager");
+const Session = require("../../data/session");
+const ResultComparator = require("./result-comparator");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -33,6 +34,70 @@ class ResultsManager {
     this._sessionManager = sessionManager;
     this._generatingComparisons = [];
     this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
+    this._resultComparator = new ResultComparator({ resultsDirectoryPath, resultsManager: this });
+  }
+
+  async createResult({ token, data }) {
+    const result = this.prepareResult(data);
+    let { test } = result;
+    if (test.startsWith("/")) test = test.substr(1);
+
+    const session = await this._sessionManager.getSession(token);
+    if (!session) return;
+    if (!session.testExists(test)) return;
+
+    if (!session.isTestComplete(test)) {
+      session.completeTest(test);
+      await this._database.createResult(token, result);
+      const api = test.split("/")[0];
+      if (session.isApiComplete(api)) {
+        await this.saveApiResults({ token, api });
+        await this.generateReport({ token, api });
+      }
+    }
+    const testFilesCompleted = session.getTestFilesCompleted();
+    const testFilesCount = session.getTestFilesCount();
+    if (
+      !Object.keys(testFilesCount).some(
+        api =>
+          !testFilesCompleted[api] ||
+          testFilesCompleted[api] !== testFilesCount[api]
+      )
+    ) {
+      session.setStatus(Session.COMPLETED);
+      await this.createInfoFile(session);
+    }
+    await this._sessionManager.updateSession(session);
+  }
+
+  async readFlattenedResults(token) {
+    const results = await this.getResults(token);
+    return this._flattenResults(results);
+  }
+
+  async readResultComparison({ tokens, refTokens }) {
+    await Promise.all(
+      refTokens
+        .filter(token => !token.includes("-"))
+        .map(async (token, index) => {
+          refTokens.splice(index, 1);
+          const hashTokens = await this._resultsManager.getTokensFromHash(
+            token
+          );
+          refTokens = refTokens.concat(hashTokens);
+        })
+    );
+    let comparison = await this._resultComparator.readComparison({
+      tokens,
+      refTokens
+    });
+    if (!comparison) {
+      comparison = await this._resultComparator.generateComparison({
+        tokens,
+        refTokens
+      });
+    }
+    return comparison;
   }
 
   async getJsonPath({ token, api }) {
@@ -102,36 +167,6 @@ class ResultsManager {
       directoryPath = hash + "/" + api;
     }
     return directoryPath + (reftoken ? "/all_filtered.html" : "/all.html");
-  }
-
-  async saveResult({ token, result, test }) {
-    const session = await this._sessionManager.getSession(token);
-    if (!session) return;
-
-    if (!session.testExists(test)) return;
-
-    if (!session.isTestComplete(test)) {
-      session.completeTest(test);
-      await this._database.createResult(token, result);
-      const api = test.split("/")[0];
-      if (session.isApiComplete(api)) {
-        await this.saveApiResults({ token, api });
-        await this.generateReport({ token, api });
-      }
-    }
-    const testFilesCompleted = session.getTestFilesCompleted();
-    const testFilesCount = session.getTestFilesCount();
-    if (
-      !Object.keys(testFilesCount).some(
-        api =>
-          !testFilesCompleted[api] ||
-          testFilesCompleted[api] !== testFilesCount[api]
-      )
-    ) {
-      session.setStatus(Session.COMPLETED);
-      await this.createInfoFile(session);
-    }
-    await this._sessionManager.updateSession(session);
   }
 
   async saveApiResults({ token, api }) {
@@ -285,11 +320,6 @@ class ResultsManager {
     return resultsPerApi;
   }
 
-  async getFlattenedResults(token) {
-    const results = await this.getResults(token);
-    return this._flattenResults(results);
-  }
-
   prepareResult(result) {
     const harness_status_map = {
       0: "OK",
@@ -317,145 +347,6 @@ class ResultsManager {
     result.status = harness_status_map[result.status];
 
     return result;
-  }
-
-  async saveComparison(comparisonResult, tokens, refTokens) {
-    const comparisonDirectory = this.getComparisonDirectoryName(
-      tokens,
-      refTokens
-    );
-    const comparisonDirectoryPath = path.join(
-      this._resultsDirectoryPath,
-      comparisonDirectory
-    );
-    if (!(await FileSystem.exists(comparisonDirectoryPath))) {
-      await FileSystem.makeDirectory(comparisonDirectoryPath);
-    }
-    const comparisonResultPath = path.join(
-      comparisonDirectoryPath,
-      "manifest.json"
-    );
-    await FileSystem.writeFile(
-      comparisonResultPath,
-      JSON.stringify(comparisonResult, null, 2)
-    );
-  }
-
-  async loadComparison(tokens, refTokens) {
-    const comparisonDirectory = this.getComparisonDirectoryName(
-      tokens,
-      refTokens
-    );
-    const comparisonDirectoryPath = path.join(
-      this._resultsDirectoryPath,
-      comparisonDirectory
-    );
-    const comparisonResultPath = path.join(
-      comparisonDirectoryPath,
-      "manifest.json"
-    );
-    if (!(await FileSystem.exists(comparisonResultPath))) return null;
-    const comparisonJson = await FileSystem.readFile(comparisonResultPath);
-    return JSON.parse(comparisonJson);
-  }
-
-  getComparisonDirectoryName(tokens, refTokens) {
-    let comparisonDirectory = "comparison";
-    comparisonDirectory += tokens
-      .map(token => token.split("-")[0])
-      .sort((tokenA, tokenB) => tokenA - tokenB)
-      .reduce((string, token) => `${string}-${token}`, "");
-    let hash = crypto.createHash("sha1");
-    refTokens
-      .sort((tokenA, tokenB) => tokenA - tokenB)
-      .forEach(token => hash.update(token));
-    tokens
-      .sort((tokenA, tokenB) => tokenA - tokenB)
-      .forEach(token => hash.update(token));
-    hash = hash.digest("hex");
-    comparisonDirectory += `-${hash.substr(0, 8)}`;
-    return comparisonDirectory;
-  }
-
-  async generateComparisonResults(tokens, refTokens) {
-    const passedRefTests = await this._filterPassedTests(refTokens);
-    let comparisonResults = {};
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-      comparisonResults[token] = {};
-      const result = await this.getResults(token);
-      for (let api in result) {
-        comparisonResults[token][api] = { passed: 0, total: 0 };
-
-        result[api].forEach(apiResult => {
-          const { test } = apiResult;
-          if (passedRefTests && !passedRefTests[api].includes(test)) return;
-          const passed = !apiResult.subtests.some(
-            test => test.status !== "PASS"
-          );
-          if (passed) comparisonResults[token][api].passed++;
-          if (passedRefTests) {
-            comparisonResults[token][api].total = passedRefTests[api].length;
-          } else {
-            comparisonResults[token][api].total++;
-          }
-        });
-      }
-    }
-
-    // const total = {};
-    // if (passedRefTests) {
-    //   Object.keys(passedRefTests).forEach(
-    //     api => (total[api] = passedRefTests[api].length)
-    //   );
-    // }
-    // comparisonResults["total"] = total;
-
-    return comparisonResults;
-  }
-
-  _percent(count, total) {
-    const percent = Math.floor((count / total) * 10000) / 100;
-    if (!percent) {
-      return 0;
-    }
-    return percent;
-  }
-
-  async _filterPassedTests(refTokens) {
-    if (!refTokens || refTokens.length === 0) return null;
-
-    const refSessionsResults = await Promise.all(
-      refTokens.map(async token => await this.getResults(token))
-    );
-
-    const passedTests = {};
-    const failedTests = {};
-    refSessionsResults.forEach(result => {
-      Object.keys(result).forEach(api => {
-        if (!passedTests[api]) passedTests[api] = [];
-        if (!failedTests[api]) failedTests[api] = [];
-        result[api].forEach(apiResult => {
-          const passed = !apiResult.subtests.some(
-            test => test.status !== "PASS"
-          );
-          const { test } = apiResult;
-          if (passed) {
-            if (failedTests[api].includes(test)) return;
-            if (passedTests[api].includes(test)) return;
-            passedTests[api].push(test);
-          } else {
-            if (passedTests[api].includes(test)) {
-              passedTests[api].splice(passedTests[api].indexOf(test), 1);
-            }
-            if (failedTests[api].includes(test)) return;
-            failedTests[api].push(test);
-          }
-        });
-      });
-    });
-
-    return passedTests;
   }
 
   _flattenResults(results) {
@@ -518,7 +409,7 @@ class ResultsManager {
   async exportResults(token) {
     const zip = new JSZip();
 
-    const flattenedResults = await this.getFlattenedResults(token);
+    const flattenedResults = await this.readFlattenedResults(token);
     const resultsScript =
       "const results = " + JSON.stringify(flattenedResults, null, 2);
     zip.file("results.json.js", resultsScript);

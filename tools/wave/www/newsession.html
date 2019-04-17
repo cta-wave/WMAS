@@ -137,9 +137,7 @@
       }
 
       function startTests() {
-        sendRequest("GET", "/next", null, function(response) {
-          location.href = response;
-        });
+        location.href = "/next"
       }
 
       var resultsUrl =

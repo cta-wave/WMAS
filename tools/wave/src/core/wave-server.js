@@ -34,15 +34,13 @@ class WaveServer {
     } = config;
     println(" done.");
 
-    this._port = port;
-
-    const httpServer = new HttpServer();
+    print("Initializing database ...");
     const database = new Database({
       dbCompactionInterval
     });
-    print("Initializing database ...");
     await database.initialize(databaseDirectoryPath);
     println(" done.");
+
     const testLoader = new TestLoader({
       resultsDirectoryPath
     });
@@ -50,10 +48,6 @@ class WaveServer {
       database,
       testTimeout,
       testLoader
-    });
-    const webSocketServer = new WebSocketServer({
-      sessionManager,
-      server: httpServer.getServer()
     });
 
     const resultsManager = new ResultsManager({
@@ -70,14 +64,23 @@ class WaveServer {
     print("Loading tests ...");
     await testLoader.loadTests(manifestFilePath);
     println(" done.");
+
+    const httpServer = new HttpServer();
     httpServer.initialize();
-    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
     httpServer.registerRoute(
-      new Route("/", (request, response) => {
-        response.sendFile(path.join(applicationDirectoryPath, "index.html"));
+      new Route({
+        method: Route.STATIC,
+        uri: "/",
+        directory: path.join(applicationDirectoryPath, "./www")
       })
     );
-    httpServer.registerStatic(resultsDirectoryPath, "/results");
+    httpServer.registerRoute(
+      new Route({
+        method: Route.STATIC,
+        uri: "/results",
+        directory: resultsDirectoryPath
+      })
+    );
 
     const testApiHandler = new TestApiHandler({
       wptPort,
@@ -97,7 +100,21 @@ class WaveServer {
     const resultsApiHandler = new ResultsApiHandler(resultsManager);
     httpServer.registerRoutes(resultsApiHandler.getRoutes());
 
+    httpServer.registerRoute(
+      new Route({
+        method: Route.OPTIONS,
+        uri: "/",
+        handler: (request, response) => response.send()
+      })
+    );
+
+    const webSocketServer = new WebSocketServer({
+      sessionManager,
+      server: httpServer.getServer()
+    });
+
     this._httpServer = httpServer;
+    this._port = port;
   }
 
   async start(port = this._port) {

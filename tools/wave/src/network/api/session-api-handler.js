@@ -6,20 +6,14 @@ const Session = require("../../data/session");
 class SessionApiHandler extends ApiHandler {
   constructor(sessionManager, resultsManager) {
     super();
-    this._routes = this._createRoutes();
     this._sessionManager = sessionManager;
     this._resultsManager = resultsManager;
   }
 
-  _createRoutes() {
-    return [
-      new Route("/sessions/*", this._handleRequest.bind(this)),
-      new Route("/sessions", this._handleRequest.bind(this))
-    ];
-  }
-
   getRoutes() {
-    return this._routes;
+    return [
+      new Route({ uri: "/sessions*", handler: this._handleRequest.bind(this) })
+    ];
   }
 
   _handleRequest(request, response) {

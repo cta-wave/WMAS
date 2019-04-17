@@ -3,9 +3,15 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path");
+const Route = require("../data/route");
 
 const DEFAULT_PORT = 8080;
 
+const { ALL, GET, POST, PUT, DELETE, OPTIONS, STATIC } = Route;
+
+/**
+ * @module HttpServer
+ */
 class HttpServer {
   constructor() {
     this._app = express();
@@ -30,18 +36,40 @@ class HttpServer {
     });
   }
 
-  registerStatic(path, root = "/") {
-    this._app.use(root, express.static(path));
-  }
-
   registerRoutes(routes) {
     routes.forEach(route => this.registerRoute(route));
   }
 
+  /**
+   * @param {Route} route 
+   */
   registerRoute(route) {
-    const endPoint = route.getEndPoint();
+    const uri = route.getUri();
     const handler = route.getHandler();
-    this._app.all(endPoint, handler);
+    const directory = route.getDirectory();
+    switch (route.getMethod()) {
+      case GET:
+        this._app.get(uri, handler);
+        return;
+      case PUT:
+        this._app.put(uri, handler);
+        return;
+      case POST:
+        this._app.post(uri, handler);
+        return;
+      case DELETE:
+        this._app.delete(uri, handler);
+        return;
+      case OPTIONS:
+        this._app.options(uri, handler);
+        return;
+      case ALL:
+        this._app.all(uri, handler);
+        return;
+      case STATIC:
+        this._app.use(uri, express.static(directory));
+        return;
+    }
   }
 
   async start(port = DEFAULT_PORT) {

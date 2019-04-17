@@ -19,7 +19,6 @@ class TestApiHandler extends ApiHandler {
     sessionManager
   }) {
     super();
-    this._routes = this._createRoutes();
     this._wptPort = wptPort;
     this._wptSslPort = wptSslPort;
     this._wavePort = wavePort;
@@ -27,15 +26,10 @@ class TestApiHandler extends ApiHandler {
     this._sessionManager = sessionManager;
   }
 
-  _createRoutes() {
-    return [
-      new Route("/next", this._handleRequest.bind(this)),
-      new Route("/next/*", this._handleRequest.bind(this))
-    ];
-  }
-
   getRoutes() {
-    return this._routes;
+    return [
+      new Route({ uri: "/next*", handler: this._handleRequest.bind(this) })
+    ];
   }
 
   _handleRequest(request, response) {
@@ -48,7 +42,6 @@ class TestApiHandler extends ApiHandler {
   }
 
   async _nextTest({ request, response }) {
-    // const userAgent = request.get("User-Agent");
     let { token } = this.parseQueryParameters(request);
     if (!token) {
       token = request.get("token");
@@ -57,49 +50,14 @@ class TestApiHandler extends ApiHandler {
       token = request.cookies.sid;
     }
 
-    const {
-      // path,
-      // reftoken,
-      // types,
-      // testTimeout,
-      hostname,
-      resume
-    } = this.parseQueryParameters(request);
-    // const referenceTokens = reftoken.split(",").filter(token => !!token);
+    const { resume } = this.parseQueryParameters(request);
+    const { hostname } = request;
 
     let session = await this._sessionManager.getSession(token);
-    // if (!session || path) {
-    //   session = await this._sessionManager.createSession({
-    //     path,
-    //     referenceTokens,
-    //     types,
-    //     userAgent,
-    //     testTimeout
-    //   });
-
-    //   const token = session.getToken();
-
-    //   // save token in cookie to resume session if tests run into problems
-    //   response.cookie("sid", token, {
-    //     maxAge: 1000 * 60 * 60 * 48, // 2 days
-    //     httpOnly: true
-    //   });
-
-    //   let query = "?token=" + token;
-    //   response.send(
-    //     this._generateUrl({
-    //       hostname,
-    //       port: this._wavePort,
-    //       uri: "/newsession.html",
-    //       query
-    //     })
-    //   );
-    //   return;
-    // }
 
     if (resume) {
       let query = "?token=" + token + "&resume=1";
-      response.send(
+      response.redirect(
         this._generateUrl({
           hostname,
           port: this._wavePort,
@@ -113,7 +71,7 @@ class TestApiHandler extends ApiHandler {
     switch (session.getStatus()) {
       case Session.PAUSED: {
         let query = "?token=" + session.getToken();
-        response.send(
+        response.redirect(
           this._generateUrl({
             hostname,
             uri: "/pause.html",
@@ -126,7 +84,7 @@ class TestApiHandler extends ApiHandler {
       case Session.COMPLETED:
       case Session.ABORTED: {
         let query = "?token=" + session.getToken();
-        response.send(
+        response.redirect(
           this._generateUrl({
             hostname,
             uri: "/complete.html",
@@ -154,7 +112,7 @@ class TestApiHandler extends ApiHandler {
         if (request.query.redirect) {
           response.redirect(url);
         } else {
-          response.send(url);
+          response.redirect(url);
         }
         await this._sessionManager.updateSession(session);
       }
@@ -173,7 +131,7 @@ class TestApiHandler extends ApiHandler {
     if (request.query.redirect) {
       response.redirect(url);
     } else {
-      response.send(url);
+      response.redirect(url);
     }
     await this._sessionManager.updateSession(session);
   }
@@ -205,22 +163,23 @@ class TestApiHandler extends ApiHandler {
 
   _onTestTimeout(token, test) {
     console.log("TIMEOUT", test);
-    this._resultsManager
-      .saveResult({
-        token,
+    const data = {
+      token,
+      test,
+      result: {
         test,
-        result: {
-          test,
-          status: "TIMEOUT",
-          message: null,
-          subtests: [
-            {
-              status: "TIMEOUT",
-              xstatus: "SERVERTIMEOUT"
-            }
-          ]
-        }
-      })
+        status: "TIMEOUT",
+        message: null,
+        subtests: [
+          {
+            status: "TIMEOUT",
+            xstatus: "SERVERTIMEOUT"
+          }
+        ]
+      }
+    };
+    this._resultsManager
+      .createResult({ token, data })
       .catch(error => console.error(error));
   }
 }

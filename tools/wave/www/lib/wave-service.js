@@ -191,14 +191,13 @@ const WaveService = {
       api = token;
       token = WaveService.defaultToken;
     }
-    console.log(token);
     if (token instanceof Array) {
-      const reportUrl = `/results/html?tokens=${token.join(",")}&api=${api}${
-        reftoken ? `&token=${reftoken}` : ""
+      const reportUrl = `/results/${token.join(",")}/${api}/html${
+        reftoken ? `?reftoken=${reftoken}` : ""
       }`;
       window.open(reportUrl, "_blank");
     } else {
-      const reportUrl = `/results/${token}/${api}/all.html`;
+      const reportUrl = `/results/${token}/${api}/html`;
       window.open(reportUrl, "_blank");
     }
   },
