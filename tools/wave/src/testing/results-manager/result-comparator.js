@@ -18,10 +18,10 @@ class ResultComparator {
   }
 
   async readComparison({ tokens, refTokens }) {
-    const comparisonDirectory = this._getComparisonDirectoryName(
+    const comparisonDirectory = this.getComparisonDirectoryName({
       tokens,
       refTokens
-    );
+    });
     const comparisonDirectoryPath = path.join(
       this._resultsDirectoryPath,
       comparisonDirectory
@@ -36,10 +36,10 @@ class ResultComparator {
   }
 
   async generateComparison({ tokens, refTokens }) {
-    const comparisonDirectory = this._getComparisonDirectoryName(
+    const comparisonDirectory = this.getComparisonDirectoryName({
       tokens,
       refTokens
-    );
+    });
     let comparisonResult;
     if (this._generatingComparisons.includes(comparisonDirectory)) {
       comparisonResult = await new Promise(resolve => {
@@ -105,10 +105,10 @@ class ResultComparator {
   }
 
   async _saveComparison({ comparisonResult, tokens, refTokens }) {
-    const comparisonDirectory = this._getComparisonDirectoryName(
+    const comparisonDirectory = this.getComparisonDirectoryName({
       tokens,
       refTokens
-    );
+    });
     const comparisonDirectoryPath = path.join(
       this._resultsDirectoryPath,
       comparisonDirectory
@@ -162,18 +162,18 @@ class ResultComparator {
     return passedTests;
   }
 
-  _getComparisonDirectoryName(tokens, refTokens) {
+  getComparisonDirectoryName({ tokens, refTokens = [] } = {}) {
     let comparisonDirectory = "comparison";
     comparisonDirectory += tokens
       .map(token => token.split("-")[0])
-      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .sort((tokenA, tokenB) => tokenA > tokenB)
       .reduce((string, token) => `${string}-${token}`, "");
     let hash = crypto.createHash("sha1");
     refTokens
-      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .sort((tokenA, tokenB) => tokenA > tokenB)
       .forEach(token => hash.update(token));
     tokens
-      .sort((tokenA, tokenB) => tokenA - tokenB)
+      .sort((tokenA, tokenB) => tokenA > tokenB)
       .forEach(token => hash.update(token));
     hash = hash.digest("hex");
     comparisonDirectory += `-${hash.substr(0, 8)}`;

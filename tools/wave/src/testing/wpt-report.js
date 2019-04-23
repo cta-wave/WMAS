@@ -26,7 +26,7 @@ class WptReport {
           `--output ${outputHtmlDirectoryPath} ` +
           `--spec ${specName} ` +
           `${isMulti ? "--tokenFileName true " : ""}` +
-          `${!referenceDir ? "" : `--pass 100 ` + `--ref ${referenceDir}`}`,
+          `${!referenceDir ? "" : `--pass 100 --ref ${referenceDir}`}`,
         (error, stdout, stderr) => {
           if (error) reject(error);
           if (stderr) reject(stderr);

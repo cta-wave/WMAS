@@ -34,7 +34,10 @@ class ResultsManager {
     this._sessionManager = sessionManager;
     this._generatingComparisons = [];
     this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
-    this._resultComparator = new ResultComparator({ resultsDirectoryPath, resultsManager: this });
+    this._resultComparator = new ResultComparator({
+      resultsDirectoryPath,
+      resultsManager: this
+    });
   }
 
   async createResult({ token, data }) {
@@ -100,6 +103,49 @@ class ResultsManager {
     return comparison;
   }
 
+  async readResultApiHtmlReportPath({ tokens, refTokens, token, api }) {
+    if (refTokens && refTokens.length > 0)
+      throw new Error("WPT Reports using ref tokens is not supported yet!");
+
+    // Single report
+    if (token) {
+      return `${token}/${api}/all.html`;
+    }
+
+    // Multi report
+    const comparisonDirectoryName = this._resultComparator.getComparisonDirectoryName(
+      {
+        tokens,
+        refTokens
+      }
+    );
+
+    const comparisonDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      comparisonDirectoryName
+    );
+
+    if (!(await FileSystem.exists(comparisonDirectoryPath))) {
+      await FileSystem.makeDirectory(comparisonDirectoryPath);
+    }
+
+    const apiDirectoryPath = path.join(comparisonDirectoryPath, api);
+    if (!(await FileSystem.exists(apiDirectoryPath))) {
+      await FileSystem.makeDirectory(apiDirectoryPath);
+
+      const resultJsonFilePaths = await Promise.all(
+        tokens.map(token => this.getJsonPath2({ token, api }))
+      );
+      await WptReport.generateMultiReport({
+        outputHtmlDirectoryPath: apiDirectoryPath,
+        specName: api,
+        resultJsonFilePaths
+      });
+    }
+
+    return `${comparisonDirectoryName}/${api}/all.html`;
+  }
+
   async getJsonPath({ token, api }) {
     const session = await this._sessionManager.getSession(token);
     return this._getFilePath({
@@ -117,56 +163,6 @@ class ResultsManager {
       api,
       filename: this._getFileName(session.getUserAgent())
     };
-  }
-
-  async getHtmlPath({ tokens, reftoken, token, api }) {
-    let directoryPath = "";
-    if (token) {
-      directoryPath = token + "/" + api;
-    } else {
-      let hash = crypto.createHash("sha1");
-      tokens
-        .sort((tokenA, tokenB) => (tokenA > tokenB ? 1 : -1))
-        .forEach(token => hash.update(token));
-
-      if (reftoken) {
-        // separate reftoken from regular token
-        hash.update(",");
-        hash.update(reftoken);
-      }
-
-      hash = hash.digest("hex");
-      const comparisonDirectoryPath = path.join(
-        this._resultsDirectoryPath,
-        hash
-      );
-
-      if (!(await FileSystem.exists(comparisonDirectoryPath))) {
-        await FileSystem.makeDirectory(comparisonDirectoryPath);
-      }
-
-      const apiDirectoryPath = path.join(comparisonDirectoryPath, api);
-      if (await FileSystem.exists(apiDirectoryPath)) {
-        await FileSystem.removeDirectory(apiDirectoryPath);
-      }
-      await FileSystem.makeDirectory(apiDirectoryPath);
-
-      const resultJsonFilePaths = await Promise.all(
-        tokens.map(token => this.getJsonPath2({ token, api }))
-      );
-      const referenceDir = reftoken
-        ? path.join(this._resultsDirectoryPath, reftoken, api)
-        : null;
-      await WptReport.generateMultiReport({
-        outputHtmlDirectoryPath: apiDirectoryPath,
-        specName: api,
-        resultJsonFilePaths,
-        referenceDir
-      });
-
-      directoryPath = hash + "/" + api;
-    }
-    return directoryPath + (reftoken ? "/all_filtered.html" : "/all.html");
   }
 
   async saveApiResults({ token, api }) {

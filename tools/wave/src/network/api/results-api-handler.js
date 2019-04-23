@@ -1,10 +1,6 @@
-const EventEmitter = require("events");
-
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
-
-const COMPARISON_GENERATION_FINISHED = "comparison_generation_finished";
 
 const { GET, POST } = Route;
 
@@ -19,8 +15,6 @@ class ResultsApiHandler extends ApiHandler {
   constructor(resultsManager) {
     super();
     this._resultsManager = resultsManager;
-    this._eventEmitter = new EventEmitter();
-    this._generatingComparisons = [];
   }
 
   async _createResult({ request, response }) {
@@ -64,9 +58,9 @@ class ResultsApiHandler extends ApiHandler {
   async _readResultComparison({ request, response }) {
     try {
       const { reftokens } = this.parseQueryParameters(request);
+      const refTokens = reftokens ? reftokens.split(",") : [];
       const url = this.parseUrl(request);
       const tokens = url[1].split(",");
-      const refTokens = reftokens ? reftokens.split(",") : [];
       const comparison = await this._resultsManager.readResultComparison({
         tokens,
         refTokens
@@ -78,7 +72,28 @@ class ResultsApiHandler extends ApiHandler {
     }
   }
 
-  async _readResultApiJson({ request, response }) {
+  async _readResultApiHtmlReport({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const tokens = url[1].split(",");
+      const token = tokens.length === 1 ? tokens[0] : null;
+      const api = url[2];
+      const { reftokens } = this.parseQueryParameters(request);
+      const refTokens = reftokens ? reftokens.split(",") : [];
+      const uri = await this._resultsManager.readResultApiHtmlReportPath({
+        tokens,
+        refTokens,
+        token,
+        api
+      });
+      response.redirect(`/results/${uri}`);
+    } catch (error) {
+      console.error("Failed to read html report:", error);
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultApiJson({ request, response }) {
     const url = this.parseUrl(request);
     const token = url[1];
     const api = url[2];
@@ -90,35 +105,6 @@ class ResultsApiHandler extends ApiHandler {
       'attachment;filename="' + fileName + '"'
     );
     response.sendFile(filePath);
-  }
-
-  async _readResultApiHtml({ request, response }) {
-    const url = this.parseUrl(request);
-    const tokens = url[1].split(",");
-    const token = tokens.length === 1 ? tokens[0] : null;
-    const api = url[2];
-    const { reftoken } = this.parseQueryParameters(request);
-    const uri = await this._resultsManager.getHtmlPath({
-      tokens,
-      reftoken,
-      token,
-      api
-    });
-    response.redirect(`/results/${uri}`);
-  }
-
-  async _readResultHtmlReport({ request, response }) {
-    let { token, tokens, api } = this.parseQueryParameters(request);
-    if (!token) {
-      token = request.get("token");
-    }
-    const uri = await this._resultsManager.getHtmlPath({
-      tokens,
-      reftoken: token,
-      token,
-      api
-    });
-    response.redirect(uri);
   }
 
   async _downloadResultHtml({ request, response }) {
@@ -170,9 +156,9 @@ class ResultsApiHandler extends ApiHandler {
       case 4: {
         switch (url[3]) {
           case "json":
-            return this._readResultApiJson({ request, response });
+            return this._downloadResultApiJson({ request, response });
           case "html":
-            return this._readResultApiHtml({ request, response });
+            return this._readResultApiHtmlReport({ request, response });
         }
       }
     }
