@@ -133,13 +133,13 @@ class ResultsManager {
     if (!(await FileSystem.exists(apiDirectoryPath))) {
       await FileSystem.makeDirectory(apiDirectoryPath);
 
-      const resultJsonFilePaths = await Promise.all(
-        tokens.map(token => this.getJsonPath2({ token, api }))
+      const resultJsonFiles = await Promise.all(
+        tokens.map(async token => ({ token, path: await this.getJsonPath({ token, api }) }))
       );
       await WptReport.generateMultiReport({
         outputHtmlDirectoryPath: apiDirectoryPath,
         specName: api,
-        resultJsonFilePaths
+        resultJsonFiles
       });
     }
 
@@ -153,16 +153,6 @@ class ResultsManager {
       api,
       token
     });
-  }
-
-  async getJsonPath2({ token, api }) {
-    const session = await this._sessionManager.getSession(token);
-    return {
-      inputDir: this._resultsDirectoryPath,
-      token,
-      api,
-      filename: this._getFileName(session.getUserAgent())
-    };
   }
 
   async saveApiResults({ token, api }) {

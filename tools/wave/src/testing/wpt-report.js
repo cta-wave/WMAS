@@ -39,39 +39,20 @@ class WptReport {
   async generateMultiReport({
     outputHtmlDirectoryPath,
     specName,
-    resultJsonFilePaths,
+    resultJsonFiles,
     referenceDir
   }) {
     await Promise.all(
-      resultJsonFilePaths
-        .map(async resultJsonFilePath =>
-          (await FileSystem.exists(
-            path.join(
-              resultJsonFilePath.inputDir,
-              resultJsonFilePath.token,
-              resultJsonFilePath.api,
-              resultJsonFilePath.filename
-            )
-          ))
-            ? resultJsonFilePath
-            : null
-        )
-        .map(async promise => {
-          const resultJson = await promise;
-          if (!resultJson) return;
-          return FileSystem.copyFile(
-            path.join(
-              resultJson.inputDir,
-              resultJson.token,
-              resultJson.api,
-              resultJson.filename
-            ),
-            path.join(
-              outputHtmlDirectoryPath,
-              resultJson.token + "-" + resultJson.filename
-            )
-          );
-        })
+      resultJsonFiles.map(async resultJsonFile => {
+        if (!(await FileSystem.exists(resultJsonFile.path))) return;
+        return FileSystem.copyFile(
+          resultJsonFile.path,
+          path.join(
+            outputHtmlDirectoryPath,
+            resultJsonFile.token + "-" + resultJsonFile.path.split("/").pop()
+          )
+        );
+      })
     );
     await this.generateReport({
       inputJsonDirectoryPath: outputHtmlDirectoryPath,

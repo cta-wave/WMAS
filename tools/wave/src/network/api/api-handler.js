@@ -52,6 +52,23 @@ class ApiHandler {
     url = url.split("/");
     return url.filter(part => part !== "");
   }
+
+  sendFile({ response, blob, filePath, fileName }) {
+    response.set(
+      "Content-Disposition",
+      'attachment;filename="' + fileName + '"'
+    );
+    if (blob) {
+      response.send(blob);
+      return;
+    }
+    response.sendFile(filePath);
+  }
+
+  sendZip(options) {
+    options.response.set("Content-Type", "application/x-compressed");
+    this.sendFile(options);
+  }
 }
 
 module.exports = ApiHandler;

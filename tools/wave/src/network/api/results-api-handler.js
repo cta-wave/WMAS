@@ -94,24 +94,32 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   async _downloadResultApiJson({ request, response }) {
+    try {
     const url = this.parseUrl(request);
     const token = url[1];
     const api = url[2];
     const filePath = await this._resultsManager.getJsonPath({ token, api });
-    const fileName =
-      token.split("-").shift() + "-" + api + "-" + filePath.split("/").pop();
-    response.set(
-      "Content-Disposition",
-      'attachment;filename="' + fileName + '"'
-    );
-    response.sendFile(filePath);
+    const fileName = `${token.split("-").shift()}-${api}-${filePath
+      .split("/")
+      .pop()}`;
+    this.sendFile({ response, fileName, filePath });
+  } catch (error) {
+    console.error("Failed to download api result json:", error);
+    response.status(500).send();
+  }
   }
 
   async _downloadResultHtml({ request, response }) {
+    try {
     const url = this.parseUrl(request);
     const token = url[1];
     const blob = await this._resultsManager.exportResults(token);
-    this._sendZip({ blob, response, token });
+    const fileName = token.split("-")[0] + "_results_html.zip";
+    this.sendZip({ blob, response, fileName });
+  } catch (error) {
+    console.error("Failed to download result html:", error);
+    response.status(500).send();
+  }
   }
 
   getRoutes() {
@@ -163,16 +171,6 @@ class ResultsApiHandler extends ApiHandler {
       }
     }
     next();
-  }
-
-  async _sendZip({ blob, response, token }) {
-    const fileName = token.split("-")[0] + "_results_html.zip";
-    response.set(
-      "Content-Disposition",
-      'attachment;filename="' + fileName + '"'
-    );
-    response.set("Content-Type", "application/x-compressed");
-    response.send(blob);
   }
 }
 
