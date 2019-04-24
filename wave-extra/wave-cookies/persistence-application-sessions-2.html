@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Tests cookies persistence between application sessions</title>
+  <meta name=help href="https://tools.ietf.org/html/rfc6265#page-8">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="resources/cookies-helper.js"></script>
+</head>
+<body style="background:#EEE">
+  <h3>Devices MUST support persistence of cookies between application sessions</h3>
+  <script>
+    setup({ explicit_timeout: true });
+    var cookieContent = getCookie("persistence_application");
+    test(function () {
+      assert_equals(cookieContent, "persistence_application_test");
+    }, "Persistence of cookies between application sessions");
+    done();
+    deleteCookie("persistence_application", "/");
+  </script>
+</body>
+</html>

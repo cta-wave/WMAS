@@ -1,0 +1,18 @@
+{
+  "name": "remote-runner",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "fs-extra": "^7.0.1",
+    "jszip": "^3.1.5",
+    "nedb": "^1.8.0",
+    "useragent": "^2.3.0",
+    "uuid": "^3.2.1",
+    "wptreport": "https://github.com/fraunhoferfokus/wptreport.git",
+    "ws": "^5.2.0"
+  }
+}

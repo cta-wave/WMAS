@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Support 2047 bytes url</title>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <div id=log></div>
+  <script>
+
+    const iframeSrc = "/wave-cookies/iframe/iframe-helper.html?testParams=";
+    var current_location = location.protocol + '//' + location.host;
+
+    var test1 = async_test("Support URLs up to a length of 1047 bytes");
+    var test2 = async_test("Support URLs up to a length of 1547 bytes");
+    var test3 = async_test("Support URLs up to a length of 2047 bytes");
+
+    window.onload = function() {
+
+     var urlParam = strRepeat('a', 1047 - (current_location.length + iframeSrc.length));
+     var iframe_1 = document.createElement('iframe');
+     iframe_1.style.display = "none";
+     iframe_1.src = iframeSrc + urlParam;
+     iframe_1.onload = function (){
+      test1.step(function() {
+        assert_equals(iframe_1.contentWindow.location.href.length, 1047);
+      });
+      test1.done()
+    }
+
+    var urlParam = strRepeat('a', 1547 - (current_location.length + iframeSrc.length));
+    var iframe_2 = document.createElement('iframe');
+    iframe_2.style.display = "none";
+    iframe_2.src = iframeSrc + urlParam;
+    iframe_2.onload = function (){
+      test2.step(function() {
+        assert_equals(iframe_2.contentWindow.location.href.length, 1547);
+      });
+      test2.done()
+    }
+
+    var urlParam = strRepeat('a', 2047 - (current_location.length + iframeSrc.length));
+    var iframe_3 = document.createElement('iframe');
+    iframe_3.style.display = "none";
+    iframe_3.src = iframeSrc + urlParam;
+    iframe_3.onload = function (){
+      test3.step(function() {
+        assert_equals(iframe_3.contentWindow.location.href.length, 2047);
+      });
+      test3.done()
+    }
+
+    document.body.appendChild(iframe_1);
+    document.body.appendChild(iframe_2);
+    document.body.appendChild(iframe_3);
+
+  };
+
+  function strRepeat(str, qty) {
+    if (qty < 1) return '';
+    var result = '';
+    while (qty > 0) {
+      if (qty & 1) result += str;
+      qty >>= 1, str += str;
+    }
+    return result;
+  };
+
+
+</script>
+</script>
+</body>
+</html>

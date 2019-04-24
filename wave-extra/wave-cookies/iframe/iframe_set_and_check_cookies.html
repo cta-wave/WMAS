@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>IFrame set and check coookies</title>
+  <script src="../resources/cookies-helper.js"></script>
+</head>
+<body>
+  <script>
+    const query = window.location.search.substring(1);
+    const vars = query.split("&");
+    const pairs = vars[0].split("=");
+    const testName = pairs[1];
+
+    for(var i=0; i<20; i++){
+      setCookie(testName+i, testName+i, 1);
+    }
+
+    setTimeout(function() {
+      var allCookiesSet = true;
+      for(var i=0; i<20; i++){
+        var cookiesValue = getCookie(testName+i);
+        if(getCookie(testName+i) == null){
+          allCookiesSet = false;
+          break;
+        }
+      }
+      parent.postMessage(allCookiesSet,"*");
+      for(var i=0; i<20; i++){
+        deleteCookie(testName+i, "/");
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Results - Web Platform Test</title>
+    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
+    <script src="lib/utils.js"></script>
+    <script src="lib/wave-service.js"></script>
+    <script src="lib/ui.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        font-family: "Noto Sans", sans-serif;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: white;
+        color: #000;
+      }
+
+      .site-logo {
+        max-width: 300px;
+        margin: 50px 0 30px -15px;
+      }
+
+      .content {
+        width: 1000px;
+        padding: 0 10px;
+      }
+
+      .disabled-row {
+        color: gray;
+        background: lightgray;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.onload = () => {
+        const query = utils.parseQuery(location.search);
+        if (query.token) {
+          location.href = "result.html" + location.search;
+        }
+        resultsUi.render();
+        resultsUi.loadData();
+      };
+
+      const resultsUi = {
+        state: {
+          comparison: [],
+          recentSessions: null
+        },
+        loadData() {
+          const pinnedSessions = WaveService.getPinnedSessions().filter(
+            token => !!token
+          );
+          const recentSessions = WaveService.getRecentSessions().filter(
+            token => !!token
+          );
+
+          pinnedSessions.forEach(token => {
+            const index = recentSessions.indexOf(token);
+            if (index !== -1) recentSessions.splice(index, 1);
+          });
+          WaveService.setRecentSessions(recentSessions);
+
+          let allSessions = [];
+          allSessions = allSessions.concat(pinnedSessions);
+          allSessions = allSessions.concat(recentSessions);
+
+          WaveService.getPublicSessions(publicSessions => {
+            publicSessions.forEach(token => {
+              const index = recentSessions.indexOf(token);
+              if (index !== -1) recentSessions.splice(index, 1);
+            });
+            WaveService.setRecentSessions(recentSessions);
+            allSessions = allSessions.concat(publicSessions);
+            WaveService.getSessionDetails(allSessions, sessionDetails => {
+              sessionDetails = sessionDetails.filter(session => !!session);
+              allSessions
+                .filter(
+                  token =>
+                    !sessionDetails.some(session => session.token === token)
+                )
+                .forEach(token => {
+                  WaveService.removePinnedSession(token);
+                  WaveService.removeRecentSession(token);
+                });
+              resultsUi.state.publicSessions = publicSessions;
+              resultsUi.state.pinnedSessions = WaveService.getPinnedSessions();
+              resultsUi.state.recentSessions = WaveService.getRecentSessions();
+
+              const sessions = {};
+              sessionDetails.forEach(
+                session => (sessions[session.token] = session)
+              );
+              resultsUi.state.sessions = sessions;
+
+              const referenceTokens = [];
+              const loadedSessionsTokens = Object.keys(sessions);
+              sessionDetails.forEach(session =>
+                session.reference_tokens
+                  .filter(token => loadedSessionsTokens.indexOf(token) === -1)
+                  .forEach(token => referenceTokens.push(token))
+              );
+              WaveService.getSessionDetails(referenceTokens, sessionDetails => {
+                const { sessions } = resultsUi.state;
+                sessionDetails.forEach(
+                  session => (sessions[session.token] = session)
+                );
+                resultsUi.renderPublicSessions();
+                resultsUi.renderPinnedSessions();
+                resultsUi.renderRecentSessions();
+              });
+            });
+          });
+        },
+        findSession(fragment, callback) {
+          if (!fragment || fragment.length < 8) return;
+          WaveService.findToken(fragment, token => {
+            if (!token) {
+              callback(null);
+              return;
+            }
+            WaveService.getSessionDetails(token, session => {
+              callback(session);
+            });
+          });
+        },
+        addSession(session) {
+          const token = session.token;
+          if (resultsUi.state.sessions[token]) return;
+          resultsUi.state.sessions[token] = session;
+          resultsUi.pinSession(token);
+        },
+        removeSession(token) {
+          delete resultsUi.state.sessions[token];
+          WaveService.removeRecentSession(token);
+          WaveService.removePinnedSession(token);
+          resultsUi.updateSessionState();
+        },
+        showAddSessionError() {
+          const errorBox = UI.getElement("find-error");
+          errorBox.setAttribute("style", "display: block");
+        },
+        hideAddSessionError() {
+          const errorBox = UI.getElement("find-error");
+          errorBox.setAttribute("style", "display: none");
+        },
+        pinSession(token) {
+          WaveService.addPinnedSession(token);
+          WaveService.removeRecentSession(token);
+          resultsUi.updateSessionState();
+        },
+        unpinSession(token) {
+          WaveService.removePinnedSession(token);
+          WaveService.addRecentSession(token);
+          resultsUi.updateSessionState();
+        },
+        updateSessionState() {
+          resultsUi.state.pinnedSessions = WaveService.getPinnedSessions();
+          resultsUi.state.recentSessions = WaveService.getRecentSessions();
+          resultsUi.renderPinnedSessions();
+          resultsUi.renderRecentSessions();
+        },
+        openSessionResult(token) {
+          location.href = `result.html?token=${token}`;
+        },
+        compareSessions(reftokens) {
+          if (!resultsUi.isComparisonValid()) return;
+          const tokens = resultsUi.state.comparison;
+          if (!tokens || tokens.length === 0) return;
+          const refQuery = reftokens ? `&reftokens=${reftokens}` : "";
+          location.href = `/comparison.html?tokens=${tokens.join(
+            ","
+          )}${refQuery}`;
+        },
+        isComparisonValid() {
+          const { comparison, sessions } = resultsUi.state;
+          if (!comparison) return false;
+          if (comparison.length <= 1) return false;
+          const comparingSessions = comparison.map(token => sessions[token]);
+          const referenceTokens = comparingSessions[0].reference_tokens;
+          for (let comparingSession of comparingSessions) {
+            const comparingReferenceTokens = comparingSession.reference_tokens;
+            if (referenceTokens.length !== comparingReferenceTokens.length)
+              return false;
+            for (let token of comparingReferenceTokens) {
+              if (referenceTokens.indexOf(token) === -1) return false;
+            }
+          }
+          return true;
+        },
+        isSessionValidForComparison(session) {
+          if (!session) return false;
+          if (session.status !== "completed" && session.status !== "aborted")
+            return false;
+          const sessionRefTokens = session.reference_tokens;
+          const comparisonSession =
+            resultsUi.state.sessions[resultsUi.state.comparison[0]];
+          if (!comparisonSession) return true;
+          const comparisonRefTokens = comparisonSession.reference_tokens;
+          if (!comparisonRefTokens) return true;
+          if (sessionRefTokens.length !== comparisonRefTokens.length)
+            return false;
+          if (
+            sessionRefTokens.some(
+              token => comparisonRefTokens.indexOf(token) === -1
+            )
+          )
+            return false;
+          return true;
+        },
+        isSessionSelectedForComparison(session) {
+          return resultsUi.state.comparison.indexOf(session.token) !== -1;
+        },
+        isSessionDisabled(session) {
+          return (
+            resultsUi.state.comparison.length > 0 &&
+            !resultsUi.isSessionValidForComparison(session)
+          );
+        },
+        addSessionToComparison(token) {
+          if (resultsUi.state.comparison.indexOf(token) !== -1) return;
+          resultsUi.state.comparison.push(token);
+          resultsUi.updateCompareButton();
+          resultsUi.renderSessions();
+        },
+        removeSessionFromComparison(token) {
+          const index = resultsUi.state.comparison.indexOf(token);
+          if (index === -1) return;
+          resultsUi.state.comparison.splice(index, 1);
+          resultsUi.updateCompareButton();
+          resultsUi.renderSessions();
+        },
+        handleAddSession() {
+          const tokenFragmentInput = UI.getElement("token-fragment");
+          const fragment = tokenFragmentInput.value;
+          resultsUi.findSession(fragment, session => {
+            if (!session) {
+              resultsUi.showAddSessionError();
+              return;
+            }
+            tokenFragmentInput.value = "";
+            resultsUi.hideAddSessionError();
+            resultsUi.addSession(session);
+          });
+        },
+        render() {
+          const { getRoot, createElement, getElement } = UI;
+          const resultsView = UI.createElement({
+            className: "content",
+            children: [
+              {
+                element: "img",
+                src: "res/wavelogo_2016.jpg",
+                className: "site-logo"
+              },
+              { text: "Results", className: "title" },
+              { text: "Manage Sessions", className: "title is-4" },
+              {
+                className: "columns",
+                children: [
+                  {
+                    className: "column",
+                    children: [
+                      { text: "Add Sessions", className: "title is-5" },
+                      {
+                        element: "article",
+                        className: "message is-danger",
+                        id: "find-error",
+                        children: [
+                          {
+                            text:
+                              "Could not find any sessions! Try adding more characters of the token.",
+                            className: "message-body"
+                          }
+                        ],
+                        style: "display: none"
+                      },
+                      {
+                        element: "label",
+                        text: "Session token:"
+                      },
+                      {
+                        style: "display: flex; margin-bottom: 10px;",
+                        children: [
+                          {
+                            element: "input",
+                            inputType: "text",
+                            className: "input is-family-monospace",
+                            id: "token-fragment",
+                            placeholder:
+                              "First 8 characters or more of session token",
+                            onKeyDown: event =>
+                              event.key === "Enter"
+                                ? resultsUi.addSession()
+                                : null
+                          }
+                        ]
+                      },
+                      {
+                        style: "text-align: right",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-plus"
+                                  }
+                                ]
+                              },
+                              { text: "Add Session", element: "span" }
+                            ],
+                            style: "margin-left: 20px",
+                            onclick: resultsUi.handleAddSession
+                          }
+                        ]
+                      }
+                      // {
+                      //   className: "button is-dark is-outlined",
+                      //   text: "View Results",
+                      //   onclick: () => {
+                      //     const fragment = getElement("token-fragment").value;
+                      //     if (!fragment || fragment.length < 8) return;
+                      //     WaveService.findToken(fragment, token => {
+                      //       if (token) {
+                      //         location.href = "/result.html?token=" + token;
+                      //       } else {
+                      //         const errorBox = getElement("find-error");
+                      //         errorBox.setAttribute(
+                      //           "style",
+                      //           "display: block"
+                      //         );
+                      //       }
+                      //     });
+                      //   }
+                      // }
+                    ]
+                  },
+                  {
+                    className: "column",
+                    children: [
+                      { text: "Compare Sessions", className: "title is-5" },
+                      {
+                        element: "label",
+                        text:
+                          "Compare sessions by selecting them in the list below. " +
+                          "Only sessions with the same set of reference sessions can be compared. " +
+                          "Sessions have to be finished."
+                      },
+                      // {
+                      //   element: "label",
+                      //   text: "Session token as reference (optional):"
+                      // },
+                      // {
+                      //   style: "display: flex; margin-bottom: 10px",
+                      //   children: [
+                      //     {
+                      //       element: "input",
+                      //       className: "input is-family-monospace",
+                      //       style: "flex: 1;",
+                      //       id: "token-reference",
+                      //       placeholder:
+                      //         "First 8 characters or more of session token"
+                      //     }
+                      //   ]
+                      // },
+                      {
+                        style: "text-align: right",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            disabled: true,
+                            id: "compare-button",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-balance-scale"
+                                  }
+                                ]
+                              },
+                              { text: "Compare Selected", element: "span" }
+                            ],
+                            onClick: () => resultsUi.compareSessions()
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              { id: "sessions" }
+            ]
+          });
+
+          const root = UI.getRoot();
+          root.innerHTML = "";
+          root.appendChild(resultsView);
+
+          resultsUi.renderSessions();
+        },
+        renderSessions() {
+          const sessionsView = UI.getElement("sessions");
+          sessionsView.innerHTML = "";
+          sessionsView.appendChild(
+            UI.createElement({ text: "Sessions", className: "title is-4" })
+          );
+          sessionsView.appendChild(UI.createElement({ id: "public-sessions" }));
+          sessionsView.appendChild(UI.createElement({ id: "pinned-sessions" }));
+          sessionsView.appendChild(UI.createElement({ id: "recent-sessions" }));
+          sessionsView.appendChild(UI.createElement({ id: "session-status" }));
+          resultsUi.renderPublicSessions();
+          resultsUi.renderPinnedSessions();
+          resultsUi.renderRecentSessions();
+        },
+        renderPublicSessions() {
+          resultsUi.renderSessionStatus();
+          const { sessions, publicSessions } = resultsUi.state;
+          const publicSessionsView = UI.getElement("public-sessions");
+          publicSessionsView.innerHTML = "";
+          if (!publicSessions || publicSessions.length === 0) return;
+          publicSessionsView.appendChild(
+            UI.createElement({
+              text: "Reference Browsers",
+              className: "title is-5"
+            })
+          );
+          publicSessionsView.appendChild(
+            resultsUi.createSessionsTable(
+              publicSessions
+                .map(token => sessions[token])
+                .sort(
+                  (sessionA, sessionB) =>
+                    sessionB.date_started - sessionA.date_started
+                ),
+              { static: true }
+            )
+          );
+          publicSessionsView.appendChild(
+            UI.createElement({ style: "content: ''; margin-bottom: 40px" })
+          );
+        },
+        renderPinnedSessions() {
+          resultsUi.renderSessionStatus();
+          const { sessions, pinnedSessions } = resultsUi.state;
+          const pinnedSessionsView = UI.getElement("pinned-sessions");
+          pinnedSessionsView.innerHTML = "";
+          if (!pinnedSessions || pinnedSessions.length === 0) return;
+          pinnedSessionsView.appendChild(
+            UI.createElement({ text: "Pinned", className: "title is-5" })
+          );
+          pinnedSessionsView.appendChild(
+            resultsUi.createSessionsTable(
+              pinnedSessions
+                .map(token => sessions[token])
+                .sort(
+                  (sessionA, sessionB) =>
+                    sessionB.date_started - sessionA.date_started
+                ),
+              { pinned: true }
+            )
+          );
+          pinnedSessionsView.appendChild(
+            UI.createElement({ style: "content: ''; margin-bottom: 40px" })
+          );
+        },
+        renderRecentSessions() {
+          resultsUi.renderSessionStatus();
+          const { sessions, recentSessions, pinnedSessions } = resultsUi.state;
+          const recentSessionsView = UI.getElement("recent-sessions");
+          recentSessionsView.innerHTML = "";
+          if (!recentSessions || recentSessions.length === 0) return;
+          recentSessionsView.appendChild(
+            UI.createElement({ text: "Recent", className: "title is-5" })
+          );
+          recentSessionsView.appendChild(
+            resultsUi.createSessionsTable(
+              recentSessions
+                .map(token => sessions[token])
+                .sort(
+                  (sessionA, sessionB) =>
+                    sessionB.date_started - sessionA.date_started
+                ),
+              { pinned: false }
+            )
+          );
+          recentSessionsView.appendChild(
+            UI.createElement({ style: "content: ''; margin-bottom: 40px" })
+          );
+        },
+        renderSessionStatus() {
+          const {
+            recentSessions,
+            pinnedSessions,
+            publicSessions
+          } = resultsUi.state;
+          const sessionStatusView = UI.getElement("session-status");
+          sessionStatusView.innerHTML = "";
+          if (!recentSessions && !pinnedSessions && !publicSessions) {
+            sessionStatusView.appendChild(
+              UI.createElement({
+                className: "level",
+                children: {
+                  element: "span",
+                  className: "level-item icon",
+                  children: [
+                    {
+                      element: "i",
+                      className: "fas fa-spinner fa-pulse"
+                    },
+                    {
+                      style: "margin-left: 0.4em;",
+                      text: "Loading sessions ..."
+                    }
+                  ]
+                }
+              })
+            );
+            return;
+          } else if (
+            (!recentSessions || recentSessions.length === 0) &&
+            (!pinnedSessions || pinnedSessions.length === 0) &&
+            (!publicSessions || publicSessions.length === 0)
+          ) {
+            sessionStatusView.appendChild(
+              UI.createElement({
+                className: "level",
+                children: {
+                  element: "span",
+                  className: "level-item",
+                  text: "No sessions available."
+                }
+              })
+            );
+            return;
+          }
+        },
+        createSessionsTable(sessions, { pinned = false, static = false } = {}) {
+          const getTagStyle = status => {
+            switch (status) {
+              case "completed":
+                return "is-success";
+              case "running":
+                return "is-info";
+              case "aborted":
+                return "is-danger";
+              case "paused":
+                return "is-warning";
+            }
+          };
+          return UI.createElement({
+            element: "table",
+            className: "table is-bordered is-hoverable is-fullwidth",
+            children: [
+              {
+                element: "thead",
+                children: {
+                  element: "tr",
+                  children: [
+                    {
+                      element: "td",
+                      style: "text-decoration: underline dotted",
+                      text: "Cp",
+                      title: "Select for comparison"
+                    },
+                    { element: "td", text: "Token" },
+                    { element: "td", text: "Browser" },
+                    { element: "td", text: "Status" },
+                    { element: "td", text: "User Agent" },
+                    { element: "td", text: "Date Started" },
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          text: "RefS",
+                          title: "Reference Sessions",
+                          style: "text-decoration: underline dotted"
+                        },
+                    static
+                      ? null
+                      : { element: "td", colspan: 2, text: "Options" }
+                  ]
+                }
+              },
+              {
+                element: "tbody",
+                children: sessions.map(session => ({
+                  element: "tr",
+                  className: resultsUi.isSessionDisabled(session)
+                    ? "disabled-row"
+                    : "",
+                  style: "cursor: pointer",
+                  onclick: () => resultsUi.openSessionResult(session.token),
+                  children: [
+                    {
+                      element: "td",
+                      onclick: event => event.stopPropagation(),
+                      style: "text-align: center;",
+                      children: [
+                        {
+                          element: "input",
+                          className: "checkbox",
+                          style:
+                            "width: 18px; height: 18px; vertical-align: middle;",
+                          type: "checkbox",
+                          disabled: !resultsUi.isSessionValidForComparison(
+                            session
+                          ),
+                          checked: resultsUi.isSessionSelectedForComparison(
+                            session
+                          ),
+                          onchange: event =>
+                            event.target.checked
+                              ? resultsUi.addSessionToComparison(session.token)
+                              : resultsUi.removeSessionFromComparison(
+                                  session.token
+                                )
+                        }
+                      ]
+                    },
+                    {
+                      element: "td",
+                      className: "is-family-monospace",
+                      style: "vertical-align: middle;",
+                      text: session.token.split("-").shift()
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle",
+                      text: session.browser.name + " " + session.browser.version
+                    },
+                    {
+                      element: "td",
+                      style: "vertical-align: middle; text-align: center",
+                      children: [
+                        {
+                          className: `tag ${getTagStyle(session.status)}`,
+                          text: session.status
+                        }
+                      ]
+                    },
+                    {
+                      element: "td",
+                      text: `${session.user_agent.substr(0, 25)} ...`,
+                      title: session.user_agent
+                    },
+                    {
+                      element: "td",
+                      text: new Date(session.date_started).toLocaleString()
+                    },
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          title: session.reference_tokens
+                            .map(token => token.split("-").shift())
+                            .sort((tokenA, tokenB) => tokenA - tokenB)
+                            .join("\n"),
+                          children: (() => {
+                            const tokens = session.reference_tokens.slice();
+                            let overflow = 0;
+                            if (tokens.length > 3) {
+                              overflow = tokens.length - 2;
+                            }
+                            if (overflow > 0) tokens.splice(2, overflow + 2);
+                            const children = tokens.map(token => {
+                              let icon = "";
+                              const session = resultsUi.state.sessions[token];
+                              switch (session.browser.name.toLowerCase()) {
+                                case "firefox":
+                                  icon = "fab fa-firefox";
+                                  break;
+                                case "edge":
+                                  icon = "fab fa-edge";
+                                  break;
+                                case "chrome":
+                                case "chromium":
+                                  icon = "fab fa-chrome";
+                                  break;
+                                case "safari":
+                                case "webkit":
+                                  icon = "fab fa-safari";
+                                  break;
+                              }
+                              return {
+                                element: "span",
+                                style:
+                                  "margin-right: 5px; vertical-align: middle;",
+                                children: { element: "i", className: icon }
+                              };
+                            });
+
+                            if (overflow > 0)
+                              children.push({
+                                element: "span",
+                                style: "vertical-align: middle",
+                                className: "is-size-7",
+                                text: `+${overflow}`
+                              });
+
+                            return children;
+                          })()
+                        },
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          style: "vertical-align: middle; text-align: center",
+                          className: "is-paddingless",
+                          children: [
+                            {
+                              className: "button is-dark is-outlined is-small",
+                              title: pinned ? "Unpin session" : "Pin session",
+                              style: "margin: 5px",
+                              children: [
+                                {
+                                  element: "span",
+                                  className: "icon",
+                                  children: [
+                                    {
+                                      element: "i",
+                                      className: "fas fa-thumbtack",
+                                      style: pinned
+                                        ? ""
+                                        : "transform: rotate(45deg)"
+                                    }
+                                  ]
+                                }
+                              ],
+                              onclick: event => {
+                                event.stopPropagation();
+                                if (pinned) {
+                                  resultsUi.unpinSession(session.token);
+                                } else {
+                                  resultsUi.pinSession(session.token);
+                                }
+                              }
+                            }
+                          ]
+                        },
+                    static
+                      ? null
+                      : {
+                          element: "td",
+                          style: "vertical-align: middle; text-align: center",
+                          className: "is-paddingless",
+                          children: [
+                            {
+                              className: "button is-dark is-outlined is-small",
+                              title: "Remove session from list",
+                              style: "margin: 5px",
+                              children: [
+                                {
+                                  element: "span",
+                                  className: "icon",
+                                  children: [
+                                    {
+                                      element: "i",
+                                      className: "fas fa-trash-alt"
+                                    }
+                                  ]
+                                }
+                              ],
+                              onclick: event => {
+                                event.stopPropagation();
+                                resultsUi.removeSession(session.token);
+                              }
+                            }
+                          ]
+                        }
+                  ]
+                }))
+              }
+            ]
+          });
+        },
+        updateCompareButton: () => {
+          const compareButton = UI.getElement("compare-button");
+          if (resultsUi.isComparisonValid()) {
+            compareButton.removeAttribute("disabled");
+          } else {
+            compareButton.setAttribute("disabled", true);
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

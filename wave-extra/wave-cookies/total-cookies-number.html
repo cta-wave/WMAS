@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Devices support at least 100 total cookies</title>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="resources/testharness-helpers.js"></script>
+</head>
+<body>
+  setting cookies...
+  <div id=log></div>
+  <script>
+
+    window.onload = function() {
+      const iframeFile = "/wave-extra/wave-cookies/iframe/iframe_set_and_check_cookies.html?testParams=";
+      const subDomains = ['www','www1','www2','xn--lve-6lad','xn--n8j6ds53lwwkrqhv28a'];
+      const host = location.host;
+      for(var i=0; i< 5; i++){
+        var iframe = document.createElement('iframe');
+        iframe.style.display = "none";
+        iframe.src = "http://" + subDomains[i] + '.' + host + iframeFile + "iframe"+ i;
+        document.body.appendChild(iframe);
+      }
+    };
+
+    var recievedResponsNumber = 0;
+    var successfullyWritedCookiesNumber = 0;
+    window.addEventListener('message', function(e) {
+      recievedResponsNumber ++;
+      var message = e.data;
+      if(e.data == true){
+        successfullyWritedCookiesNumber = recievedResponsNumber * 20;
+      }
+      if(recievedResponsNumber == 5){
+        test(function () {
+          assert_equals(successfullyWritedCookiesNumber, 100);
+        }, "Devices support at least 100 total cookies");
+        done();
+      }
+    });
+
+  </script>
+</body>
+</html>
