@@ -3,7 +3,6 @@ from __future__ import print_function, unicode_literals
 import abc
 import argparse
 import ast
-import itertools
 import json
 import os
 import re
@@ -17,8 +16,9 @@ from . import fnmatch
 from .. import localpaths
 from ..gitignore.gitignore import PathFilter
 from ..wpt import testfiles
+from ..manifest.vcs import walk
 
-from manifest.sourcefile import SourceFile, js_meta_re, python_meta_re, space_chars
+from manifest.sourcefile import SourceFile, js_meta_re, python_meta_re, space_chars, get_any_variants, get_default_any_variants
 from six import binary_type, iteritems, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urljoin
@@ -50,7 +50,7 @@ setup_logging()
 
 
 ERROR_MSG = """You must fix all errors; for details on how to fix them, see
-http://web-platform-tests.org/writing-tests/lint-tool.html
+https://web-platform-tests.org/writing-tests/lint-tool.html
 
 However, instead of fixing a particular error, it's sometimes
 OK to add a line to the lint.whitelist file in the root of the
@@ -68,14 +68,14 @@ def all_filesystem_paths(repo_root, subdir=None):
         expanded_path = subdir
     else:
         expanded_path = repo_root
-    for dirpath, dirnames, filenames in os.walk(expanded_path):
-        for filename in filenames:
-            path = os.path.relpath(os.path.join(dirpath, filename), repo_root)
-            if path_filter(path):
-                yield path
-        dirnames[:] = [item for item in dirnames if
-                       path_filter(os.path.relpath(os.path.join(dirpath, item) + "/",
-                                                   repo_root)+"/")]
+    for dirpath, dirnames, filenames in path_filter(walk(expanded_path)):
+        for filename, _ in filenames:
+            path = os.path.join(dirpath, filename)
+            if subdir:
+                path = os.path.join(subdir, path)
+            assert not os.path.isabs(path), path
+            yield path
+
 
 def _all_files_equal(paths):
     """
@@ -157,7 +157,7 @@ def check_git_ignore(repo_root, paths):
                 if filter_string[0] != '!':
                     errors += [("IGNORED PATH", "%s matches an ignore filter in .gitignore - "
                                 "please add a .gitignore exception" % path, path, None)]
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             # Nonzero return code means that no match exists.
             pass
     return errors
@@ -217,7 +217,8 @@ def check_css_globally_unique(repo_root, paths):
         elif source_file.name_is_reference:
             ref_files[source_file.name].add(path)
         else:
-            test_files[source_file.name].add(path)
+            name = source_file.name.replace('-manual', '')
+            test_files[name].add(path)
 
     errors = []
 
@@ -443,7 +444,7 @@ def check_parsed(repo_root, path, f):
             not source_file.spec_links):
             return [("MISSING-LINK", "Testcase file must have a link to a spec", path, None)]
 
-    if source_file.name_is_non_test or source_file.name_is_manual:
+    if source_file.name_is_non_test:
         return []
 
     if source_file.markup_type is None:
@@ -453,15 +454,20 @@ def check_parsed(repo_root, path, f):
         return [("PARSE-FAILED", "Unable to parse file", path, None)]
 
     if source_file.type == "manual" and not source_file.name_is_manual:
-        return [("CONTENT-MANUAL", "Manual test whose filename doesn't end in '-manual'", path, None)]
+        errors.append(("CONTENT-MANUAL", "Manual test whose filename doesn't end in '-manual'", path, None))
 
     if source_file.type == "visual" and not source_file.name_is_visual:
-        return [("CONTENT-VISUAL", "Visual test whose filename doesn't end in '-visual'", path, None)]
+        errors.append(("CONTENT-VISUAL", "Visual test whose filename doesn't end in '-visual'", path, None))
 
+    about_blank_parts = urlsplit("about:blank")
     for reftest_node in source_file.reftest_nodes:
         href = reftest_node.attrib.get("href", "").strip(space_chars)
         parts = urlsplit(href)
-        if (parts.scheme or parts.netloc) and parts != urlsplit("about:blank"):
+
+        if parts == about_blank_parts:
+            continue
+
+        if (parts.scheme or parts.netloc):
             errors.append(("ABSOLUTE-URL-REF",
                      "Reference test with a reference file specified via an absolute URL: '%s'" % href, path, None))
             continue
@@ -616,6 +622,31 @@ broken_js_metadata = re.compile(b"//\s*META:")
 broken_python_metadata = re.compile(b"#\s*META:")
 
 
+def check_global_metadata(value):
+    global_values = {item.strip() for item in value.split(b",") if item.strip()}
+
+    included_variants = set.union(get_default_any_variants(),
+                                  *(get_any_variants(v) for v in global_values if not v.startswith(b"!")))
+
+    for global_value in global_values:
+        if global_value.startswith(b"!"):
+            excluded_value = global_value[1:]
+            if not get_any_variants(excluded_value):
+                yield ("UNKNOWN-GLOBAL-METADATA", "Unexpected value for global metadata")
+
+            elif excluded_value in global_values:
+                yield ("BROKEN-GLOBAL-METADATA", "Cannot specify both %s and %s" % (global_value, excluded_value))
+
+            else:
+                excluded_variants = get_any_variants(excluded_value)
+                if not (excluded_variants & included_variants):
+                    yield ("BROKEN-GLOBAL-METADATA", "Cannot exclude %s if it is not included" % (excluded_value,))
+
+        else:
+            if not get_any_variants(global_value):
+                yield ("UNKNOWN-GLOBAL-METADATA", "Unexpected value for global metadata")
+
+
 def check_script_metadata(repo_root, path, f):
     if path.endswith((".worker.js", ".any.js")):
         meta_re = js_meta_re
@@ -634,10 +665,16 @@ def check_script_metadata(repo_root, path, f):
         m = meta_re.match(line)
         if m:
             key, value = m.groups()
-            if key == b"timeout":
+            if key == b"global":
+                errors.extend((kind, message, path, idx + 1) for (kind, message) in check_global_metadata(value))
+            elif key == b"timeout":
                 if value != b"long":
                     errors.append(("UNKNOWN-TIMEOUT-METADATA", "Unexpected value for timeout metadata", path, idx + 1))
+            elif key == b"title":
+                pass
             elif key == b"script":
+                pass
+            elif key == b"variant":
                 pass
             else:
                 errors.append(("UNKNOWN-METADATA", "Unexpected kind of metadata", path, idx + 1))
@@ -786,8 +823,6 @@ def create_parser():
                         help="Output machine-readable JSON format")
     parser.add_argument("--markdown", action="store_true",
                         help="Output markdown")
-    parser.add_argument("--css-mode", action="store_true",
-                        help="Run CSS testsuite specific lints")
     parser.add_argument("--repo-root", help="The WPT directory. Use this"
                         "option if the lint script exists outside the repository")
     parser.add_argument("--all", action="store_true", help="If no paths are passed, try to lint the whole "

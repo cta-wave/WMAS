@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Persistence of cookies across power cycles of the device</title>
+  <meta name=help href="https://tools.ietf.org/html/rfc6265#page-8">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="resources/cookies-helper.js"></script>
+</head>
+<body style="background:#EEE">
+  <h3>Manual Test: Devices MUST support persistence of cookies across power cycles of the device</h3>
+  Please copy the following link to resume the test after the relaunch: <a id="resumeLink">Link </a>
+  <h3>Please process to a power cycle of the device.</h3>
+  <script>
+    setup({ explicit_timeout: true });
+
+    (function() {
+      document.getElementById("resumeLink").setAttribute("href", getSessionURL("/test.html"));
+      document.getElementById("resumeLink").innerHTML = getSessionURL("/test.html");
+    })();
+
+    const TEST_CASE = {file: "persistence_power_cylces", value: "persistence_power_cylces_test"};
+    setCookie(TEST_CASE.file, TEST_CASE.value, 1);
+    setTimeout(function(){
+      setCookie(TEST_CASE.file, "", 1);
+      console.log("Deleted ");
+    }, 55000);
+
+  </script>
+</body>
+</html>

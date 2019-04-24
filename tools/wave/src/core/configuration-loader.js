@@ -1,98 +1,97 @@
 class ConfigurationLoader {
-  async load ({ configurationFilePath, applicationDirectoryPath }) {
+  async load({ configurationFilePath, applicationDirectoryPath }) {
     let defaultConfigurationLoaded = await this.loadDefault(
       applicationDirectoryPath
-    )
+    );
 
     let configurationLoaded = await this._loadFile({
       configurationFilePath,
       applicationDirectoryPath
-    })
+    });
 
     configurationLoaded = Object.assign(
       defaultConfigurationLoaded,
       configurationLoaded
-    )
+    );
 
-    let configuration = {}
+    let configuration = {};
 
-    const port = configurationLoaded.ports.wave[0]
+    const port = configurationLoaded.ports.wave[0];
     if (port) {
-      configuration.port = parseInt(port)
+      configuration.port = parseInt(port);
     }
 
-    const resultsDirectoryPath = configurationLoaded.results
+    const resultsDirectoryPath = configurationLoaded.results;
     if (resultsDirectoryPath) {
-      configuration.resultsDirectoryPath = path.resolve(resultsDirectoryPath)
+      configuration.resultsDirectoryPath = path.resolve(resultsDirectoryPath);
     }
 
-    const dbCompactionInterval = configurationLoaded.db_compaction_interval
+    const dbCompactionInterval = configurationLoaded.db_compaction_interval;
     if (dbCompactionInterval) {
-      configuration.dbCompactionInterval = parseInt(dbCompactionInterval)
+      configuration.dbCompactionInterval = parseInt(dbCompactionInterval);
     }
 
-    const testTimeout = configurationLoaded.timeout
+    const testTimeout = configurationLoaded.timeout;
     if (testTimeout) {
-      configuration.testTimeout = parseInt(testTimeout)
+      configuration.testTimeout = parseInt(testTimeout);
     }
-    const wptPort = configurationLoaded.ports.http[0]
+    const wptPort = configurationLoaded.ports.http[0];
 
     if (wptPort) {
-      configuration.wptPort = parseInt(wptPort)
+      configuration.wptPort = parseInt(wptPort);
     }
-    const wptSslPort = configurationLoaded.ports.https[0]
+    const wptSslPort = configurationLoaded.ports.https[0];
 
     if (wptSslPort) {
-      configuration.wptSslPort = wptSslPort
+      configuration.wptSslPort = wptSslPort;
     }
     configuration.testsDirectoryPath = path.join(
       applicationDirectoryPath,
-      '../..'
-    )
+      "../.."
+    );
 
     configuration.manifestFilePath = path.join(
       configuration.testsDirectoryPath,
-      './MANIFEST.json'
-    )
+      "./MANIFEST.json"
+    );
 
     configuration.databaseDirectoryPath = path.join(
       applicationDirectoryPath,
-      'data'
-    )
-
-    return configuration
+      "data"
+    );
+    return configuration;
   }
 
-  async _loadFile ({ configurationFilePath, applicationDirectoryPath }) {
+  async _loadFile({ configurationFilePath, applicationDirectoryPath }) {
     if (!configurationFilePath) {
       configurationFilePath = path.join(
         applicationDirectoryPath,
-        '../../config.json'
-      )
+        "../../config.json"
+      );
     }
-    configurationFilePath = path.resolve(configurationFilePath)
-    if (!await FileSystem.exists(configurationFilePath)) {
-      return null
+    configurationFilePath = path.resolve(configurationFilePath);
+    if (!(await FileSystem.exists(configurationFilePath))) {
+      return null;
     }
-    const configurationFile = await FileSystem.readFile(configurationFilePath)
-    return JSON.parse(configurationFile)
+    const configurationFile = await FileSystem.readFile(configurationFilePath);
+    return JSON.parse(configurationFile);
   }
 
-  async loadDefault (applicationDirectoryPath) {
+  async loadDefault(applicationDirectoryPath) {
     return this._loadFile({
       configurationFilePath: path.join(
         applicationDirectoryPath,
-        '../../config.default.json'
+        "./config.default.json"
       ),
       applicationDirectoryPath
-    })
+    });
   }
 }
 
-const path = require('path')
+const path = require("path");
 
-const FileSystem = require('../utils/file-system')
+const FileSystem = require("../utils/file-system");
 
-const configurationLoader = new ConfigurationLoader()
+const configurationLoader = new ConfigurationLoader();
 
-module.exports = configurationLoader
+module.exports = configurationLoader;

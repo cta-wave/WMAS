@@ -1,12 +1,14 @@
 import argparse
-import itertools
 import logging
 import os
 import re
 import subprocess
 import sys
 
-from ..manifest import manifest, update
+from collections import OrderedDict
+from six import iteritems
+
+from ..manifest import manifest
 
 here = os.path.dirname(__file__)
 wpt_root = os.path.abspath(os.path.join(here, os.pardir, os.pardir))
@@ -42,25 +44,45 @@ def branch_point():
         # This is a PR, so the base branch is in TRAVIS_BRANCH
         travis_branch = os.environ.get("TRAVIS_BRANCH")
         assert travis_branch, "TRAVIS_BRANCH environment variable is defined"
-        branch_point = git("rev-parse", travis_branch)
+        branch_point = git("merge-base", "HEAD", travis_branch)
     else:
         # Otherwise we aren't on a PR, so we try to find commits that are only in the
         # current branch c.f.
         # http://stackoverflow.com/questions/13460152/find-first-ancestor-commit-in-another-branch
+
+        # parse HEAD into an object ref
         head = git("rev-parse", "HEAD")
-        not_heads = [item for item in git("rev-parse", "--not", "--all").split("\n")
-                     if item.strip() and head not in item]
-        commits = git("rev-list", "HEAD", *not_heads).split("\n")
+
+        # get everything in refs/heads and refs/remotes that doesn't include HEAD
+        not_heads = [item for item in git("rev-parse", "--not", "--branches", "--remotes").split("\n")
+                     if item != "^%s" % head]
+
+        # get all commits on HEAD but not reachable from anything in not_heads
+        commits = git("rev-list", "--topo-order", "--parents", "HEAD", *not_heads)
+        commit_parents = OrderedDict()
+        if commits:
+            for line in commits.split("\n"):
+                line_commits = line.split(" ")
+                commit_parents[line_commits[0]] = line_commits[1:]
+
         branch_point = None
-        if len(commits):
-            first_commit = commits[-1]
-            if first_commit:
-                branch_point = git("rev-parse", first_commit + "^")
+
+        # if there are any commits, take the first parent that is not in commits
+        for commit, parents in iteritems(commit_parents):
+            for parent in parents:
+                if parent not in commit_parents:
+                    branch_point = parent
+                    break
+
+            if branch_point:
+                break
+
+        # if we had any commits, we should now have a branch point
+        assert branch_point or not commit_parents
 
         # The above heuristic will fail in the following cases:
         #
-        # - The current branch has fallen behind the version retrieved via the above
-        #   `fetch` invocation
+        # - The current branch has fallen behind the remote version
         # - Changes on the current branch were rebased and therefore do not exist on any
         #   other branch. This will result in the selection of a commit that is earlier
         #   in the history than desired (as determined by calculating the later of the
@@ -168,10 +190,8 @@ def _init_manifest_cache():
             return c[manifest_path]
         # cache at most one path:manifest
         c.clear()
-        wpt_manifest = manifest.load(wpt_root, manifest_path)
-        if wpt_manifest is None:
-            wpt_manifest = manifest.Manifest()
-        update.update(wpt_root, wpt_manifest)
+        wpt_manifest = manifest.load_and_update(wpt_root, manifest_path, "/",
+                                                update=True)
         c[manifest_path] = wpt_manifest
         return c[manifest_path]
     return load
@@ -197,6 +217,11 @@ def affected_testfiles(files_changed, skip_tests, manifest_path=None):
     test_files = {os.path.join(wpt_root, path)
                   for _, path, _ in wpt_manifest.itertypes(*test_types)}
 
+    interface_dir = os.path.join(wpt_root, 'interfaces')
+    interfaces_files = {os.path.join(wpt_root, 'interfaces', filename)
+                        for filename in os.listdir(interface_dir)}
+
+    interfaces_changed = interfaces_files.intersection(nontests_changed)
     nontests_changed = nontests_changed.intersection(support_files)
 
     tests_changed = set(item for item in files_changed if item in test_files)
@@ -215,6 +240,9 @@ def affected_testfiles(files_changed, skip_tests, manifest_path=None):
             full_path = os.path.join(wpt_root, repo_path[1:].replace("/", os.path.sep))
         nontest_changed_paths.add((full_path, repo_path))
 
+    interface_name = lambda x: os.path.splitext(os.path.basename(x))[0]
+    interfaces_changed_names = map(interface_name, interfaces_changed)
+
     def affected_by_wdspec(test):
         affected = False
         if test in wdspec_test_files:
@@ -229,6 +257,15 @@ def affected_testfiles(files_changed, skip_tests, manifest_path=None):
                     affected = True
                     break
         return affected
+
+    def affected_by_interfaces(file_contents):
+        if len(interfaces_changed_names) > 0:
+            if 'idlharness.js' in file_contents:
+                for interface in interfaces_changed_names:
+                    regex = '[\'"]' + interface + '(\\.idl)?[\'"]'
+                    if re.search(regex, file_contents):
+                        return True
+        return False
 
     for root, dirs, fnames in os.walk(wpt_root):
         # Walk top_level_subdir looking for test files containing either the
@@ -255,7 +292,7 @@ def affected_testfiles(files_changed, skip_tests, manifest_path=None):
                     file_contents = file_contents.decode("utf8", "replace")
                 for full_path, repo_path in nontest_changed_paths:
                     rel_path = os.path.relpath(full_path, root).replace(os.path.sep, "/")
-                    if rel_path in file_contents or repo_path in file_contents:
+                    if rel_path in file_contents or repo_path in file_contents or affected_by_interfaces(file_contents):
                         affected_testfiles.add(test_full_path)
                         continue
 
@@ -279,6 +316,8 @@ def get_parser():
                         help="Include files in the worktree that are not in version control")
     parser.add_argument("--show-type", action="store_true",
                         help="Print the test type along with each affected test")
+    parser.add_argument("--null", action="store_true",
+                        help="Separate items with a null byte")
     return parser
 
 
@@ -304,8 +343,11 @@ def run_changed_files(**kwargs):
     changed, _ = files_changed(revish, kwargs["ignore_rules"],
                                include_uncommitted=kwargs["modified"],
                                include_new=kwargs["new"])
+
+    separator = "\0" if kwargs["null"] else "\n"
+
     for item in sorted(changed):
-        print(os.path.relpath(item, wpt_root))
+        sys.stdout.write(os.path.relpath(item, wpt_root) + separator)
 
 
 def run_tests_affected(**kwargs):
@@ -324,6 +366,9 @@ def run_tests_affected(**kwargs):
     if kwargs["show_type"]:
         wpt_manifest = load_manifest(manifest_path)
         message = "{path}\t{item_type}"
+
+    message += "\0" if kwargs["null"] else "\n"
+
     for item in sorted(tests_changed | dependents):
         results = {
             "path": os.path.relpath(item, wpt_root)
@@ -333,4 +378,4 @@ def run_tests_affected(**kwargs):
             if len(item_types) != 1:
                 item_types = [" ".join(item_types)]
             results["item_type"] = item_types.pop()
-        print(message.format(**results))
+        sys.stdout.write(message.format(**results))

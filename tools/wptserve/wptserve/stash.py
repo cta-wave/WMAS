@@ -4,6 +4,7 @@ import os
 import uuid
 import threading
 from multiprocessing.managers import AcquirerProxy, BaseManager, DictProxy
+from six import text_type
 
 class ServerDictManager(BaseManager):
     shared_data = {}
@@ -42,14 +43,16 @@ def load_env_config():
         address = tuple(address)
     else:
         address = str(address)
-    authkey = base64.decodestring(authkey)
+    authkey = base64.b64decode(authkey)
     return address, authkey
 
 def store_env_config(address, authkey):
-    authkey = base64.encodestring(authkey)
-    os.environ["WPT_STASH_CONFIG"] = json.dumps((address, authkey))
+    authkey = base64.b64encode(authkey)
+    os.environ["WPT_STASH_CONFIG"] = json.dumps((address, authkey.decode("ascii")))
 
 def start_server(address=None, authkey=None):
+    if isinstance(authkey, text_type):
+        authkey = authkey.encode("ascii")
     manager = ServerDictManager(address, authkey)
     manager.start()
 
@@ -101,6 +104,7 @@ class Stash(object):
 
     _proxy = None
     lock = None
+    _initializing = threading.Lock()
 
     def __init__(self, default_path, address=None, authkey=None):
         self.default_path = default_path
@@ -112,7 +116,16 @@ class Stash(object):
             Stash._proxy = {}
             Stash.lock = threading.Lock()
 
-        if Stash._proxy is None:
+        # Initializing the proxy involves connecting to the remote process and
+        # retrieving two proxied objects. This process is not inherently
+        # atomic, so a lock must be used to make it so. Atomicity ensures that
+        # only one thread attempts to initialize the connection and that any
+        # threads running in parallel correctly wait for initialization to be
+        # fully complete.
+        with Stash._initializing:
+            if Stash.lock:
+                return
+
             manager = ClientDictManager(address, authkey)
             manager.connect()
             Stash._proxy = manager.get_dict()

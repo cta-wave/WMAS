@@ -1,51 +1,76 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WMAS GAP REPORTS</title>
-    <style type="text/css">
-      body {
-        font-family: Helvetica, Arial, Sans-Serif;
-      }
-    </style>
-    <script type="text/javascript">
-      function init(){
-        var ul2017 = document.getElementById('wmas2107');
-        var APIMAP = {
-          "ENCRYPTED-MEDIA": "encrypted-media",
-          "MEDIA-SOURCE": "media-source",
-          "WEBAUDIO": "webaudio",
-          "2DCONTEXT": "2dcontext",
-          "WHATWG-FULLSCREEN": "fullscreen",
-          "WEBSOCKETS": "websockets",
-          "XHR": "xhr",
-          "FETCH": "fetch",
-          "WebCryptoAPI": "WebCryptoAPI",
-          "WEBSTORAGE": "webstorage",
-          "WORKERS": "workers",
-          "WEB-MESSAGING": "webmessaging",
-          "CHANNEL-MESSAGING": "webmessaging",
-          "UIEVENTS": "uievents",
-          "IndexedDB-20150108": "IndexedDB",
-          "notifications-20151022": "notifications",
-          "CSP2": "content-security-policy",
-          "JPEG": "",
-          "PNG": "",
-          "GIF": "",
-          "OPEN-FONT-FORMAT": "",
-          "WOFF": ""
-        }
-        Object.keys(APIMAP).forEach(function(name){
-          var li = document.createElement('li');
-          li.innerHTML = '<a href="./WMAS2017/'+name+'/index.html">'+name+'</>';
-          ul2017.append(li);
-        });
-      }
-    </script>
-  </head>
-  <body onload="init()">
-    <h1>WMAS 2017 gap reports</h1>
-    <ul id="wmas2107"></ul>
-  </body>
-</html>
+---
+layout: page
+---
+
+<nav class="home">
+  <ul>
+    <li>
+      <a href="{{ site.baseurl }}{% link introduction.md %}">
+        <div>
+          {% include svg/octicons/tools.svg %}
+        </div>
+        <h2>
+          Introduction
+        </h2>
+      </a>
+      <p>You should probably start here! Contains a high-level
+         overview of the testsuite and how to get set up locally.</p>
+    </li>
+    <li>
+      <a href="{{ site.baseurl }}{% link _writing-tests/index.md %}">
+        <div>
+          {% include svg/octicons/pencil.svg %}
+        </div>
+        <h2>
+          Writing Tests
+        </h2>
+      </a>
+      <p>Guidelines and advice for those writing tests.</p>
+    </li>
+    <li>
+      <a href="{{ site.baseurl }}{% link _running-tests/index.md %}">
+        <div>
+          {% include svg/triangle-right.svg %}
+        </div>
+        <h2>
+          Running Tests
+        </h2>
+      </a>
+      <p>How to run tests, either those you just wrote or those that
+         already exist.</p>
+    </li>
+    <li>
+      <a href="{{ site.baseurl }}{% link _reviewing-tests/index.md %}">
+        <div>
+          {% include svg/octicons/git-pull-request.svg %}
+        </div>
+        <h2>
+          Reviewing Tests
+        </h2>
+      </a>
+      <p>Some hints and tips for those reviewing tests.</p>
+    </li>
+    <li>
+      <a href="{{ site.baseurl }}{% link _admin/index.md %}">
+        <div>
+          {% include svg/octicons/key.svg %}
+        </div>
+        <h2>
+          Administration
+        </h2>
+      </a>
+      <p>Instruction for project administrators.</p>
+    </li>
+    <li>
+      <a href="{{ site.baseurl }}{% link _appendix/index.md %}">
+        <div>
+          {% include svg/octicons/package.svg %}
+        </div>
+        <h2>
+          Appendices
+        </h2>
+      </a>
+      <p>A load of other useful resources.</p>
+    </li>
+  </ul>
+</nav>
