@@ -5,7 +5,10 @@ const Session = require("../data/session");
 const TestLoader = require("../testing/test-loader");
 
 const DEFAULT_TEST_PATH = "/";
-const DEFAULT_TEST_TYPES = [TestLoader.TEST_HARNESS_TESTS];
+const DEFAULT_TEST_TYPES = [
+  TestLoader.TEST_HARNESS_TESTS,
+  TestLoader.MANUAL_TESTS
+];
 
 /**
  * @module SessionManager
