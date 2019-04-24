@@ -154,6 +154,7 @@ rm -rf $WPTBASEDIR/webauthn
 rm -rf $WPTBASEDIR/WebCryptoAPI
 rm -rf $WPTBASEDIR/webdriver
 rm -rf $WPTBASEDIR/webgl
+rm -rf $WPTBASEDIR/wave-extra
 rm -rf $WPTBASEDIR/WebIDL
 rm -rf $WPTBASEDIR/web-locks
 rm -rf $WPTBASEDIR/webmessaging
@@ -365,7 +366,7 @@ git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID fro
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 
-# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+# Integrate webgl tests [WEBGL-103]
 DISTDIR=dist/webgl
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/webgl
