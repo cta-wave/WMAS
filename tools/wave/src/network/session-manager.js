@@ -38,10 +38,10 @@ class SessionManager {
     testTimeout = testTimeout || this._testTimeout;
 
     const referenceSessions = await Promise.all(
-      referenceTokens.map(async token => this.getSession(token.trim()))
+      referenceTokens.map(async token => this.readSession(token.trim()))
     );
 
-    const token = this.generateUuid();
+    const token = this._generateUuid();
     const tests = await this._testLoader.getTests({
       userAgent,
       path,
@@ -68,22 +68,11 @@ class SessionManager {
     this._sessions.push(session);
   }
 
-  async updateSession(session) {
-    return this._database.updateSession(session);
-  }
-
-  generateUuid() {
-    return uuidv1({
-      node: new Uint8Array(crypto.randomBytes(6)),
-      clockseq: (Math.random() * 0x3fff) | 0
-    });
-  }
-
   /**
    * @param {String} token
    * @return {Session}
    */
-  async getSession(token) {
+  async readSession(token) {
     if (!token) return null;
     let session = this._sessions.find(session => session.getToken() === token);
     if (!session) {
@@ -93,12 +82,16 @@ class SessionManager {
     return session;
   }
 
-  async getSessions() {
+  async readSessions() {
     return await this._database.readSessions();
   }
 
-  async getPublicSessions() {
+  async readPublicSessions() {
     return await this._database.readPublicSessions();
+  }
+
+  async updateSession(session) {
+    return await this._database.updateSession(session);
   }
 
   async deleteSession(token) {
@@ -107,6 +100,13 @@ class SessionManager {
       1
     );
     this._database.deleteSession(token);
+  }
+
+  _generateUuid() {
+    return uuidv1({
+      node: new Uint8Array(crypto.randomBytes(6)),
+      clockseq: (Math.random() * 0x3fff) | 0
+    });
   }
 }
 

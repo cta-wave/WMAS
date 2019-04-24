@@ -45,7 +45,7 @@ class ResultsManager {
     let { test } = result;
     if (test.startsWith("/")) test = test.substr(1);
 
-    const session = await this._sessionManager.getSession(token);
+    const session = await this._sessionManager.readSession(token);
     if (!session) return;
     if (!session.testExists(test)) return;
 
@@ -147,7 +147,7 @@ class ResultsManager {
   }
 
   async getJsonPath({ token, api }) {
-    const session = await this._sessionManager.getSession(token);
+    const session = await this._sessionManager.readSession(token);
     return this._getFilePath({
       userAgent: session.getUserAgent(),
       api,
@@ -157,7 +157,7 @@ class ResultsManager {
 
   async saveApiResults({ token, api }) {
     const apiResults = { results: (await this.getResults(token))[api] };
-    const session = await this._sessionManager.getSession(token);
+    const session = await this._sessionManager.readSession(token);
 
     await this._ensureResultsDirectoryExistence({ api, token, session });
 
@@ -176,7 +176,7 @@ class ResultsManager {
     const resultsDirectoryPath = this._resultsDirectoryPath;
     if (!(await FileSystem.exists(resultsDirectoryPath))) return;
     const tokens = await FileSystem.readDirectory(resultsDirectoryPath);
-    const sessions = await sessionManager.getSessions();
+    const sessions = await sessionManager.readSessions();
     println("Looking for results to import ...");
     for (let token of tokens) {
       if (sessions.find(session => session.getToken() === token)) continue;
@@ -400,7 +400,7 @@ class ResultsManager {
       "const results = " + JSON.stringify(flattenedResults, null, 2);
     zip.file("results.json.js", resultsScript);
 
-    const session = await this._sessionManager.getSession(token);
+    const session = await this._sessionManager.readSession(token);
     const sessionJson = Serializer.serializeSession(session);
     delete sessionJson.running_tests;
     delete sessionJson.completed_tests;
