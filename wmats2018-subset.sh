@@ -383,7 +383,7 @@ cd $WPTBASEDIR
 rm -rf $DISTDIR
 git clone https://github.com/fraunhoferfokus/WMATS2018-cookies.git $DISTDIR
 cd $DISTDIR
-git checkout d88669bdac7181f4d868a704758e5dcff9f182a0
+git checkout master
 cd $WPTBASEDIR
 
 # Remove the dist folder before manifest generation
