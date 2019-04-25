@@ -1,0 +1,598 @@
+{
+  "ua": [
+    "FF66"
+  ],
+  "results": {
+    "/notifications/event-onclose.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Checked test prerequisites.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for thisorigin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    },
+    "/notifications/constructor-invalid.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Called the notification constructor with no arguments.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    },
+    "/notifications/permission.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Checked the Notification.permission property.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/notifications/event-onshow.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Checked test prerequisites.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    },
+    "/notifications/instance.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Notification instance basic tests": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    },
+    "/notifications/constructor-basic.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Called the notification constructor with one argument.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    },
+    "/notifications/lang.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Roundtripping lang \"\". Expecting \"\".": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"en\". Expecting \"en\".": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"en-US-x-hixie\". Expecting \"en-US-x-hixie\".": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-DE\". Expecting \"de-DE\".": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-de\". Expecting \"de-de\".": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-De\". Expecting \"de-De\".": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-dE\". Expecting \"de-dE\".": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-DE-1996\". Expecting \"de-DE-1996\".": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-Latn-DE\". Expecting \"de-Latn-DE\".": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-Latf-DE\". Expecting \"de-Latf-DE\".": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-Latn-DE-1996\". Expecting \"de-Latn-DE-1996\".": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"de-CH\". Expecting \"de-CH\".": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"it-CH\". Expecting \"it-CH\".": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"fr-CH\". Expecting \"fr-CH\".": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"rm-CH\". Expecting \"rm-CH\".": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"es-CH\". Expecting \"es-CH\".": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"Latn-de\". Expecting \"\".": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"Latf-de\". Expecting \"\".": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"tic-tac-tac-toe\". Expecting \"\".": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"cocoa-1-bar\". Expecting \"\".": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"cocoa-a-bar\". Expecting \"\".": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"en-\". Expecting \"\".": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"en--\". Expecting \"\".": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"foo--bar\". Expecting \"\".": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"id---Java\". Expecting \"\".": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"fr-x\". Expecting \"\".": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"fr-xenomorph\". Expecting \"\".": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"fr-x-xenomorph\". Expecting \"\".": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"a\". Expecting \"\".": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"a-fr-lang\". Expecting \"\".": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"b-fr-lang\". Expecting \"\".": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"es1-KK-aa-bb-cc-dd\". Expecting \"\".": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"es2-KL-aa-bb-cc-dd\". Expecting \"\".": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"es3-KM-aa-bb-cc-dd\". Expecting \"\".": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"fooÉ\". Expecting \"\".": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"foöÉ-bÁr\". Expecting \"\".": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        },
+        "Roundtripping lang \"foöÉbÁr\". Expecting \"\".": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "NOTRUN"
+          },
+          "UAmessage": {
+            "FF66": "You must allow notifications for this origin before running this test."
+          },
+          "totals": {
+            "NOTRUN": 1
+          }
+        }
+      }
+    }
+  }
+}

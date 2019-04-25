@@ -33,6 +33,14 @@ class WaveServer {
       wptSslPort
     } = config;
     println(" done.");
+    const includeListFilePath = path.join(
+      applicationDirectoryPath,
+      "include-tests"
+    );
+    const excludeListFilePath = path.join(
+      applicationDirectoryPath,
+      "exclude-tests"
+    );
 
     this._port = port;
 
@@ -44,7 +52,9 @@ class WaveServer {
     await database.initialize(databaseDirectoryPath);
     println(" done.");
     const testLoader = new TestLoader({
-      resultsDirectoryPath
+      resultsDirectoryPath,
+      includeListFilePath,
+      excludeListFilePath
     });
     const sessionManager = new SessionManager({
       database,

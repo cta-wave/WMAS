@@ -1,0 +1,24 @@
+{
+  "token": "10bc24f0-6749-11e9-986b-21c1f16945b5",
+  "path": "/notifications",
+  "types": [
+    "testharness"
+  ],
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0",
+  "test_timeout": 65000,
+  "test_files_count": {
+    "notifications": 7
+  },
+  "test_files_completed": {
+    "notifications": 7
+  },
+  "status": "completed",
+  "browser": {
+    "name": "Firefox",
+    "version": "66"
+  },
+  "date_started": 1556189912268,
+  "date_finished": 1556189914603,
+  "is_public": false,
+  "reference_tokens": []
+}

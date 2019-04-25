@@ -1,0 +1,6071 @@
+{
+  "ua": [
+    "FF66"
+  ],
+  "results": {
+    "/FileAPI/url/multi-global-origin-serialization.sub.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Blob URL serialization (specifically the origin) in multi-global situations": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/url/unicode-origin.sub.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Verify serialization of non-ascii origin in Blob URLs": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/blob/Blob-constructor-endings.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Valid \"endings\" value: \"transparent\"": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid \"endings\" value: \"native\"": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: null": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"\"": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"invalidEnumValue\"": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"Transparent\"": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"NATIVE\"": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: 0": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: {}": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Exception propagation from options": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "The \"endings\" options property is used": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings unspecified": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings 'transparent'": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings 'native'": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings unspecified": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings 'transparent'": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings 'native'": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings unspecified": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings 'transparent'": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings 'native'": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings unspecified": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings 'transparent'": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings 'native'": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings unspecified": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings 'transparent'": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings 'native'": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings unspecified": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings 'transparent'": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings 'native'": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings unspecified": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings 'transparent'": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings 'native'": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings unspecified": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings 'transparent'": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings 'native'": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings unspecified": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings 'transparent'": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings 'native'": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings unspecified": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings 'transparent'": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings 'native'": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings unspecified": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings 'transparent'": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings 'native'": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "CR/LF in adjacent input strings": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_readAsBinaryString.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileAPI Test: filereader_readAsBinaryString": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/Determining-Encoding.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Blob Determing Encoding with encoding argument": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob Determing Encoding with type attribute": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob Determing Encoding with UTF-8 BOM": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob Determing Encoding without anything implying charset.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob Determing Encoding with UTF-16BE BOM": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob Determing Encoding with UTF-16LE BOM": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/fileReader.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileReader interface object": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "no-argument FileReader constructor": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader States -- abort": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader States -- events": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/blob/Blob-slice-overflow.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "slice start is negative, relativeStart will be max((size + start), 0)": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "slice start is greater than blob size, relativeStart will be min(start, size)": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "slice end is negative, relativeEnd will be max((size + end), 0)": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "slice end is greater than blob size, relativeEnd will be min(end, size)": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/FileReader-multiple-reads.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "test FileReader InvalidStateError exception for readAsText": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "test FileReader InvalidStateError exception for readAsDataURL": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "test FileReader InvalidStateError exception for readAsArrayBuffer": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "test FileReader InvalidStateError exception in onloadstart event for readAsArrayBuffer": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "test FileReader no InvalidStateError exception in loadend event handler for readAsArrayBuffer": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "test abort and restart in onloadstart event for readAsText": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/historical.https.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "\"toNativeLineEndings\" should not be supported": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"FileError\" should not be supported": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"FileException\" should not be supported": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"FileHandle\" should not be supported": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"FileRequest\" should not be supported": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"MutableFile\" should not be supported": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob should not support slice prefixed": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "BlobBuilder should not be supported.": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "createFor method should not be supported": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob.close() should not be supported": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File's lastModifiedDate should not be supported": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Service worker test setup": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "\"FileReaderSync\" should not be supported in service workers": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/url/sandboxed-iframe.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Generated Blob URLs are unique": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URL starts with \"blob:\"": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URL starts with \"blob:\" for Files": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Origin of Blob URL matches our origin": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URL parses correctly": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_true: Path must end with a valid UUID expected true got false"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Origin of Blob URL matches our origin for Files": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URLs can be used in <script> tags": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URLs can be used in iframes, and are treated same origin": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "Permission denied to access property \"test_result\" on cross-origin object"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Blob URL fragment is implemented.": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "Permission denied to access property \"onscroll\" on cross-origin object"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Blob URLs can be used in XHR": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with a fragment should succeed": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR of a revoked URL should fail": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Only exact matches should revoke URLs, using XHR": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "promise_test: Unhandled rejection with value: \"Got unexpected error event\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Appending a query string should cause XHR to fail": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_equals: expected 0 but got 200"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Appending a path should cause XHR to fail": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"HEAD\" should fail": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"POST\" should fail": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"DELETE\" should fail": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"OPTIONS\" should fail": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"PUT\" should fail": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR with method \"CUSTOM\" should fail": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "XHR should return Content-Type from Blob": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Revoke blob URL after open(), will fetch": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob URLs can be used in fetch": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with a fragment should succeed": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch of a revoked URL should fail": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Only exact matches should revoke URLs, using fetch": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "promise_test: Unhandled rejection with value: object \"TypeError: NetworkError when attempting to fetch resource.\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Appending a query string should cause fetch to fail": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_unreached: Should have rejected: undefined Reached unreachable code"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Appending a path should cause fetch to fail": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"HEAD\" should fail": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"POST\" should fail": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"DELETE\" should fail": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"OPTIONS\" should fail": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"PUT\" should fail": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch with method \"CUSTOM\" should fail": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "fetch should return Content-Type from Blob": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Revoke blob URL after creating Request, will fetch": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "promise_test: Unhandled rejection with value: object \"TypeError: NetworkError when attempting to fetch resource.\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Revoke blob URL after calling fetch, fetch should succeed": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/File-constructor-endings.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Valid \"endings\" value: \"transparent\"": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid \"endings\" value: \"native\"": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: null": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"\"": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"invalidEnumValue\"": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"Transparent\"": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: \"NATIVE\"": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: 0": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid \"endings\" value: {}": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Exception propagation from options": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "The \"endings\" options property is used": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings unspecified": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings 'transparent'": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LF with endings 'native'": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings unspecified": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings 'transparent'": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CR with endings 'native'": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings unspecified": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings 'transparent'": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLF with endings 'native'": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings unspecified": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings 'transparent'": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCR with endings 'native'": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings unspecified": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings 'transparent'": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCR with endings 'native'": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings unspecified": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings 'transparent'": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFLF with endings 'native'": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings unspecified": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings 'transparent'": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRCRLF with endings 'native'": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings unspecified": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings 'transparent'": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFLF with endings 'native'": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings unspecified": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings 'transparent'": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCR with endings 'native'": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings unspecified": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings 'transparent'": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input CRLFCRLF with endings 'native'": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings unspecified": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings 'transparent'": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Input LFCRLFCR with endings 'native'": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "CR/LF in adjacent input strings": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/blob/Blob-constructor.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Blob interface object": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob constructor with no arguments": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob constructor with no arguments, without 'new'": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob constructor without brackets": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob constructor with undefined as first argument": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing non-objects, Dates and RegExps for blobParts should throw a TypeError.": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A plain object with @@iterator should be treated as a sequence for the blobParts argument.": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A plain object with custom @@iterator should be treated as a sequence for the blobParts argument.": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A plain object with @@iterator and a length property should be treated as a sequence for the blobParts argument.": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A String object should be treated as a sequence for the blobParts argument.": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A Uint8Array object should be treated as a sequence for the blobParts argument.": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "The length getter should be invoked and any exceptions should be propagated.": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "A platform object that supports indexed properties should be treated as a sequence for the blobParts argument (overwritten 'length'.)": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "ToUint32 should be applied to the length and any exceptions should be propagated.": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Getters and value conversions should happen in order until an exception is thrown.": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "ToString should be called on elements of the blobParts array and any exceptions should be propagated.": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Changes to the blobParts array should be reflected in the returned Blob (pop).": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Changes to the blobParts array should be reflected in the returned Blob (unshift).": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "ToString should be called on elements of the blobParts array.": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "ArrayBuffer elements of the blobParts array should be supported.": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing typed arrays as elements of the blobParts array should work.": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing a Float64Array as element of the blobParts array should work.": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing an platform object that supports indexed properties as the blobParts array should work (select).": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing an platform object that supports indexed properties as the blobParts array should work (attributes).": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing a FrozenArray as the blobParts array should work (FrozenArray<MessagePort>).": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Array with two blobs": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Array with two buffers": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Array with two bufferviews": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Array with mixed types": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "options properties should be accessed in lexicographic order.": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Arguments should be evaluated from left to right.": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing null (index 0) for options should use the defaults.": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing null (index 0) for options should use the defaults (with newlines).": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing undefined (index 1) for options should use the defaults.": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing undefined (index 1) for options should use the defaults (with newlines).": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"[object Object]\" (index 2) for options should use the defaults.": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"[object Object]\" (index 2) for options should use the defaults (with newlines).": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"[object Object]\" (index 3) for options should use the defaults.": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"[object Object]\" (index 3) for options should use the defaults (with newlines).": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"/regex/\" (index 4) for options should use the defaults.": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing object \"/regex/\" (index 4) for options should use the defaults (with newlines).": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing function \"function() {}\" (index 5) for options should use the defaults.": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing function \"function() {}\" (index 5) for options should use the defaults (with newlines).": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing 123 for options should throw": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing 123.4 for options should throw": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing true for options should throw": {
+          "stNum": 45,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Passing \"abc\" for options should throw": {
+          "stNum": 46,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"\"": {
+          "stNum": 47,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"a\"": {
+          "stNum": 48,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"A\"": {
+          "stNum": 49,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"text/html\"": {
+          "stNum": 50,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"TEXT/HTML\"": {
+          "stNum": 51,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"text/plain;charset=utf-8\"": {
+          "stNum": 52,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"å\"": {
+          "stNum": 53,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"𐑾\"": {
+          "stNum": 54,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \" image/gif \"": {
+          "stNum": 55,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"\\timage/gif\\t\"": {
+          "stNum": 56,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"image/gif;\"": {
+          "stNum": 57,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"İmage/gif\"": {
+          "stNum": 58,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"ımage/gif\"": {
+          "stNum": 59,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"image/gif\\0\"": {
+          "stNum": 60,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"unknown/unknown\"": {
+          "stNum": 61,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"text/plain\"": {
+          "stNum": 62,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob with type \"image/png\"": {
+          "stNum": 63,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_error.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileAPI Test: filereader_error": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_abort.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Aborting before read": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Aborting after read": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_true: Not expecting event, but got loadstart event expected true got false"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/FileReader-event-handler-attributes.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileReader.onloadstart: initial value": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader.onprogress: initial value": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader.onload: initial value": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader.onabort: initial value": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader.onerror: initial value": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader.onloadend: initial value": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/blob/Blob-slice.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "no-argument Blob slice": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slices": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "blob1.": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "blob2.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "null type Blob slice": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "undefined type Blob slice": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "no type Blob slice": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,0).": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,0).": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,1).": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,1).": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,2).": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,2).": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,3).": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,3).": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,4).": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,4).": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,5).": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,5).": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,6).": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,6).": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,7).": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,7).": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (0,8).": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (0,8).": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,0).": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,0).": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,1).": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,1).": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,2).": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,2).": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,3).": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,3).": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,4).": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,4).": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,5).": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,5).": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,6).": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,6).": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (1,7).": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (1,7).": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (2,0).": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (2,0).": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (2,1).": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (2,1).": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (2,2).": {
+          "stNum": 45,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (2,2).": {
+          "stNum": 46,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (2,3).": {
+          "stNum": 47,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (2,3).": {
+          "stNum": 48,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,0).": {
+          "stNum": 49,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,0).": {
+          "stNum": 50,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,1).": {
+          "stNum": 51,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,1).": {
+          "stNum": 52,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,2).": {
+          "stNum": 53,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,2).": {
+          "stNum": 54,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,3).": {
+          "stNum": 55,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,3).": {
+          "stNum": 56,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,4).": {
+          "stNum": 57,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,4).": {
+          "stNum": 58,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (3,5).": {
+          "stNum": 59,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (3,5).": {
+          "stNum": 60,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (4,0).": {
+          "stNum": 61,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (4,0).": {
+          "stNum": 62,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (4,1).": {
+          "stNum": 63,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (4,1).": {
+          "stNum": 64,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (4,2).": {
+          "stNum": 65,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (4,2).": {
+          "stNum": 66,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (4,3).": {
+          "stNum": 67,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (4,3).": {
+          "stNum": 68,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (4,4).": {
+          "stNum": 69,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (4,4).": {
+          "stNum": 70,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (5,0).": {
+          "stNum": 71,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (5,0).": {
+          "stNum": 72,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (5,1).": {
+          "stNum": 73,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (5,1).": {
+          "stNum": 74,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (5,2).": {
+          "stNum": 75,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (5,2).": {
+          "stNum": 76,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (5,3).": {
+          "stNum": 77,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (5,3).": {
+          "stNum": 78,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (6,0).": {
+          "stNum": 79,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (6,0).": {
+          "stNum": 80,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (6,1).": {
+          "stNum": 81,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (6,1).": {
+          "stNum": 82,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (6,2).": {
+          "stNum": 83,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (6,2).": {
+          "stNum": 84,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (7,0).": {
+          "stNum": 85,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (7,0).": {
+          "stNum": 86,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (7,1).": {
+          "stNum": 87,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (7,1).": {
+          "stNum": 88,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (7,2).": {
+          "stNum": 89,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (7,2).": {
+          "stNum": 90,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (7,3).": {
+          "stNum": 91,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (7,3).": {
+          "stNum": 92,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (8,0).": {
+          "stNum": 93,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (8,0).": {
+          "stNum": 94,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (8,1).": {
+          "stNum": 95,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (8,1).": {
+          "stNum": 96,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (8,2).": {
+          "stNum": 97,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (8,2).": {
+          "stNum": 98,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test (8,3).": {
+          "stNum": 99,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Slicing test: slice (8,3).": {
+          "stNum": 100,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid contentType (\"ÿ\")": {
+          "stNum": 101,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid contentType (\"te\\txt/plain\")": {
+          "stNum": 102,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid contentType (\"te\\0xt/plain\")": {
+          "stNum": 103,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid contentType (\"te\\x1fxt/plain\")": {
+          "stNum": 104,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid contentType (\"text/plain\")": {
+          "stNum": 105,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te(xt/plain\")": {
+          "stNum": 106,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te)xt/plain\")": {
+          "stNum": 107,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te<xt/plain\")": {
+          "stNum": 108,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te>xt/plain\")": {
+          "stNum": 109,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te@xt/plain\")": {
+          "stNum": 110,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te,xt/plain\")": {
+          "stNum": 111,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te;xt/plain\")": {
+          "stNum": 112,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te:xt/plain\")": {
+          "stNum": 113,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te\\\\xt/plain\")": {
+          "stNum": 114,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te\\\"xt/plain\")": {
+          "stNum": 115,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te/xt/plain\")": {
+          "stNum": 116,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te[xt/plain\")": {
+          "stNum": 117,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te]xt/plain\")": {
+          "stNum": 118,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te?xt/plain\")": {
+          "stNum": 119,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te=xt/plain\")": {
+          "stNum": 120,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te{xt/plain\")": {
+          "stNum": 121,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te}xt/plain\")": {
+          "stNum": 122,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"te xt/plain\")": {
+          "stNum": 123,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"TEXT/PLAIN\")": {
+          "stNum": 124,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"text/plain;charset = UTF-8\")": {
+          "stNum": 125,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Valid contentType (\"text/plain;charset=UTF-8\")": {
+          "stNum": 126,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_result.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "readAsText": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "readAsDataURL": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "readAsArrayBuffer": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_readAsDataURL.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileReader readyState during readAsDataURL": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "readAsDataURL result for Blob with specified MIME type": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "readAsDataURL result for Blob with unspecified MIME type": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/send-file-form-windows-1252.tentative.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Upload file-for-upload-in-form.txt (ASCII) in windows-1252 form": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-.txt (x-user-defined) in windows-1252 form": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in windows-1252 form": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in windows-1252 form": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-☺😂.txt (Unicode) in windows-1252 form": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in windows-1252 form": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/unicode.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Test that strings are not NFC normalized by Blob constructor": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Test that strings are not NFC normalized by File constructor": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Test that unpaired surrogates are replaced by Blob constructor": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Test that unpaired surrogates are replaced by File constructor": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_readAsText.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "readAsText should correctly read UTF-8.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "readAsText should correctly read UTF-16.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_readAsArrayBuffer.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileAPI Test: filereader_readAsArrayBuffer": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/send-file-form-utf-8.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-.txt (x-user-defined) in UTF-8 form": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in UTF-8 form": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in UTF-8 form": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-☺😂.txt (Unicode) in UTF-8 form": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in UTF-8 form": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/send-file-form-iso-2022-jp.tentative.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Upload file-for-upload-in-form.txt (ASCII) in ISO-2022-JP form": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-.txt (x-user-defined) in ISO-2022-JP form": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in ISO-2022-JP form": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in ISO-2022-JP form": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-☺😂.txt (Unicode) in ISO-2022-JP form": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in ISO-2022-JP form": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/FileReader/Progress_event_bubbles_cancelable.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Check the values of bubbles and cancelable are false when the progress event is dispatched": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/send-file-form.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/reading-data-section/filereader_readystate.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileAPI Test: filereader_readystate": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/FileReader/workers.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "FileReader created after a worker self.close()": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/File-constructor.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "File interface object exists": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Required arguments": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "empty fileBits": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "DOMString fileBits": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unicode DOMString fileBits": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "String object fileBits": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Empty Blob fileBits": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob fileBits": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Empty File fileBits": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File fileBits": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "ArrayBuffer fileBits": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Typed array fileBits": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Various fileBits": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Number in fileBits": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Array in fileBits": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Object in fileBits": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "HTMLBodyElement in fileBits": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Object with toString in fileBits": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Custom @@iterator": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid bits argument: \"hello\"": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid bits argument: 0": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid bits argument: null": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Bits argument: object that throws": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using fileName": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using special character in fileName": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using null fileName": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using number fileName": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using empty string fileName": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using object fileName": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: text/plain": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: text/plain;charset=UTF-8": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: TEXT/PLAIN": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: 𝓽𝓮𝔁𝓽/𝔭𝔩𝔞𝔦𝔫": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: ascii/nonprintable\u001f": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: ascii/nonprintable": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: nonasciiî": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: nonasciiሴ": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using type in File constructor: nonparsable": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Using lastModified": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Misusing name": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unknown properties are ignored": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid property bag: 123": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid property bag: 123.4": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid property bag: true": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Invalid property bag: \"abc\"": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unusual but valid property bag: null": {
+          "stNum": 45,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unusual but valid property bag: undefined": {
+          "stNum": 46,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unusual but valid property bag: 1,2,3": {
+          "stNum": 47,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unusual but valid property bag: /regex/": {
+          "stNum": 48,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Unusual but valid property bag: function() {}": {
+          "stNum": 49,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Property bag propagates exceptions": {
+          "stNum": 50,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/url/url-lifetime.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Terminating worker revokes its URLs": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_unreached: Should have rejected: undefined Reached unreachable code"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Removing an iframe revokes its URLs": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/idlharness.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "idl_test setup": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Partial interface URL: original interface defined": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Partial interface URL: valid exposure set": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: existence and properties of interface object": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface object length": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface object name": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: existence and properties of interface prototype object": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: existence and properties of interface prototype object's \"constructor\" property": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: existence and properties of interface prototype object's @@unscopables property": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: attribute size": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: attribute type": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: operation slice(long long, long long, DOMString)": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob must be primary interface of new Blob([\"TEST\"])": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Stringification of new Blob([\"TEST\"])": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new Blob([\"TEST\"]) must inherit property \"size\" with the proper type": {
+          "stNum": 14,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new Blob([\"TEST\"]) must inherit property \"type\" with the proper type": {
+          "stNum": 15,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new Blob([\"TEST\"]) must inherit property \"slice(long long, long long, DOMString)\" with the proper type": {
+          "stNum": 16,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: calling slice(long long, long long, DOMString) on new Blob([\"TEST\"]) with too few arguments must throw TypeError": {
+          "stNum": 17,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: existence and properties of interface object": {
+          "stNum": 18,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface object length": {
+          "stNum": 19,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface object name": {
+          "stNum": 20,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: existence and properties of interface prototype object": {
+          "stNum": 21,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: existence and properties of interface prototype object's \"constructor\" property": {
+          "stNum": 22,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: existence and properties of interface prototype object's @@unscopables property": {
+          "stNum": 23,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: attribute name": {
+          "stNum": 24,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: attribute lastModified": {
+          "stNum": 25,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File must be primary interface of new File([\"myFileBits\"], \"myFileName\")": {
+          "stNum": 26,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Stringification of new File([\"myFileBits\"], \"myFileName\")": {
+          "stNum": 27,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"name\" with the proper type": {
+          "stNum": 28,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "File interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"lastModified\" with the proper type": {
+          "stNum": 29,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"size\" with the proper type": {
+          "stNum": 30,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"type\" with the proper type": {
+          "stNum": 31,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"slice(long long, long long, DOMString)\" with the proper type": {
+          "stNum": 32,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Blob interface: calling slice(long long, long long, DOMString) on new File([\"myFileBits\"], \"myFileName\") with too few arguments must throw TypeError": {
+          "stNum": 33,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: existence and properties of interface object": {
+          "stNum": 34,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface object length": {
+          "stNum": 35,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface object name": {
+          "stNum": 36,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: existence and properties of interface prototype object": {
+          "stNum": 37,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: existence and properties of interface prototype object's \"constructor\" property": {
+          "stNum": 38,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: existence and properties of interface prototype object's @@unscopables property": {
+          "stNum": 39,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: operation item(unsigned long)": {
+          "stNum": 40,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: attribute length": {
+          "stNum": 41,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList must be primary interface of document.querySelector(\"#fileChooser\").files": {
+          "stNum": 42,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Stringification of document.querySelector(\"#fileChooser\").files": {
+          "stNum": 43,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: document.querySelector(\"#fileChooser\").files must inherit property \"item(unsigned long)\" with the proper type": {
+          "stNum": 44,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: calling item(unsigned long) on document.querySelector(\"#fileChooser\").files with too few arguments must throw TypeError": {
+          "stNum": 45,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileList interface: document.querySelector(\"#fileChooser\").files must inherit property \"length\" with the proper type": {
+          "stNum": 46,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: existence and properties of interface object": {
+          "stNum": 47,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface object length": {
+          "stNum": 48,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface object name": {
+          "stNum": 49,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: existence and properties of interface prototype object": {
+          "stNum": 50,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: existence and properties of interface prototype object's \"constructor\" property": {
+          "stNum": 51,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: existence and properties of interface prototype object's @@unscopables property": {
+          "stNum": 52,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: operation readAsArrayBuffer(Blob)": {
+          "stNum": 53,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: operation readAsBinaryString(Blob)": {
+          "stNum": 54,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: operation readAsText(Blob, DOMString)": {
+          "stNum": 55,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: operation readAsDataURL(Blob)": {
+          "stNum": 56,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: operation abort()": {
+          "stNum": 57,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant EMPTY on interface object": {
+          "stNum": 58,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant EMPTY on interface prototype object": {
+          "stNum": 59,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant LOADING on interface object": {
+          "stNum": 60,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant LOADING on interface prototype object": {
+          "stNum": 61,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant DONE on interface object": {
+          "stNum": 62,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: constant DONE on interface prototype object": {
+          "stNum": 63,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute readyState": {
+          "stNum": 64,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute result": {
+          "stNum": 65,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute error": {
+          "stNum": 66,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onloadstart": {
+          "stNum": 67,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onprogress": {
+          "stNum": 68,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onload": {
+          "stNum": 69,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onabort": {
+          "stNum": 70,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onerror": {
+          "stNum": 71,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: attribute onloadend": {
+          "stNum": 72,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader must be primary interface of new FileReader()": {
+          "stNum": 73,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Stringification of new FileReader()": {
+          "stNum": 74,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"readAsArrayBuffer(Blob)\" with the proper type": {
+          "stNum": 75,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: calling readAsArrayBuffer(Blob) on new FileReader() with too few arguments must throw TypeError": {
+          "stNum": 76,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"readAsBinaryString(Blob)\" with the proper type": {
+          "stNum": 77,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: calling readAsBinaryString(Blob) on new FileReader() with too few arguments must throw TypeError": {
+          "stNum": 78,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"readAsText(Blob, DOMString)\" with the proper type": {
+          "stNum": 79,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: calling readAsText(Blob, DOMString) on new FileReader() with too few arguments must throw TypeError": {
+          "stNum": 80,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"readAsDataURL(Blob)\" with the proper type": {
+          "stNum": 81,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: calling readAsDataURL(Blob) on new FileReader() with too few arguments must throw TypeError": {
+          "stNum": 82,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"abort()\" with the proper type": {
+          "stNum": 83,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"EMPTY\" with the proper type": {
+          "stNum": 84,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"LOADING\" with the proper type": {
+          "stNum": 85,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"DONE\" with the proper type": {
+          "stNum": 86,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"readyState\" with the proper type": {
+          "stNum": 87,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"result\" with the proper type": {
+          "stNum": 88,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"error\" with the proper type": {
+          "stNum": 89,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onloadstart\" with the proper type": {
+          "stNum": 90,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onprogress\" with the proper type": {
+          "stNum": 91,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onload\" with the proper type": {
+          "stNum": 92,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onabort\" with the proper type": {
+          "stNum": 93,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onerror\" with the proper type": {
+          "stNum": 94,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReader interface: new FileReader() must inherit property \"onloadend\" with the proper type": {
+          "stNum": 95,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "FileReaderSync interface: existence and properties of interface object": {
+          "stNum": 96,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "URL interface: operation createObjectURL(Blob)": {
+          "stNum": 97,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "URL interface: operation revokeObjectURL(DOMString)": {
+          "stNum": 98,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/filelist-section/filelist.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Check if window has a FileList property": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if FileList.length is 0": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if item is a instanceof Function": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if item is a method of fileList": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if the item method returns null when no file selected": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if length is fileList's attribute": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Check if the fileList length is 0 when no file selected": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/url/cross-global-revoke.sub.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "It is possible to revoke same-origin blob URLs from different frames.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "It is possible to revoke same-origin blob URLs from a different worker global.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "It is not possible to revoke cross-origin blob URLs.": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/FileAPI/file/send-file-form-x-user-defined.tentative.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "Upload file-for-upload-in-form.txt (ASCII) in x-user-defined form": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-.txt (x-user-defined) in x-user-defined form": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in x-user-defined form": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in x-user-defined form": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-☺😂.txt (Unicode) in x-user-defined form": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in x-user-defined form": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    }
+  }
+}

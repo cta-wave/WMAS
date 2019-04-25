@@ -1,0 +1,3077 @@
+{
+  "results": [
+    {
+      "test": "/FileAPI/url/multi-global-origin-serialization.sub.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Blob URL serialization (specifically the origin) in multi-global situations",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/url/unicode-origin.sub.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Verify serialization of non-ascii origin in Blob URLs",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/blob/Blob-constructor-endings.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Valid \"endings\" value: \"transparent\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid \"endings\" value: \"native\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: null",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"invalidEnumValue\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"Transparent\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"NATIVE\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: 0",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: {}",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Exception propagation from options",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "The \"endings\" options property is used",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "CR/LF in adjacent input strings",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_readAsBinaryString.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileAPI Test: filereader_readAsBinaryString",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/Determining-Encoding.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Blob Determing Encoding with encoding argument",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob Determing Encoding with type attribute",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob Determing Encoding with UTF-8 BOM",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob Determing Encoding without anything implying charset.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob Determing Encoding with UTF-16BE BOM",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob Determing Encoding with UTF-16LE BOM",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/fileReader.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileReader interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "no-argument FileReader constructor",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader States -- abort",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader States -- events",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/blob/Blob-slice-overflow.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "slice start is negative, relativeStart will be max((size + start), 0)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "slice start is greater than blob size, relativeStart will be min(start, size)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "slice end is negative, relativeEnd will be max((size + end), 0)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "slice end is greater than blob size, relativeEnd will be min(end, size)",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/FileReader-multiple-reads.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "test FileReader InvalidStateError exception for readAsText",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "test FileReader InvalidStateError exception for readAsDataURL",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "test FileReader InvalidStateError exception for readAsArrayBuffer",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "test FileReader InvalidStateError exception in onloadstart event for readAsArrayBuffer",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "test FileReader no InvalidStateError exception in loadend event handler for readAsArrayBuffer",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "test abort and restart in onloadstart event for readAsText",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/historical.https.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "\"toNativeLineEndings\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"FileError\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"FileException\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"FileHandle\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"FileRequest\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"MutableFile\" should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob should not support slice prefixed",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "BlobBuilder should not be supported.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "createFor method should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob.close() should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File's lastModifiedDate should not be supported",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Service worker test setup",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "\"FileReaderSync\" should not be supported in service workers",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/url/sandboxed-iframe.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Generated Blob URLs are unique",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URL starts with \"blob:\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URL starts with \"blob:\" for Files",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Origin of Blob URL matches our origin",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URL parses correctly",
+          "status": "FAIL",
+          "message": "assert_true: Path must end with a valid UUID expected true got false"
+        },
+        {
+          "name": "Origin of Blob URL matches our origin for Files",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URLs can be used in <script> tags",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URLs can be used in iframes, and are treated same origin",
+          "status": "FAIL",
+          "message": "Permission denied to access property \"test_result\" on cross-origin object"
+        },
+        {
+          "name": "Blob URL fragment is implemented.",
+          "status": "FAIL",
+          "message": "Permission denied to access property \"onscroll\" on cross-origin object"
+        },
+        {
+          "name": "Blob URLs can be used in XHR",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with a fragment should succeed",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR of a revoked URL should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Only exact matches should revoke URLs, using XHR",
+          "status": "FAIL",
+          "message": "promise_test: Unhandled rejection with value: \"Got unexpected error event\""
+        },
+        {
+          "name": "Appending a query string should cause XHR to fail",
+          "status": "FAIL",
+          "message": "assert_equals: expected 0 but got 200"
+        },
+        {
+          "name": "Appending a path should cause XHR to fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"HEAD\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"POST\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"DELETE\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"OPTIONS\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"PUT\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR with method \"CUSTOM\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "XHR should return Content-Type from Blob",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Revoke blob URL after open(), will fetch",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob URLs can be used in fetch",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with a fragment should succeed",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch of a revoked URL should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Only exact matches should revoke URLs, using fetch",
+          "status": "FAIL",
+          "message": "promise_test: Unhandled rejection with value: object \"TypeError: NetworkError when attempting to fetch resource.\""
+        },
+        {
+          "name": "Appending a query string should cause fetch to fail",
+          "status": "FAIL",
+          "message": "assert_unreached: Should have rejected: undefined Reached unreachable code"
+        },
+        {
+          "name": "Appending a path should cause fetch to fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"HEAD\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"POST\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"DELETE\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"OPTIONS\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"PUT\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch with method \"CUSTOM\" should fail",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "fetch should return Content-Type from Blob",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Revoke blob URL after creating Request, will fetch",
+          "status": "FAIL",
+          "message": "promise_test: Unhandled rejection with value: object \"TypeError: NetworkError when attempting to fetch resource.\""
+        },
+        {
+          "name": "Revoke blob URL after calling fetch, fetch should succeed",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/File-constructor-endings.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Valid \"endings\" value: \"transparent\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid \"endings\" value: \"native\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: null",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"invalidEnumValue\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"Transparent\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: \"NATIVE\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: 0",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid \"endings\" value: {}",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Exception propagation from options",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "The \"endings\" options property is used",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRCRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input CRLFCRLF with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings unspecified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings 'transparent'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Input LFCRLFCR with endings 'native'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "CR/LF in adjacent input strings",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/blob/Blob-constructor.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Blob interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob constructor with no arguments",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob constructor with no arguments, without 'new'",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob constructor without brackets",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob constructor with undefined as first argument",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing non-objects, Dates and RegExps for blobParts should throw a TypeError.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A plain object with @@iterator should be treated as a sequence for the blobParts argument.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A plain object with custom @@iterator should be treated as a sequence for the blobParts argument.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A plain object with @@iterator and a length property should be treated as a sequence for the blobParts argument.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A String object should be treated as a sequence for the blobParts argument.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A Uint8Array object should be treated as a sequence for the blobParts argument.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "The length getter should be invoked and any exceptions should be propagated.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "A platform object that supports indexed properties should be treated as a sequence for the blobParts argument (overwritten 'length'.)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "ToUint32 should be applied to the length and any exceptions should be propagated.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Getters and value conversions should happen in order until an exception is thrown.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "ToString should be called on elements of the blobParts array and any exceptions should be propagated.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Changes to the blobParts array should be reflected in the returned Blob (pop).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Changes to the blobParts array should be reflected in the returned Blob (unshift).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "ToString should be called on elements of the blobParts array.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "ArrayBuffer elements of the blobParts array should be supported.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing typed arrays as elements of the blobParts array should work.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing a Float64Array as element of the blobParts array should work.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing an platform object that supports indexed properties as the blobParts array should work (select).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing an platform object that supports indexed properties as the blobParts array should work (attributes).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing a FrozenArray as the blobParts array should work (FrozenArray<MessagePort>).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Array with two blobs",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Array with two buffers",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Array with two bufferviews",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Array with mixed types",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "options properties should be accessed in lexicographic order.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Arguments should be evaluated from left to right.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing null (index 0) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing null (index 0) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing undefined (index 1) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing undefined (index 1) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"[object Object]\" (index 2) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"[object Object]\" (index 2) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"[object Object]\" (index 3) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"[object Object]\" (index 3) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"/regex/\" (index 4) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing object \"/regex/\" (index 4) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing function \"function() {}\" (index 5) for options should use the defaults.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing function \"function() {}\" (index 5) for options should use the defaults (with newlines).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing 123 for options should throw",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing 123.4 for options should throw",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing true for options should throw",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Passing \"abc\" for options should throw",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"a\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"A\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"text/html\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"TEXT/HTML\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"text/plain;charset=utf-8\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"å\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"𐑾\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \" image/gif \"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"\\timage/gif\\t\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"image/gif;\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"İmage/gif\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"ımage/gif\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"image/gif\\0\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"unknown/unknown\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"text/plain\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob with type \"image/png\"",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_error.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileAPI Test: filereader_error",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_abort.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Aborting before read",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Aborting after read",
+          "status": "FAIL",
+          "message": "assert_true: Not expecting event, but got loadstart event expected true got false"
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/FileReader-event-handler-attributes.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileReader.onloadstart: initial value",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader.onprogress: initial value",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader.onload: initial value",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader.onabort: initial value",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader.onerror: initial value",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader.onloadend: initial value",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/blob/Blob-slice.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "no-argument Blob slice",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slices",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "blob1.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "blob2.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "null type Blob slice",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "undefined type Blob slice",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "no type Blob slice",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,6).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,6).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,7).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,7).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (0,8).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (0,8).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,6).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,6).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (1,7).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (1,7).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (2,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (2,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (2,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (2,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (2,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (2,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (2,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (2,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (3,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (3,5).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (4,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (4,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (4,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (4,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (4,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (4,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (4,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (4,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (4,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (4,4).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (5,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (5,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (5,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (5,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (5,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (5,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (5,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (5,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (6,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (6,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (6,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (6,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (6,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (6,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (7,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (7,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (7,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (7,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (7,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (7,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (7,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (7,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (8,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (8,0).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (8,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (8,1).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (8,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (8,2).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test (8,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Slicing test: slice (8,3).",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid contentType (\"ÿ\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid contentType (\"te\\txt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid contentType (\"te\\0xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid contentType (\"te\\x1fxt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid contentType (\"text/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te(xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te)xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te<xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te>xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te@xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te,xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te;xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te:xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te\\\\xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te\\\"xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te/xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te[xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te]xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te?xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te=xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te{xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te}xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"te xt/plain\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"TEXT/PLAIN\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"text/plain;charset = UTF-8\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Valid contentType (\"text/plain;charset=UTF-8\")",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_result.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "readAsText",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "readAsDataURL",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "readAsArrayBuffer",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_readAsDataURL.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileReader readyState during readAsDataURL",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "readAsDataURL result for Blob with specified MIME type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "readAsDataURL result for Blob with unspecified MIME type",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/send-file-form-windows-1252.tentative.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Upload file-for-upload-in-form.txt (ASCII) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-.txt (x-user-defined) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-☺😂.txt (Unicode) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in windows-1252 form",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/unicode.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Test that strings are not NFC normalized by Blob constructor",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Test that strings are not NFC normalized by File constructor",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Test that unpaired surrogates are replaced by Blob constructor",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Test that unpaired surrogates are replaced by File constructor",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_readAsText.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "readAsText should correctly read UTF-8.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "readAsText should correctly read UTF-16.",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_readAsArrayBuffer.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileAPI Test: filereader_readAsArrayBuffer",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/send-file-form-utf-8.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-.txt (x-user-defined) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-☺😂.txt (Unicode) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/send-file-form-iso-2022-jp.tentative.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Upload file-for-upload-in-form.txt (ASCII) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-.txt (x-user-defined) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-☺😂.txt (Unicode) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in ISO-2022-JP form",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/FileReader/Progress_event_bubbles_cancelable.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Check the values of bubbles and cancelable are false when the progress event is dispatched",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/send-file-form.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/reading-data-section/filereader_readystate.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileAPI Test: filereader_readystate",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/FileReader/workers.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "FileReader created after a worker self.close()",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/File-constructor.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "File interface object exists",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Required arguments",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "empty fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "DOMString fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unicode DOMString fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "String object fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Empty Blob fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Empty File fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "ArrayBuffer fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Typed array fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Various fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Number in fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Array in fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Object in fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "HTMLBodyElement in fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Object with toString in fileBits",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Custom @@iterator",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid bits argument: \"hello\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid bits argument: 0",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid bits argument: null",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Bits argument: object that throws",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using special character in fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using null fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using number fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using empty string fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using object fileName",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: text/plain",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: text/plain;charset=UTF-8",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: TEXT/PLAIN",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: 𝓽𝓮𝔁𝓽/𝔭𝔩𝔞𝔦𝔫",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: ascii/nonprintable\u001f",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: ascii/nonprintable",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: nonasciiî",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: nonasciiሴ",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using type in File constructor: nonparsable",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Using lastModified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Misusing name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unknown properties are ignored",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid property bag: 123",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid property bag: 123.4",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid property bag: true",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Invalid property bag: \"abc\"",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unusual but valid property bag: null",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unusual but valid property bag: undefined",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unusual but valid property bag: 1,2,3",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unusual but valid property bag: /regex/",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Unusual but valid property bag: function() {}",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Property bag propagates exceptions",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/url/url-lifetime.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Terminating worker revokes its URLs",
+          "status": "FAIL",
+          "message": "assert_unreached: Should have rejected: undefined Reached unreachable code"
+        },
+        {
+          "name": "Removing an iframe revokes its URLs",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/idlharness.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "idl_test setup",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Partial interface URL: original interface defined",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Partial interface URL: valid exposure set",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: existence and properties of interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface object length",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface object name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: existence and properties of interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: existence and properties of interface prototype object's \"constructor\" property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: existence and properties of interface prototype object's @@unscopables property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: attribute size",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: attribute type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: operation slice(long long, long long, DOMString)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob must be primary interface of new Blob([\"TEST\"])",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Stringification of new Blob([\"TEST\"])",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new Blob([\"TEST\"]) must inherit property \"size\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new Blob([\"TEST\"]) must inherit property \"type\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new Blob([\"TEST\"]) must inherit property \"slice(long long, long long, DOMString)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: calling slice(long long, long long, DOMString) on new Blob([\"TEST\"]) with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: existence and properties of interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface object length",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface object name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: existence and properties of interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: existence and properties of interface prototype object's \"constructor\" property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: existence and properties of interface prototype object's @@unscopables property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: attribute name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: attribute lastModified",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File must be primary interface of new File([\"myFileBits\"], \"myFileName\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Stringification of new File([\"myFileBits\"], \"myFileName\")",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"name\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "File interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"lastModified\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"size\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"type\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: new File([\"myFileBits\"], \"myFileName\") must inherit property \"slice(long long, long long, DOMString)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Blob interface: calling slice(long long, long long, DOMString) on new File([\"myFileBits\"], \"myFileName\") with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: existence and properties of interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface object length",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface object name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: existence and properties of interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: existence and properties of interface prototype object's \"constructor\" property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: existence and properties of interface prototype object's @@unscopables property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: operation item(unsigned long)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: attribute length",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList must be primary interface of document.querySelector(\"#fileChooser\").files",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Stringification of document.querySelector(\"#fileChooser\").files",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: document.querySelector(\"#fileChooser\").files must inherit property \"item(unsigned long)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: calling item(unsigned long) on document.querySelector(\"#fileChooser\").files with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileList interface: document.querySelector(\"#fileChooser\").files must inherit property \"length\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: existence and properties of interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface object length",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface object name",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: existence and properties of interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: existence and properties of interface prototype object's \"constructor\" property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: existence and properties of interface prototype object's @@unscopables property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: operation readAsArrayBuffer(Blob)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: operation readAsBinaryString(Blob)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: operation readAsText(Blob, DOMString)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: operation readAsDataURL(Blob)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: operation abort()",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant EMPTY on interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant EMPTY on interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant LOADING on interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant LOADING on interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant DONE on interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: constant DONE on interface prototype object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute readyState",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute result",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute error",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onloadstart",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onprogress",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onload",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onabort",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onerror",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: attribute onloadend",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader must be primary interface of new FileReader()",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Stringification of new FileReader()",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"readAsArrayBuffer(Blob)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: calling readAsArrayBuffer(Blob) on new FileReader() with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"readAsBinaryString(Blob)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: calling readAsBinaryString(Blob) on new FileReader() with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"readAsText(Blob, DOMString)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: calling readAsText(Blob, DOMString) on new FileReader() with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"readAsDataURL(Blob)\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: calling readAsDataURL(Blob) on new FileReader() with too few arguments must throw TypeError",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"abort()\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"EMPTY\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"LOADING\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"DONE\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"readyState\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"result\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"error\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onloadstart\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onprogress\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onload\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onabort\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onerror\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReader interface: new FileReader() must inherit property \"onloadend\" with the proper type",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "FileReaderSync interface: existence and properties of interface object",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "URL interface: operation createObjectURL(Blob)",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "URL interface: operation revokeObjectURL(DOMString)",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/filelist-section/filelist.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Check if window has a FileList property",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if FileList.length is 0",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if item is a instanceof Function",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if item is a method of fileList",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if the item method returns null when no file selected",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if length is fileList's attribute",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Check if the fileList length is 0 when no file selected",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/url/cross-global-revoke.sub.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "It is possible to revoke same-origin blob URLs from different frames.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "It is possible to revoke same-origin blob URLs from a different worker global.",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "It is not possible to revoke cross-origin blob URLs.",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/FileAPI/file/send-file-form-x-user-defined.tentative.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Upload file-for-upload-in-form.txt (ASCII) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-.txt (x-user-defined) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-☺😂.txt (Unicode) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in x-user-defined form",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    }
+  ]
+}

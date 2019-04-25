@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>page-visibility: Complete Failures</title>
+    <link rel='stylesheet' href='bootstrap.min.css'>
+    <link rel='stylesheet' href='analysis.css'>
+  </head>
+  <body>
+    <div class='container'>
+      <header>
+        <h1>page-visibility: Complete Failures</h1>
+      </header>
+      
+      <p><strong>Completely failed files</strong>: 8; <strong>Completely failed subtests</strong>: 6; <strong>Failure level</strong>: 6/33 (18.18%)</p>
+      <h3>Test Files</h3>
+<ol class='toc'><li><a href='#test-file-0'>/page-visibility/test_child_document.html</a> <small>(3/14, 21.43%, 9.09% of total)</small></li>
+<li><a href='#test-file-1'>/page-visibility/prerender_call.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></li>
+<li><a href='#test-file-2'>/page-visibility/unload.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></li>
+<li><a href='#test-file-3'>/page-visibility/iframe-unload.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></li>
+</ol>
+      <table class='table persist-area'>
+        <thead><tr class='persist-header'><th>Test <span class='message_toggle'>Show/Hide Messages</span></th><th>FF66</th></tr></thead>
+<tr class='test' id='test-file-0'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/page-visibility/test_child_document.html' target='_blank'>/page-visibility/test_child_document.html</a> <small>(3/14, 21.43%, 9.09% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-0-9' class='subtest'><td>document.visibilityState for frame with 'display:none' style == visible</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-0-13' class='subtest'><td>document.visibilityState for frame with 'visibility:hidden' style == visible</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-0-5' class='subtest'><td>document.visibilityState for frame with no style attribute == visible</td><td class='FAIL'>FAIL</td></tr>
+<tr class='test' id='test-file-2'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/page-visibility/prerender_call.html' target='_blank'>/page-visibility/prerender_call.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-2-0' class='subtest'><td>VisibilityState of the target page was set to "prerender" when it has been prerendered</td><td class='FAIL'>FAIL</td></tr>
+<tr class='test' id='test-file-3'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/page-visibility/unload.html' target='_blank'>/page-visibility/unload.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></td><td class='TIMEOUT'>TIMEOUT</td></tr>
+<tr id='subtest-3-0' class='subtest'><td>visibilitychange fires on unload</td><td class='TIMEOUT'>TIMEOUT</td></tr>
+<tr class='test' id='test-file-5'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/page-visibility/iframe-unload.html' target='_blank'>/page-visibility/iframe-unload.html</a> <small>(1/1, 100.00%, 3.03% of total)</small></td><td class='TIMEOUT'>TIMEOUT</td></tr>
+<tr id='subtest-5-0' class='subtest'><td>visibilitychange fires on unload with iframes</td><td class='TIMEOUT'>TIMEOUT</td></tr>
+
+      </table>
+    </div>
+    <script src='jquery.min.js'></script>
+    <script src='sticky-headers.js'></script>
+    <script type='application/javascript'>
+      
+    </script>
+  </body>
+</html>

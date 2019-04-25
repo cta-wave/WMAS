@@ -8,7 +8,7 @@ class FileSystem {
   async makeDirectory(directoryPath) {
     return new Promise((resolve, reject) => {
       fs.mkdir(directoryPath, error => {
-        if (error) reject(error);
+        if (error) reject(new Error(error.message));
         resolve();
       });
     });
@@ -17,7 +17,7 @@ class FileSystem {
   async readDirectory(directoryPath) {
     return new Promise((resolve, reject) => {
       fs.readdir(directoryPath, (error, files) => {
-        if (error) reject(error);
+        if (error) reject(new Error(error.message));
         resolve(files);
       });
     });
@@ -39,9 +39,9 @@ class FileSystem {
   }
 
   async stats(path) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       fs.stat(path, (error, stats) => {
-        if (error) resolve(null);
+        if (error) reject(new Error(error.message));
         resolve(stats);
       });
     });
@@ -49,8 +49,8 @@ class FileSystem {
 
   async readFile(filePath) {
     return new Promise((resolve, reject) => {
-      fs.readFile(filePath, (error, data) => {
-        if (error) reject(error);
+      fs.readFile(filePath, { encoding: "utf-8" }, (error, data) => {
+        if (error) reject(new Error(error.message));
         resolve(data);
       });
     });
@@ -59,7 +59,7 @@ class FileSystem {
   async writeFile(filePath, data) {
     return new Promise((resolve, reject) => {
       fs.writeFile(filePath, data, error => {
-        if (error) reject(error);
+        if (error) reject(new Error(error.message));
         resolve();
       });
     });
@@ -68,24 +68,33 @@ class FileSystem {
   async removeFile(filePath) {
     return new Promise((resolve, reject) => {
       fs.unlink(filePath, error => {
-        if (error) reject(error);
+        if (error) reject(new Error(error.message));
         resolve();
       });
     });
   }
 
   async copyFile(sourceFilePath, destinyFilePath) {
-    return new Promise(resolve => {
-      fs.createReadStream(sourceFilePath)
-        .pipe(fs.createWriteStream(destinyFilePath))
-        .on("close", () => {
-          resolve();
-        });
+    return new Promise((resolve, reject) => {
+      try {
+        fs.createReadStream(sourceFilePath)
+          .pipe(fs.createWriteStream(destinyFilePath))
+          .on("close", () => {
+            resolve();
+          });
+      } catch (error) {
+        reject(new Error(error.message));
+      }
     });
   }
 
   async exists(path) {
-    return (await this.stats(path)) !== null;
+    try {
+      await this.stats(path);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 

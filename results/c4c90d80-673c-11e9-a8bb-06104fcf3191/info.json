@@ -1,0 +1,29 @@
+{
+  "token": "c4c90d80-673c-11e9-a8bb-06104fcf3191",
+  "path": "/FileAPI, /page-visibility, /service-workers, /webgl",
+  "types": [
+    "testharness"
+  ],
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:66.0) Gecko/20100101 Firefox/66.0",
+  "test_timeout": 65000,
+  "test_files_count": {
+    "FileAPI": 34,
+    "page-visibility": 8,
+    "service-workers": 232,
+    "webgl": 677
+  },
+  "test_files_completed": {
+    "FileAPI": 34,
+    "page-visibility": 8,
+    "webgl": 677
+  },
+  "status": "running",
+  "browser": {
+    "name": "Firefox",
+    "version": "66"
+  },
+  "date_started": 1556184630896,
+  "date_finished": null,
+  "is_public": false,
+  "reference_tokens": []
+}

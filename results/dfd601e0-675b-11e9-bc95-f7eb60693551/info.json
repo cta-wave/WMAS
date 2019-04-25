@@ -1,0 +1,25 @@
+{
+  "token": "dfd601e0-675b-11e9-bc95-f7eb60693551",
+  "path": "/wave-extra/wave-cookies",
+  "types": [
+    "testharness",
+    "manual"
+  ],
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36",
+  "test_timeout": 65000,
+  "test_files_count": {
+    "wave-extra": 15
+  },
+  "test_files_completed": {
+    "wave-extra": 15
+  },
+  "status": "completed",
+  "browser": {
+    "name": "Chrome",
+    "version": "73"
+  },
+  "date_started": 1556197990662,
+  "date_finished": 1556198076826,
+  "is_public": false,
+  "reference_tokens": []
+}
