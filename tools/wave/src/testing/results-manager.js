@@ -9,6 +9,7 @@ const Serializer = require("../utils/serializer");
 const Deserializer = require("../utils/deserializer");
 const SessionManager = require("../network/session-manager");
 const Session = require("../data/session");
+const Database = require("../database");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -21,6 +22,7 @@ class ResultsManager {
    * @constructor
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
+   * @param {Database} config.database
    */
   constructor({
     resultsDirectoryPath,
