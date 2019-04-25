@@ -225,17 +225,17 @@ class ResultsManager {
   }
 
   async _ensureResultsDirectoryExistence({ token, api, session }) {
-    if (!(await FileSystem.stats(this._resultsDirectoryPath))) {
+    if (!(await FileSystem.exists(this._resultsDirectoryPath))) {
       await FileSystem.makeDirectory(this._resultsDirectoryPath);
     }
 
     let directory = path.join(this._resultsDirectoryPath, token);
-    if (!(await FileSystem.stats(directory))) {
+    if (!(await FileSystem.exists(directory))) {
       await FileSystem.makeDirectory(directory);
     }
 
     directory = path.join(directory, api);
-    if (!(await FileSystem.stats(directory))) {
+    if (!(await FileSystem.exists(directory))) {
       await FileSystem.makeDirectory(directory);
     }
 
