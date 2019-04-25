@@ -3,6 +3,7 @@ const crypto = require("crypto");
 
 const Session = require("../data/session");
 const TestLoader = require("../testing/test-loader");
+const Database = require("../database");
 
 const DEFAULT_TEST_PATH = "/";
 const DEFAULT_TEST_TYPES = [
@@ -14,6 +15,11 @@ const DEFAULT_TEST_TYPES = [
  * @module SessionManager
  */
 class SessionManager {
+  /**
+   *
+   * @param {Object} config
+   * @param {Database} config.database
+   */
   constructor({ database, testTimeout, testLoader }) {
     this._database = database;
     this._sessions = [];

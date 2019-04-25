@@ -381,7 +381,7 @@ node tools/wave/webgl/prepare-tests.js $DISTDIR
 DISTDIR=wave-extra
 cd $WPTBASEDIR
 rm -rf $DISTDIR
-git clone https://gitlab.fokus.fraunhofer.de/dashcenc/WMATS2018-cookies.git $DISTDIR
+git clone https://github.com/fraunhoferfokus/WMATS2018-cookies.git $DISTDIR
 cd $DISTDIR
 git checkout d88669bdac7181f4d868a704758e5dcff9f182a0
 cd $WPTBASEDIR
