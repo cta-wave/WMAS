@@ -59,8 +59,37 @@ class SessionApiHandler extends ApiHandler {
                 });
             }
         }
+      case "POST":
+        switch (url.length) {
+          case 1:
+            return this._createSession({ request, response });
+        }
     }
     response.status(404).send();
+  }
+
+  async _createSession({ request, response }) {
+    const userAgent = request.get("User-Agent");
+    const { path, reftoken, types, testTimeout } = this.parseQueryParameters(
+      request
+    );
+    const referenceTokens = reftoken.split(",").filter(token => !!token);
+    const session = await this._sessionManager.createSession({
+      path,
+      referenceTokens,
+      types,
+      userAgent,
+      testTimeout
+    });
+
+    const token = session.getToken();
+
+    // save token in cookie to resume session if tests run into problems
+    response.cookie("sid", token, {
+      maxAge: 1000 * 60 * 60 * 48, // 2 days
+      httpOnly: true
+    });
+    response.send(token);
   }
 
   async _stopSession(token) {

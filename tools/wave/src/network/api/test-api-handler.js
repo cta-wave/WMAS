@@ -48,7 +48,7 @@ class TestApiHandler extends ApiHandler {
   }
 
   async _nextTest({ request, response }) {
-    const userAgent = request.get("User-Agent");
+    // const userAgent = request.get("User-Agent");
     let { token } = this.parseQueryParameters(request);
     if (!token) {
       token = request.get("token");
@@ -58,45 +58,46 @@ class TestApiHandler extends ApiHandler {
     }
 
     const {
-      path,
-      reftoken,
-      types,
-      testTimeout,
-      hostname
+      // path,
+      // reftoken,
+      // types,
+      // testTimeout,
+      hostname,
+      resume
     } = this.parseQueryParameters(request);
-    const referenceTokens = reftoken.split(",").filter(token => !!token);
+    // const referenceTokens = reftoken.split(",").filter(token => !!token);
 
     let session = await this._sessionManager.getSession(token);
-    if (!session || session.getStatus() === Session.COMPLETED || path) {
-      session = await this._sessionManager.createSession({
-        path,
-        referenceTokens,
-        types,
-        userAgent,
-        testTimeout
-      });
+    // if (!session || path) {
+    //   session = await this._sessionManager.createSession({
+    //     path,
+    //     referenceTokens,
+    //     types,
+    //     userAgent,
+    //     testTimeout
+    //   });
 
-      const token = session.getToken();
+    //   const token = session.getToken();
 
-      // save token in cookie to resume session if tests run into problems
-      response.cookie("sid", token, {
-        maxAge: 1000 * 60 * 60 * 48, // 2 days
-        httpOnly: true
-      });
+    //   // save token in cookie to resume session if tests run into problems
+    //   response.cookie("sid", token, {
+    //     maxAge: 1000 * 60 * 60 * 48, // 2 days
+    //     httpOnly: true
+    //   });
 
-      let query = "?token=" + token;
-      response.send(
-        this._generateUrl({
-          hostname,
-          port: this._wavePort,
-          uri: "/newsession.html",
-          query
-        })
-      );
-      return;
-    }
+    //   let query = "?token=" + token;
+    //   response.send(
+    //     this._generateUrl({
+    //       hostname,
+    //       port: this._wavePort,
+    //       uri: "/newsession.html",
+    //       query
+    //     })
+    //   );
+    //   return;
+    // }
 
-    if (request.query.resume) {
+    if (resume) {
       let query = "?token=" + token + "&resume=1";
       response.send(
         this._generateUrl({
@@ -122,6 +123,7 @@ class TestApiHandler extends ApiHandler {
         );
         return;
       }
+      case Session.COMPLETED:
       case Session.ABORTED: {
         let query = "?token=" + session.getToken();
         response.send(
