@@ -53,7 +53,9 @@ class TestLoader {
     if (await FileSystem.exists(this._excludeListFilePath)) {
       excludeList = (await FileSystem.readFile(this._excludeListFilePath))
         .split("\n")
-        .map(line => line.substr(0, line.indexOf("#")))
+        .map(line =>
+          line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
+        )
         .map(line => line.replace(/ /g, ""))
         .filter(line => !!line);
     }
