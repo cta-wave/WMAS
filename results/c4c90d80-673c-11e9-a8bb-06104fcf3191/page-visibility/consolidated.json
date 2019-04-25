@@ -1,0 +1,437 @@
+{
+  "ua": [
+    "FF66"
+  ],
+  "results": {
+    "/page-visibility/test_child_document.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "document.hidden is defined and not null.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined and not null.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "Page Visibility API Child Document Test": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is defined for frame with no style attribute.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined for frame with no style attribute.": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState for frame with no style attribute == visible": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_equals: document.visibilityState for frame with no style attribute == visible expected \"visible\" but got \"hidden\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Page Visibility API Child Document Test 1": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is defined for frame with 'display:none' style.": {
+          "stNum": 7,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined for frame with 'display:none' style.": {
+          "stNum": 8,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState for frame with 'display:none' style == visible": {
+          "stNum": 9,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_equals: document.visibilityState for frame with 'display:none' style == visible expected \"visible\" but got \"hidden\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        },
+        "Page Visibility API Child Document Test 2": {
+          "stNum": 10,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is defined for frame with 'visibility:hidden' style.": {
+          "stNum": 11,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined for frame with 'visibility:hidden' style.": {
+          "stNum": 12,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState for frame with 'visibility:hidden' style == visible": {
+          "stNum": 13,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_equals: document.visibilityState for frame with 'visibility:hidden' style == visible expected \"visible\" but got \"hidden\""
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/test_read_only.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "document.hidden is defined and not null.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined and not null.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is read only.": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is read only.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/prerender_call.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "VisibilityState of the target page was set to \"prerender\" when it has been prerendered": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "FAIL"
+          },
+          "UAmessage": {
+            "FF66": "assert_equals: visibilityState of the target page was set to 'prerender' expected (string) \"hit\" but got (object) null"
+          },
+          "totals": {
+            "FAIL": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/unload.html": {
+      "byUA": {
+        "FF66": "TIMEOUT"
+      },
+      "UAmessage": {},
+      "totals": {
+        "TIMEOUT": 1
+      },
+      "subtests": {
+        "visibilitychange fires on unload": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "TIMEOUT"
+          },
+          "UAmessage": {
+            "FF66": "Test timed out"
+          },
+          "totals": {
+            "TIMEOUT": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/onvisibilitychange.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "onvisibilitychange attribute is a proper event handler": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/iframe-unload.html": {
+      "byUA": {
+        "FF66": "TIMEOUT"
+      },
+      "UAmessage": {},
+      "totals": {
+        "TIMEOUT": 1
+      },
+      "subtests": {
+        "visibilitychange fires on unload with iframes": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "TIMEOUT"
+          },
+          "UAmessage": {
+            "FF66": "Test timed out"
+          },
+          "totals": {
+            "TIMEOUT": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/test_attributes_exist.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "document.hidden is defined and not null.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined and not null.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is defined.": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    },
+    "/page-visibility/test_default_view.html": {
+      "byUA": {
+        "FF66": "OK"
+      },
+      "UAmessage": {},
+      "totals": {
+        "OK": 1
+      },
+      "subtests": {
+        "document.hidden is defined and not null.": {
+          "stNum": 0,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is defined and not null.": {
+          "stNum": 1,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "windowless subdocument generated for test has a null default view": {
+          "stNum": 2,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.hidden is definedwindowless subdocument.": {
+          "stNum": 3,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "document.visibilityState is definedwindowless subdocument.": {
+          "stNum": 4,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "hidden == true for windowless subdocuments with a null default view": {
+          "stNum": 5,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        },
+        "visibilityState == hidden for windowless subdocuments with a null default view": {
+          "stNum": 6,
+          "byUA": {
+            "FF66": "PASS"
+          },
+          "UAmessage": {},
+          "totals": {
+            "PASS": 1
+          }
+        }
+      }
+    }
+  }
+}

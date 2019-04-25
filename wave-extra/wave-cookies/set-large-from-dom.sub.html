@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Set large cookies from `document.cookie` on a secure page</title>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="resources/testharness-helpers.js"></script>
+</head>
+<body>
+<div id=log></div>
+<script>
+  var tests = [
+    [
+      "4026 byte cookie visible in `document.cookie`",
+      function () {
+        //key has 26 bytes -> 4026-26 = 4000
+        var value = strRepeat('x', 4000);
+        document.cookie = "4026_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('4026_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        this.done();
+      }
+    ],
+    [
+      "4026 byte cookie visible in HTTP request",
+      function () {
+        var value = strRepeat('x', 4000);
+        document.cookie = "4026_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('4026_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        fetch("https://{{host}}:{{ports[https][0]}}/wave-extra/wave-cookies/resources/echo-json.py",
+              { "credentials": "include" })
+          .then(this.step_func(function (r) {
+            return r.json();
+          }))
+          .then(this.step_func_done(function (j) {
+            assert_equals(j["4026_bytes_from_secure_dom"], "4026_bytes_from_secure_dom=" + value);
+          }));
+      }
+    ],
+    [
+      "5000 byte cookie visible in `document.cookie`",
+      function () {
+        //key has 26 bytes -> 5000-26 = 4974
+        var value = strRepeat('x', 4974);
+        document.cookie = "5000_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('5000_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        this.done();
+      }
+    ],
+    [
+      "5000 byte cookie visible in HTTP request",
+      function () {
+        var value = strRepeat('x', 4974);
+        document.cookie = "5000_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('5000_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        fetch("https://{{host}}:{{ports[https][0]}}/wave-extra/wave-cookies/resources/echo-json.py",
+              { "credentials": "include" })
+          .then(this.step_func(function (r) {
+            return r.json();
+          }))
+          .then(this.step_func_done(function (j) {
+            assert_equals(j["5000_bytes_from_secure_dom"], "5000_bytes_from_secure_dom=" + value);
+          }));
+      }
+    ],
+    [
+      "4096 byte cookie visible in `document.cookie`",
+      function () {
+        //key has 26 bytes -> 4096-26 = 4070
+        var value = strRepeat('x', 4070);
+        document.cookie = "4096_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('4096_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        this.done();
+      }
+    ],
+    [
+      "4096 byte cookie visible in HTTP request",
+      function () {
+        var value = strRepeat('x', 4070);
+        document.cookie = "4096_bytes_from_secure_dom=" + value + "; path=/";
+        var regex = new RegExp('4096_bytes_from_secure_dom=' + value);
+        assert_not_equals(document.cookie.match(regex), null);
+        fetch("https://{{host}}:{{ports[https][0]}}/wave-extra/wave-cookies/resources/echo-json.py",
+              { "credentials": "include" })
+          .then(this.step_func(function (r) {
+            return r.json();
+          }))
+          .then(this.step_func_done(function (j) {
+            assert_equals(j["4096_bytes_from_secure_dom"], "4096_bytes_from_secure_dom=" + value);
+          }));
+      }
+    ]
+
+  ];
+
+  function strRepeat(str, qty) {
+    if (qty < 1) return '';
+    var result = '';
+    while (qty > 0) {
+      if (qty & 1) result += str;
+      qty >>= 1, str += str;
+    }
+    return result;
+  };
+
+  function clearKnownCookie() {
+    document.cookie = "4026_bytes_from_secure_dom=0; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/";
+    document.cookie = "5000_bytes_from_secure_dom=0; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/";
+    document.cookie = "4096_bytes_from_secure_dom=0; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/";
+  }
+
+  executeTestsSerially(tests, clearKnownCookie, clearKnownCookie);
+</script>
+</body>
+</html>

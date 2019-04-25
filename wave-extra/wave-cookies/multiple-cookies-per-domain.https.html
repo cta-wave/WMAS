@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>Devices support at least 20 cookies per domain</title>
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+  <script src="resources/testharness-helpers.js"></script>
+</head>
+<body>
+  <div id=log></div>
+  <script>
+
+    var tests = [
+    [
+    "Create 10 cookies in `document.cookie` from the same domain",
+    function () {
+      for(var i=0; i<10; i++){
+        var value = "value"+ i;
+        document.cookie = "cookie_same_domain_" + i + "=" + value + "; path=/";
+      }
+
+      var allCookiesSet = true;
+
+      for(var i=0; i<10; i++){
+        var value = "value"+ i;
+        var regex = new RegExp("cookie_same_domain_" + i + "=" + value );
+        if(document.cookie.match(regex) == null){
+          allCookiesSet = false;
+          break;
+        }
+      }
+      assert_equals(allCookiesSet, true);
+      this.done();
+    }
+    ],
+    [
+    "Create 20 cookies in `document.cookie` from the same domain",
+    function () {
+      for(var i=0; i<20; i++){
+        var value = "value"+ i;
+        document.cookie = "cookie_same_domain_" + i + "=" + value + "; path=/";
+      }
+
+      var allCookiesSet = true;
+
+      for(var i=0; i<20; i++){
+        var value = "value"+ i;
+        var regex = new RegExp("cookie_same_domain_" + i + "=" + value );
+        if(document.cookie.match(regex) == null){
+          allCookiesSet = false;
+          break;
+        }
+      }
+      assert_equals(allCookiesSet, true);
+      this.done();
+    }
+    ],
+    [
+    "Create 30 cookies in `document.cookie` from the same domain",
+    function () {
+      for(var i=0; i<30; i++){
+        var value = "value"+ i;
+        document.cookie = "cookie_same_domain_" + i + "=" + value + "; path=/";
+      }
+
+      var allCookiesSet = true;
+
+      for(var i=0; i<30; i++){
+        var value = "value"+ i;
+        var regex = new RegExp("cookie_same_domain_" + i + "=" + value );
+        if(document.cookie.match(regex) == null){
+          allCookiesSet = false;
+          break;
+        }
+      }
+      assert_equals(allCookiesSet, true);
+      this.done();
+    }
+    ]
+    ];
+
+    function clearKnownCookie() {
+      for(var i=0; i<30; i++){
+        document.cookie = "cookie_same_domain_"+ i +"=0; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/";
+      }
+    }
+
+    executeTestsSerially(tests, clearKnownCookie, clearKnownCookie);
+
+  </script>
+</body>
+</html>

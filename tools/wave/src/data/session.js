@@ -67,6 +67,7 @@ class Session {
     let test;
     let api;
     let hasHttp = true;
+    let hasManual = true;
     let currentApi = 0;
     let currentTest = 0;
     const apis = Object.keys(this._pendingTests).sort((testA, testB) =>
@@ -85,9 +86,18 @@ class Session {
           if (hasHttp) {
             hasHttp = false;
             currentApi = 0;
-          } else {
-            return null;
+            test = null;
+            continue;
           }
+
+          if (hasManual) {
+            hasManual = false;
+            currentApi = 0;
+            test = null;
+            continue;
+          }
+
+          return null;
         }
         test = null;
         continue;
@@ -95,6 +105,14 @@ class Session {
 
       if (test.indexOf("https") !== -1) {
         if (hasHttp) {
+          currentTest++;
+          test = null;
+          continue;
+        }
+      }
+
+      if (test.indexOf("manual") === -1) {
+        if (hasManual) {
           currentTest++;
           test = null;
           continue;

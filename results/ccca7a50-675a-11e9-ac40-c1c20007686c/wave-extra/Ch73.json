@@ -1,0 +1,256 @@
+{
+  "results": [
+    {
+      "test": "/wave-extra/wave-cookies/support-cookies-deletion.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Support deleting cookies",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/support-cookies-deletion.https.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Support deleting cookies",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/total-cookies-number.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Devices support at least 100 total cookies",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/set-large-from-dom.sub.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "4026 byte cookie visible in `document.cookie`",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "4026 byte cookie visible in HTTP request",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "5000 byte cookie visible in `document.cookie`",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "5000 byte cookie visible in HTTP request",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "4096 byte cookie visible in `document.cookie`",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "4096 byte cookie visible in HTTP request",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/multiple-cookies-per-domain.https.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Create 10 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Create 20 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Create 30 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/total-cookies-number.https.html",
+      "status": "TIMEOUT",
+      "message": null,
+      "subtests": []
+    },
+    {
+      "test": "/wave-extra/wave-cookies/persistence-application-sessions-2-manual.https.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Persistence of cookies between application sessions",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/persistence-application-sessions-2-manual.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Persistence of cookies between application sessions",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/persistence-power-cycles-2-manual.https.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Persistence of cookies across power cycles of the device",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/multiple-cookies-per-domain.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Create 10 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Create 20 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "Create 30 cookies in `document.cookie` from the same domain",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/persistence-power-cycles-2-manual.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "Persistence of cookies across power cycles of the device",
+          "status": "PASS",
+          "message": null
+        }
+      ]
+    },
+    {
+      "test": "wave-extra/wave-cookies/persistence-application-sessions-1-manual.https.html",
+      "status": "TIMEOUT",
+      "message": null,
+      "subtests": [
+        {
+          "status": "TIMEOUT",
+          "xstatus": "SERVERTIMEOUT"
+        }
+      ]
+    },
+    {
+      "test": "wave-extra/wave-cookies/persistence-power-cycles-1-manual.html",
+      "status": "TIMEOUT",
+      "message": null,
+      "subtests": [
+        {
+          "status": "TIMEOUT",
+          "xstatus": "SERVERTIMEOUT"
+        }
+      ]
+    },
+    {
+      "test": "wave-extra/wave-cookies/persistence-power-cycles-1-manual.https.html",
+      "status": "TIMEOUT",
+      "message": null,
+      "subtests": [
+        {
+          "status": "TIMEOUT",
+          "xstatus": "SERVERTIMEOUT"
+        }
+      ]
+    },
+    {
+      "test": "/wave-extra/wave-cookies/set-large-from-dom.https.sub.html",
+      "status": "OK",
+      "message": null,
+      "subtests": [
+        {
+          "name": "4026 byte cookie visible in `document.cookie`",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "4026 byte cookie visible in HTTP request",
+          "status": "PASS",
+          "message": null
+        },
+        {
+          "name": "5000 byte cookie visible in `document.cookie`",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "5000 byte cookie visible in HTTP request",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "4096 byte cookie visible in `document.cookie`",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        },
+        {
+          "name": "4096 byte cookie visible in HTTP request",
+          "status": "FAIL",
+          "message": "assert_not_equals: got disallowed value null"
+        }
+      ]
+    },
+    {
+      "test": "wave-extra/wave-cookies/persistence-application-sessions-1-manual.html",
+      "status": "TIMEOUT",
+      "message": null,
+      "subtests": [
+        {
+          "status": "TIMEOUT",
+          "xstatus": "SERVERTIMEOUT"
+        }
+      ]
+    }
+  ]
+}

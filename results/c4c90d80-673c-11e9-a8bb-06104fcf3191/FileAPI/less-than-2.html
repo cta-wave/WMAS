@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>FileAPI: Less Than 2 Passes</title>
+    <link rel='stylesheet' href='bootstrap.min.css'>
+    <link rel='stylesheet' href='analysis.css'>
+  </head>
+  <body>
+    <div class='container'>
+      <header>
+        <h1>FileAPI: Less Than 2 Passes</h1>
+      </header>
+      
+      <p><strong>Test files without 2 passes</strong>: 34; <strong>Subtests without 2 passes: </strong>567; <strong>Failure level</strong>: 567/567 (100.00%)</p>
+      <h3>Test Files</h3>
+<ol class='toc'><li><a href='#test-file-0'>/FileAPI/url/multi-global-origin-serialization.sub.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-1'>/FileAPI/url/unicode-origin.sub.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-2'>/FileAPI/blob/Blob-constructor-endings.html</a> <small>(45/45, 100.00%, 7.94% of total)</small></li>
+<li><a href='#test-file-3'>/FileAPI/reading-data-section/filereader_readAsBinaryString.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-4'>/FileAPI/reading-data-section/Determining-Encoding.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-5'>/FileAPI/fileReader.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></li>
+<li><a href='#test-file-6'>/FileAPI/blob/Blob-slice-overflow.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></li>
+<li><a href='#test-file-7'>/FileAPI/reading-data-section/FileReader-multiple-reads.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-8'>/FileAPI/historical.https.html</a> <small>(13/13, 100.00%, 2.29% of total)</small></li>
+<li><a href='#test-file-9'>/FileAPI/url/sandboxed-iframe.html</a> <small>(38/38, 100.00%, 6.70% of total)</small></li>
+<li><a href='#test-file-10'>/FileAPI/file/File-constructor-endings.html</a> <small>(45/45, 100.00%, 7.94% of total)</small></li>
+<li><a href='#test-file-11'>/FileAPI/blob/Blob-constructor.html</a> <small>(64/64, 100.00%, 11.29% of total)</small></li>
+<li><a href='#test-file-12'>/FileAPI/reading-data-section/filereader_error.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-13'>/FileAPI/reading-data-section/filereader_abort.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></li>
+<li><a href='#test-file-14'>/FileAPI/reading-data-section/FileReader-event-handler-attributes.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-15'>/FileAPI/blob/Blob-slice.html</a> <small>(127/127, 100.00%, 22.40% of total)</small></li>
+<li><a href='#test-file-16'>/FileAPI/reading-data-section/filereader_result.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></li>
+<li><a href='#test-file-17'>/FileAPI/reading-data-section/filereader_readAsDataURL.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></li>
+<li><a href='#test-file-18'>/FileAPI/file/send-file-form-windows-1252.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-19'>/FileAPI/unicode.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></li>
+<li><a href='#test-file-20'>/FileAPI/reading-data-section/filereader_readAsText.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></li>
+<li><a href='#test-file-21'>/FileAPI/reading-data-section/filereader_readAsArrayBuffer.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-22'>/FileAPI/file/send-file-form-utf-8.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-23'>/FileAPI/file/send-file-form-iso-2022-jp.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+<li><a href='#test-file-24'>/FileAPI/FileReader/Progress_event_bubbles_cancelable.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-25'>/FileAPI/file/send-file-form.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-26'>/FileAPI/reading-data-section/filereader_readystate.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-27'>/FileAPI/FileReader/workers.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></li>
+<li><a href='#test-file-28'>/FileAPI/file/File-constructor.html</a> <small>(51/51, 100.00%, 8.99% of total)</small></li>
+<li><a href='#test-file-29'>/FileAPI/url/url-lifetime.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></li>
+<li><a href='#test-file-30'>/FileAPI/idlharness.html</a> <small>(99/99, 100.00%, 17.46% of total)</small></li>
+<li><a href='#test-file-31'>/FileAPI/filelist-section/filelist.html</a> <small>(7/7, 100.00%, 1.23% of total)</small></li>
+<li><a href='#test-file-32'>/FileAPI/url/cross-global-revoke.sub.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></li>
+<li><a href='#test-file-33'>/FileAPI/file/send-file-form-x-user-defined.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></li>
+</ol>
+      <table class='table persist-area'>
+        <thead><tr class='persist-header'><th>Test <span class='message_toggle'>Show/Hide Messages</span></th><th>FF66</th></tr></thead>
+<tr class='test' id='test-file-0'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/url/multi-global-origin-serialization.sub.html' target='_blank'>/FileAPI/url/multi-global-origin-serialization.sub.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-0-0' class='subtest'><td>Blob URL serialization (specifically the origin) in multi-global situations</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-1'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/url/unicode-origin.sub.html' target='_blank'>/FileAPI/url/unicode-origin.sub.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-1-0' class='subtest'><td>Verify serialization of non-ascii origin in Blob URLs</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-2'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/blob/Blob-constructor-endings.html' target='_blank'>/FileAPI/blob/Blob-constructor-endings.html</a> <small>(45/45, 100.00%, 7.94% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-2-44' class='subtest'><td>CR/LF in adjacent input strings</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-9' class='subtest'><td>Exception propagation from options</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-16' class='subtest'><td>Input CR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-15' class='subtest'><td>Input CR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-14' class='subtest'><td>Input CR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-22' class='subtest'><td>Input CRCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-21' class='subtest'><td>Input CRCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-20' class='subtest'><td>Input CRCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-31' class='subtest'><td>Input CRCRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-30' class='subtest'><td>Input CRCRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-29' class='subtest'><td>Input CRCRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-19' class='subtest'><td>Input CRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-18' class='subtest'><td>Input CRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-17' class='subtest'><td>Input CRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-37' class='subtest'><td>Input CRLFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-36' class='subtest'><td>Input CRLFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-35' class='subtest'><td>Input CRLFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-40' class='subtest'><td>Input CRLFCRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-39' class='subtest'><td>Input CRLFCRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-38' class='subtest'><td>Input CRLFCRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-34' class='subtest'><td>Input CRLFLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-33' class='subtest'><td>Input CRLFLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-32' class='subtest'><td>Input CRLFLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-13' class='subtest'><td>Input LF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-12' class='subtest'><td>Input LF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-11' class='subtest'><td>Input LF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-25' class='subtest'><td>Input LFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-24' class='subtest'><td>Input LFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-23' class='subtest'><td>Input LFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-43' class='subtest'><td>Input LFCRLFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-42' class='subtest'><td>Input LFCRLFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-41' class='subtest'><td>Input LFCRLFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-28' class='subtest'><td>Input LFLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-27' class='subtest'><td>Input LFLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-26' class='subtest'><td>Input LFLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-3' class='subtest'><td>Invalid "endings" value: ""</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-6' class='subtest'><td>Invalid "endings" value: "NATIVE"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-5' class='subtest'><td>Invalid "endings" value: "Transparent"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-4' class='subtest'><td>Invalid "endings" value: "invalidEnumValue"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-7' class='subtest'><td>Invalid "endings" value: 0</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-2' class='subtest'><td>Invalid "endings" value: null</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-8' class='subtest'><td>Invalid "endings" value: {}</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-10' class='subtest'><td>The "endings" options property is used</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-1' class='subtest'><td>Valid "endings" value: "native"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-2-0' class='subtest'><td>Valid "endings" value: "transparent"</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-3'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_readAsBinaryString.html' target='_blank'>/FileAPI/reading-data-section/filereader_readAsBinaryString.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-3-0' class='subtest'><td>FileAPI Test: filereader_readAsBinaryString</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-4'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/Determining-Encoding.html' target='_blank'>/FileAPI/reading-data-section/Determining-Encoding.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-4-4' class='subtest'><td>Blob Determing Encoding with UTF-16BE BOM</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-4-5' class='subtest'><td>Blob Determing Encoding with UTF-16LE BOM</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-4-2' class='subtest'><td>Blob Determing Encoding with UTF-8 BOM</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-4-0' class='subtest'><td>Blob Determing Encoding with encoding argument</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-4-1' class='subtest'><td>Blob Determing Encoding with type attribute</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-4-3' class='subtest'><td>Blob Determing Encoding without anything implying charset.</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-5'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/fileReader.html' target='_blank'>/FileAPI/fileReader.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-5-2' class='subtest'><td>FileReader States -- abort</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-5-3' class='subtest'><td>FileReader States -- events</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-5-0' class='subtest'><td>FileReader interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-5-1' class='subtest'><td>no-argument FileReader constructor</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-6'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/blob/Blob-slice-overflow.html' target='_blank'>/FileAPI/blob/Blob-slice-overflow.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-6-3' class='subtest'><td>slice end is greater than blob size, relativeEnd will be min(end, size)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-6-2' class='subtest'><td>slice end is negative, relativeEnd will be max((size + end), 0)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-6-1' class='subtest'><td>slice start is greater than blob size, relativeStart will be min(start, size)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-6-0' class='subtest'><td>slice start is negative, relativeStart will be max((size + start), 0)</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-7'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/FileReader-multiple-reads.html' target='_blank'>/FileAPI/reading-data-section/FileReader-multiple-reads.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-7-2' class='subtest'><td>test FileReader InvalidStateError exception for readAsArrayBuffer</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-7-1' class='subtest'><td>test FileReader InvalidStateError exception for readAsDataURL</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-7-0' class='subtest'><td>test FileReader InvalidStateError exception for readAsText</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-7-3' class='subtest'><td>test FileReader InvalidStateError exception in onloadstart event for readAsArrayBuffer</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-7-4' class='subtest'><td>test FileReader no InvalidStateError exception in loadend event handler for readAsArrayBuffer</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-7-5' class='subtest'><td>test abort and restart in onloadstart event for readAsText</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-8'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/historical.https.html' target='_blank'>/FileAPI/historical.https.html</a> <small>(13/13, 100.00%, 2.29% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-8-1' class='subtest'><td>"FileError" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-2' class='subtest'><td>"FileException" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-3' class='subtest'><td>"FileHandle" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-12' class='subtest'><td>"FileReaderSync" should not be supported in service workers</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-4' class='subtest'><td>"FileRequest" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-5' class='subtest'><td>"MutableFile" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-0' class='subtest'><td>"toNativeLineEndings" should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-6' class='subtest'><td>Blob should not support slice prefixed</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-9' class='subtest'><td>Blob.close() should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-7' class='subtest'><td>BlobBuilder should not be supported.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-10' class='subtest'><td>File's lastModifiedDate should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-11' class='subtest'><td>Service worker test setup</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-8-8' class='subtest'><td>createFor method should not be supported</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-9'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/url/sandboxed-iframe.html' target='_blank'>/FileAPI/url/sandboxed-iframe.html</a> <small>(38/38, 100.00%, 6.70% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-9-14' class='subtest'><td>Appending a path should cause XHR to fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-28' class='subtest'><td>Appending a path should cause fetch to fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-13' class='subtest'><td>Appending a query string should cause XHR to fail</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-27' class='subtest'><td>Appending a query string should cause fetch to fail</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-8' class='subtest'><td>Blob URL fragment is implemented.</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-4' class='subtest'><td>Blob URL parses correctly</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-1' class='subtest'><td>Blob URL starts with "blob:"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-2' class='subtest'><td>Blob URL starts with "blob:" for Files</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-6' class='subtest'><td>Blob URLs can be used in &lt;script&gt; tags</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-9' class='subtest'><td>Blob URLs can be used in XHR</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-23' class='subtest'><td>Blob URLs can be used in fetch</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-7' class='subtest'><td>Blob URLs can be used in iframes, and are treated same origin</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-0' class='subtest'><td>Generated Blob URLs are unique</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-12' class='subtest'><td>Only exact matches should revoke URLs, using XHR</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-26' class='subtest'><td>Only exact matches should revoke URLs, using fetch</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-3' class='subtest'><td>Origin of Blob URL matches our origin</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-5' class='subtest'><td>Origin of Blob URL matches our origin for Files</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-37' class='subtest'><td>Revoke blob URL after calling fetch, fetch should succeed</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-36' class='subtest'><td>Revoke blob URL after creating Request, will fetch</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-9-22' class='subtest'><td>Revoke blob URL after open(), will fetch</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-11' class='subtest'><td>XHR of a revoked URL should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-21' class='subtest'><td>XHR should return Content-Type from Blob</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-10' class='subtest'><td>XHR with a fragment should succeed</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-20' class='subtest'><td>XHR with method "CUSTOM" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-17' class='subtest'><td>XHR with method "DELETE" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-15' class='subtest'><td>XHR with method "HEAD" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-18' class='subtest'><td>XHR with method "OPTIONS" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-16' class='subtest'><td>XHR with method "POST" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-19' class='subtest'><td>XHR with method "PUT" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-25' class='subtest'><td>fetch of a revoked URL should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-35' class='subtest'><td>fetch should return Content-Type from Blob</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-24' class='subtest'><td>fetch with a fragment should succeed</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-34' class='subtest'><td>fetch with method "CUSTOM" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-31' class='subtest'><td>fetch with method "DELETE" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-29' class='subtest'><td>fetch with method "HEAD" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-32' class='subtest'><td>fetch with method "OPTIONS" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-30' class='subtest'><td>fetch with method "POST" should fail</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-9-33' class='subtest'><td>fetch with method "PUT" should fail</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-10'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/File-constructor-endings.html' target='_blank'>/FileAPI/file/File-constructor-endings.html</a> <small>(45/45, 100.00%, 7.94% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-10-44' class='subtest'><td>CR/LF in adjacent input strings</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-9' class='subtest'><td>Exception propagation from options</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-16' class='subtest'><td>Input CR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-15' class='subtest'><td>Input CR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-14' class='subtest'><td>Input CR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-22' class='subtest'><td>Input CRCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-21' class='subtest'><td>Input CRCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-20' class='subtest'><td>Input CRCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-31' class='subtest'><td>Input CRCRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-30' class='subtest'><td>Input CRCRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-29' class='subtest'><td>Input CRCRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-19' class='subtest'><td>Input CRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-18' class='subtest'><td>Input CRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-17' class='subtest'><td>Input CRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-37' class='subtest'><td>Input CRLFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-36' class='subtest'><td>Input CRLFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-35' class='subtest'><td>Input CRLFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-40' class='subtest'><td>Input CRLFCRLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-39' class='subtest'><td>Input CRLFCRLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-38' class='subtest'><td>Input CRLFCRLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-34' class='subtest'><td>Input CRLFLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-33' class='subtest'><td>Input CRLFLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-32' class='subtest'><td>Input CRLFLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-13' class='subtest'><td>Input LF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-12' class='subtest'><td>Input LF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-11' class='subtest'><td>Input LF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-25' class='subtest'><td>Input LFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-24' class='subtest'><td>Input LFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-23' class='subtest'><td>Input LFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-43' class='subtest'><td>Input LFCRLFCR with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-42' class='subtest'><td>Input LFCRLFCR with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-41' class='subtest'><td>Input LFCRLFCR with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-28' class='subtest'><td>Input LFLF with endings 'native'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-27' class='subtest'><td>Input LFLF with endings 'transparent'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-26' class='subtest'><td>Input LFLF with endings unspecified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-3' class='subtest'><td>Invalid "endings" value: ""</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-6' class='subtest'><td>Invalid "endings" value: "NATIVE"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-5' class='subtest'><td>Invalid "endings" value: "Transparent"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-4' class='subtest'><td>Invalid "endings" value: "invalidEnumValue"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-7' class='subtest'><td>Invalid "endings" value: 0</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-2' class='subtest'><td>Invalid "endings" value: null</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-8' class='subtest'><td>Invalid "endings" value: {}</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-10' class='subtest'><td>The "endings" options property is used</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-1' class='subtest'><td>Valid "endings" value: "native"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-10-0' class='subtest'><td>Valid "endings" value: "transparent"</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-11'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/blob/Blob-constructor.html' target='_blank'>/FileAPI/blob/Blob-constructor.html</a> <small>(64/64, 100.00%, 11.29% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-11-9' class='subtest'><td>A String object should be treated as a sequence for the blobParts argument.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-10' class='subtest'><td>A Uint8Array object should be treated as a sequence for the blobParts argument.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-8' class='subtest'><td>A plain object with @@iterator and a length property should be treated as a sequence for the blobParts argument.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-6' class='subtest'><td>A plain object with @@iterator should be treated as a sequence for the blobParts argument.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-7' class='subtest'><td>A plain object with custom @@iterator should be treated as a sequence for the blobParts argument.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-12' class='subtest'><td>A platform object that supports indexed properties should be treated as a sequence for the blobParts argument (overwritten 'length'.)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-30' class='subtest'><td>Arguments should be evaluated from left to right.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-28' class='subtest'><td>Array with mixed types</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-25' class='subtest'><td>Array with two blobs</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-26' class='subtest'><td>Array with two buffers</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-27' class='subtest'><td>Array with two bufferviews</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-19' class='subtest'><td>ArrayBuffer elements of the blobParts array should be supported.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-1' class='subtest'><td>Blob constructor with no arguments</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-2' class='subtest'><td>Blob constructor with no arguments, without 'new'</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-4' class='subtest'><td>Blob constructor with undefined as first argument</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-3' class='subtest'><td>Blob constructor without brackets</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-0' class='subtest'><td>Blob interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-55' class='subtest'><td>Blob with type " image/gif "</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-47' class='subtest'><td>Blob with type ""</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-49' class='subtest'><td>Blob with type "A"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-51' class='subtest'><td>Blob with type "TEXT/HTML"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-56' class='subtest'><td>Blob with type "\timage/gif\t"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-48' class='subtest'><td>Blob with type "a"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-57' class='subtest'><td>Blob with type "image/gif;"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-60' class='subtest'><td>Blob with type "image/gif\0"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-63' class='subtest'><td>Blob with type "image/png"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-50' class='subtest'><td>Blob with type "text/html"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-62' class='subtest'><td>Blob with type "text/plain"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-52' class='subtest'><td>Blob with type "text/plain;charset=utf-8"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-61' class='subtest'><td>Blob with type "unknown/unknown"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-53' class='subtest'><td>Blob with type "å"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-58' class='subtest'><td>Blob with type "İmage/gif"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-59' class='subtest'><td>Blob with type "ımage/gif"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-54' class='subtest'><td>Blob with type "𐑾"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-16' class='subtest'><td>Changes to the blobParts array should be reflected in the returned Blob (pop).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-17' class='subtest'><td>Changes to the blobParts array should be reflected in the returned Blob (unshift).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-14' class='subtest'><td>Getters and value conversions should happen in order until an exception is thrown.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-46' class='subtest'><td>Passing "abc" for options should throw</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-43' class='subtest'><td>Passing 123 for options should throw</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-44' class='subtest'><td>Passing 123.4 for options should throw</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-21' class='subtest'><td>Passing a Float64Array as element of the blobParts array should work.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-24' class='subtest'><td>Passing a FrozenArray as the blobParts array should work (FrozenArray&lt;MessagePort&gt;).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-23' class='subtest'><td>Passing an platform object that supports indexed properties as the blobParts array should work (attributes).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-22' class='subtest'><td>Passing an platform object that supports indexed properties as the blobParts array should work (select).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-42' class='subtest'><td>Passing function "function() {}" (index 5) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-41' class='subtest'><td>Passing function "function() {}" (index 5) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-5' class='subtest'><td>Passing non-objects, Dates and RegExps for blobParts should throw a TypeError.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-32' class='subtest'><td>Passing null (index 0) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-31' class='subtest'><td>Passing null (index 0) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-40' class='subtest'><td>Passing object "/regex/" (index 4) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-39' class='subtest'><td>Passing object "/regex/" (index 4) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-36' class='subtest'><td>Passing object "[object Object]" (index 2) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-35' class='subtest'><td>Passing object "[object Object]" (index 2) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-38' class='subtest'><td>Passing object "[object Object]" (index 3) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-37' class='subtest'><td>Passing object "[object Object]" (index 3) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-45' class='subtest'><td>Passing true for options should throw</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-20' class='subtest'><td>Passing typed arrays as elements of the blobParts array should work.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-34' class='subtest'><td>Passing undefined (index 1) for options should use the defaults (with newlines).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-33' class='subtest'><td>Passing undefined (index 1) for options should use the defaults.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-11' class='subtest'><td>The length getter should be invoked and any exceptions should be propagated.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-15' class='subtest'><td>ToString should be called on elements of the blobParts array and any exceptions should be propagated.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-18' class='subtest'><td>ToString should be called on elements of the blobParts array.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-13' class='subtest'><td>ToUint32 should be applied to the length and any exceptions should be propagated.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-11-29' class='subtest'><td>options properties should be accessed in lexicographic order.</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-12'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_error.html' target='_blank'>/FileAPI/reading-data-section/filereader_error.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-12-0' class='subtest'><td>FileAPI Test: filereader_error</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-13'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_abort.html' target='_blank'>/FileAPI/reading-data-section/filereader_abort.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-13-1' class='subtest'><td>Aborting after read</td><td class='FAIL'>FAIL</td></tr>
+<tr id='subtest-13-0' class='subtest'><td>Aborting before read</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-14'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/FileReader-event-handler-attributes.html' target='_blank'>/FileAPI/reading-data-section/FileReader-event-handler-attributes.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-14-3' class='subtest'><td>FileReader.onabort: initial value</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-14-4' class='subtest'><td>FileReader.onerror: initial value</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-14-2' class='subtest'><td>FileReader.onload: initial value</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-14-5' class='subtest'><td>FileReader.onloadend: initial value</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-14-0' class='subtest'><td>FileReader.onloadstart: initial value</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-14-1' class='subtest'><td>FileReader.onprogress: initial value</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-15'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/blob/Blob-slice.html' target='_blank'>/FileAPI/blob/Blob-slice.html</a> <small>(127/127, 100.00%, 22.40% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-15-103' class='subtest'><td>Invalid contentType ("te\0xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-102' class='subtest'><td>Invalid contentType ("te\txt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-104' class='subtest'><td>Invalid contentType ("te\x1fxt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-105' class='subtest'><td>Invalid contentType ("text/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-101' class='subtest'><td>Invalid contentType ("ÿ")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-1' class='subtest'><td>Slices</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-7' class='subtest'><td>Slicing test (0,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-9' class='subtest'><td>Slicing test (0,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-11' class='subtest'><td>Slicing test (0,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-13' class='subtest'><td>Slicing test (0,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-15' class='subtest'><td>Slicing test (0,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-17' class='subtest'><td>Slicing test (0,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-19' class='subtest'><td>Slicing test (0,6).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-21' class='subtest'><td>Slicing test (0,7).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-23' class='subtest'><td>Slicing test (0,8).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-25' class='subtest'><td>Slicing test (1,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-27' class='subtest'><td>Slicing test (1,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-29' class='subtest'><td>Slicing test (1,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-31' class='subtest'><td>Slicing test (1,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-33' class='subtest'><td>Slicing test (1,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-35' class='subtest'><td>Slicing test (1,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-37' class='subtest'><td>Slicing test (1,6).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-39' class='subtest'><td>Slicing test (1,7).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-41' class='subtest'><td>Slicing test (2,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-43' class='subtest'><td>Slicing test (2,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-45' class='subtest'><td>Slicing test (2,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-47' class='subtest'><td>Slicing test (2,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-49' class='subtest'><td>Slicing test (3,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-51' class='subtest'><td>Slicing test (3,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-53' class='subtest'><td>Slicing test (3,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-55' class='subtest'><td>Slicing test (3,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-57' class='subtest'><td>Slicing test (3,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-59' class='subtest'><td>Slicing test (3,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-61' class='subtest'><td>Slicing test (4,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-63' class='subtest'><td>Slicing test (4,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-65' class='subtest'><td>Slicing test (4,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-67' class='subtest'><td>Slicing test (4,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-69' class='subtest'><td>Slicing test (4,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-71' class='subtest'><td>Slicing test (5,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-73' class='subtest'><td>Slicing test (5,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-75' class='subtest'><td>Slicing test (5,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-77' class='subtest'><td>Slicing test (5,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-79' class='subtest'><td>Slicing test (6,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-81' class='subtest'><td>Slicing test (6,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-83' class='subtest'><td>Slicing test (6,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-85' class='subtest'><td>Slicing test (7,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-87' class='subtest'><td>Slicing test (7,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-89' class='subtest'><td>Slicing test (7,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-91' class='subtest'><td>Slicing test (7,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-93' class='subtest'><td>Slicing test (8,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-95' class='subtest'><td>Slicing test (8,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-97' class='subtest'><td>Slicing test (8,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-99' class='subtest'><td>Slicing test (8,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-8' class='subtest'><td>Slicing test: slice (0,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-10' class='subtest'><td>Slicing test: slice (0,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-12' class='subtest'><td>Slicing test: slice (0,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-14' class='subtest'><td>Slicing test: slice (0,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-16' class='subtest'><td>Slicing test: slice (0,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-18' class='subtest'><td>Slicing test: slice (0,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-20' class='subtest'><td>Slicing test: slice (0,6).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-22' class='subtest'><td>Slicing test: slice (0,7).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-24' class='subtest'><td>Slicing test: slice (0,8).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-26' class='subtest'><td>Slicing test: slice (1,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-28' class='subtest'><td>Slicing test: slice (1,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-30' class='subtest'><td>Slicing test: slice (1,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-32' class='subtest'><td>Slicing test: slice (1,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-34' class='subtest'><td>Slicing test: slice (1,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-36' class='subtest'><td>Slicing test: slice (1,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-38' class='subtest'><td>Slicing test: slice (1,6).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-40' class='subtest'><td>Slicing test: slice (1,7).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-42' class='subtest'><td>Slicing test: slice (2,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-44' class='subtest'><td>Slicing test: slice (2,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-46' class='subtest'><td>Slicing test: slice (2,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-48' class='subtest'><td>Slicing test: slice (2,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-50' class='subtest'><td>Slicing test: slice (3,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-52' class='subtest'><td>Slicing test: slice (3,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-54' class='subtest'><td>Slicing test: slice (3,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-56' class='subtest'><td>Slicing test: slice (3,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-58' class='subtest'><td>Slicing test: slice (3,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-60' class='subtest'><td>Slicing test: slice (3,5).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-62' class='subtest'><td>Slicing test: slice (4,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-64' class='subtest'><td>Slicing test: slice (4,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-66' class='subtest'><td>Slicing test: slice (4,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-68' class='subtest'><td>Slicing test: slice (4,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-70' class='subtest'><td>Slicing test: slice (4,4).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-72' class='subtest'><td>Slicing test: slice (5,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-74' class='subtest'><td>Slicing test: slice (5,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-76' class='subtest'><td>Slicing test: slice (5,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-78' class='subtest'><td>Slicing test: slice (5,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-80' class='subtest'><td>Slicing test: slice (6,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-82' class='subtest'><td>Slicing test: slice (6,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-84' class='subtest'><td>Slicing test: slice (6,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-86' class='subtest'><td>Slicing test: slice (7,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-88' class='subtest'><td>Slicing test: slice (7,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-90' class='subtest'><td>Slicing test: slice (7,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-92' class='subtest'><td>Slicing test: slice (7,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-94' class='subtest'><td>Slicing test: slice (8,0).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-96' class='subtest'><td>Slicing test: slice (8,1).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-98' class='subtest'><td>Slicing test: slice (8,2).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-100' class='subtest'><td>Slicing test: slice (8,3).</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-124' class='subtest'><td>Valid contentType ("TEXT/PLAIN")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-123' class='subtest'><td>Valid contentType ("te xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-106' class='subtest'><td>Valid contentType ("te(xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-107' class='subtest'><td>Valid contentType ("te)xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-111' class='subtest'><td>Valid contentType ("te,xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-116' class='subtest'><td>Valid contentType ("te/xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-113' class='subtest'><td>Valid contentType ("te:xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-112' class='subtest'><td>Valid contentType ("te;xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-108' class='subtest'><td>Valid contentType ("te&lt;xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-120' class='subtest'><td>Valid contentType ("te=xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-109' class='subtest'><td>Valid contentType ("te&gt;xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-119' class='subtest'><td>Valid contentType ("te?xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-110' class='subtest'><td>Valid contentType ("te@xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-117' class='subtest'><td>Valid contentType ("te[xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-115' class='subtest'><td>Valid contentType ("te\"xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-114' class='subtest'><td>Valid contentType ("te\\xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-118' class='subtest'><td>Valid contentType ("te]xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-125' class='subtest'><td>Valid contentType ("text/plain;charset = UTF-8")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-126' class='subtest'><td>Valid contentType ("text/plain;charset=UTF-8")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-121' class='subtest'><td>Valid contentType ("te{xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-122' class='subtest'><td>Valid contentType ("te}xt/plain")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-2' class='subtest'><td>blob1.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-3' class='subtest'><td>blob2.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-6' class='subtest'><td>no type Blob slice</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-0' class='subtest'><td>no-argument Blob slice</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-4' class='subtest'><td>null type Blob slice</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-15-5' class='subtest'><td>undefined type Blob slice</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-16'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_result.html' target='_blank'>/FileAPI/reading-data-section/filereader_result.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-16-2' class='subtest'><td>readAsArrayBuffer</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-16-1' class='subtest'><td>readAsDataURL</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-16-0' class='subtest'><td>readAsText</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-17'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_readAsDataURL.html' target='_blank'>/FileAPI/reading-data-section/filereader_readAsDataURL.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-17-0' class='subtest'><td>FileReader readyState during readAsDataURL</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-17-1' class='subtest'><td>readAsDataURL result for Blob with specified MIME type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-17-2' class='subtest'><td>readAsDataURL result for Blob with unspecified MIME type</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-18'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/send-file-form-windows-1252.tentative.html' target='_blank'>/FileAPI/file/send-file-form-windows-1252.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-18-5' class='subtest'><td>Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-18-2' class='subtest'><td>Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-18-3' class='subtest'><td>Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-18-4' class='subtest'><td>Upload file-for-upload-in-form-☺😂.txt (Unicode) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-18-1' class='subtest'><td>Upload file-for-upload-in-form-.txt (x-user-defined) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-18-0' class='subtest'><td>Upload file-for-upload-in-form.txt (ASCII) in windows-1252 form</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-19'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/unicode.html' target='_blank'>/FileAPI/unicode.html</a> <small>(4/4, 100.00%, 0.71% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-19-0' class='subtest'><td>Test that strings are not NFC normalized by Blob constructor</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-19-1' class='subtest'><td>Test that strings are not NFC normalized by File constructor</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-19-2' class='subtest'><td>Test that unpaired surrogates are replaced by Blob constructor</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-19-3' class='subtest'><td>Test that unpaired surrogates are replaced by File constructor</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-20'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_readAsText.html' target='_blank'>/FileAPI/reading-data-section/filereader_readAsText.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-20-1' class='subtest'><td>readAsText should correctly read UTF-16.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-20-0' class='subtest'><td>readAsText should correctly read UTF-8.</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-21'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_readAsArrayBuffer.html' target='_blank'>/FileAPI/reading-data-section/filereader_readAsArrayBuffer.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-21-0' class='subtest'><td>FileAPI Test: filereader_readAsArrayBuffer</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-22'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/send-file-form-utf-8.html' target='_blank'>/FileAPI/file/send-file-form-utf-8.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-22-5' class='subtest'><td>Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-22-2' class='subtest'><td>Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-22-3' class='subtest'><td>Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-22-4' class='subtest'><td>Upload file-for-upload-in-form-☺😂.txt (Unicode) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-22-1' class='subtest'><td>Upload file-for-upload-in-form-.txt (x-user-defined) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-22-0' class='subtest'><td>Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-23'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/send-file-form-iso-2022-jp.tentative.html' target='_blank'>/FileAPI/file/send-file-form-iso-2022-jp.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-23-5' class='subtest'><td>Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-23-2' class='subtest'><td>Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-23-3' class='subtest'><td>Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-23-4' class='subtest'><td>Upload file-for-upload-in-form-☺😂.txt (Unicode) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-23-1' class='subtest'><td>Upload file-for-upload-in-form-.txt (x-user-defined) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-23-0' class='subtest'><td>Upload file-for-upload-in-form.txt (ASCII) in ISO-2022-JP form</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-24'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/FileReader/Progress_event_bubbles_cancelable.html' target='_blank'>/FileAPI/FileReader/Progress_event_bubbles_cancelable.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-24-0' class='subtest'><td>Check the values of bubbles and cancelable are false when the progress event is dispatched</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-25'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/send-file-form.html' target='_blank'>/FileAPI/file/send-file-form.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-25-0' class='subtest'><td>Upload file-for-upload-in-form.txt (ASCII) in UTF-8 form</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-26'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/reading-data-section/filereader_readystate.html' target='_blank'>/FileAPI/reading-data-section/filereader_readystate.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-26-0' class='subtest'><td>FileAPI Test: filereader_readystate</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-27'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/FileReader/workers.html' target='_blank'>/FileAPI/FileReader/workers.html</a> <small>(1/1, 100.00%, 0.18% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-27-0' class='subtest'><td>FileReader created after a worker self.close()</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-28'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/File-constructor.html' target='_blank'>/FileAPI/file/File-constructor.html</a> <small>(51/51, 100.00%, 8.99% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-28-14' class='subtest'><td>Array in fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-10' class='subtest'><td>ArrayBuffer fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-22' class='subtest'><td>Bits argument: object that throws</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-7' class='subtest'><td>Blob fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-18' class='subtest'><td>Custom @@iterator</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-3' class='subtest'><td>DOMString fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-6' class='subtest'><td>Empty Blob fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-8' class='subtest'><td>Empty File fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-9' class='subtest'><td>File fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-0' class='subtest'><td>File interface object exists</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-16' class='subtest'><td>HTMLBodyElement in fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-19' class='subtest'><td>Invalid bits argument: "hello"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-20' class='subtest'><td>Invalid bits argument: 0</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-21' class='subtest'><td>Invalid bits argument: null</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-44' class='subtest'><td>Invalid property bag: "abc"</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-41' class='subtest'><td>Invalid property bag: 123</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-42' class='subtest'><td>Invalid property bag: 123.4</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-43' class='subtest'><td>Invalid property bag: true</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-39' class='subtest'><td>Misusing name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-13' class='subtest'><td>Number in fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-15' class='subtest'><td>Object in fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-17' class='subtest'><td>Object with toString in fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-50' class='subtest'><td>Property bag propagates exceptions</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-1' class='subtest'><td>Required arguments</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-5' class='subtest'><td>String object fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-11' class='subtest'><td>Typed array fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-4' class='subtest'><td>Unicode DOMString fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-40' class='subtest'><td>Unknown properties are ignored</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-48' class='subtest'><td>Unusual but valid property bag: /regex/</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-47' class='subtest'><td>Unusual but valid property bag: 1,2,3</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-49' class='subtest'><td>Unusual but valid property bag: function() {}</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-45' class='subtest'><td>Unusual but valid property bag: null</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-46' class='subtest'><td>Unusual but valid property bag: undefined</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-27' class='subtest'><td>Using empty string fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-23' class='subtest'><td>Using fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-38' class='subtest'><td>Using lastModified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-25' class='subtest'><td>Using null fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-26' class='subtest'><td>Using number fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-28' class='subtest'><td>Using object fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-24' class='subtest'><td>Using special character in fileName</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-31' class='subtest'><td>Using type in File constructor: TEXT/PLAIN</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-33' class='subtest'><td>Using type in File constructor: ascii/nonprintable</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-34' class='subtest'><td>Using type in File constructor: ascii/nonprintable</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-35' class='subtest'><td>Using type in File constructor: nonasciiî</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-36' class='subtest'><td>Using type in File constructor: nonasciiሴ</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-37' class='subtest'><td>Using type in File constructor: nonparsable</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-29' class='subtest'><td>Using type in File constructor: text/plain</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-30' class='subtest'><td>Using type in File constructor: text/plain;charset=UTF-8</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-32' class='subtest'><td>Using type in File constructor: 𝓽𝓮𝔁𝓽/𝔭𝔩𝔞𝔦𝔫</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-12' class='subtest'><td>Various fileBits</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-28-2' class='subtest'><td>empty fileBits</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-29'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/url/url-lifetime.html' target='_blank'>/FileAPI/url/url-lifetime.html</a> <small>(2/2, 100.00%, 0.35% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-29-1' class='subtest'><td>Removing an iframe revokes its URLs</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-29-0' class='subtest'><td>Terminating worker revokes its URLs</td><td class='FAIL'>FAIL</td></tr>
+<tr class='test' id='test-file-30'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/idlharness.html' target='_blank'>/FileAPI/idlharness.html</a> <small>(99/99, 100.00%, 17.46% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-30-4' class='subtest'><td>Blob interface object length</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-5' class='subtest'><td>Blob interface object name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-9' class='subtest'><td>Blob interface: attribute size</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-10' class='subtest'><td>Blob interface: attribute type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-17' class='subtest'><td>Blob interface: calling slice(long long, long long, DOMString) on new Blob(["TEST"]) with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-33' class='subtest'><td>Blob interface: calling slice(long long, long long, DOMString) on new File(["myFileBits"], "myFileName") with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-3' class='subtest'><td>Blob interface: existence and properties of interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-6' class='subtest'><td>Blob interface: existence and properties of interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-7' class='subtest'><td>Blob interface: existence and properties of interface prototype object's "constructor" property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-8' class='subtest'><td>Blob interface: existence and properties of interface prototype object's @@unscopables property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-14' class='subtest'><td>Blob interface: new Blob(["TEST"]) must inherit property "size" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-16' class='subtest'><td>Blob interface: new Blob(["TEST"]) must inherit property "slice(long long, long long, DOMString)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-15' class='subtest'><td>Blob interface: new Blob(["TEST"]) must inherit property "type" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-30' class='subtest'><td>Blob interface: new File(["myFileBits"], "myFileName") must inherit property "size" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-32' class='subtest'><td>Blob interface: new File(["myFileBits"], "myFileName") must inherit property "slice(long long, long long, DOMString)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-31' class='subtest'><td>Blob interface: new File(["myFileBits"], "myFileName") must inherit property "type" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-11' class='subtest'><td>Blob interface: operation slice(long long, long long, DOMString)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-12' class='subtest'><td>Blob must be primary interface of new Blob(["TEST"])</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-19' class='subtest'><td>File interface object length</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-20' class='subtest'><td>File interface object name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-25' class='subtest'><td>File interface: attribute lastModified</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-24' class='subtest'><td>File interface: attribute name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-18' class='subtest'><td>File interface: existence and properties of interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-21' class='subtest'><td>File interface: existence and properties of interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-22' class='subtest'><td>File interface: existence and properties of interface prototype object's "constructor" property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-23' class='subtest'><td>File interface: existence and properties of interface prototype object's @@unscopables property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-29' class='subtest'><td>File interface: new File(["myFileBits"], "myFileName") must inherit property "lastModified" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-28' class='subtest'><td>File interface: new File(["myFileBits"], "myFileName") must inherit property "name" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-26' class='subtest'><td>File must be primary interface of new File(["myFileBits"], "myFileName")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-35' class='subtest'><td>FileList interface object length</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-36' class='subtest'><td>FileList interface object name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-41' class='subtest'><td>FileList interface: attribute length</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-45' class='subtest'><td>FileList interface: calling item(unsigned long) on document.querySelector("#fileChooser").files with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-44' class='subtest'><td>FileList interface: document.querySelector("#fileChooser").files must inherit property "item(unsigned long)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-46' class='subtest'><td>FileList interface: document.querySelector("#fileChooser").files must inherit property "length" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-34' class='subtest'><td>FileList interface: existence and properties of interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-37' class='subtest'><td>FileList interface: existence and properties of interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-38' class='subtest'><td>FileList interface: existence and properties of interface prototype object's "constructor" property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-39' class='subtest'><td>FileList interface: existence and properties of interface prototype object's @@unscopables property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-40' class='subtest'><td>FileList interface: operation item(unsigned long)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-42' class='subtest'><td>FileList must be primary interface of document.querySelector("#fileChooser").files</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-48' class='subtest'><td>FileReader interface object length</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-49' class='subtest'><td>FileReader interface object name</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-66' class='subtest'><td>FileReader interface: attribute error</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-70' class='subtest'><td>FileReader interface: attribute onabort</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-71' class='subtest'><td>FileReader interface: attribute onerror</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-69' class='subtest'><td>FileReader interface: attribute onload</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-72' class='subtest'><td>FileReader interface: attribute onloadend</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-67' class='subtest'><td>FileReader interface: attribute onloadstart</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-68' class='subtest'><td>FileReader interface: attribute onprogress</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-64' class='subtest'><td>FileReader interface: attribute readyState</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-65' class='subtest'><td>FileReader interface: attribute result</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-76' class='subtest'><td>FileReader interface: calling readAsArrayBuffer(Blob) on new FileReader() with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-78' class='subtest'><td>FileReader interface: calling readAsBinaryString(Blob) on new FileReader() with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-82' class='subtest'><td>FileReader interface: calling readAsDataURL(Blob) on new FileReader() with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-80' class='subtest'><td>FileReader interface: calling readAsText(Blob, DOMString) on new FileReader() with too few arguments must throw TypeError</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-62' class='subtest'><td>FileReader interface: constant DONE on interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-63' class='subtest'><td>FileReader interface: constant DONE on interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-58' class='subtest'><td>FileReader interface: constant EMPTY on interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-59' class='subtest'><td>FileReader interface: constant EMPTY on interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-60' class='subtest'><td>FileReader interface: constant LOADING on interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-61' class='subtest'><td>FileReader interface: constant LOADING on interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-47' class='subtest'><td>FileReader interface: existence and properties of interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-50' class='subtest'><td>FileReader interface: existence and properties of interface prototype object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-51' class='subtest'><td>FileReader interface: existence and properties of interface prototype object's "constructor" property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-52' class='subtest'><td>FileReader interface: existence and properties of interface prototype object's @@unscopables property</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-86' class='subtest'><td>FileReader interface: new FileReader() must inherit property "DONE" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-84' class='subtest'><td>FileReader interface: new FileReader() must inherit property "EMPTY" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-85' class='subtest'><td>FileReader interface: new FileReader() must inherit property "LOADING" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-83' class='subtest'><td>FileReader interface: new FileReader() must inherit property "abort()" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-89' class='subtest'><td>FileReader interface: new FileReader() must inherit property "error" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-93' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onabort" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-94' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onerror" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-92' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onload" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-95' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onloadend" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-90' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onloadstart" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-91' class='subtest'><td>FileReader interface: new FileReader() must inherit property "onprogress" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-75' class='subtest'><td>FileReader interface: new FileReader() must inherit property "readAsArrayBuffer(Blob)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-77' class='subtest'><td>FileReader interface: new FileReader() must inherit property "readAsBinaryString(Blob)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-81' class='subtest'><td>FileReader interface: new FileReader() must inherit property "readAsDataURL(Blob)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-79' class='subtest'><td>FileReader interface: new FileReader() must inherit property "readAsText(Blob, DOMString)" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-87' class='subtest'><td>FileReader interface: new FileReader() must inherit property "readyState" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-88' class='subtest'><td>FileReader interface: new FileReader() must inherit property "result" with the proper type</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-57' class='subtest'><td>FileReader interface: operation abort()</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-53' class='subtest'><td>FileReader interface: operation readAsArrayBuffer(Blob)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-54' class='subtest'><td>FileReader interface: operation readAsBinaryString(Blob)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-56' class='subtest'><td>FileReader interface: operation readAsDataURL(Blob)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-55' class='subtest'><td>FileReader interface: operation readAsText(Blob, DOMString)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-73' class='subtest'><td>FileReader must be primary interface of new FileReader()</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-96' class='subtest'><td>FileReaderSync interface: existence and properties of interface object</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-1' class='subtest'><td>Partial interface URL: original interface defined</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-2' class='subtest'><td>Partial interface URL: valid exposure set</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-43' class='subtest'><td>Stringification of document.querySelector("#fileChooser").files</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-13' class='subtest'><td>Stringification of new Blob(["TEST"])</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-27' class='subtest'><td>Stringification of new File(["myFileBits"], "myFileName")</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-74' class='subtest'><td>Stringification of new FileReader()</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-97' class='subtest'><td>URL interface: operation createObjectURL(Blob)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-98' class='subtest'><td>URL interface: operation revokeObjectURL(DOMString)</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-30-0' class='subtest'><td>idl_test setup</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-31'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/filelist-section/filelist.html' target='_blank'>/FileAPI/filelist-section/filelist.html</a> <small>(7/7, 100.00%, 1.23% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-31-1' class='subtest'><td>Check if FileList.length is 0</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-2' class='subtest'><td>Check if item is a instanceof Function</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-3' class='subtest'><td>Check if item is a method of fileList</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-5' class='subtest'><td>Check if length is fileList's attribute</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-6' class='subtest'><td>Check if the fileList length is 0 when no file selected</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-4' class='subtest'><td>Check if the item method returns null when no file selected</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-31-0' class='subtest'><td>Check if window has a FileList property</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-32'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/url/cross-global-revoke.sub.html' target='_blank'>/FileAPI/url/cross-global-revoke.sub.html</a> <small>(3/3, 100.00%, 0.53% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-32-2' class='subtest'><td>It is not possible to revoke cross-origin blob URLs.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-32-1' class='subtest'><td>It is possible to revoke same-origin blob URLs from a different worker global.</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-32-0' class='subtest'><td>It is possible to revoke same-origin blob URLs from different frames.</td><td class='PASS'>PASS</td></tr>
+<tr class='test' id='test-file-33'><td><a href='https://github.com/cta-wave/WMAS2017/blob/wmas2017-tests/FileAPI/file/send-file-form-x-user-defined.tentative.html' target='_blank'>/FileAPI/file/send-file-form-x-user-defined.tentative.html</a> <small>(6/6, 100.00%, 1.06% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-33-5' class='subtest'><td>Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-33-2' class='subtest'><td>Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-33-3' class='subtest'><td>Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-33-4' class='subtest'><td>Upload file-for-upload-in-form-☺😂.txt (Unicode) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-33-1' class='subtest'><td>Upload file-for-upload-in-form-.txt (x-user-defined) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+<tr id='subtest-33-0' class='subtest'><td>Upload file-for-upload-in-form.txt (ASCII) in x-user-defined form</td><td class='PASS'>PASS</td></tr>
+
+      </table>
+    </div>
+    <script src='jquery.min.js'></script>
+    <script src='sticky-headers.js'></script>
+    <script type='application/javascript'>
+      
+    </script>
+  </body>
+</html>
