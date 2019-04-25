@@ -187,5 +187,5 @@ webstorage/event_constructor.html
 
 
 # manual tests loaded as automated tests
-TEST html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-classic.html
-TEST html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-module.html
+html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-classic.html
+html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-module.html
