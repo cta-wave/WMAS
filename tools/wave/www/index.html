@@ -31,9 +31,9 @@
           Web Media API Snapshot 2018 (WMAS 2018) Test Suite
         </h1>
         <p class="subtitle">
-          <a href="https://github.com/cta-wave/WMAS2017">GitHub</a> -
-          <a href="https://github.com/cta-wave/WMAS2017/issues">Issues</a> -
-          <a href="https://www.w3.org/2017/12/webmediaapi.html">WMAS2017</a>
+          <a href="https://github.com/cta-wave/WMAS">GitHub</a> -
+          <a href="https://github.com/cta-wave/WMAS/issues">Issues</a> -
+          <a href="https://www.w3.org/2018/12/webmediaapi.html">WMAS2018</a>
         </p>
       </div>
 
@@ -59,7 +59,7 @@
             </span>
           </div>
 
-          <div class="filter-group form-group">
+          <!-- <div class="filter-group form-group">
             <h2>
               Filter test cases for successfully passed tests on the following
               web browser
@@ -73,44 +73,44 @@
                 <span>None</span>
               </button>
 
-              <div class="form-group form-group--offset">
-                <button
-                  data-sessionToken="01d11810-7938-11e8-8749-a6ac1d216fc7"
+              <div class="form-group form-group--offset"> -->
+                <!-- <button
+                  data-sessionToken="c6018fe0-6770-11e9-b8d4-e248def9588b"
                   class="button filter-button is-light"
                   data-uid="24"
                 >
                   <span class="icon"><i class="fab fa-edge"></i></span>
-                  <span>Edge 16</span>
-                </button>
+                  <span>Edge 18</span>
+                </button> -->
 
-                <button
-                  data-sessionToken="a831a820-7855-11e8-9ce0-d6175576bb4b"
+                <!-- <button
+                  data-sessionToken="17afbfb0-6771-11e9-9fb2-7912db137f3c"
                   class="button filter-button is-light"
                   data-uid="23"
                 >
                   <span class="icon"><i class="fab fa-firefox"></i></span>
-                  <span>Firefox 57</span>
-                </button>
+                  <span>Firefox 66</span>
+                </button> -->
 
-                <button
+                <!-- <button
                   data-sessionToken="c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f"
                   class="button filter-button is-light"
                   data-uid="22"
                 >
                   <span class="icon"><i class="fab fa-safari"></i></span>
                   <span>Safari 10.13.1</span>
-                </button>
+                </button> -->
 
-                <button
+                <!-- <button
                   data-sessionToken="ce4aec10-7855-11e8-b81b-6714c602f007"
                   class="button filter-button is-light"
                   data-uid="21"
                 >
                   <span class="icon"><i class="fab fa-chrome"></i></span>
                   <span>Chromium 63</span>
-                </button>
+                </button> -->
 
-                <button
+                <!-- <button
                   data-sessionToken="all"
                   class="button filter-button is-light"
                   data-uid="20"
@@ -119,10 +119,10 @@
                     ><i class="fas fa-globe-americas"></i
                   ></span>
                   <span>All browsers</span>
-                </button>
-              </div>
+                </button> -->
+              <!-- </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="button-group">
             <button
@@ -235,10 +235,10 @@
     document.getElementById("apis").addEventListener("submit", function(ev) {
       ev.preventDefault();
       var query = "?path=";
-      var sessionToken = document
-        .getElementsByClassName("filter-button is-info")[0]
-        .getAttribute("data-sessionToken");
-      var refTokenParam = getRefTokenParam(sessionToken);
+      // var sessionToken = document
+      //   .getElementsByClassName("filter-button is-info")[0]
+      //   .getAttribute("data-sessionToken");
+      var refTokenParam = getRefTokenParam(/*sessionToken*/);
 
       for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked) {
@@ -389,34 +389,35 @@
     }
 
     function getRefTokenParam(sessionToken) {
-      var query = "&reftoken=";
+      // var query = "&reftoken=";
 
-      if (sessionToken === "all") {
-        // Add all sessionTokens to refTokenQuery
-        return (
-          query +
-          "01d11810-7938-11e8-8749-a6ac1d216fc7" +
-          "," +
-          "a831a820-7855-11e8-9ce0-d6175576bb4b" +
-          "," +
-          "c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f" +
-          "," +
-          "ce4aec10-7855-11e8-b81b-6714c602f007"
-        );
-      } else if (
-        sessionToken === "none" ||
-        sessionToken === "" ||
-        typeof sessionToken == "undefined" ||
-        !sessionToken
-      ) {
-        // Don't add ?refToken parameter at all
-        return "";
-      } else {
-        // Returns ?reftoken=<SessionToken> for clicked button
-        return query + sessionToken;
-      }
+      // if (sessionToken === "all") {
+      //   // Add all sessionTokens to refTokenQuery
+      //   return (
+      //     query +
+      //     "01d11810-7938-11e8-8749-a6ac1d216fc7" +
+      //     "," +
+      //     "a831a820-7855-11e8-9ce0-d6175576bb4b" +
+      //     "," +
+      //     "c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f" +
+      //     "," +
+      //     "ce4aec10-7855-11e8-b81b-6714c602f007"
+      //   );
+      // } else if (
+      //   sessionToken === "none" ||
+      //   sessionToken === "" ||
+      //   typeof sessionToken == "undefined" ||
+      //   !sessionToken
+      // ) {
+      //   // Don't add ?refToken parameter at all
+      //   return "";
+      // } else {
+      //   // Returns ?reftoken=<SessionToken> for clicked button
+      //   return query + sessionToken;
+      // }
 
-      return query;
+      // return query;
+      return "";
     }
   </script>
 </html>
