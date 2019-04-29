@@ -61,7 +61,7 @@ class TestLoader {
     }
     if (tests.hasOwnProperty(TEST_HARNESS_TESTS)) {
       this._tests[TEST_HARNESS_TESTS] = this._loadTests({
-        testPaths: tests[TEST_HARNESS_TESTS],
+        tests: tests[TEST_HARNESS_TESTS],
         excludeList
       });
     }
@@ -70,28 +70,28 @@ class TestLoader {
     // }
     if (tests.hasOwnProperty(MANUAL_TESTS)) {
       this._tests[MANUAL_TESTS] = this._loadTests({
-        testPaths: tests[MANUAL_TESTS],
+        tests: tests[MANUAL_TESTS],
         includeList
       });
     }
   }
 
-  _loadTests({ testPaths, includeList, excludeList }) {
-    const tests = {};
-    for (let testPath in testPaths) {
+  _loadTests({ tests, includeList, excludeList }) {
+    const loadedTests = {};
+    for (let test in tests) {
+      let testPath = tests[test][0][0]
       if (this._isValidTest({ testPath, includeList, excludeList })) {
         if (testPath.startsWith("/")) testPath = testPath.substr(1);
         const apiName = this._getApiName(testPath);
-        if (!tests[apiName]) tests[apiName] = [];
-        tests[apiName].push(testPath);
+        if (!loadedTests[apiName]) loadedTests[apiName] = [];
+        loadedTests[apiName].push(testPath);
       }
     }
-    return tests;
+    return loadedTests;
   }
 
   _isValidTest({ testPath, includeList, excludeList }) {
     let isValid = true;
-    isValid = isValid && !testPath.endsWith(".js");
     if (includeList) {
       isValid =
         isValid &&
