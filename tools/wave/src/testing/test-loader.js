@@ -79,9 +79,9 @@ class TestLoader {
   _loadTests({ tests, includeList, excludeList }) {
     const loadedTests = {};
     for (let test in tests) {
-      let testPath = tests[test][0][0]
+      let testPath = tests[test][0][0];
+      if (testPath.startsWith("/")) testPath = testPath.substr(1);
       if (this._isValidTest({ testPath, includeList, excludeList })) {
-        if (testPath.startsWith("/")) testPath = testPath.substr(1);
         const apiName = this._getApiName(testPath);
         if (!loadedTests[apiName]) loadedTests[apiName] = [];
         loadedTests[apiName].push(testPath);
