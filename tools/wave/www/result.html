@@ -57,7 +57,7 @@
           }
         },
         refreshSessionDetails(callback = () => {}) {
-          WaveService.getSession(details => {
+          WaveService.getSessionDetails(details => {
             resultUi.state.details = details;
             if (details.status !== "completed" && details.status !== "aborted")
               resultUi.connectWebSocket();

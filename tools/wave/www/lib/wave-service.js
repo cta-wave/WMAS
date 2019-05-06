@@ -20,11 +20,13 @@ const WaveService = {
     xhr.open(method, uri, true);
     xhr.send();
   },
-  getSession(token, callback, { detailsOnly = false } = {}) {
+  getSession(token, callback, options) {
     if (typeof token !== "string") {
       callback = token;
+      options = callback;
       token = WaveService.defaultToken;
     }
+    const { detailsOnly } = options;
     let url = `/sessions/${token}`;
     if (detailsOnly) url = `${url}/details`;
     WaveService.sendRequest("GET", url, response =>
@@ -48,6 +50,9 @@ const WaveService = {
     );
   },
   getSessionDetails(token, callback) {
+    if (!token) {
+      return WaveService.getSession(callback, { detailsOnly: true });
+    }
     if (token instanceof Array) {
       return WaveService.getSessions(token, callback, { detailsOnly: true });
     } else {
