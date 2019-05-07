@@ -111,15 +111,6 @@ function getURL(uri) {
   return url;
 }
 
-function getSessionURL(uri){
-  const requestedUri = (uri === "/test.html" ? "/next" : uri);
-  const url = getURL(requestedUri);
-  xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("GET", url, false);
-  xmlhttp.send();
-  return xmlhttp.responseText
-}
-
 function sendRequest(method, uri, data, headers, callback, onerror) {
   var url = getURL(uri);
   var xhr = new XMLHttpRequest();
