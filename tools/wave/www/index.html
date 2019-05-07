@@ -9,16 +9,18 @@
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/keycodes.js"></script>
     <style>
-    .disclaimer {
-      width: 100vw;
-      color: white;
-      background: red;
-      text-align: center;
-    }
+      .disclaimer {
+        width: 100vw;
+        color: white;
+        background: red;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-    <div class="disclaimer">Disclaimer: Work In Progress - This version is not final!</div>
+    <div class="disclaimer">
+      Disclaimer: Work In Progress - This version is not final!
+    </div>
     <section class="section">
       <div class="container">
         <img
@@ -74,7 +76,7 @@
               </button>
 
               <div class="form-group form-group--offset"> -->
-                <!-- <button
+          <!-- <button
                   data-sessionToken="c6018fe0-6770-11e9-b8d4-e248def9588b"
                   class="button filter-button is-light"
                   data-uid="24"
@@ -83,7 +85,7 @@
                   <span>Edge 18</span>
                 </button> -->
 
-                <!-- <button
+          <!-- <button
                   data-sessionToken="17afbfb0-6771-11e9-9fb2-7912db137f3c"
                   class="button filter-button is-light"
                   data-uid="23"
@@ -92,7 +94,7 @@
                   <span>Firefox 66</span>
                 </button> -->
 
-                <!-- <button
+          <!-- <button
                   data-sessionToken="c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f"
                   class="button filter-button is-light"
                   data-uid="22"
@@ -101,7 +103,7 @@
                   <span>Safari 10.13.1</span>
                 </button> -->
 
-                <!-- <button
+          <!-- <button
                   data-sessionToken="ce4aec10-7855-11e8-b81b-6714c602f007"
                   class="button filter-button is-light"
                   data-uid="21"
@@ -110,7 +112,7 @@
                   <span>Chromium 63</span>
                 </button> -->
 
-                <!-- <button
+          <!-- <button
                   data-sessionToken="all"
                   class="button filter-button is-light"
                   data-uid="20"
@@ -120,7 +122,7 @@
                   ></span>
                   <span>All browsers</span>
                 </button> -->
-              <!-- </div>
+          <!-- </div>
             </div>
           </div> -->
 
@@ -133,6 +135,45 @@
               autofocus
             >
               Continue
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="container" style="margin-top: 2em;">
+        <h2 class="is-size-5 mb-1 has-text-weight-semibold">
+          Resume running session
+        </h2>
+        <article
+          id="unknown_token_error"
+          style="max-width: 30em; display: none"
+          class="message is-danger"
+        >
+          <div class="message-body">
+            Unknown token
+          </div>
+        </article>
+        <form id="resume" class="field">
+          <div class="field">
+            <label class="label">Token (first 8 characters or more)</label>
+            <div class="control">
+              <input
+                id="resume_token"
+                class="input is-family-monospace"
+                type="text"
+                style="max-width: 30em"
+              />
+            </div>
+          </div>
+          <div class="button-group">
+            <button
+              id="submit-form"
+              class="button is-success"
+              type="submit"
+              data-uid="-1"
+              autofocus
+            >
+              Resume
             </button>
           </div>
         </form>
@@ -308,6 +349,44 @@
       selectNoneButton.setAttribute("data-uid", checkboxes.length + 7);
       selectAllButton.setAttribute("data-uid", checkboxes.length + 8);
     });
+
+    var resumeToken = document.cookie
+      .split(";")
+      .find(cookie => cookie.split("=")[0] === "resume_token");
+    var tokenText = document.getElementById("resume_token");
+    if (resumeToken) tokenText.value = resumeToken.split("=")[1];
+    var unknownTokenError = document.getElementById("unknown_token_error");
+    document
+      .getElementById("resume")
+      .addEventListener("submit", function(event) {
+        event.preventDefault();
+        unknownTokenError.style.display = "none";
+        var fragment = tokenText.value;
+        if (!fragment) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", function() {
+          var response = JSON.parse(xhr.response);
+          var token = response.token;
+          if (token) {
+            var xhrUrl = new XMLHttpRequest();
+            xhrUrl.addEventListener("load", function() {
+              var url = xhrUrl.response;
+              location.href = url;
+            });
+            xhrUrl.open(
+              "GET",
+              `/next?token=${token}&hostname=${location.hostname}`,
+              true
+            );
+            xhrUrl.send();
+          } else {
+            unknownTokenError.style.display = "block";
+          }
+        });
+        xhr.open("GET", `/sessions/${fragment}/token`, true);
+        xhr.send();
+      });
 
     document.onkeydown = function(event) {
       event = event || window.event;

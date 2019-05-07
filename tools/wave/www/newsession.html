@@ -85,6 +85,8 @@
       var match = QUERY.match(/token=([^&]+)/);
       var TOKEN = match ? match[1] : null;
       var RESUME = /[\?&]resume=/.test(location.search);
+      if (TOKEN)
+        document.cookie = `resume_token=${TOKEN}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
 
       document.addEventListener(
         "DOMContentLoaded",
