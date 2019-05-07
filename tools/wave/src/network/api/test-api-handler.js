@@ -166,7 +166,10 @@ class TestApiHandler extends ApiHandler {
     const url = this._generateTestUrl({
       test,
       token: session.getToken(),
-      testTimeout: session.getTestTimeout(),
+      testTimeout:
+        test.indexOf("manual") !== -1
+          ? 5 * 60 * 1000
+          : session.getTestTimeout(),
       hostname
     });
 
