@@ -176,8 +176,11 @@ content-security-policy/worker-src/shared-worker-src-self-fallback.sub.html
 css/cssom-view/scroll-behavior-smooth.html
 css/cssom-view/scroll-behavior-smooth.html#foo
 fetch/api/policies/csp-blocked.html
+fetch/content-type/response.window.html
+fetch/content-type/script.window.html
 html/browsers/browsing-the-web/history-traversal/window-name-after-same-origin-main-frame-navigation.sub.html
 html/browsers/browsing-the-web/unloading-documents/prompt/004.html
+html/infrastructure/safe-passing-of-structured-data/transfer-errors.window.html
 html/semantics/embedded-content/the-iframe-element/iframe_sandbox_block_modals-1.html
 html/semantics/embedded-content/the-iframe-element/iframe_sandbox_block_modals-2.html
 html/semantics/embedded-content/the-iframe-element/iframe_sandbox_block_modals-3.html
