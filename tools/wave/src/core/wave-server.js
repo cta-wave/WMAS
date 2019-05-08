@@ -81,13 +81,6 @@ class WaveServer {
     await testLoader.loadTests(manifestFilePath);
     println(" done.");
     httpServer.initialize();
-    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
-    httpServer.registerRoute(
-      new Route("/", (request, response) => {
-        response.sendFile(path.join(applicationDirectoryPath, "index.html"));
-      })
-    );
-    httpServer.registerStatic(resultsDirectoryPath, "/results");
 
     const testApiHandler = new TestApiHandler({
       wptPort,
@@ -106,6 +99,14 @@ class WaveServer {
 
     const resultsApiHandler = new ResultsApiHandler(resultsManager);
     httpServer.registerRoutes(resultsApiHandler.getRoutes());
+    
+    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
+    httpServer.registerRoute(
+      new Route("/", (request, response) => {
+        response.sendFile(path.join(applicationDirectoryPath, "index.html"));
+      })
+    );
+    httpServer.registerStatic(resultsDirectoryPath, "/results");
 
     this._httpServer = httpServer;
   }

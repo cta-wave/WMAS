@@ -180,7 +180,7 @@ function finishWptTest(data) {
       function() {
         logToConsole("Connection failed, retrying ...");
         location.href =
-          getURL("/results") + "&data=" + encodeURI(JSON.stringify(data));
+          getURL("/results") + "&data=" + encodeURIComponent(JSON.stringify(data));
       }
     );
   }

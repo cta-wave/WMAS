@@ -53,6 +53,9 @@ class TestApiHandler extends ApiHandler {
     if (!token) {
       token = request.get("token");
     }
+    if (!token) {
+      token = request.query.token;
+    }
     if (!token || token === "null") {
       token = request.cookies.sid;
     }
