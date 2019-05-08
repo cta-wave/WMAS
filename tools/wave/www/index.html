@@ -291,7 +291,7 @@
       }
 
       query += refTokenParam;
-      location.href = "http://" + location.hostname + ":8050/test.html" + query;
+      location.href = "/test.html" + query;
     });
 
     // Select all checkboxes
@@ -352,7 +352,9 @@
 
     var resumeToken = document.cookie
       .split(";")
-      .find(cookie => cookie.split("=")[0] === "resume_token");
+      .find(
+        cookie => cookie.split("=")[0].replace(/ /g, "") === "resume_token"
+      );
     var tokenText = document.getElementById("resume_token");
     if (resumeToken) tokenText.value = resumeToken.split("=")[1];
     var unknownTokenError = document.getElementById("unknown_token_error");
