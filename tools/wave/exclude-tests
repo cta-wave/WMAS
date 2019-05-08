@@ -55,8 +55,12 @@ css/css-multicol/going-out-of-flow-after-spanner.html
 ecmascript/tests/built-ins/Boolean/S15.6.2.1_A4.html
 ecmascript/tests/built-ins/Object/defineProperty/15.2.3.6-4-136.html
 ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/builtin-coerce-global.html
+ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/builtin-coerce-global.html
+ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/coerce-global.html
 ecmascript/tests/built-ins/RegExp/prototype/Symbol.match/coerce-global.html
 ecmascript/tests/built-ins/RegExp/prototype/Symbol.replace/coerce-global.html
+ecmascript/tests/built-ins/RegExp/prototype/Symbol.replace/coerce-global.html
+ecmascript/tests/language/statements/for-of/iterator-next-reference.html
 fetch/api/policies/csp-blocked.html
 fetch/content-type/response.window.html
 fetch/content-type/script.window.html
