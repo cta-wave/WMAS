@@ -124,13 +124,23 @@ class Session {
     this._addTestToList(this._runningTests, test, api);
 
     if (this._testTimeout) {
-      this._timeouts.push({
-        test,
-        timeout: setTimeout(
-          () => onTimeout(this._token, test),
-          this._testTimeout + 10000
-        )
-      });
+      if (test.indexOf("manual") !== -1) {
+        this._timeouts.push({
+          test,
+          timeout: setTimeout(
+            () => onTimeout(this._token, test),
+            5 * 60 * 1000
+          )
+        });
+      } else {
+        this._timeouts.push({
+          test,
+          timeout: setTimeout(
+            () => onTimeout(this._token, test),
+            this._testTimeout + 10000
+          )
+        });
+      }
     }
     return test;
   }
