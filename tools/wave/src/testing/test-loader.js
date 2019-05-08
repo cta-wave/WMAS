@@ -42,7 +42,7 @@ class TestLoader {
     let includeList = [];
     if (await FileSystem.exists(this._includeListFilePath)) {
       includeList = (await FileSystem.readFile(this._includeListFilePath))
-        .split("\n")
+        .split(/\r\n|\n\r|\r|\n/)
         .map(line =>
           line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
         )
@@ -52,7 +52,7 @@ class TestLoader {
     let excludeList = [];
     if (await FileSystem.exists(this._excludeListFilePath)) {
       excludeList = (await FileSystem.readFile(this._excludeListFilePath))
-        .split("\n")
+        .split(/\r\n|\n\r|\r|\n/)
         .map(line =>
           line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
         )
