@@ -16,8 +16,21 @@ A hosted version is available at: https://webapitests2018.ctawave.org
 
 Test server
 ===========
-The introduction of a test server enables running the tests in a single window
-(for compatibility with embedded devices).
+
+## Architecture
+![architecure](images/wmats_arch.png)
+
+WMATS2018 extends the WPT Runner in a way that only a single 
+window is required to run the tests. The Test Runner itself is migrated to a 
+Node.js Server. The embedded device runs individual tests and sends the results
+to the Node.js Test Runner via XHR, which update the internal state of the running 
+test session and pushes the new updates to a companion page which shows the progress
+of a test session (The Companion Page offers also other helpful features like 
+generating test reports, exporting test results, compare test sessions, etc. 
+through an easy to use interface). Once a Test is completed, the Node.js Test 
+Runner sends the URL of the next test which will be opened in the same browser
+window and the steps will be repeated until all tests are completed. The WPT test
+files are included without any changes.
 
 ## Setup
 
@@ -42,12 +55,12 @@ Initialize WAVE Server:
 $ ./wave init
 ```
 
-Generate test subset, call from WPT root directory:
+Download test files according to WMAS2018 specification, call from WPT root directory:
 ```
 $ ./wmats2018-subset.sh
 ```
 []([url](url))
-To run passing subsets of the reference browser, download the test results by running:
+To download the test results of the four reference browsers (Chromium, Firefox, Safari, Edge):
 ```
 $ ./wave download-reference-results
 ```
@@ -66,6 +79,11 @@ Open in Web browser (on the same host):
 ```
 http://web-platform.test:8050
 ```
+
+## Remote Server
+If you are planning to host the server on a different device than the DUT, 
+make sure to replace 120.0.0.1 with your server IP and web-platform.test 
+with your domain name in ```/etc/hosts```.
 
 ## Configuration
 The default configuration is loaded from the ```config.default.json```
@@ -88,7 +106,7 @@ web-platform.test:8050/?path=/2dcontext&types=testharness
 Parameter|Description|Example
 ------|------|------
 `path`|Specify tests to run. Can be directory or file. Multiple paths can be chained by using `, `. Paths with leading '/' are interpreted as absolute paths, paths without as regular expressions. (Default: ```/```)|```web-platform.test:8050/?path=/2dcontext```
-types|What types of tests to run. Possible types: ```testharness```, ```manual``` and ```reftest``` (Default: ```testharness```)|```web-platform.test:8050/?types=testharness,manual```
+types|What types of tests to run. Possible types: ```testharness```, ```manual``` and ```reftest``` (Default: ```testharness```. Please note that including ```manual``` or ```reftest``` might lead to unexpected behaviour on embedded devices. It is recommended to only use ```testharness``` for automated test runs)|```web-platform.test:8050/?types=testharness,manual```
 `timeout`|Specify a server side timeout in ms after which a test with no result is timed out|```web-platform.test:8050/?timeout=65000```
 `token` and `resume` |Providing a token of an unfinished session will resume it.|```web-platform.test:8050/?token=2fb0fb80-63db-4425-8a76-2ea3e6f8269d&resume=1```
 
@@ -117,7 +135,7 @@ To prevent browser SSL warnings when running HTTPS tests locally, the
 web-platform-tests Root CA file `cacert.pem` in [tools/certs](tools/certs)
 must be added as a trusted certificate in your OS/browser.
 
-Remarks to testharness.js Statuses
+Remarks on testharness.js result statuses
 ==================================
 
 The documentation of testharness.js is available in [testharness.js API](https://web-platform-tests.org/writing-tests/testharness-api.html). Section [Basic Usage](https://web-platform-tests.org/writing-tests/testharness-api.html#basic-usage) says that every single test has as result `PASS`, `FAIL`, `TIMEOUT` and `NOTRUN`. These statuses are also listed in [Callback API](https://web-platform-tests.org/writing-tests/testharness-api.html#callback-api) section. According to [testharness.js#L1469](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L1469), the status of a single test will be initialized with `NOTRUN` and later set to one of the other values. This means if `TIMEOUT` is disabled (using `explicit_timeout` function described in [Setup](https://web-platform-tests.org/writing-tests/testharness-api.html#setup) section) and the test is not completed (neither `PASS` or `FAIL`), the status will remain `NOTRUN`. This is the interpretation after reading the source code of the testharness.js since there is no explanation in the documentation for the semantic of status `NOTRUN`. 
