@@ -1,26 +1,23 @@
-The Web Media API Test Suite 2018 (Work in progress)
+The Web Media API Test Suite 2018
 ========================================
 
-The Web Media API Snapshot Test Suite 2018 is a cross-browser test suite. Writing
-tests in a way that allows them to be run in all browsers gives browser projects
-confidence that they are shipping software that is compatible with other
-implementations, and that later implementations will be compatible with
-their implementations. This in turn gives Web authors/developers
-confidence that they can actually rely on the Web platform to deliver on
-the promise of working across browsers and devices without needing extra
-layers of abstraction to paper over the gaps left by specification
-editors and implementors.
+The Web Media API Snapshot Test Suite 2018 (WMATS2018) is a test suite for 
+the [Web Media API Snapshot 2018](https://w3c.github.io/webmediaapi/) specification.
+The test suite and specification are being developed as part of
+the [CTA WAVE Project](http://cta.tech/WAVE).
 
-This project is forked from the original
+This project is forked from
 [W3C Web Platform Tests](https://github.com/web-platform-tests/wpt) and is customized
-to run on web browsers for embedded devices and appliances suchs as TV sets,
-set-top boxes, consoles, etc. It supports tests report comparing and testing
-a chosen subset of API tests.
+to automate test rusn on web browsers for embedded devices and appliances suchs as TV sets,
+set-top boxes, consoles, etc.
+
+A hosted version is available at: https://webapitests2018.ctawave.org
 
 
 Test server
 ===========
-The server makes it possible to run all tests in a single window.
+The introduction of a test server enables running the tests in a single window
+(for compatibility with embedded devices).
 
 ## Setup
 
@@ -40,16 +37,16 @@ on Windows:
 $ python wpt make-hosts-file | Out-File %SystemRoot%\System32\drivers\etc\hosts -Encoding ascii -Append
 ```
 
-Generate test subset, call from WPT root directory:
-```
-$ ./wmats2018-subset.sh
-```
-
 Initialize WAVE Server:
 ```
 $ ./wave init
 ```
 
+Generate test subset, call from WPT root directory:
+```
+$ ./wmats2018-subset.sh
+```
+[]([url](url))
 To run passing subsets of the reference browser, download the test results by running:
 ```
 $ ./wave download-reference-results
