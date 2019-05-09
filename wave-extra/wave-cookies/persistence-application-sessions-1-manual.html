@@ -10,15 +10,13 @@
 </head>
 <body style="background:#EEE">
   <h3>Manual Test: Devices MUST support persistence of cookies between application sessions</h3>
-  Please copy the following link to resume the test after the relaunch: <a id="resumeLink">Link </a>
-  <h3>Please relaunch the application.</h3>
+  <p>Please note the the current session token and use it to resume the test after the relaunch: <b id="token_text"/> </p>
+  <h3>Please resume the test within 5 minutes.</h3>
   <script>
     setup({ explicit_timeout: true });
 
     (function() {
-    const nextUrl = getSessionURL("/test.html");
-    document.getElementById("resumeLink").setAttribute("href", nextUrl);
-    document.getElementById("resumeLink").innerHTML = nextUrl;
+    document.getElementById("token_text").innerHTML = __WAVE__TOKEN;
     })();
 
     const TEST_CASE = {file: "persistence_application", value: "persistence_application_test"};

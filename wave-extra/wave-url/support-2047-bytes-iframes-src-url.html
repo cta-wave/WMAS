@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset=utf-8>
-  <title>Support 2047 bytes url</title>
+  <title>Support up to 2047 bytes in iFrames source url</title>
   <script src="/resources/testharness.js"></script>
   <script src="/resources/testharnessreport.js"></script>
 </head>
@@ -13,9 +13,9 @@
     const iframeSrc = "/wave-cookies/iframe/iframe-helper.html?testParams=";
     var current_location = location.protocol + '//' + location.host;
 
-    var test1 = async_test("Support URLs up to a length of 1047 bytes");
-    var test2 = async_test("Support URLs up to a length of 1547 bytes");
-    var test3 = async_test("Support URLs up to a length of 2047 bytes");
+    var test1 = async_test("Support URLs up to a length of 1047 bytes in iFrames source url");
+    var test2 = async_test("Support URLs up to a length of 1547 bytes in iFrames source url");
+    var test3 = async_test("Support URLs up to a length of 2047 bytes in iFrames source url");
 
     window.onload = function() {
 
