@@ -6,30 +6,25 @@ const JSZip = require("jszip");
 const WaveServer = require("./src/core/wave-server");
 
 const REFERENCE_BROWSERS = {
-  chrome63: {
-    name: "Chrome 63",
+  chrome: {
+    name: "Chromium 73.0.3640.0",
     url:
-      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/Chrome63-ce4aec10-7855-11e8-b81b-6714c602f007.zip"
+      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Chromium73-a50c6db0-6a94-11e9-8d1b-e23fc4555885.zip"
   },
-  edge16: {
-    name: "Edge 16",
+  edge: {
+    name: "Edge 44.17763",
     url:
-      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/Edge16-01d11810-7938-11e8-8749-a6ac1d216fc7.zip"
+      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Edge44-b2924d20-6a93-11e9-98b4-a11fb92a6d1c.zip"
   },
-  firefox57: {
-    name: "Firefox 57",
+  firefox: {
+    name: "Firefox 64.0",
     url:
-      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/Firefox57-a831a820-7855-11e8-9ce0-d6175576bb4b.zip"
+      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Firefox64-bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f.zip"
   },
-  safari11: {
-    name: "Safari 11",
+  webkit: {
+    name: "WebKit r239158",
     url:
-      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/Safari11-62b61630-7938-11e8-b48e-f58ca22000c9.zip"
-  },
-  webkit604: {
-    name: "WebKit 604",
-    url:
-      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WebKit604-c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f.zip"
+      "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/WebKitr239158-caf823e0-6a92-11e9-b732-3188d0065ebc.zip"
   }
 };
 
