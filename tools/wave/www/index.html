@@ -35,10 +35,18 @@
           </div>
 
           <div class="button-group">
-            <button id="select-all" class="button is-light" data-uid="-1">
+            <button
+              id="select-all"
+              class="button is-light tabbable"
+              data-uid="-1"
+            >
               Select all
             </button>
-            <button id="select-none" class="button is-light" data-uid="-1">
+            <button
+              id="select-none"
+              class="button is-light tabbable"
+              data-uid="-1"
+            >
               Deselect all
             </button>
 
@@ -58,7 +66,7 @@
             <div class="control">
               <button
                 data-sessionToken="none"
-                class="button filter-button is-light is-info"
+                class="button filter-button is-light is-info tabbable"
                 data-uid="25"
               >
                 <span>None</span>
@@ -67,7 +75,7 @@
               <div class="form-group form-group--offset">
                 <button
                   data-sessionToken="b2924d20-6a93-11e9-98b4-a11fb92a6d1c"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="24"
                 >
                   <span class="icon"><i class="fab fa-edge"></i></span>
@@ -76,7 +84,7 @@
 
                 <button
                   data-sessionToken="bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="23"
                 >
                   <span class="icon"><i class="fab fa-firefox"></i></span>
@@ -85,7 +93,7 @@
 
                 <button
                   data-sessionToken="caf823e0-6a92-11e9-b732-3188d0065ebc"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="22"
                 >
                   <span class="icon"><i class="fab fa-safari"></i></span>
@@ -94,7 +102,7 @@
 
                 <button
                   data-sessionToken="a50c6db0-6a94-11e9-8d1b-e23fc4555885"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="21"
                 >
                   <span class="icon"><i class="fab fa-chrome"></i></span>
@@ -103,7 +111,7 @@
 
                 <button
                   data-sessionToken="all"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="20"
                 >
                   <span class="icon"
@@ -118,7 +126,7 @@
           <div class="button-group">
             <button
               id="submit-form"
-              class="button is-success"
+              class="button is-success tabbable"
               type="submit"
               data-uid="-1"
               autofocus
@@ -157,9 +165,9 @@
           <div class="button-group">
             <button
               id="submit-form"
-              class="button is-success"
+              class="button is-success tabbable"
               type="submit"
-              data-uid="-1"
+              data-uid="100"
               autofocus
             >
               Resume
@@ -232,6 +240,7 @@
       { title: "Workers", path: "workers" },
       { title: "XHR", path: "xhr" }
     ];
+    var selectedTabbable = -1;
 
     // Sort api list alphabetically
     apis.sort(function(a, b) {
@@ -245,13 +254,13 @@
       var template =
         '<div class="control"> \
         <label class="checkbox"> \
-          <input type="checkbox" name="api" id="' +
+          <input type="checkbox" name="api" class="tabbable" id="' +
         apis[i].path +
         '" value="' +
         apis[i].path +
         '" data-uid="' +
         i +
-        '" checked > ' +
+        '" checked> ' +
         apis[i].title +
         "</label> \
     </div>";
@@ -321,6 +330,47 @@
       });
     }
 
+    function removeClass(element, className) {
+      var elementClass = element.className;
+      var index = elementClass.indexOf(className);
+      if (index !== -1) {
+        element.className = elementClass.replace(className, "");
+      }
+    }
+
+    function addClass(element, className) {
+      element.className += " " + className;
+    }
+
+    function skipFocus(steps) {
+      var tabbables = document.getElementsByClassName("tabbable");
+      if (selectedTabbable === -1) {
+        selectedTabbable = 0;
+      } else {
+        removeClass(tabbables[selectedTabbable], "focused");
+        selectedTabbable += steps;
+      }
+
+      if (selectedTabbable >= tabbables.length) {
+        selectedTabbable = 0;
+      }
+
+      if (selectedTabbable < 0) {
+        selectedTabbable = tabbables.length - 1;
+      }
+
+      tabbables[selectedTabbable].focus();
+      addClass(tabbables[selectedTabbable], "focused");
+    }
+
+    function focusNext() {
+      skipFocus(1);
+    }
+
+    function focusPrevious() {
+      skipFocus(-1);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       // Set initial focus
       submitButton.focus();
@@ -382,70 +432,31 @@
       event = event || window.event;
       var charCode =
         typeof event.which === "number" ? event.which : event.keyCode;
-      var activeElement = document.activeElement;
-      var activeElementID = parseInt(
-        document.activeElement.getAttribute("data-uid"),
-        10
-      );
-      var focusID = 0;
 
-      // traverse elements downwards
-      if (charCode == VK_DOWN || charCode == 40) {
-        setFocus(activeElementID + 1);
-      }
-
-      // traverse elements downwards
-      if (charCode == VK_UP || charCode == 38) {
-        setFocus(activeElementID - 1);
-      }
-
-      // traverse elements upwards
-      if (charCode == VK_ENTER || charCode == 13) {
+      if (ACTION_KEYS.indexOf(charCode) !== -1) {
         event.preventDefault();
-        pressEnter(activeElementID);
+        var tabbables = document.getElementsByClassName("tabbable");
+        var element = tabbables[selectedTabbable];
+        if (element.type === "checkbox") {
+          element.checked = !element.checked;
+        } else {
+          element.click();
+        }
       }
 
-      if (charCode == VK_LEFT || charCode == 37) {
-        setFocus(activeElementID + 1);
+      if (PREV_KEYS.indexOf(charCode) !== -1) {
+        focusPrevious();
       }
 
-      if (charCode == VK_RIGHT || charCode == 39) {
-        setFocus(activeElementID - 1);
+      if (NEXT_KEYS.indexOf(charCode) !== -1) {
+        focusNext();
       }
     };
-
-    function setFocus(id) {
-      if (id == "undefined" || isNaN(id)) id = 0;
-      if (typeof id != "number") id = 0;
-
-      if (id > checkboxes.length + 8) id = 0;
-      if (id < 0) id = checkboxes.length + 6;
-      if (id == checkboxes.length && submitButton.disabled)
-        id = checkboxes.length + 2;
-
-      var element = document.querySelector('[data-uid="' + id + '"]');
-      element.focus();
-    }
-
-    function pressEnter(id) {
-      if (id == "undefined" || isNaN(id)) id = 0;
-      if (typeof id != "number") id = 0;
-
-      if (id > checkboxes.length + 8) id = 0;
-      if (id < 0) id = checkboxes.length + 6;
-
-      var element = document.querySelector('[data-uid="' + id + '"]');
-
-      // Check focused checkbox
-      if (element.type && element.typeof === "checkbox")
-        element.checked = !element.checked;
-      element.click();
-    }
 
     // Count number of selected tests and disable button if 0 tests are selected
     function countSelectedTests() {
       var count = document.querySelectorAll('input[name="api"]:checked').length;
-      if (count == 0) submitButton.disabled = true;
+      if (count === 0) submitButton.disabled = true;
       else submitButton.disabled = false;
       return count;
     }
@@ -454,7 +465,7 @@
     function updateTestCounterString() {
       var count = countSelectedTests();
       testCounter.innerHTML =
-        count + " api" + (count != 1 ? "s" : "") + " selected";
+        count + " api" + (count !== 1 ? "s" : "") + " selected";
     }
 
     function getRefTokenParam(sessionToken) {
@@ -475,7 +486,7 @@
       } else if (
         sessionToken === "none" ||
         sessionToken === "" ||
-        typeof sessionToken == "undefined" ||
+        typeof sessionToken === "undefined" ||
         !sessionToken
       ) {
         // Don't add ?refToken parameter at all

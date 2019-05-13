@@ -70,3 +70,19 @@ if (typeof VK_0 == "undefined") {
   var VK_8 = 56;
   var VK_9 = 57;
 }
+
+var NEXT_KEYS = [39, 133, 131];
+var PREV_KEYS = [37, 132, 130];
+var ACTION_KEYS = [13, 32];
+
+if (typeof KeyEvent != "undefined") {
+  if (typeof KeyEvent.VK_LEFT != "undefined") {
+    PREV_KEYS.push(KeyEvent.VK_LEFT);
+    PREV_KEYS.push(KeyEvent.VK_UP);
+    NEXT_KEYS.push(KeyEvent.VK_RIGHT);
+    NEXT_KEYS.push(KeyEvent.VK_DOWN);
+  }
+  if (typeof KeyEvent.VK_ENTER != "undefined") {
+    ACTION_KEYS.push(KeyEvent.VK_ENTER);
+  }
+}
