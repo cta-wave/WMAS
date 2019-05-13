@@ -180,7 +180,8 @@ const WaveService = {
   connect(token) {
     if (typeof token !== "string") token = WaveService.defaultToken;
     if (!WaveService.socket) {
-      const url = `ws://${location.host}`;
+      const protocol = location.protocol === "https:" ? "wss" : "ws";
+      const url = `${protocol}://${location.host}`;
       console.log(`Connecting to ${url}`);
       WaveService.socket = new WebSocket(url);
       WaveService.socket.onopen = () => {
