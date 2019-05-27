@@ -33,6 +33,14 @@ class WaveServer {
       wptSslPort
     } = config;
     println(" done.");
+    const includeListFilePath = path.join(
+      applicationDirectoryPath,
+      "include-tests"
+    );
+    const excludeListFilePath = path.join(
+      applicationDirectoryPath,
+      "exclude-tests"
+    );
 
     print("Initializing database ...");
     const database = new Database({
@@ -42,7 +50,9 @@ class WaveServer {
     println(" done.");
 
     const testLoader = new TestLoader({
-      resultsDirectoryPath
+      resultsDirectoryPath,
+      includeListFilePath,
+      excludeListFilePath
     });
     const sessionManager = new SessionManager({
       database,
@@ -67,20 +77,6 @@ class WaveServer {
 
     const httpServer = new HttpServer();
     httpServer.initialize();
-    httpServer.registerRoute(
-      new Route({
-        method: Route.STATIC,
-        uri: "/",
-        directory: path.join(applicationDirectoryPath, "./www")
-      })
-    );
-    httpServer.registerRoute(
-      new Route({
-        method: Route.STATIC,
-        uri: "/results",
-        directory: resultsDirectoryPath
-      })
-    );
 
     const testApiHandler = new TestApiHandler({
       wptPort,
@@ -99,6 +95,14 @@ class WaveServer {
 
     const resultsApiHandler = new ResultsApiHandler(resultsManager);
     httpServer.registerRoutes(resultsApiHandler.getRoutes());
+    
+    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
+    httpServer.registerRoute(
+      new Route("/", (request, response) => {
+        response.sendFile(path.join(applicationDirectoryPath, "index.html"));
+      })
+    );
+    httpServer.registerStatic(resultsDirectoryPath, "/results");
 
     httpServer.registerRoute(
       new Route({

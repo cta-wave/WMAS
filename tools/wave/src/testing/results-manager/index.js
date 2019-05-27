@@ -1,5 +1,4 @@
 const path = require("path");
-const crypto = require("crypto");
 const JSZip = require("jszip");
 
 const FileSystem = require("../../utils/file-system");
@@ -10,6 +9,7 @@ const Deserializer = require("../../utils/deserializer");
 const SessionManager = require("../../network/session-manager");
 const Session = require("../../data/session");
 const ResultComparator = require("./result-comparator");
+const Database = require("../database");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -22,6 +22,7 @@ class ResultsManager {
    * @constructor
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
+   * @param {Database} config.database
    */
   constructor({
     resultsDirectoryPath,
@@ -244,17 +245,17 @@ class ResultsManager {
   }
 
   async _ensureResultsDirectoryExistence({ token, api, session }) {
-    if (!(await FileSystem.stats(this._resultsDirectoryPath))) {
+    if (!(await FileSystem.exists(this._resultsDirectoryPath))) {
       await FileSystem.makeDirectory(this._resultsDirectoryPath);
     }
 
     let directory = path.join(this._resultsDirectoryPath, token);
-    if (!(await FileSystem.stats(directory))) {
+    if (!(await FileSystem.exists(directory))) {
       await FileSystem.makeDirectory(directory);
     }
 
     directory = path.join(directory, api);
-    if (!(await FileSystem.stats(directory))) {
+    if (!(await FileSystem.exists(directory))) {
       await FileSystem.makeDirectory(directory);
     }
 

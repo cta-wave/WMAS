@@ -154,6 +154,7 @@ rm -rf $WPTBASEDIR/webauthn
 rm -rf $WPTBASEDIR/WebCryptoAPI
 rm -rf $WPTBASEDIR/webdriver
 rm -rf $WPTBASEDIR/webgl
+rm -rf $WPTBASEDIR/wave-extra
 rm -rf $WPTBASEDIR/WebIDL
 rm -rf $WPTBASEDIR/web-locks
 rm -rf $WPTBASEDIR/webmessaging
@@ -365,7 +366,7 @@ git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID fro
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 
-# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+# Integrate webgl tests [WEBGL-103]
 DISTDIR=dist/webgl
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/webgl
@@ -380,9 +381,9 @@ node tools/wave/webgl/prepare-tests.js $DISTDIR
 DISTDIR=wave-extra
 cd $WPTBASEDIR
 rm -rf $DISTDIR
-git clone https://gitlab.fokus.fraunhofer.de/dashcenc/WMATS2018-cookies.git $DISTDIR
+git clone https://github.com/fraunhoferfokus/WMATS2018-cookies.git $DISTDIR
 cd $DISTDIR
-git checkout d88669bdac7181f4d868a704758e5dcff9f182a0
+git checkout master
 cd $WPTBASEDIR
 
 # Remove the dist folder before manifest generation

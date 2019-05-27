@@ -1,4 +1,4 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
 const readDirectory = async directoryPath => {
@@ -60,25 +60,6 @@ const writeFile = async (path, data) => {
       resolve();
     });
   });
-};
-
-const copyFile = async (sourcePath, destinationPath) => {
-  return writeFile(destinationPath, await readFile(sourcePath));
-};
-
-const copyDirectory = async (sourceDir, destinationDir) => {
-  if (!(await readStats(destinationDir))) await makeDirectory(destinationDir);
-  const files = await readDirectory(sourceDir);
-  for (let file of files) {
-    const sourceFile = path.join(sourceDir, file);
-    const destinationFile = path.join(destinationDir, file);
-    const stats = await readStats(sourceFile);
-    if (stats.isDirectory()) {
-      await copyDirectory(sourceFile, destinationFile);
-    } else {
-      await copyFile(sourceFile, destinationFile);
-    }
-  }
 };
 
 const parseFrontmatter = src => {
@@ -253,7 +234,7 @@ const generateTest = async ({
 
     await writeFile(htmlOutputPath, testContent);
     await writeFile(iframeHtmlOutputPath, iframeTestContent);
-    await copyFile(currentPath, jsOutputPath);
+    await fs.copy(currentPath, jsOutputPath);
     testCount++;
   }
 };
@@ -315,8 +296,8 @@ function replacePlaceholders(
     templateContent,
     iframeTemplateContent
   });
-  await copyFile(adapterSourcePath, adapterDestinationPath);
-  await copyDirectory(harnessDir, harnessOutputDir);
+  await fs.copy(adapterSourcePath, adapterDestinationPath);
+  await fs.copy(harnessDir, harnessOutputDir);
   console.log(
     `Generated ${testCount} tests in directory ${outputPath} (${path.resolve(
       outputPath

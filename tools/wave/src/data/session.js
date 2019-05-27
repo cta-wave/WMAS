@@ -67,6 +67,7 @@ class Session {
     let test;
     let api;
     let hasHttp = true;
+    let hasManual = true;
     let currentApi = 0;
     let currentTest = 0;
     const apis = Object.keys(this._pendingTests).sort((testA, testB) =>
@@ -85,9 +86,18 @@ class Session {
           if (hasHttp) {
             hasHttp = false;
             currentApi = 0;
-          } else {
-            return null;
+            test = null;
+            continue;
           }
+
+          if (hasManual) {
+            hasManual = false;
+            currentApi = 0;
+            test = null;
+            continue;
+          }
+
+          return null;
         }
         test = null;
         continue;
@@ -100,19 +110,37 @@ class Session {
           continue;
         }
       }
+
+      if (test.indexOf("manual") === -1) {
+        if (hasManual) {
+          currentTest++;
+          test = null;
+          continue;
+        }
+      }
     }
 
     this._removeTestFromList(this._pendingTests, test, api);
     this._addTestToList(this._runningTests, test, api);
 
     if (this._testTimeout) {
-      this._timeouts.push({
-        test,
-        timeout: setTimeout(
-          () => onTimeout(this._token, test),
-          this._testTimeout + 10000
-        )
-      });
+      if (test.indexOf("manual") !== -1) {
+        this._timeouts.push({
+          test,
+          timeout: setTimeout(
+            () => onTimeout(this._token, test),
+            5 * 60 * 1000
+          )
+        });
+      } else {
+        this._timeouts.push({
+          test,
+          timeout: setTimeout(
+            () => onTimeout(this._token, test),
+            this._testTimeout + 10000
+          )
+        });
+      }
     }
     return test;
   }

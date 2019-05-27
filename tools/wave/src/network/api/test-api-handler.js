@@ -46,6 +46,9 @@ class TestApiHandler extends ApiHandler {
     if (!token) {
       token = request.get("token");
     }
+    if (!token) {
+      token = request.query.token;
+    }
     if (!token || token === "null") {
       token = request.cookies.sid;
     }
@@ -124,7 +127,10 @@ class TestApiHandler extends ApiHandler {
     const url = this._generateTestUrl({
       test,
       token: session.getToken(),
-      testTimeout: session.getTestTimeout(),
+      testTimeout:
+        test.indexOf("manual") !== -1
+          ? 5 * 60 * 1000
+          : session.getTestTimeout(),
       hostname
     });
 

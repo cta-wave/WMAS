@@ -49,21 +49,19 @@
               resultUi.refreshSessionDetails(() => {
                 resultUi.renderControls();
                 resultUi.renderSessionDetails();
-              });
-
-              resultUi.refreshSessionResults(() => {
-                resultUi.renderApiResults();
+                resultUi.refreshSessionResults(() => {
+                  resultUi.renderApiResults();
+                });
               });
               break;
           }
         },
         refreshSessionDetails(callback = () => {}) {
-          WaveService.getSession(details => {
+          WaveService.getSessionDetails(details => {
             resultUi.state.details = details;
             if (details.status !== "completed" && details.status !== "aborted")
               resultUi.connectWebSocket();
             callback(details);
-            resultUi.refreshReferenceSessions();
           });
         },
         refreshReferenceSessions(callback = () => {}) {

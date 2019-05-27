@@ -42,7 +42,7 @@ var __WAVE__PORT = location.port;
 var __WAVE__PROTOCOL = location.protocol.replace(/:/, "");
 var __WAVE__QUERY = location.search;
 if (!__WAVE__QUERY) __WAVE__QUERY = "?";
-var match = __WAVE__QUERY.match(/timeout=(\d+)&/);
+var match = __WAVE__QUERY.match(/timeout=(\d+)/);
 var __WAVE__TIMEOUT = parseInt(match && match[1] ? match[1] : 65000);
 match = __WAVE__QUERY.match(/token=([^&]+)/);
 var __WAVE__TOKEN = match ? match[1] : null;
@@ -180,7 +180,7 @@ function finishWptTest(data) {
       function() {
         logToConsole("Connection failed, retrying ...");
         location.href =
-          getURL("/results") + "&data=" + encodeURI(JSON.stringify(data));
+          getURL("/results") + "&data=" + encodeURIComponent(JSON.stringify(data));
       }
     );
   }

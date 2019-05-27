@@ -5,7 +5,9 @@
     <title>New Session - Web Platform Test Runner</title>
     <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <script src="lib/qrcode.js"></script>
+    <script src="lib/keycodes.js"></script>
   </head>
   <body>
     <section class="section">
@@ -58,16 +60,14 @@
           <div id="button-wrapper">
             <button
               id="start-button"
-              class="button is-large is-success is-focused"
+              class="button is-large is-success tabbable"
             >
               Start
             </button>
-            <a href="/test.html?path=/"
-              ><button id="new-button" class="button is-large is-light">
-                New Session
-              </button></a
+            <button
+              id="results-button"
+              class="button is-large is-light tabbable"
             >
-            <button id="results-button" class="button is-large is-light">
               View Result Page
             </button>
           </div>
@@ -85,6 +85,9 @@
       var match = QUERY.match(/token=([^&]+)/);
       var TOKEN = match ? match[1] : null;
       var RESUME = /[\?&]resume=/.test(location.search);
+      if (TOKEN)
+        document.cookie = `resume_token=${TOKEN}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+      var selectedTabbable = -1;
 
       document.addEventListener(
         "DOMContentLoaded",
@@ -152,12 +155,73 @@
       var startButton = document.getElementById("start-button");
       startButton.onclick = startTests;
 
-      document.onkeypress = function(event) {
+      function removeClass(element, className) {
+        var elementClass = element.className;
+        var index = elementClass.indexOf(className);
+        if (index !== -1) {
+          element.className = elementClass.replace(className, "");
+        }
+      }
+
+      function addClass(element, className) {
+        element.className += " " + className;
+      }
+
+      function skipFocus(steps) {
+        var tabbables = document.getElementsByClassName("tabbable");
+        if (selectedTabbable === -1) {
+          selectedTabbable = 0;
+        } else {
+          removeClass(tabbables[selectedTabbable], "focused");
+          selectedTabbable += steps;
+        }
+
+        if (selectedTabbable >= tabbables.length) {
+          selectedTabbable = 0;
+        }
+
+        if (selectedTabbable < 0) {
+          selectedTabbable = tabbables.length - 1;
+        }
+
+        tabbables[selectedTabbable].focus();
+        addClass(tabbables[selectedTabbable], "focused");
+      }
+
+      function focusNext() {
+        skipFocus(1);
+      }
+
+      function focusPrevious() {
+        skipFocus(-1);
+      }
+
+      document.onkeydown = function(event) {
         event = event || window.event;
         var charCode =
           typeof event.which === "number" ? event.which : event.keyCode;
-        if (charCode === 13) {
-          startTests();
+
+        if (ACTION_KEYS.indexOf(charCode) !== -1) {
+          event.preventDefault();
+          if (selectedTabbable === -1) {
+            startTests();
+            return;
+          }
+          var tabbables = document.getElementsByClassName("tabbable");
+          var element = tabbables[selectedTabbable];
+          if (element.type === "checkbox") {
+            element.checked = !element.checked;
+          } else {
+            element.click();
+          }
+        }
+
+        if (PREV_KEYS.indexOf(charCode) !== -1) {
+          focusPrevious();
+        }
+
+        if (NEXT_KEYS.indexOf(charCode) !== -1) {
+          focusNext();
         }
       };
 

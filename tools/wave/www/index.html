@@ -8,17 +8,8 @@
     <link rel="stylesheet" href="css/fontawesome.min.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/keycodes.js"></script>
-    <style>
-    .disclaimer {
-      width: 100vw;
-      color: white;
-      background: red;
-      text-align: center;
-    }
-    </style>
   </head>
   <body>
-    <div class="disclaimer">Disclaimer: Work In Progress - This version is not final!</div>
     <section class="section">
       <div class="container">
         <img
@@ -31,9 +22,9 @@
           Web Media API Snapshot 2018 (WMAS 2018) Test Suite
         </h1>
         <p class="subtitle">
-          <a href="https://github.com/cta-wave/WMAS2017">GitHub</a> -
-          <a href="https://github.com/cta-wave/WMAS2017/issues">Issues</a> -
-          <a href="https://www.w3.org/2017/12/webmediaapi.html">WMAS2017</a>
+          <a href="https://github.com/cta-wave/WMAS">GitHub</a> -
+          <a href="https://github.com/cta-wave/WMAS/issues">Issues</a> -
+          <a href="https://www.w3.org/2018/12/webmediaapi.html">WMAS2018</a>
         </p>
       </div>
 
@@ -44,10 +35,18 @@
           </div>
 
           <div class="button-group">
-            <button id="select-all" class="button is-light" data-uid="-1">
+            <button
+              id="select-all"
+              class="button is-light tabbable"
+              data-uid="-1"
+            >
               Select all
             </button>
-            <button id="select-none" class="button is-light" data-uid="-1">
+            <button
+              id="select-none"
+              class="button is-light tabbable"
+              data-uid="-1"
+            >
               Deselect all
             </button>
 
@@ -67,7 +66,7 @@
             <div class="control">
               <button
                 data-sessionToken="none"
-                class="button filter-button is-light is-info"
+                class="button filter-button is-light is-info tabbable"
                 data-uid="25"
               >
                 <span>None</span>
@@ -75,44 +74,44 @@
 
               <div class="form-group form-group--offset">
                 <button
-                  data-sessionToken="01d11810-7938-11e8-8749-a6ac1d216fc7"
-                  class="button filter-button is-light"
+                  data-sessionToken="b2924d20-6a93-11e9-98b4-a11fb92a6d1c"
+                  class="button filter-button is-light tabbable"
                   data-uid="24"
                 >
                   <span class="icon"><i class="fab fa-edge"></i></span>
-                  <span>Edge 16</span>
+                  <span>Edge 44.17763</span>
                 </button>
 
                 <button
-                  data-sessionToken="a831a820-7855-11e8-9ce0-d6175576bb4b"
-                  class="button filter-button is-light"
+                  data-sessionToken="bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f"
+                  class="button filter-button is-light tabbable"
                   data-uid="23"
                 >
                   <span class="icon"><i class="fab fa-firefox"></i></span>
-                  <span>Firefox 57</span>
+                  <span>Firefox 64.0</span>
                 </button>
 
                 <button
-                  data-sessionToken="c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f"
-                  class="button filter-button is-light"
+                  data-sessionToken="caf823e0-6a92-11e9-b732-3188d0065ebc"
+                  class="button filter-button is-light tabbable"
                   data-uid="22"
                 >
                   <span class="icon"><i class="fab fa-safari"></i></span>
-                  <span>Safari 10.13.1</span>
+                  <span>WebKit r239158</span>
                 </button>
 
                 <button
-                  data-sessionToken="ce4aec10-7855-11e8-b81b-6714c602f007"
-                  class="button filter-button is-light"
+                  data-sessionToken="a50c6db0-6a94-11e9-8d1b-e23fc4555885"
+                  class="button filter-button is-light tabbable"
                   data-uid="21"
                 >
                   <span class="icon"><i class="fab fa-chrome"></i></span>
-                  <span>Chromium 63</span>
+                  <span>Chromium 73.0.3640.0</span>
                 </button>
 
                 <button
                   data-sessionToken="all"
-                  class="button filter-button is-light"
+                  class="button filter-button is-light tabbable"
                   data-uid="20"
                 >
                   <span class="icon"
@@ -127,12 +126,51 @@
           <div class="button-group">
             <button
               id="submit-form"
-              class="button is-success"
+              class="button is-success tabbable"
               type="submit"
               data-uid="-1"
               autofocus
             >
               Continue
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="container" style="margin-top: 2em;">
+        <h2 class="is-size-5 mb-1 has-text-weight-semibold">
+          Resume running session
+        </h2>
+        <article
+          id="unknown_token_error"
+          style="max-width: 30em; display: none"
+          class="message is-danger"
+        >
+          <div class="message-body">
+            Unknown token
+          </div>
+        </article>
+        <form id="resume" class="field">
+          <div class="field">
+            <label class="label">Token (first 8 characters or more)</label>
+            <div class="control">
+              <input
+                id="resume_token"
+                class="input is-family-monospace"
+                type="text"
+                style="max-width: 30em"
+              />
+            </div>
+          </div>
+          <div class="button-group">
+            <button
+              id="submit-form"
+              class="button is-success tabbable"
+              type="submit"
+              data-uid="100"
+              autofocus
+            >
+              Resume
             </button>
           </div>
         </form>
@@ -193,8 +231,7 @@
       { title: "Page Visibility", path: "page-visibility" },
       { title: "Service Workers", path: "service-workers" },
       { title: "UI Events", path: "uievents" },
-      { title: "WAVE Cookies", path: "wave-extra/wave-cookies" },
-      { title: "WAVE Url", path: "wave-extra/wave-url" },
+      { title: "WAVE Extra", path: "wave-extra" },
       { title: "Webaudio", path: "webaudio" },
       { title: "WebCryptoAPI", path: "WebCryptoAPI" },
       { title: "Webmessaging", path: "webmessaging" },
@@ -203,6 +240,7 @@
       { title: "Workers", path: "workers" },
       { title: "XHR", path: "xhr" }
     ];
+    var selectedTabbable = -1;
 
     // Sort api list alphabetically
     apis.sort(function(a, b) {
@@ -216,13 +254,13 @@
       var template =
         '<div class="control"> \
         <label class="checkbox"> \
-          <input type="checkbox" name="api" id="' +
+          <input type="checkbox" name="api" class="tabbable" id="' +
         apis[i].path +
         '" value="' +
         apis[i].path +
         '" data-uid="' +
         i +
-        '" checked > ' +
+        '" checked> ' +
         apis[i].title +
         "</label> \
     </div>";
@@ -250,7 +288,7 @@
       }
 
       query += refTokenParam;
-      location.href = "http://" + location.hostname + ":8050/test.html" + query;
+      location.href = "/test.html" + query;
     });
 
     // Select all checkboxes
@@ -292,6 +330,47 @@
       });
     }
 
+    function removeClass(element, className) {
+      var elementClass = element.className;
+      var index = elementClass.indexOf(className);
+      if (index !== -1) {
+        element.className = elementClass.replace(className, "");
+      }
+    }
+
+    function addClass(element, className) {
+      element.className += " " + className;
+    }
+
+    function skipFocus(steps) {
+      var tabbables = document.getElementsByClassName("tabbable");
+      if (selectedTabbable === -1) {
+        selectedTabbable = 0;
+      } else {
+        removeClass(tabbables[selectedTabbable], "focused");
+        selectedTabbable += steps;
+      }
+
+      if (selectedTabbable >= tabbables.length) {
+        selectedTabbable = 0;
+      }
+
+      if (selectedTabbable < 0) {
+        selectedTabbable = tabbables.length - 1;
+      }
+
+      tabbables[selectedTabbable].focus();
+      addClass(tabbables[selectedTabbable], "focused");
+    }
+
+    function focusNext() {
+      skipFocus(1);
+    }
+
+    function focusPrevious() {
+      skipFocus(-1);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       // Set initial focus
       submitButton.focus();
@@ -309,74 +388,75 @@
       selectAllButton.setAttribute("data-uid", checkboxes.length + 8);
     });
 
+    var resumeToken = document.cookie
+      .split(";")
+      .find(
+        cookie => cookie.split("=")[0].replace(/ /g, "") === "resume_token"
+      );
+    var tokenText = document.getElementById("resume_token");
+    if (resumeToken) tokenText.value = resumeToken.split("=")[1];
+    var unknownTokenError = document.getElementById("unknown_token_error");
+    document
+      .getElementById("resume")
+      .addEventListener("submit", function(event) {
+        event.preventDefault();
+        unknownTokenError.style.display = "none";
+        var fragment = tokenText.value;
+        if (!fragment) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", function() {
+          var response = JSON.parse(xhr.response);
+          var token = response.token;
+          if (token) {
+            var xhrUrl = new XMLHttpRequest();
+            xhrUrl.addEventListener("load", function() {
+              var url = xhrUrl.response;
+              location.href = url;
+            });
+            xhrUrl.open(
+              "GET",
+              `/next?token=${token}&hostname=${location.hostname}`,
+              true
+            );
+            xhrUrl.send();
+          } else {
+            unknownTokenError.style.display = "block";
+          }
+        });
+        xhr.open("GET", `/sessions/${fragment}/token`, true);
+        xhr.send();
+      });
+
     document.onkeydown = function(event) {
       event = event || window.event;
       var charCode =
         typeof event.which === "number" ? event.which : event.keyCode;
-      var activeElement = document.activeElement;
-      var activeElementID = parseInt(
-        document.activeElement.getAttribute("data-uid"),
-        10
-      );
-      var focusID = 0;
 
-      // traverse elements downwards
-      if (charCode == VK_DOWN || charCode == 40) {
-        setFocus(activeElementID + 1);
-      }
-
-      // traverse elements downwards
-      if (charCode == VK_UP || charCode == 38) {
-        setFocus(activeElementID - 1);
-      }
-
-      // traverse elements upwards
-      if (charCode == VK_ENTER || charCode == 13) {
+      if (ACTION_KEYS.indexOf(charCode) !== -1) {
         event.preventDefault();
-        pressEnter(activeElementID);
+        var tabbables = document.getElementsByClassName("tabbable");
+        var element = tabbables[selectedTabbable];
+        if (element.type === "checkbox") {
+          element.checked = !element.checked;
+        } else {
+          element.click();
+        }
       }
 
-      if (charCode == VK_LEFT || charCode == 37) {
-        setFocus(activeElementID + 1);
+      if (PREV_KEYS.indexOf(charCode) !== -1) {
+        focusPrevious();
       }
 
-      if (charCode == VK_RIGHT || charCode == 39) {
-        setFocus(activeElementID - 1);
+      if (NEXT_KEYS.indexOf(charCode) !== -1) {
+        focusNext();
       }
     };
-
-    function setFocus(id) {
-      if (id == "undefined" || isNaN(id)) id = 0;
-      if (typeof id != "number") id = 0;
-
-      if (id > checkboxes.length + 8) id = 0;
-      if (id < 0) id = checkboxes.length + 6;
-      if (id == checkboxes.length && submitButton.disabled)
-        id = checkboxes.length + 2;
-
-      var element = document.querySelector('[data-uid="' + id + '"]');
-      element.focus();
-    }
-
-    function pressEnter(id) {
-      if (id == "undefined" || isNaN(id)) id = 0;
-      if (typeof id != "number") id = 0;
-
-      if (id > checkboxes.length + 8) id = 0;
-      if (id < 0) id = checkboxes.length + 6;
-
-      var element = document.querySelector('[data-uid="' + id + '"]');
-
-      // Check focused checkbox
-      if (element.type && element.typeof === "checkbox")
-        element.checked = !element.checked;
-      element.click();
-    }
 
     // Count number of selected tests and disable button if 0 tests are selected
     function countSelectedTests() {
       var count = document.querySelectorAll('input[name="api"]:checked').length;
-      if (count == 0) submitButton.disabled = true;
+      if (count === 0) submitButton.disabled = true;
       else submitButton.disabled = false;
       return count;
     }
@@ -385,7 +465,7 @@
     function updateTestCounterString() {
       var count = countSelectedTests();
       testCounter.innerHTML =
-        count + " test" + (count != 1 ? "s" : "") + " selected";
+        count + " api" + (count !== 1 ? "s" : "") + " selected";
     }
 
     function getRefTokenParam(sessionToken) {
@@ -395,18 +475,18 @@
         // Add all sessionTokens to refTokenQuery
         return (
           query +
-          "01d11810-7938-11e8-8749-a6ac1d216fc7" +
+          "a50c6db0-6a94-11e9-8d1b-e23fc4555885" +
           "," +
-          "a831a820-7855-11e8-9ce0-d6175576bb4b" +
+          "b2924d20-6a93-11e9-98b4-a11fb92a6d1c" +
           "," +
-          "c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f" +
+          "bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f" +
           "," +
-          "ce4aec10-7855-11e8-b81b-6714c602f007"
+          "caf823e0-6a92-11e9-b732-3188d0065ebc"
         );
       } else if (
         sessionToken === "none" ||
         sessionToken === "" ||
-        typeof sessionToken == "undefined" ||
+        typeof sessionToken === "undefined" ||
         !sessionToken
       ) {
         // Don't add ?refToken parameter at all
@@ -417,6 +497,7 @@
       }
 
       return query;
+      return "";
     }
   </script>
 </html>
