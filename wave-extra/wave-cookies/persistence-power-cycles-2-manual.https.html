@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset=utf-8>
-  <title>Persistence of cookies across power cycles of the device</title>
+  <title>Persistence of cookies (secure orgin) across power cycles of the device</title>
   <meta name=help href="https://tools.ietf.org/html/rfc6265#page-8">
   <script src="/resources/testharness.js"></script>
   <script src="/resources/testharnessreport.js"></script>
@@ -12,12 +12,12 @@
   <h3>Devices MUST support persistence of cookies across power cycles of the device</h3>
   <script>
     setup({ explicit_timeout: true });
-    var cookieContent = getCookie("persistence_power_cylces");
+    var cookieContent = getCookie("persistence_power_cycles");
     test(function () {
-      assert_equals(cookieContent, "persistence_power_cylces_test");
+      assert_equals(cookieContent, "persistence_power_cycles_test");
     }, "Persistence of cookies across power cycles of the device");
     done();
-    deleteCookie("persistence_power_cylces", "/");
+    deleteCookie("persistence_power_cycles", "/");
   </script>
 </body>
 </html>

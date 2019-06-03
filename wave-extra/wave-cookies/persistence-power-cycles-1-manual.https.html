@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset=utf-8>
-  <title>Persistence of cookies across power cycles of the device</title>
+  <title>Persistence of cookies (secure orgin) across power cycles of the device</title>
   <meta name=help href="https://tools.ietf.org/html/rfc6265#page-8">
   <script src="/resources/testharness.js"></script>
   <script src="/resources/testharnessreport.js"></script>
@@ -10,18 +10,16 @@
 </head>
 <body style="background:#EEE">
   <h3>Manual Test: Devices MUST support persistence of cookies across power cycles of the device</h3>
-  Please copy the following link to resume the test after the relaunch: <a id="resumeLink">Link </a>
-  <h3>Please process to a power cycle of the device.</h3>
+  <p>Please note the the current session token and use it to resume the test after the relaunch: <b id="token_text"/> </p>
+  <h3>Please resume the test within 5 minutes.</h3>
   <script>
     setup({ explicit_timeout: true });
 
     (function() {
-      const nextUrl = getSessionURL("/test.html");
-      document.getElementById("resumeLink").setAttribute("href", nextUrl);
-      document.getElementById("resumeLink").innerHTML = nextUrl;
+    document.getElementById("token_text").innerHTML = __WAVE__TOKEN;
     })();
 
-    const TEST_CASE = {file: "persistence_power_cylces", value: "persistence_power_cylces_test"};
+    const TEST_CASE = {file: "persistence_power_cycles", value: "persistence_power_cycles_test"};
     setCookie(TEST_CASE.file, TEST_CASE.value, 1);
     setTimeout(function(){
       setCookie(TEST_CASE.file, "", 1);
