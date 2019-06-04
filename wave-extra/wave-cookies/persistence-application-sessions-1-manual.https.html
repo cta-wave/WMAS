@@ -9,14 +9,38 @@
   <script src="resources/cookies-helper.js"></script>
 </head>
 <body style="background:#EEE">
-  <h3>Manual Test: Devices MUST support persistence of cookies (secure origin) between application sessions</h3>
-   <p>Please note the the current session token and use it to resume the test after the relaunch: <b id="token_text"/> </p>
-  <h3>Please resume the test within 5 minutes.</h3>
+  <h3>Manual Test: Testing Cookies (3/4)</h3>
+  <p>
+    Devices MUST support persistence of cookies (secure origin) between
+    application sessions
+  </p>
+  <h1>Please restart the browser!</h1>
+  <p>Resume session with token: <b id="token_text"></b></p>
+  <p>Test will timeout after <span id="timeout"></span></p>
   <script>
     setup({ explicit_timeout: true });
 
+    function millisToTimeString(totalMilliseconds) {
+      var seconds = (Math.floor(totalMilliseconds / 1000) % 60) + "";
+      for (var i = 0; i < 2 - seconds.length; i++) {
+        seconds = "0" + seconds;
+      }
+      var minutes = (Math.floor(totalMilliseconds / 60000) % 60) + "";
+      for (var i = 0; i < 2 - minutes.length; i++) {
+        minutes = "0" + minutes;
+      }
+      var hours = Math.floor(totalMilliseconds / 3600000) + "";
+      for (var i = 0; i < 2 - hours.length; i++) {
+        hours = "0" + hours;
+      }
+      return hours + ":" + minutes + ":" + seconds;
+    }
+
     (function() {
     document.getElementById("token_text").innerHTML = __WAVE__TOKEN;
+      document.getElementById("timeout").innerHTML = millisToTimeString(
+        __WAVE__TIMEOUT
+      );
     })();
 
     const TEST_CASE = {file: "persistence_application", value: "persistence_application_test"};
