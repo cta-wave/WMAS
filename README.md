@@ -2,13 +2,13 @@ The Web Media API Test Suite 2018
 ========================================
 
 The Web Media API Snapshot Test Suite 2018 (WMATS2018) is a test suite for 
-the [Web Media API Snapshot 2018](https://w3c.github.io/webmediaapi/) specification.
+the [Web Media API Snapshot 2018](https://www.w3.org/2018/12/webmediaapi.html) specification.
 The test suite and specification are being developed as part of
 the [CTA WAVE Project](http://cta.tech/WAVE).
 
 This project is forked from
 [W3C Web Platform Tests](https://github.com/web-platform-tests/wpt) and is customized
-to automate test rusn on web browsers for embedded devices and appliances suchs as TV sets,
+to automate test runs on web browsers for embedded devices and appliances suchs as TV sets,
 set-top boxes, consoles, etc.
 
 A hosted version is available at: https://webapitests2018.ctawave.org
@@ -134,12 +134,3 @@ like:
 To prevent browser SSL warnings when running HTTPS tests locally, the
 web-platform-tests Root CA file `cacert.pem` in [tools/certs](tools/certs)
 must be added as a trusted certificate in your OS/browser.
-
-Remarks on testharness.js result statuses
-==================================
-
-The documentation of testharness.js is available in [testharness.js API](https://web-platform-tests.org/writing-tests/testharness-api.html). Section [Basic Usage](https://web-platform-tests.org/writing-tests/testharness-api.html#basic-usage) says that every single test has as result `PASS`, `FAIL`, `TIMEOUT` and `NOTRUN`. These statuses are also listed in [Callback API](https://web-platform-tests.org/writing-tests/testharness-api.html#callback-api) section. According to [testharness.js#L1469](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L1469), the status of a single test will be initialized with `NOTRUN` and later set to one of the other values. This means if `TIMEOUT` is disabled (using `explicit_timeout` function described in [Setup](https://web-platform-tests.org/writing-tests/testharness-api.html#setup) section) and the test is not completed (neither `PASS` or `FAIL`), the status will remain `NOTRUN`. This is the interpretation after reading the source code of the testharness.js since there is no explanation in the documentation for the semantic of status `NOTRUN`. 
-
-A test file may contain multiple tests and there is also an overall status for the test file which can be one of the following values: `OK`, `ERROR` and `TIMEOUT`. There is no further explanation for each of these statuses but from reading the code, the `ERROR` status will be set if an [unexpected exception occurred (try catch block)](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2107-L2113), [abort() function](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2294) is called, [timeout occurs when test in cleanup phase](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2167) or test file [contains tests with duplicate names](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2337). The status will be [set to `OK`](https://github.com/web-platform-tests/wpt/blob/eed07b8c0de42c2e42432febae2cd31a61a3d2b1/resources/testharness.js#L2344) at the end if it is not set yet (it was `null`) which means no `TIMEOUT` or `ERROR` occurred.
-
-PS: in test reports with comparison of multiple test sessions, the status "-" (with orange background of the table cell) means that the test was not executed on the corresponding user agent.  This can happen if a test runs only if a certain condition is fulfilled or a specific event is fired.
