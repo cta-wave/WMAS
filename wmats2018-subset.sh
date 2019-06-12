@@ -365,6 +365,7 @@ cd $DISTDIR
 git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
+cp $DISTDIR/LICENSE $WPTBASEDIR/ecmascript
 
 # Integrate webgl tests [WEBGL-103]
 DISTDIR=dist/webgl
@@ -376,6 +377,7 @@ cd $DISTDIR
 git checkout 0c1173e509ccbc3a1135f86ea6f3b3e4757bb96c #this is the Commit ID from 06 Dec 2018. ES6 was released in June 2016
 cd $WPTBASEDIR
 node tools/wave/webgl/prepare-tests.js $DISTDIR
+cp $DISTDIR/LICENSE.txt $WPTBASEDIR/webgl
 
 # Checkout the wave cookies und url tests
 DISTDIR=wave-extra
