@@ -149,7 +149,7 @@ class ResultsApiHandler extends ApiHandler {
       token,
       api
     });
-    response.redirect(uri);
+    response.redirect("/results/" + uri);
   }
 
   async _createResult({ data, token, test }) {
