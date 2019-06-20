@@ -49,8 +49,11 @@ class ApiHandler {
     if (url.indexOf("?") !== -1) {
       url = url.split("?")[0];
     }
+    // remove /api prefix
     url = url.split("/");
-    return url.filter(part => part !== "");
+    url = url.filter(part => part !== "");
+    url.shift();
+    return url;
   }
 
   sendFile({ response, blob, filePath, fileName }) {

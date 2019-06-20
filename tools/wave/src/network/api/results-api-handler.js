@@ -38,7 +38,7 @@ class ResultsApiHandler extends ApiHandler {
       }
       await this._resultsManager.createResult({ token, data });
     } catch (error) {
-      console.error("Failed to create result:", error);
+      console.error(new Error(`Failed to create result:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -50,7 +50,7 @@ class ResultsApiHandler extends ApiHandler {
       const results = await this._resultsManager.readFlattenedResults(token);
       this.sendJson(results, response);
     } catch (error) {
-      console.error("Failed to read result:", error);
+      console.error(new Error(`Failed to read result:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -67,7 +67,7 @@ class ResultsApiHandler extends ApiHandler {
       });
       this.sendJson(comparison, response);
     } catch (error) {
-      console.error("Failed to read result comparison:", error);
+      console.error(new Error(`Failed to read result comparison:\n${error}`));
       response.status(500).send();
     }
   }
@@ -88,7 +88,7 @@ class ResultsApiHandler extends ApiHandler {
       });
       response.redirect(`/results/${uri}`);
     } catch (error) {
-      console.error("Failed to read html report:", error);
+      console.error(new Error(`Failed to read html report:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -104,7 +104,7 @@ class ResultsApiHandler extends ApiHandler {
         .pop()}`;
       this.sendFile({ response, fileName, filePath });
     } catch (error) {
-      console.error("Failed to download api result json:", error);
+      console.error(new Error(`Failed to download api result json:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -117,13 +117,13 @@ class ResultsApiHandler extends ApiHandler {
       const fileName = token.split("-")[0] + "_results_html.zip";
       this.sendZip({ blob, response, fileName });
     } catch (error) {
-      console.error("Failed to download result html:", error);
+      console.error(new Error(`Failed to download result html:\n${error.stack}`));
       response.status(500).send();
     }
   }
 
   getRoutes() {
-    const uri = "/results*";
+    const uri = "/api/results*";
     return [
       new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),
       new Route({ method: POST, uri, handler: this._handlePost.bind(this) })

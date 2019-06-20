@@ -95,22 +95,32 @@ class WaveServer {
 
     const resultsApiHandler = new ResultsApiHandler(resultsManager);
     httpServer.registerRoutes(resultsApiHandler.getRoutes());
-    
-    httpServer.registerStatic(path.join(applicationDirectoryPath, "./www"));
-    httpServer.registerRoute(
-      new Route("/", (request, response) => {
-        response.sendFile(path.join(applicationDirectoryPath, "index.html"));
-      })
-    );
-    httpServer.registerStatic(resultsDirectoryPath, "/results");
 
-    httpServer.registerRoute(
+    const staticRoutes = [
+      new Route({
+        method: Route.STATIC,
+        directory: path.join(applicationDirectoryPath, "./www")
+      }),
+      new Route({
+        method: Route.GET,
+        uri: "/",
+        handler: (request, response) => {
+          response.sendFile(path.join(applicationDirectoryPath, "index.html"));
+        }
+      }),
+      new Route({
+        method: Route.STATIC,
+        uri: "/results",
+        directory: resultsDirectoryPath
+      }),
       new Route({
         method: Route.OPTIONS,
         uri: "/",
         handler: (request, response) => response.send()
       })
-    );
+    ];
+
+    httpServer.registerRoutes(staticRoutes);
 
     const webSocketServer = new WebSocketServer({
       sessionManager,

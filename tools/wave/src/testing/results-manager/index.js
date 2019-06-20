@@ -9,7 +9,7 @@ const Deserializer = require("../../utils/deserializer");
 const SessionManager = require("../../network/session-manager");
 const Session = require("../../data/session");
 const ResultComparator = require("./result-comparator");
-const Database = require("../database");
+const Database = require("../../database");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);

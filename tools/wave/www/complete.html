@@ -105,7 +105,7 @@
       }
 
       function startTests() {
-        sendRequest("GET", "/next", null, function(response) {
+        sendRequest("GET", "/api/next", null, function(response) {
           location.href = response;
         });
       }
@@ -193,7 +193,7 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/sessions/" + token, null, function(response) {
+      sendRequest("GET", "/api/sessions/" + token, null, function(response) {
         displaySessionDetails(JSON.parse(response));
       });
     </script>

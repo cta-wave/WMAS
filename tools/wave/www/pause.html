@@ -102,19 +102,19 @@
       }
 
       function loadNextTest() {
-        sendRequest("GET", "/next", null, function(response) {
+        sendRequest("GET", "/api/next", null, function(response) {
           location.href = response;
         });
       }
 
       function continueTests() {
-        sendRequest("GET", "/sessions/" + TOKEN + "/resume", null, function() {
+        sendRequest("GET", "/api/sessions/" + TOKEN + "/resume", null, function() {
           loadNextTest();
         });
       }
 
       function checkStatus() {
-        sendRequest("GET", "/sessions/" + TOKEN, null, function(response) {
+        sendRequest("GET", "/api/sessions/" + TOKEN, null, function(response) {
           var session = JSON.parse(response);
           if (session.hasOwnProperty("status") && session.status !== "paused")
             loadNextTest();
@@ -210,7 +210,7 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/sessions/" + token, null, function(response) {
+      sendRequest("GET", "/api/sessions/" + token, null, function(response) {
         displaySessionDetails(JSON.parse(response));
       });
     </script>

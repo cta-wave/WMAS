@@ -140,7 +140,10 @@
       }
 
       function startTests() {
-        location.href = "/next"
+        var query = "";
+        query += "&token=" + TOKEN;
+        query += "&hostname=" + HOSTNAME;
+        location.href = "/next.html?" + query;
       }
 
       var resultsUrl =
@@ -230,7 +233,7 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/sessions/" + token, null, function(response) {
+      sendRequest("GET", "/api/sessions/" + token, null, function(response) {
         displaySessionDetails(JSON.parse(response));
       });
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      var HOSTNAME = location.hostname;
+      var PORT = location.port;
+      var PROTOCOL = location.protocol.replace(/:/, "");
+      var QUERY = location.search.replace(/\?/, "");
+      var match = QUERY.match(/token=([^&]+)/);
+      var TOKEN = match ? match[1] : null;
+
+      var uri = "/api/next";
+      var url = PROTOCOL + "://";
+      url += HOSTNAME + ":" + PORT;
+      url += uri + "?&token=" + TOKEN;
+      url += "&hostname=" + HOSTNAME;
+
+      var xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", function() {
+        var url = xhr.response;
+        if (url) {
+          location.href = url;
+        }
+      });
+      xhr.open("GET", url, true);
+      xhr.send();
+    </script>
+  </head>
+</html>

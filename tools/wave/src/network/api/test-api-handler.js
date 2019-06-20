@@ -28,7 +28,7 @@ class TestApiHandler extends ApiHandler {
 
   getRoutes() {
     return [
-      new Route({ uri: "/next*", handler: this._handleRequest.bind(this) })
+      new Route({ uri: "/api/next*", handler: this._handleRequest.bind(this) })
     ];
   }
 
@@ -56,7 +56,7 @@ class TestApiHandler extends ApiHandler {
     const { resume } = this.parseQueryParameters(request);
     const { hostname } = request;
 
-    let session = await this._sessionManager.getSession(token);
+    let session = await this._sessionManager.readSession(token);
 
     if (resume) {
       let query = "?token=" + token + "&resume=1";
@@ -115,7 +115,7 @@ class TestApiHandler extends ApiHandler {
         if (request.query.redirect) {
           response.redirect(url);
         } else {
-          response.redirect(url);
+          response.send(url);
         }
         await this._sessionManager.updateSession(session);
       }
@@ -137,7 +137,7 @@ class TestApiHandler extends ApiHandler {
     if (request.query.redirect) {
       response.redirect(url);
     } else {
-      response.redirect(url);
+      response.send(url);
     }
     await this._sessionManager.updateSession(session);
   }

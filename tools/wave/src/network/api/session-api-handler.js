@@ -23,106 +23,153 @@ class SessionApiHandler extends ApiHandler {
   }
 
   async _createSession({ request, response }) {
-    const userAgent = request.get("User-Agent");
-    const { path, reftoken, types, testTimeout } = this.parseQueryParameters(
-      request
-    );
-    const referenceTokens = reftoken.split(",").filter(token => !!token);
-    const session = await this._sessionManager.createSession({
-      path,
-      referenceTokens,
-      types,
-      userAgent,
-      testTimeout
-    });
+    try {
+      const userAgent = request.get("User-Agent");
+      const { path, reftoken, types, testTimeout } = this.parseQueryParameters(
+        request
+      );
+      const referenceTokens = reftoken.split(",").filter(token => !!token);
+      const session = await this._sessionManager.createSession({
+        path,
+        referenceTokens,
+        types,
+        userAgent,
+        testTimeout
+      });
 
-    const token = session.getToken();
+      const token = session.getToken();
 
-    // save token in cookie to resume session if tests run into problems
-    response.cookie("sid", token, {
-      maxAge: 1000 * 60 * 60 * 48, // 2 days
-      httpOnly: true
-    });
-    response.send(token);
+      // save token in cookie to resume session if tests run into problems
+      response.cookie("sid", token, {
+        maxAge: 1000 * 60 * 60 * 48, // 2 days
+        httpOnly: true
+      });
+      response.send(token);
+    } catch (error) {
+      console.error(new Error(`Failed to create session:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   async _readSession({ request, response, detailsOnly = false } = {}) {
-    const url = this.parseUrl(request);
-    const token = url[1];
-    const session = await this._sessionManager.readSession(token);
-    if (!session) {
-      response.status(404).send();
-    } else {
-      const sessionObject = Serializer.serializeSession(session);
-      if (detailsOnly) {
-        delete sessionObject.running_tests;
-        delete sessionObject.completed_tests;
-        delete sessionObject.pending_tests;
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (!session) {
+        response.status(404).send();
+      } else {
+        const sessionObject = Serializer.serializeSession(session);
+        if (detailsOnly) {
+          delete sessionObject.running_tests;
+          delete sessionObject.completed_tests;
+          delete sessionObject.pending_tests;
+        }
+        this.sendJson(sessionObject, response);
       }
-      this.sendJson(sessionObject, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read session:\n${error.stack}`));
+      response.status(500).send();
     }
   }
 
   async _readSessions({ request, response }) {
-    const sessions = await this._sessionManager.readSessions();
-    const sessionsObject = Serializer.serializeSessions(sessions);
-    this.sendJson(sessionsObject, response);
+    try {
+      const sessions = await this._sessionManager.readSessions();
+      const sessionsObject = Serializer.serializeSessions(sessions);
+      this.sendJson(sessionsObject, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read sessions:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   async _readPublicSessions({ response }) {
-    const publicSessions = await this._sessionManager.readPublicSessions();
-    const publicSessionsJson = publicSessions.map(session =>
-      session.getToken()
-    );
-    this.sendJson(publicSessionsJson, response);
+    try {
+      const publicSessions = await this._sessionManager.readPublicSessions();
+      const publicSessionsJson = publicSessions.map(session =>
+        session.getToken()
+      );
+      this.sendJson(publicSessionsJson, response);
+    } catch (error) {
+      console.error(
+        new Error(`Failed to read public sessions:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
   }
 
   async _deleteSession({ request, response }) {
-    const url = this.parseUrl(request);
-    const token = url[1];
-    await this._sessionManager.deleteSession(token);
-    await this._resultsManager.deleteResults(token);
-    response.send();
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      await this._sessionManager.deleteSession(token);
+      await this._resultsManager.deleteResults(token);
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to delete session:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   async _pauseSession({ request, response }) {
-    const url = this.parseUrl(request);
-    const token = url[1];
-    const session = await this._sessionManager.readSession(token);
-    if (session.getStatus() === Session.RUNNING) {
-      session.setStatus(Session.PAUSED);
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (session.getStatus() === Session.RUNNING) {
+        session.setStatus(Session.PAUSED);
+      }
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to pause session:\n${error.stack}`));
+      response.status(500).send();
     }
-    response.send();
   }
 
   async _resumeSession({ request, response }) {
-    const url = this.parseUrl(request);
-    const token = url[1];
-    const session = await this._sessionManager.readSession(token);
-    if (session.getStatus() === Session.PAUSED) {
-      session.setStatus(Session.RUNNING);
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (session.getStatus() === Session.PAUSED) {
+        session.setStatus(Session.RUNNING);
+      }
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to resume session:\n${error.stack}`));
+      response.status(500).send();
     }
-    response.send();
   }
 
   async _stopSession({ request, response }) {
-    const url = this.parseUrl(request);
-    const token = url[1];
-    const session = await this._sessionManager.readSession(token);
-    session.setStatus(Session.ABORTED);
-    this._sessionManager.updateSession(session);
-    response.send();
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      session.setStatus(Session.ABORTED);
+      this._sessionManager.updateSession(session);
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to stop session:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   async _findToken({ response, fragment }) {
-    const url = this.parseUrl(request);
-    const fragment = url[1];
-    const token = await this._sessionManager.findToken(fragment);
-    this.sendJson({ token }, response);
+    try {
+      const url = this.parseUrl(request);
+      const fragment = url[1];
+      const token = await this._sessionManager.findToken(fragment);
+      this.sendJson({ token }, response);
+    } catch (error) {
+      console.error(new Error(`Failed to find session:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   getRoutes() {
-    const uri = "/sessions*";
+    const uri = "/api/sessions*";
     return [
       new Route({ method: POST, uri, handler: this._handlePost.bind(this) }),
       new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),

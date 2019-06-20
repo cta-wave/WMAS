@@ -12,7 +12,7 @@ class WebSocketServer {
       data = JSON.parse(data);
       if (!data) return;
       const { token } = data;
-      const session = await this._sessionManager.getSession(token);
+      const session = await this._sessionManager.readSession(token);
       session.addClient(client);
       client.on("close", () => {
         session.removeClient(client);

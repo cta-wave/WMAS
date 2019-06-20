@@ -27,7 +27,7 @@ const WaveService = {
       token = WaveService.defaultToken;
     }
     const { detailsOnly } = options;
-    let url = `/sessions/${token}`;
+    let url = `/api/sessions/${token}`;
     if (detailsOnly) url = `${url}/details`;
     WaveService.sendRequest("GET", url, response =>
       callback(response ? JSON.parse(response) : null)
@@ -60,7 +60,7 @@ const WaveService = {
     }
   },
   getPublicSessions(callback) {
-    WaveService.sendRequest("GET", "/sessions/public", response => {
+    WaveService.sendRequest("GET", "/api/sessions/public", response => {
       callback(JSON.parse(response));
     });
   },
@@ -69,14 +69,14 @@ const WaveService = {
       callback = token;
       token = WaveService.defaultToken;
     }
-    WaveService.sendRequest("GET", `/results/${token}`, response => {
+    WaveService.sendRequest("GET", `/api/results/${token}`, response => {
       callback(JSON.parse(response));
     });
   },
   getFilteredTestResults: (tokens, refTokens, callback) => {
     WaveService.sendRequest(
       "GET",
-      `/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(",")}`,
+      `/api/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(",")}`,
       response => {
         callback(JSON.parse(response));
       }
@@ -87,31 +87,31 @@ const WaveService = {
       callback = token;
       token = WaveService.defaultToken;
     }
-    WaveService.sendRequest("GET", `/sessions/${token}/pause`, callback);
+    WaveService.sendRequest("GET", `/api/sessions/${token}/pause`, callback);
   },
   resumeSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
-    WaveService.sendRequest("GET", `/sessions/${token}/resume`, callback);
+    WaveService.sendRequest("GET", `/api/sessions/${token}/resume`, callback);
   },
   stopSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
-    WaveService.sendRequest("GET", `/sessions/${token}/stop`, callback);
+    WaveService.sendRequest("GET", `/api/sessions/${token}/stop`, callback);
   },
   deleteSession(token, callback) {
     if (typeof token !== "string") {
       callback = token;
       token = WaveService.defaultToken;
     }
-    WaveService.sendRequest("GET", `/sessions/${token}/delete`, callback);
+    WaveService.sendRequest("GET", `/api/sessions/${token}/delete`, callback);
   },
   findToken(fragment, callback) {
-    WaveService.sendRequest("GET", `/sessions/${fragment}/token`, response => {
+    WaveService.sendRequest("GET", `/api/sessions/${fragment}/token`, response => {
       response = JSON.parse(response);
       if (response.token) {
         callback(response.token);
@@ -125,7 +125,7 @@ const WaveService = {
       api = token;
       token = WaveService.defaultToken;
     }
-    location.href = `/results/${token}/${api}/json`;
+    location.href = `/api/results/${token}/${api}/json`;
   },
   downloadJsons(token, apis) {
     if (typeof token !== "string") {
@@ -145,7 +145,7 @@ const WaveService = {
     apis.forEach(api => {
       WaveService.sendRequest(
         "GET",
-        `/results/${token}/${api}/json`,
+        `/api/results/${token}/${api}/json`,
         (response, headers) => {
           let fileName = "";
           try {
@@ -175,7 +175,7 @@ const WaveService = {
   },
   downloadHtmlZip(token) {
     if (typeof token !== "string") token = WaveService.defaultToken;
-    location.href = `/results/${token}/html`;
+    location.href = `/api/results/${token}/html`;
   },
   connect(token) {
     if (typeof token !== "string") token = WaveService.defaultToken;
@@ -198,12 +198,12 @@ const WaveService = {
       token = WaveService.defaultToken;
     }
     if (token instanceof Array) {
-      const reportUrl = `/results/${token.join(",")}/${api}/html${
+      const reportUrl = `/api/results/${token.join(",")}/${api}/html${
         reftoken ? `?reftoken=${reftoken}` : ""
       }`;
       window.open(reportUrl, "_blank");
     } else {
-      const reportUrl = `/results/${token}/${api}/html`;
+      const reportUrl = `/api/results/${token}/${api}/html`;
       window.open(reportUrl, "_blank");
     }
   },

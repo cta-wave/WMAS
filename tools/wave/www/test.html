@@ -58,7 +58,7 @@
       }
 
       log("Requesting first step ...");
-      sendRequest("POST", "/sessions", null, function(response) {
+      sendRequest("POST", "/api/sessions", null, function(response) {
         log('Received token "' + response + '"');
         log("Redirecting ...");
         location.href = "/newsession.html?token=" + response;
