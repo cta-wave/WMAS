@@ -4,6 +4,8 @@ const ApiHandler = require("./api-handler");
 const SessionManager = require("../session-manager");
 const ResultsManager = require("../../testing/results-manager");
 
+const { GET } = Route;
+
 class TestApiHandler extends ApiHandler {
   /**
    * @constructor
@@ -26,120 +28,65 @@ class TestApiHandler extends ApiHandler {
     this._sessionManager = sessionManager;
   }
 
-  getRoutes() {
-    return [
-      new Route({ uri: "/api/next*", handler: this._handleRequest.bind(this) })
-    ];
-  }
-
-  _handleRequest(request, response) {
-    const method = request.method;
-    switch (method) {
-      case "GET":
-        return this._nextTest({ request, response });
-    }
-    response.status(404).send();
-  }
-
   async _nextTest({ request, response }) {
-    let { token } = this.parseQueryParameters(request);
+    const { hostname } = request;
+    let { token, redirect } = this.parseQueryParameters(request);
     if (!token) {
       token = request.get("token");
     }
-    if (!token) {
-      token = request.query.token;
-    }
-    if (!token || token === "null") {
-      token = request.cookies.sid;
-    }
 
-    const { resume } = this.parseQueryParameters(request);
-    const { hostname } = request;
-
-    let session = await this._sessionManager.readSession(token);
-
-    if (resume) {
-      let query = "?token=" + token + "&resume=1";
-      response.redirect(
-        this._generateUrl({
-          hostname,
-          port: this._wavePort,
-          uri: "/newsession.html",
-          query
-        })
-      );
-      return;
-    }
+    const session = await this._sessionManager.readSession(token);
 
     switch (session.getStatus()) {
       case Session.PAUSED: {
-        let query = "?token=" + session.getToken();
-        response.redirect(
-          this._generateUrl({
-            hostname,
-            uri: "/pause.html",
-            port: this._wavePort,
-            query
-          })
-        );
+        const url = this._generateWaveUrl({
+          hostname,
+          uri: "/pause.html",
+          token
+        });
+        this._sendUrl({ response, url, redirect });
         return;
       }
       case Session.COMPLETED:
       case Session.ABORTED: {
-        let query = "?token=" + session.getToken();
-        response.redirect(
-          this._generateUrl({
-            hostname,
-            uri: "/complete.html",
-            port: this._wavePort,
-            query
-          })
-        );
+        const url = this._generateUrl({
+          hostname,
+          uri: "/complete.html",
+          token
+        });
+        this._sendUrl({ response, url, redirect });
         return;
       }
     }
 
     let test = session.nextTest(this._onTestTimeout.bind(this));
 
-    console.log("TEST", test);
     if (!test) {
-      if (session.getStatus() === Session.RUNNING) {
-        let query = "?token=" + session.getToken();
-        const url = this._generateUrl({
-          hostname,
-          uri: "/complete.html",
-          port: this._wavePort,
-          query
-        });
-
-        if (request.query.redirect) {
-          response.redirect(url);
-        } else {
-          response.send(url);
-        }
-        await this._sessionManager.updateSession(session);
-      }
-      return;
+      if (session.getStatus() !== Session.RUNNING) return;
+      const url = this._generateWaveUrl({
+        hostname,
+        uri: "/complete.html",
+        token
+      });
+      this._sendUrl({ response, url, redirect });
+      return await this._sessionManager.updateSession(session);
     }
 
-    // console.log('TEST', test)
+    const testTimeout =
+      test.indexOf("manual") !== -1 ? 5 * 60 * 1000 : session.getTestTimeout();
+    const url = this._generateTestUrl({ test, token, testTimeout, hostname });
 
-    const url = this._generateTestUrl({
-      test,
-      token: session.getToken(),
-      testTimeout:
-        test.indexOf("manual") !== -1
-          ? 5 * 60 * 1000
-          : session.getTestTimeout(),
-      hostname
-    });
+    console.log("TEST", test);
+    this._sendUrl({ response, url, redirect });
+    await this._sessionManager.updateSession(session);
+  }
 
-    if (request.query.redirect) {
+  _sendUrl({ url, response, redirect }) {
+    if (redirect) {
       response.redirect(url);
     } else {
       response.send(url);
     }
-    await this._sessionManager.updateSession(session);
   }
 
   _generateTestUrl({ hostname, test, token, testTimeout }) {
@@ -158,6 +105,15 @@ class TestApiHandler extends ApiHandler {
     return this._generateUrl({ protocol, hostname, port, uri: test, query });
   }
 
+  _generateWaveUrl({ hostname, token, uri }) {
+    return this._generateUrl({
+      hostname,
+      uri,
+      port: this._wavePort,
+      query: "?token=" + token
+    });
+  }
+
   _generateUrl({ protocol, hostname, port, uri, query }) {
     protocol = protocol || "http";
     port = port || 80;
@@ -170,23 +126,35 @@ class TestApiHandler extends ApiHandler {
   _onTestTimeout(token, test) {
     console.log("TIMEOUT", test);
     const data = {
-      token,
       test,
-      result: {
-        test,
-        status: "TIMEOUT",
-        message: null,
-        subtests: [
-          {
-            status: "TIMEOUT",
-            xstatus: "SERVERTIMEOUT"
-          }
-        ]
-      }
+      status: "TIMEOUT",
+      message: null,
+      subtests: [
+        {
+          status: "TIMEOUT",
+          xstatus: "SERVERTIMEOUT"
+        }
+      ]
     };
     this._resultsManager
       .createResult({ token, data })
       .catch(error => console.error(error));
+  }
+
+  getRoutes() {
+    const uri = "/api/next*";
+    return [
+      new Route({ method: GET, uri, handler: this._handleGet.bind(this) })
+    ];
+  }
+
+  _handleGet(request, response) {
+    const url = this.parseUrl(request);
+    switch (url.length) {
+      case 1:
+        return this._nextTest({ request, response });
+    }
+    response.status(404).send();
   }
 }
 

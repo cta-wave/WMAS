@@ -140,7 +140,7 @@ function loadNext() {
     logToConsole("Requesting next url ...");
     sendRequest(
       "GET",
-      "/next",
+      "/api/next",
       null,
       null,
       function(response) {
@@ -153,7 +153,7 @@ function loadNext() {
       },
       function() {
         logToConsole("Connection failed, retrying ...");
-        location.href = getURL("/next") + "&redirect=1";
+        location.href = getURL("/api/next") + "&redirect=1";
       }
     );
   } else {
@@ -165,10 +165,11 @@ function finishWptTest(data) {
   if (resultSent) {
     loadNext();
   } else {
+    data.test = __WAVE__TEST;
     logToConsole("Sending test results ...");
     sendRequest(
       "POST",
-      "/results",
+      "/api/results",
       JSON.stringify(data),
       {
         "Content-Type": "application/json"
@@ -180,7 +181,7 @@ function finishWptTest(data) {
       function() {
         logToConsole("Connection failed, retrying ...");
         location.href =
-          getURL("/results") + "&data=" + encodeURIComponent(JSON.stringify(data));
+          getURL("/api/results") + "&data=" + encodeURIComponent(JSON.stringify(data));
       }
     );
   }

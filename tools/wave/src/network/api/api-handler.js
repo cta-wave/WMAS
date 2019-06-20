@@ -16,6 +16,7 @@ class ApiHandler {
       reftoken,
       reftokens,
       resume,
+      redirect,
       data
     } = request.query;
     token = token || null;
@@ -29,6 +30,7 @@ class ApiHandler {
     reftokens = reftokens || "";
     resume = resume ? (resume !== "false" ? true : false) : false;
     data = data || "";
+    redirect = redirect || redirect === "";
     return {
       token,
       path,
@@ -40,6 +42,7 @@ class ApiHandler {
       reftoken,
       reftokens,
       resume,
+      redirect,
       data
     };
   }

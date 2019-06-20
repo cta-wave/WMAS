@@ -38,12 +38,6 @@ class SessionApiHandler extends ApiHandler {
       });
 
       const token = session.getToken();
-
-      // save token in cookie to resume session if tests run into problems
-      response.cookie("sid", token, {
-        maxAge: 1000 * 60 * 60 * 48, // 2 days
-        httpOnly: true
-      });
       response.send(token);
     } catch (error) {
       console.error(new Error(`Failed to create session:\n${error.stack}`));
@@ -156,7 +150,7 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _findToken({ response, fragment }) {
+  async _findToken({ response, request }) {
     try {
       const url = this.parseUrl(request);
       const fragment = url[1];

@@ -148,7 +148,7 @@ class ResultsApiHandler extends ApiHandler {
           token = request.get("token");
         }
         response.redirect(
-          `/nodejs/next?token=${token}&hostname=${hostname}&redirect=1`
+          `/nodejs/api/next?token=${token}&hostname=${hostname}&redirect=1`
         );
         return this._createResult({ request, response });
       }
