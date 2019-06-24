@@ -16,11 +16,10 @@ const DEFAULT_TEST_TYPES = [
  */
 class SessionManager {
   /**
-   *
    * @param {Object} config
    * @param {Database} config.database
    */
-  constructor({ database, testTimeout, testLoader }) {
+  initialize({ database, testTimeout, testLoader }) {
     this._database = database;
     this._sessions = [];
     this._testTimeout = testTimeout;
@@ -46,15 +45,10 @@ class SessionManager {
     types = types || DEFAULT_TEST_TYPES;
     testTimeout = testTimeout || this._testTimeout;
 
-    const referenceSessions = await Promise.all(
-      referenceTokens.map(async token => this.readSession(token.trim()))
-    );
-
     const token = this._generateUuid();
     const tests = await this._testLoader.getTests({
-      userAgent,
       path,
-      refSessions: referenceSessions,
+      referenceTokens,
       types
     });
 

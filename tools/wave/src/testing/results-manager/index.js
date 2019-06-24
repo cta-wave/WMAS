@@ -20,13 +20,12 @@ const println = text => console.log(text);
  */
 class ResultsManager {
   /**
-   * @constructor
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
    * @param {TestManager} config.testManager
    * @param {Database} config.database
    */
-  constructor({
+  initialize({
     resultsDirectoryPath,
     database,
     sessionManager,
@@ -43,6 +42,9 @@ class ResultsManager {
       resultsDirectoryPath,
       resultsManager: this
     });
+    this.readCommonPassedTests = this._resultComparator.readCommonPassedTests.bind(
+      this._resultComparator
+    );
   }
 
   async createResult({ token, data }) {

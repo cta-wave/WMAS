@@ -50,21 +50,18 @@ class WaveServer {
     await database.initialize(databaseDirectoryPath);
     println(" done.");
 
-    const testLoader = new TestLoader({
-      resultsDirectoryPath,
-      includeListFilePath,
-      excludeListFilePath
-    });
+    const testManager = new TestManager();
+    const sessionManager = new SessionManager();
+    const resultsManager = new ResultsManager();
+    const testLoader = new TestLoader();
 
-    const sessionManager = new SessionManager({
+    sessionManager.initialize({
       database,
       testTimeout,
       testLoader
     });
 
-    const testManager = new TestManager();
-
-    const resultsManager = new ResultsManager({
+    resultsManager.initialize({
       resultsDirectoryPath,
       database,
       sessionManager,
@@ -75,6 +72,12 @@ class WaveServer {
       )
     });
     await resultsManager.loadResults();
+
+    testLoader.initialize({
+      resultsManager,
+      includeListFilePath,
+      excludeListFilePath
+    });
 
     print("Loading tests ...");
     await testLoader.loadTests(manifestFilePath);

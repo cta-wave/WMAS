@@ -77,7 +77,7 @@ class ResultComparator {
   }
 
   async _generateComparisonResults({ tokens, refTokens }) {
-    const passedRefTests = await this._filterPassedTests(refTokens);
+    const passedRefTests = await this.readCommonPassedTests(refTokens);
     let comparisonResults = {};
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
@@ -126,11 +126,11 @@ class ResultComparator {
     );
   }
 
-  async _filterPassedTests(refTokens) {
-    if (!refTokens || refTokens.length === 0) return null;
+  async readCommonPassedTests(tokens) {
+    if (!tokens || tokens.length === 0) return null;
 
     const refSessionsResults = await Promise.all(
-      refTokens.map(async token => await this.getResults(token))
+      tokens.map(async token => await this._resultsManager.getResults(token))
     );
 
     const passedTests = {};
