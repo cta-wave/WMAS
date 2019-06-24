@@ -3,6 +3,7 @@ const Session = require("../../data/session");
 const ApiHandler = require("./api-handler");
 const SessionManager = require("../session-manager");
 const ResultsManager = require("../../testing/results-manager");
+const TestManager = require("../../testing/test-manager");
 
 const { GET } = Route;
 
@@ -12,13 +13,15 @@ class TestApiHandler extends ApiHandler {
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
    * @param {ResultsManager} config.resultsManager
+   * @param {TestManager} config.testManager
    */
   constructor({
     wavePort,
     wptPort,
     wptSslPort,
     resultsManager,
-    sessionManager
+    sessionManager,
+    testManager
   }) {
     super();
     this._wptPort = wptPort;
@@ -26,6 +29,7 @@ class TestApiHandler extends ApiHandler {
     this._wavePort = wavePort;
     this._resultsManager = resultsManager;
     this._sessionManager = sessionManager;
+    this._testManager = testManager;
   }
 
   async _nextTest({ request, response }) {
@@ -59,7 +63,10 @@ class TestApiHandler extends ApiHandler {
       }
     }
 
-    let test = session.nextTest(this._onTestTimeout.bind(this));
+    let test = this._testManager.nextTest({
+      session,
+      onTimeout: this._onTestTimeout.bind(this)
+    });
 
     if (!test) {
       if (session.getStatus() !== Session.RUNNING) return;

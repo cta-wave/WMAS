@@ -10,6 +10,7 @@ const SessionManager = require("../../network/session-manager");
 const Session = require("../../data/session");
 const ResultComparator = require("./result-comparator");
 const Database = require("../../database");
+const TestManager = require("../../testing/test-manager");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -22,17 +23,20 @@ class ResultsManager {
    * @constructor
    * @param {Object} config
    * @param {SessionManager} config.sessionManager
+   * @param {TestManager} config.testManager
    * @param {Database} config.database
    */
   constructor({
     resultsDirectoryPath,
     database,
     sessionManager,
+    testManager,
     exportTemplateDirectoryPath
   }) {
     this._resultsDirectoryPath = resultsDirectoryPath;
     this._database = database;
     this._sessionManager = sessionManager;
+    this._testManager = testManager;
     this._generatingComparisons = [];
     this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
     this._resultComparator = new ResultComparator({
@@ -51,7 +55,7 @@ class ResultsManager {
     if (!session.testExists(test)) return;
 
     if (!session.isTestComplete(test)) {
-      session.completeTest(test);
+      this._testManager.completeTest({ test, session });
       await this._database.createResult(token, result);
       const api = test.split("/")[0];
       if (session.isApiComplete(api)) {
@@ -135,7 +139,10 @@ class ResultsManager {
       await FileSystem.makeDirectory(apiDirectoryPath);
 
       const resultJsonFiles = await Promise.all(
-        tokens.map(async token => ({ token, path: await this.getJsonPath({ token, api }) }))
+        tokens.map(async token => ({
+          token,
+          path: await this.getJsonPath({ token, api })
+        }))
       );
       await WptReport.generateMultiReport({
         outputHtmlDirectoryPath: apiDirectoryPath,

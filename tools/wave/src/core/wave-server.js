@@ -8,6 +8,7 @@ const SessionApiHandler = require("../network/api/session-api-handler");
 const ResultsApiHandler = require("../network/api/results-api-handler");
 const TestApiHandler = require("../network/api/test-api-handler");
 const ResultsManager = require("../testing/results-manager");
+const TestManager = require("../testing/test-manager");
 const ConfigurationLoader = require("../core/configuration-loader");
 const WebSocketServer = require("../network/web-socket-server");
 const Route = require("../data/route");
@@ -54,16 +55,20 @@ class WaveServer {
       includeListFilePath,
       excludeListFilePath
     });
+
     const sessionManager = new SessionManager({
       database,
       testTimeout,
       testLoader
     });
 
+    const testManager = new TestManager();
+
     const resultsManager = new ResultsManager({
       resultsDirectoryPath,
       database,
       sessionManager,
+      testManager,
       exportTemplateDirectoryPath: path.join(
         applicationDirectoryPath,
         "./export"
@@ -83,7 +88,8 @@ class WaveServer {
       wptSslPort,
       wavePort: port,
       resultsManager,
-      sessionManager
+      sessionManager,
+      testManager
     });
     httpServer.registerRoutes(testApiHandler.getRoutes());
 

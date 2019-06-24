@@ -46,7 +46,6 @@ class Session {
     this._testFilesCount = testFilesCount;
     this._testFilesCompleted = testFilesCompleted;
     this._testTimeout = testTimeout;
-    this._timeouts = [];
     this._status = status;
     this._clients = [];
     this._dateStarted = dateStarted;
@@ -61,122 +60,6 @@ class Session {
       testFilesCount[api] = tests[api].length;
     }
     return testFilesCount;
-  }
-
-  nextTest(onTimeout) {
-    let test;
-    let api;
-    let hasHttp = true;
-    let hasManual = true;
-    let currentApi = 0;
-    let currentTest = 0;
-    const apis = Object.keys(this._pendingTests).sort((testA, testB) =>
-      testA.toLowerCase() > testB.toLowerCase() ? 1 : -1
-    );
-    while (!test) {
-      api = apis[currentApi];
-      if (!api) return null;
-      test = this._pendingTests[api][currentTest];
-
-      if (!test) {
-        currentApi++;
-        currentTest = 0;
-
-        if (currentApi === apis.length) {
-          if (hasHttp) {
-            hasHttp = false;
-            currentApi = 0;
-            test = null;
-            continue;
-          }
-
-          if (hasManual) {
-            hasManual = false;
-            currentApi = 0;
-            test = null;
-            continue;
-          }
-
-          return null;
-        }
-        test = null;
-        continue;
-      }
-
-      if (test.indexOf("https") !== -1) {
-        if (hasHttp) {
-          currentTest++;
-          test = null;
-          continue;
-        }
-      }
-
-      if (test.indexOf("manual") === -1) {
-        if (hasManual) {
-          currentTest++;
-          test = null;
-          continue;
-        }
-      }
-    }
-
-    this._removeTestFromList(this._pendingTests, test, api);
-    this._addTestToList(this._runningTests, test, api);
-
-    if (this._testTimeout) {
-      if (test.indexOf("manual") !== -1) {
-        this._timeouts.push({
-          test,
-          timeout: setTimeout(
-            () => onTimeout(this._token, test),
-            5 * 60 * 1000
-          )
-        });
-      } else {
-        this._timeouts.push({
-          test,
-          timeout: setTimeout(
-            () => onTimeout(this._token, test),
-            this._testTimeout + 10000
-          )
-        });
-      }
-    }
-    return test;
-  }
-
-  completeTest(test) {
-    const api = test.split("/")[0];
-    this._removeTestFromList(this._runningTests, test, api);
-    this._addTestToList(this._completedTests, test, api);
-    for (let i = 0; i < this._timeouts.length; i++) {
-      if (this._timeouts[i].test === test) {
-        clearTimeout(this._timeouts[i].timeout);
-        this._timeouts.splice(i, 1);
-        break;
-      }
-    }
-    this._clients.forEach(client => client.send("complete"));
-  }
-
-  _removeTestFromList(testList, test, api) {
-    if (!testList[api]) return;
-    const index = testList[api].indexOf(test);
-    if (index === -1) return;
-    testList[api].splice(index, 1);
-    if (testList[api].length === 0) {
-      delete testList[api];
-    }
-  }
-
-  _addTestToList(testList, test, api) {
-    if (testList[api] && testList[api].indexOf(test) !== -1) return;
-    if (!testList[api]) testList[api] = [];
-    testList[api].push(test);
-    if (testList === this._completedTests)
-      this._testFilesCompleted = this._calculateTestFilesCount(
-        this._completedTests
-      );
   }
 
   isTestComplete(needleTest) {
@@ -284,6 +167,9 @@ class Session {
 
   setCompletedTests(completedTests) {
     this._completedTests = completedTests;
+    this._testFilesCompleted = this._calculateTestFilesCount(
+      this._completedTests
+    );
     return this;
   }
 
@@ -308,7 +194,6 @@ class Session {
     this._clients.forEach(client => client.send("status"));
     if (status === COMPLETED || status === ABORTED) {
       this._dateFinished = Date.now();
-      this._timeouts.forEach(timeout => clearTimeout(timeout));
     }
     return this;
   }
@@ -327,6 +212,15 @@ class Session {
 
   getReferenceTokens() {
     return this._referenceTokens;
+  }
+
+  getClients() {
+    return this._clients;
+  }
+
+  setClients(clients) {
+    this._clients = clients;
+    return this;
   }
 }
 
