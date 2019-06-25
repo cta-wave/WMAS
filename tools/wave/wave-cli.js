@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const https = require("https");
 const JSZip = require("jszip");
+const WaveStatistics = require("./wave-statistics");
 
 const WaveServer = require("./src/core/wave-server");
 
@@ -30,12 +31,14 @@ const REFERENCE_BROWSERS = {
 
 const START_OPERATION = "start";
 const DOWNLOAD_REFERENCE_RESULTS_OPERATION = "download-reference-results";
+const EXPORT_SESSION_STATISTICS = "export-sessions-statistics";
 
 (async () => {
   const {
     applicationDirectoryPath,
     configurationFilePath,
-    operation
+    operation,
+    parameter1
   } = getRunParameters();
 
   if (!operation) return console.log("No operation specified");
@@ -45,10 +48,31 @@ const DOWNLOAD_REFERENCE_RESULTS_OPERATION = "download-reference-results";
       return await startServer(applicationDirectoryPath, configurationFilePath);
     case DOWNLOAD_REFERENCE_RESULTS_OPERATION:
       return await downloadReferenceResults(applicationDirectoryPath);
+    case EXPORT_SESSION_STATISTICS:
+      return await exportSessionsStatistics({
+        applicationDirectoryPath,
+        configurationFilePath,
+        sessionsDatabaseFilePath: parameter1
+      });
     default:
       console.log(`Unknown operation "${operation}"`);
   }
 })().catch(error => console.error(error));
+
+async function exportSessionsStatistics({
+  applicationDirectoryPath,
+  configurationFilePath,
+  sessionsDatabaseFilePath
+}) {
+  const waveStatistics = new WaveStatistics();
+  await waveStatistics.initialize({
+    applicationDirectoryPath,
+    configurationFilePath,
+    sessionsDatabaseFilePath
+  });
+  await waveStatistics.exportSessionsToCsv();
+  process.exit(0);
+}
 
 async function downloadReferenceResults(applicationDirectoryPath) {
   const DOWNLOAD_PATH = path.normalize(
@@ -101,6 +125,7 @@ function getRunParameters() {
   for (let i = 3; i < processArguments.length; i++) {
     const key = processArguments[i];
     const value = processArguments[i + 1];
+    parameters["parameter" + (i - 2)] = key;
     switch (key) {
       case "--config":
         parameters.configurationFilePath = value;

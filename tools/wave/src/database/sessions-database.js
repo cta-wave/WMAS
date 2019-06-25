@@ -8,7 +8,7 @@ const JobQueue = require("../utils/job-queue");
 const Session = require("../data/session");
 
 const { promisifyNedbDataStore } = DatabaseUtils;
-const DEFAULT_DIRECTORY_PATH = ".";
+const DEFAULT_FILE_PATH = "./sessions.db";
 const DEFAULT_COMPACTION_INTERVAL = 60000;
 
 const READ_JOB_GROUP = "read";
@@ -27,12 +27,12 @@ class SessionsDatabase {
   }
 
   async initialize({
-    directoryPath = DEFAULT_DIRECTORY_PATH,
+    filePath = DEFAULT_FILE_PATH,
     resultsDatabase,
     testsDatabase
   } = {}) {
     let sessionsDataStore = new DataStore({
-      filename: path.join(directoryPath, "./sessions.db")
+      filename: filePath
     });
 
     sessionsDataStore.persistence.setAutocompactionInterval(

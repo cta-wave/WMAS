@@ -29,8 +29,12 @@ class Database {
     await this._resultsDatabase.initialize(resultsDirectoryPath);
     const testsDirectoryPath = path.join(databaseDirectoryPath, "tests");
     await this._testsDatabase.initialize(testsDirectoryPath);
+    const sessionsDatabaseFilePath = path.join(
+      databaseDirectoryPath,
+      "./sessions.db"
+    );
     await this._sessionsDatabase.initialize({
-      directoryPath: databaseDirectoryPath,
+      filePath: sessionsDatabaseFilePath,
       resultsDatabase: this._resultsDatabase,
       testsDatabase: this._testsDatabase
     });

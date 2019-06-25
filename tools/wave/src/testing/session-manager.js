@@ -59,7 +59,8 @@ class SessionManager {
       testTimeout,
       tests,
       status: Session.RUNNING,
-      referenceTokens
+      referenceTokens,
+      dateStarted: Date.now()
     });
     await this._database.createSession(session);
     this._sessions.push(session);

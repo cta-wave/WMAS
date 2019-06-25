@@ -24,7 +24,7 @@ class Session {
       status = COMPLETED,
       testFilesCount = this._calculateTestFilesCount(tests),
       testFilesCompleted = this._calculateTestFilesCount(completedTests),
-      dateStarted = Date.now(),
+      dateStarted = null,
       dateFinished = null,
       isPublic = false,
       referenceTokens = []
