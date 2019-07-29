@@ -79,8 +79,15 @@ class TestApiHandler extends ApiHandler {
       return await this._sessionManager.updateSession(session);
     }
 
-    const testTimeout =
-      test.indexOf("manual") !== -1 ? 5 * 60 * 1000 : session.getTestTimeout();
+    const timeouts = session.getTimeouts();
+    let testTimeout =
+      test.indexOf("manual") !== -1 ? timeouts.manual : timeouts.automatic;
+    const timeoutPath = Object.keys(timeouts).find(path =>
+      new RegExp("^" + path, "i").test(test)
+    );
+    if (timeoutPath) {
+      testTimeout = timeouts[timeoutPath];
+    }
     const url = this._generateTestUrl({ test, token, testTimeout, hostname });
 
     console.log("TEST", test);
