@@ -1,4 +1,3 @@
-const UserAgentParser = require("./user-agent-parser");
 const Session = require("../data/session");
 
 /**
@@ -17,10 +16,10 @@ class Serializer {
    */
   serializeSession(session) {
     const token = session.getToken();
-    const path = session.getPath();
+    const tests = session.getTests();
     const types = session.getTypes();
     const user_agent = session.getUserAgent();
-    const test_timeout = session.getTestTimeout();
+    const timeouts = session.getTimeouts();
     const test_files_count = session.getTestFilesCount();
     const test_files_completed = session.getTestFilesCompleted();
     const pending_tests = session.getPendingTests();
@@ -32,12 +31,13 @@ class Serializer {
     const browser = session.getBrowser();
     const is_public = session.isPublic();
     const reference_tokens = session.getReferenceTokens();
+    const webhook_urls = session.getWebhookUrls();
     return {
       token,
-      path,
+      tests,
       types,
       user_agent,
-      test_timeout,
+      timeouts,
       test_files_count,
       test_files_completed,
       pending_tests,
@@ -48,7 +48,8 @@ class Serializer {
       date_started,
       date_finished,
       is_public,
-      reference_tokens
+      reference_tokens,
+      webhook_urls
     };
   }
 }

@@ -18,10 +18,10 @@ class Deserializer {
    */
   deserializeSession(sessionJson) {
     const token = sessionJson.token;
-    const path = sessionJson.path;
+    const tests = sessionJson.tests;
     const types = sessionJson.types;
     const userAgent = sessionJson.user_agent;
-    const testTimeout = sessionJson.test_timeout;
+    const timeouts = sessionJson.timeouts;
     const pendingTests = sessionJson.pending_tests;
     const runningTests = sessionJson.running_tests;
     const completedTests = sessionJson.completed_tests;
@@ -33,11 +33,12 @@ class Deserializer {
     const isPublic = sessionJson.is_public;
     const referenceTokens = sessionJson.reference_tokens;
     const browser = sessionJson.browser;
+    const webhookUrls = sessionJson.webhook_urls;
     return new Session(token, {
-      path,
+      tests,
       types,
       userAgent,
-      testTimeout,
+      timeouts,
       pendingTests,
       runningTests,
       completedTests,
@@ -48,7 +49,8 @@ class Deserializer {
       dateFinished,
       isPublic,
       referenceTokens,
-      browser
+      browser,
+      webhookUrls
     });
   }
 }

@@ -5,6 +5,7 @@ const UserAgentParser = require("../utils/user-agent-parser");
 const TEST_HARNESS_TESTS = "testharness";
 const REF_TESTS = "reftest";
 const MANUAL_TESTS = "manual";
+const AUTOMATIC_TESTS = "automatic";
 
 class TestLoader {
   /**
@@ -15,7 +16,7 @@ class TestLoader {
     this._includeListFilePath = includeListFilePath;
     this._excludeListFilePath = excludeListFilePath;
     this._tests = {};
-    this._tests[TEST_HARNESS_TESTS] = [];
+    this._tests[AUTOMATIC_TESTS] = [];
     this._tests[REF_TESTS] = [];
     this._tests[MANUAL_TESTS] = [];
   }
@@ -34,7 +35,7 @@ class TestLoader {
     const includeList = await this._loadTestList(this._includeListFilePath);
     const excludeList = await this._loadTestList(this._excludeListFilePath);
     if (tests.hasOwnProperty(TEST_HARNESS_TESTS)) {
-      this._tests[TEST_HARNESS_TESTS] = this._loadTests({
+      this._tests[AUTOMATIC_TESTS] = this._loadTests({
         tests: tests[TEST_HARNESS_TESTS],
         excludeList
       });
@@ -54,7 +55,6 @@ class TestLoader {
     const loadedTests = {};
     for (let test in tests) {
       let testPath = tests[test][0][0];
-      if (testPath.startsWith("/")) testPath = testPath.substr(1);
       if (this._isValidTest({ testPath, includeList, excludeList })) {
         const apiName = this._getApiName(testPath);
         if (!loadedTests[apiName]) loadedTests[apiName] = [];
@@ -84,7 +84,7 @@ class TestLoader {
   }
 
   _getApiName(testPath) {
-    return testPath.split("/")[0];
+    return testPath.split("/").filter(part => !!part)[0];
   }
 
   async _loadTestList(listFilePath) {
@@ -101,15 +101,8 @@ class TestLoader {
     return testList;
   }
 
-  async getTests({ types, path, referenceTokens }) {
+  async getTests({ types, includeList, excludeList, referenceTokens }) {
     let tests = {};
-
-    const paths = path.split(/, ?/);
-    const regExps = paths.map(path =>
-      path.startsWith("/")
-        ? new RegExp("^" + path.substr(1), "i")
-        : new RegExp(path, "i")
-    );
 
     const referenceResults = await this._resultsManager.readCommonPassedTests(
       referenceTokens
@@ -118,11 +111,11 @@ class TestLoader {
     for (let type of types) {
       for (let api in this._tests[type]) {
         for (let testPath of this._tests[type][api]) {
-          if (!regExps.some(regExp => regExp.test(testPath))) continue;
+          if (!this._isValidTest({testPath, includeList, excludeList})) continue;
           if (!tests[api]) tests[api] = [];
           if (
             referenceResults &&
-            !referenceResults[api].includes("/" + testPath)
+            !referenceResults[api].includes(testPath)
           )
             continue;
           tests[api].push(testPath);
@@ -143,5 +136,6 @@ class TestLoader {
 TestLoader.TEST_HARNESS_TESTS = TEST_HARNESS_TESTS;
 TestLoader.REF_TESTS = REF_TESTS;
 TestLoader.MANUAL_TESTS = MANUAL_TESTS;
+TestLoader.AUTOMATIC_TESTS = AUTOMATIC_TESTS;
 
 module.exports = TestLoader;

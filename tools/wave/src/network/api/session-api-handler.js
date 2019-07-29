@@ -25,20 +25,25 @@ class SessionApiHandler extends ApiHandler {
   async _createSession({ request, response }) {
     try {
       const userAgent = request.get("User-Agent");
-      const { path, reftoken, types, testTimeout } = this.parseQueryParameters(
-        request
-      );
-      const referenceTokens = reftoken.split(",").filter(token => !!token);
-      const session = await this._sessionManager.createSession({
-        path,
-        referenceTokens,
+      const {
+        tests: { include, exclude } = {},
         types,
-        userAgent,
-        testTimeout
+        timeouts,
+        reference_tokens,
+        webhook_urls
+      } = request.body;
+      const session = await this._sessionManager.createSession({
+        tests: { include, exclude },
+        types,
+        timeouts,
+        referenceTokens: reference_tokens,
+        webhookUrls: webhook_urls,
+        userAgent
       });
 
       const token = session.getToken();
-      response.send(token);
+      const responsePayload = { token };
+      response.send(JSON.stringify(responsePayload));
     } catch (error) {
       console.error(new Error(`Failed to create session:\n${error.stack}`));
       response.status(500).send();

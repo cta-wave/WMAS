@@ -7,9 +7,11 @@ const Database = require("../database");
 
 const DEFAULT_TEST_PATH = "/";
 const DEFAULT_TEST_TYPES = [
-  TestLoader.TEST_HARNESS_TESTS,
+  TestLoader.AUTOMATIC_TESTS,
   TestLoader.MANUAL_TESTS
 ];
+const DEFAULT_AUTOMATIC_TIMEOUT = 60000;
+const DEFAULT_MANUAL_TIMEOUT = 5 * 60000;
 
 /**
  * @module SessionManager
@@ -35,32 +37,38 @@ class SessionManager {
   }
 
   async createSession({
-    userAgent,
-    path,
+    tests,
     types,
-    referenceTokens = [],
-    testTimeout
-  } = {}) {
-    path = path || DEFAULT_TEST_PATH;
-    types = types || DEFAULT_TEST_TYPES;
-    testTimeout = testTimeout || this._testTimeout;
+    timeouts,
+    referenceTokens,
+    webhookUrls,
+    userAgent
+  }) {
+    if (!tests) tests = {};
+    if (!tests.include) tests.include = [DEFAULT_TEST_PATH];
+    if (!types) types = DEFAULT_TEST_TYPES;
+    if (!timeouts) timeouts = {};
+    if (!timeouts.automatic) timeouts.automatic = DEFAULT_AUTOMATIC_TIMEOUT;
+    if (!timeouts.manual) timeouts.manual = DEFAULT_MANUAL_TIMEOUT;
 
     const token = this._generateUuid();
-    const tests = await this._testLoader.getTests({
-      path,
+    const pendingTests = await this._testLoader.getTests({
+      includeList: tests.include,
+      excludeList: tests.exclude,
       referenceTokens,
       types
     });
 
     const session = new Session(token, {
       userAgent,
-      path,
-      types,
-      testTimeout,
       tests,
-      status: Session.RUNNING,
+      types,
+      timeouts,
+      pendingTests,
+      status: Session.PENDING,
       referenceTokens,
-      dateStarted: Date.now()
+      dateStarted: Date.now(),
+      webhookUrls
     });
     await this._database.createSession(session);
     this._sessions.push(session);

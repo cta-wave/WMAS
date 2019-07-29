@@ -5,6 +5,7 @@ const PAUSED = "paused";
 const RUNNING = "running";
 const COMPLETED = "completed";
 const ABORTED = "aborted";
+const PENDING = "pending";
 const UNKNOWN = "unknown";
 
 /**
@@ -14,40 +15,33 @@ class Session {
   constructor(
     token,
     {
-      path = "",
       types = [TestLoader.TEST_HARNESS_TESTS],
       userAgent = null,
       tests,
       pendingTests = {},
       runningTests = {},
       completedTests = {},
-      testTimeout = null,
+      timeouts = null,
       status = COMPLETED,
-      testFilesCount = this._calculateTestFilesCount(tests),
+      testFilesCount = this._calculateTestFilesCount(pendingTests),
       testFilesCompleted = this._calculateTestFilesCount(completedTests),
       dateStarted = null,
       dateFinished = null,
       isPublic = false,
       referenceTokens = [],
-      browser = null
+      browser = null,
+      webhookUrls = []
     } = {}
   ) {
     this._token = token;
-    this._path = path;
     this._types = types;
     this._userAgent = userAgent;
-    if (tests) {
-      this._pendingTests = tests;
-      this._runningTests = {};
-      this._completedTests = {};
-    } else {
-      this._pendingTests = pendingTests;
-      this._runningTests = runningTests;
-      this._completedTests = completedTests;
-    }
+    this._pendingTests = pendingTests;
+    this._runningTests = runningTests;
+    this._completedTests = completedTests;
     this._testFilesCount = testFilesCount;
     this._testFilesCompleted = testFilesCompleted;
-    this._testTimeout = testTimeout;
+    this._timeouts = timeouts;
     this._status = status;
     this._clients = [];
     this._dateStarted = dateStarted;
@@ -59,6 +53,7 @@ class Session {
       const { browser: parsedBrowser } = UserAgentParser.parse(this._userAgent);
       this._browser = parsedBrowser;
     }
+    this._webhookUrls = webhookUrls;
   }
 
   _calculateTestFilesCount(tests) {
@@ -121,18 +116,6 @@ class Session {
     return this;
   }
 
-  getPath() {
-    if (this._path === "") {
-      return "/";
-    }
-    return this._path;
-  }
-
-  setPath(path) {
-    this._path = path;
-    return this;
-  }
-
   getTypes() {
     return this._types;
   }
@@ -142,11 +125,12 @@ class Session {
     return this;
   }
 
+  getTests() {
+    return this._tests;
+  }
+
   setTests(tests) {
-    this._pendingTests = tests;
-    this._runningTests = {};
-    this._completedTests = {};
-    this._testFilesCount = this._calculateTestFilesCount(tests);
+    this._tests = tests;
     return this;
   }
 
@@ -180,8 +164,8 @@ class Session {
     return this;
   }
 
-  getTestTimeout() {
-    return this._testTimeout;
+  getTimeouts() {
+    return this._timeouts;
   }
 
   getTestFilesCount() {
@@ -238,12 +222,22 @@ class Session {
     this._browser = browser;
     return this;
   }
+
+  getWebhookUrls() {
+    return this._webhookUrls;
+  }
+
+  setWebhookUrls(webhookUrls) {
+    this._webhookUrls = webhookUrls;
+    return this;
+  }
 }
 
 Session.RUNNING = RUNNING;
 Session.PAUSED = PAUSED;
 Session.COMPLETED = COMPLETED;
 Session.ABORTED = ABORTED;
+Session.PENDING = PENDING;
 Session.UNKNOWN = UNKNOWN;
 
 module.exports = Session;
