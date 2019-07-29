@@ -10,9 +10,14 @@
     "fs-extra": "^7.0.1",
     "jszip": "^3.1.5",
     "nedb": "^1.8.0",
+    "save": "^2.4.0",
+    "ua-spy": "^1.2.0",
     "useragent": "^2.3.0",
     "uuid": "^3.2.1",
     "wptreport": "https://github.com/fraunhoferfokus/wptreport.git#wmats2018",
     "ws": "^5.2.0"
+  },
+  "devDependencies": {
+    "jest": "^24.8.0"
   }
 }
