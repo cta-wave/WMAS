@@ -4,14 +4,6 @@ const { exec } = require("child_process");
 const FileSystem = require("../utils/file-system");
 
 class WptReport {
-  constructor() {
-    this._nodeModulesDirectoryPath = process.mainModule.paths[0];
-    this._wptReportFilePath = path.join(
-      this._nodeModulesDirectoryPath,
-      ".bin/wptreport"
-    );
-  }
-
   async generateReport({
     inputJsonDirectoryPath,
     outputHtmlDirectoryPath,
@@ -21,7 +13,7 @@ class WptReport {
   }) {
     return new Promise((resolve, reject) => {
       exec(
-        `${this._wptReportFilePath} ` +
+        `npx wptreport ` +
           `--input ${inputJsonDirectoryPath} ` +
           `--output ${outputHtmlDirectoryPath} ` +
           `--spec ${specName} ` +

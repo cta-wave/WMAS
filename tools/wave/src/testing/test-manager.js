@@ -13,7 +13,6 @@ class TestManager {
   nextTest({ onTimeout, session }) {
     let pendingTests = session.getPendingTests();
     let runningTests = session.getRunningTests();
-    const testTimeout = session.getTestTimeout();
     const token = session.getToken();
 
     let test;
@@ -46,6 +45,7 @@ class TestManager {
             hasManual = false;
             currentApi = 0;
             test = null;
+            hasHttp = true;
             continue;
           }
 
@@ -55,25 +55,36 @@ class TestManager {
         continue;
       }
 
-      if (test.indexOf("https") !== -1) {
-        if (hasHttp) {
-          currentTest++;
-          test = null;
-          continue;
+      if (test.indexOf("manual") !== -1 && test.indexOf("https") === -1) {
+        break;
+      }
+
+      if (test.indexOf("manual") !== -1 && test.indexOf("https") !== -1) {
+        if (!hasHttp) {
+          break;
         }
       }
 
-      if (test.indexOf("manual") === -1) {
-        if (hasManual) {
-          currentTest++;
-          test = null;
-          continue;
+      if (test.indexOf("manual") === -1 && test.indexOf("https") === -1) {
+        if (!hasManual) {
+          break;
         }
       }
+
+      if (test.indexOf("manual") === -1 && test.indexOf("https") !== -1) {
+        if (!hasManual && !hasHttp) {
+          break;
+        }
+      }
+
+      currentTest++;
+      test = null;
     }
 
-    this._removeTestFromList(pendingTests, test, api);
-    this._addTestToList(runningTests, test, api);
+    this.removeTestFromList(pendingTests, test, api);
+    this.addTestToList(runningTests, test, api);
+
+    const testTimeout = session.getTestTimeout();
 
     if (testTimeout) {
       if (test.indexOf("manual") !== -1) {
@@ -84,7 +95,7 @@ class TestManager {
       } else {
         this._timeouts.push({
           test,
-          timeout: setTimeout(() => onTimeout(token, test), testTimeout + 10000)
+          timeout: setTimeout(() => onTimeout(token, test), testTimeout)
         });
       }
     }
@@ -94,18 +105,18 @@ class TestManager {
   }
 
   /**
-   * 
+   *
    * @param {Object} config
-   * @param {Session} config.session 
+   * @param {Session} config.session
    */
-  completeTest({test, session}) {
+  completeTest({ test, session }) {
     let runningTests = session.getRunningTests();
     let completedTests = session.getCompletedTests();
     let clients = session.getClients();
 
     const api = test.split("/")[0];
-    this._removeTestFromList(runningTests, test, api);
-    this._addTestToList(completedTests, test, api);
+    this.removeTestFromList(runningTests, test, api);
+    this.addTestToList(completedTests, test, api);
     for (let i = 0; i < this._timeouts.length; i++) {
       if (this._timeouts[i].test === test) {
         clearTimeout(this._timeouts[i].timeout);
@@ -119,7 +130,7 @@ class TestManager {
     session.setCompletedTests(completedTests);
   }
 
-  _removeTestFromList(testList, test, api) {
+  removeTestFromList(testList, test, api) {
     if (!testList[api]) return;
     const index = testList[api].indexOf(test);
     if (index === -1) return;
@@ -129,7 +140,7 @@ class TestManager {
     }
   }
 
-  _addTestToList(testList, test, api) {
+  addTestToList(testList, test, api) {
     if (testList[api] && testList[api].indexOf(test) !== -1) return;
     if (!testList[api]) testList[api] = [];
     testList[api].push(test);

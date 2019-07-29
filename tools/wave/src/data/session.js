@@ -1,4 +1,5 @@
 const TestLoader = require("../testing/test-loader");
+const UserAgentParser = require("../utils/user-agent-parser");
 
 const PAUSED = "paused";
 const RUNNING = "running";
@@ -27,7 +28,8 @@ class Session {
       dateStarted = null,
       dateFinished = null,
       isPublic = false,
-      referenceTokens = []
+      referenceTokens = [],
+      browser = null
     } = {}
   ) {
     this._token = token;
@@ -52,6 +54,11 @@ class Session {
     this._dateFinished = dateFinished;
     this._public = isPublic;
     this._referenceTokens = referenceTokens;
+    this._browser = browser;
+    if (!browser) {
+      const { browser: parsedBrowser } = UserAgentParser.parse(this._userAgent);
+      this._browser = parsedBrowser;
+    }
   }
 
   _calculateTestFilesCount(tests) {
@@ -220,6 +227,15 @@ class Session {
 
   setClients(clients) {
     this._clients = clients;
+    return this;
+  }
+
+  getBrowser() {
+    return this._browser;
+  }
+
+  setBrowser(browser) {
+    this._browser = browser;
     return this;
   }
 }

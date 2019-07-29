@@ -29,7 +29,7 @@ class Serializer {
     const status = session.getStatus();
     const date_started = session.getDateStarted();
     const date_finished = session.getDateFinished();
-    const { browser } = UserAgentParser.parse(session.getUserAgent());
+    const browser = session.getBrowser();
     const is_public = session.isPublic();
     const reference_tokens = session.getReferenceTokens();
     return {

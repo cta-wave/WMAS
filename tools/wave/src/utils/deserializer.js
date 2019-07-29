@@ -32,6 +32,7 @@ class Deserializer {
     const dateFinished = sessionJson.date_finished;
     const isPublic = sessionJson.is_public;
     const referenceTokens = sessionJson.reference_tokens;
+    const browser = sessionJson.browser;
     return new Session(token, {
       path,
       types,
@@ -46,7 +47,8 @@ class Deserializer {
       dateStarted,
       dateFinished,
       isPublic,
-      referenceTokens
+      referenceTokens,
+      browser
     });
   }
 }

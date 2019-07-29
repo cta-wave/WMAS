@@ -2,7 +2,7 @@ const Route = require("../../data/route");
 const Serializer = require("../../utils/serializer");
 const ApiHandler = require("./api-handler");
 const Session = require("../../data/session");
-const SessionManager = require("../session-manager");
+const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
 
 const { GET, POST, DELETE } = Route;

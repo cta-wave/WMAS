@@ -120,8 +120,12 @@ class TestLoader {
         for (let testPath of this._tests[type][api]) {
           if (!regExps.some(regExp => regExp.test(testPath))) continue;
           if (!tests[api]) tests[api] = [];
-          if (referenceResults[api].includes("/" + testPath))
-            tests[api].push(testPath);
+          if (
+            referenceResults &&
+            !referenceResults[api].includes("/" + testPath)
+          )
+            continue;
+          tests[api].push(testPath);
         }
       }
     }

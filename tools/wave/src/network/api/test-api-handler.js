@@ -1,7 +1,7 @@
 const Route = require("../../data/route");
 const Session = require("../../data/session");
 const ApiHandler = require("./api-handler");
-const SessionManager = require("../session-manager");
+const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
 const TestManager = require("../../testing/test-manager");
 
