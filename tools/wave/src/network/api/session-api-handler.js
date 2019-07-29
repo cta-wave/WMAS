@@ -50,22 +50,23 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _readSession({ request, response, detailsOnly = false } = {}) {
+  async _readSession({ request, response } = {}) {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
       const session = await this._sessionManager.readSession(token);
       if (!session) {
         response.status(404).send();
-      } else {
-        const sessionObject = Serializer.serializeSession(session);
-        if (detailsOnly) {
-          delete sessionObject.running_tests;
-          delete sessionObject.completed_tests;
-          delete sessionObject.pending_tests;
-        }
-        this.sendJson(sessionObject, response);
+        return;
       }
+      const sessionObject = Serializer.serializeSession(session);
+      delete sessionObject.pending_tests;
+      delete sessionObject.running_tests;
+      delete sessionObject.completed_tests;
+      delete sessionObject.test_files_count;
+      delete sessionObject.test_files_completed;
+      delete sessionObject.status;
+      this.sendJson(sessionObject, response);
     } catch (error) {
       console.error(new Error(`Failed to read session:\n${error.stack}`));
       response.status(500).send();
@@ -205,12 +206,6 @@ class SessionApiHandler extends ApiHandler {
             return this._stopSession({ request, response });
           case "token":
             return this._findToken({ request, response });
-          case "details":
-            return this._readSession({
-              request,
-              response,
-              detailsOnly: true
-            });
         }
     }
     response.status(404).send();

@@ -34,6 +34,7 @@ class Session {
     } = {}
   ) {
     this._token = token;
+    this._tests = tests;
     this._types = types;
     this._userAgent = userAgent;
     this._pendingTests = pendingTests;
