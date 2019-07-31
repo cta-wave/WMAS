@@ -101,7 +101,12 @@ class TestLoader {
     return testList;
   }
 
-  async getTests({ types, includeList, excludeList, referenceTokens }) {
+  async getTests({
+    types = [AUTOMATIC_TESTS, MANUAL_TESTS],
+    includeList,
+    excludeList,
+    referenceTokens = []
+  } = {}) {
     let tests = {};
 
     const referenceResults = await this._resultsManager.readCommonPassedTests(
@@ -111,12 +116,10 @@ class TestLoader {
     for (let type of types) {
       for (let api in this._tests[type]) {
         for (let testPath of this._tests[type][api]) {
-          if (!this._isValidTest({testPath, includeList, excludeList})) continue;
+          if (!this._isValidTest({ testPath, includeList, excludeList }))
+            continue;
           if (!tests[api]) tests[api] = [];
-          if (
-            referenceResults &&
-            !referenceResults[api].includes(testPath)
-          )
+          if (referenceResults && !referenceResults[api].includes(testPath))
             continue;
           tests[api].push(testPath);
         }

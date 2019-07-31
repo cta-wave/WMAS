@@ -1,8 +1,15 @@
 const Session = require("../data/session");
+const TestLoader = require("../testing/test-loader");
 
 class TestManager {
-  constructor() {
+  /**
+   *
+   * @param {Object} config
+   * @param {TestLoader} config.testLoader
+   */
+  constructor({ testLoader }) {
     this._timeouts = [];
+    this._testLoader = testLoader;
   }
 
   /**
@@ -144,6 +151,10 @@ class TestManager {
     if (testList[api] && testList[api].indexOf(test) !== -1) return;
     if (!testList[api]) testList[api] = [];
     testList[api].push(test);
+  }
+
+  async readTests() {
+    return this._testLoader.getTests();
   }
 }
 

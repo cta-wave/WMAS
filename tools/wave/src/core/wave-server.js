@@ -50,10 +50,10 @@ class WaveServer {
     await database.initialize(databaseDirectoryPath);
     println(" done.");
 
-    const testManager = new TestManager();
+    const testLoader = new TestLoader();
+    const testManager = new TestManager({testLoader});
     const sessionManager = new SessionManager();
     const resultsManager = new ResultsManager();
-    const testLoader = new TestLoader();
 
     sessionManager.initialize({
       database,

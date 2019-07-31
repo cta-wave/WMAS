@@ -32,6 +32,16 @@ class TestApiHandler extends ApiHandler {
     this._testManager = testManager;
   }
 
+  async _readTests({ request, response }) {
+    try {
+      const tests = await this._testManager.readTests();
+      this.sendJson(tests, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read tests:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _nextTest({ request, response }) {
     const { hostname } = request;
     let { token, redirect } = this.parseQueryParameters(request);
@@ -159,7 +169,7 @@ class TestApiHandler extends ApiHandler {
   }
 
   getRoutes() {
-    const uri = "/api/next*";
+    const uri = "/api/tests*";
     return [
       new Route({ method: GET, uri, handler: this._handleGet.bind(this) })
     ];
@@ -169,7 +179,7 @@ class TestApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:
-        return this._nextTest({ request, response });
+        return this._readTests({ request, response });
     }
     response.status(404).send();
   }
