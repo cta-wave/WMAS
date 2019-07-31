@@ -29,6 +29,7 @@ class SessionManager {
   }
 
   async findToken(fragment) {
+    if (fragment.length < 7) return;
     const tokens = await this._database.findTokens(fragment);
     if (tokens.length === 1) {
       return tokens[0];

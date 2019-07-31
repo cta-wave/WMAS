@@ -7,6 +7,8 @@ const ResultsManager = require("../../testing/results-manager");
 
 const { GET, POST, DELETE, PUT } = Route;
 
+const TOKEN_LENGTH = 36;
+
 /**
  * @module SessionApiHandler
  */
@@ -156,6 +158,18 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _startSession({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      await this._sessionManager.startSession(token);
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to start session:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _pauseSession({ request, response }) {
     try {
       const url = this.parseUrl(request);
@@ -197,6 +211,10 @@ class SessionApiHandler extends ApiHandler {
       const url = this.parseUrl(request);
       const fragment = url[1];
       const token = await this._sessionManager.findToken(fragment);
+      if (!token) {
+        response.status(404).send();
+        return;
+      }
       this.sendJson({ token }, response);
     } catch (error) {
       console.error(new Error(`Failed to find session:\n${error.stack}`));
@@ -243,17 +261,20 @@ class SessionApiHandler extends ApiHandler {
         if (url[1] === "public") {
           return this._readPublicSessions({ response });
         }
+        if (url[1].length !== TOKEN_LENGTH) {
+          return this._findToken({ request, response });
+        }
         return this._readSession({ request, response });
       case 3:
         switch (url[2].toLowerCase()) {
+          case "start":
+            return this._startSession({ request, response });
           case "pause":
             return this._pauseSession({ request, response });
           case "resume":
             return this._resumeSession({ request, response });
           case "stop":
             return this._stopSession({ request, response });
-          case "token":
-            return this._findToken({ request, response });
           case "status":
             return this._readSessionStatus({ request, response });
         }
