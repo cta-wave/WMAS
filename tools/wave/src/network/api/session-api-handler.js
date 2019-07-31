@@ -5,7 +5,7 @@ const Session = require("../../data/session");
 const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
 
-const { GET, POST, DELETE } = Route;
+const { GET, POST, DELETE, PUT } = Route;
 
 /**
  * @module SessionApiHandler
@@ -73,17 +73,6 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _readSessions({ request, response }) {
-    try {
-      const sessions = await this._sessionManager.readSessions();
-      const sessionsObject = Serializer.serializeSessions(sessions);
-      this.sendJson(sessionsObject, response);
-    } catch (error) {
-      console.error(new Error(`Failed to read sessions:\n${error.stack}`));
-      response.status(500).send();
-    }
-  }
-
   async _readPublicSessions({ response }) {
     try {
       const publicSessions = await this._sessionManager.readPublicSessions();
@@ -95,6 +84,31 @@ class SessionApiHandler extends ApiHandler {
       console.error(
         new Error(`Failed to read public sessions:\n${error.stack}`)
       );
+      response.status(500).send();
+    }
+  }
+
+  async _updateSession({request, response} = {}) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const {
+        tests: { include, exclude } = {},
+        types,
+        timeouts,
+        reference_tokens,
+        webhook_urls
+      } = request.body;
+      await this._sessionManager.updateSession(token, {
+        tests: { include, exclude },
+        types,
+        timeouts,
+        referenceTokens: reference_tokens,
+        webhookUrls: webhook_urls
+      });
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to update session:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -116,10 +130,7 @@ class SessionApiHandler extends ApiHandler {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      const session = await this._sessionManager.readSession(token);
-      if (session.getStatus() === Session.RUNNING) {
-        session.setStatus(Session.PAUSED);
-      }
+      await this._sessionManager.pauseSession(token);
       response.send();
     } catch (error) {
       console.error(new Error(`Failed to pause session:\n${error.stack}`));
@@ -131,10 +142,7 @@ class SessionApiHandler extends ApiHandler {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      const session = await this._sessionManager.readSession(token);
-      if (session.getStatus() === Session.PAUSED) {
-        session.setStatus(Session.RUNNING);
-      }
+      await this._sessionManager.resumeSession(token);
       response.send();
     } catch (error) {
       console.error(new Error(`Failed to resume session:\n${error.stack}`));
@@ -146,9 +154,7 @@ class SessionApiHandler extends ApiHandler {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      const session = await this._sessionManager.readSession(token);
-      session.setStatus(Session.ABORTED);
-      this._sessionManager.updateSession(session);
+      await this._sessionManager.stopSession(token);
       response.send();
     } catch (error) {
       console.error(new Error(`Failed to stop session:\n${error.stack}`));
@@ -173,7 +179,8 @@ class SessionApiHandler extends ApiHandler {
     return [
       new Route({ method: POST, uri, handler: this._handlePost.bind(this) }),
       new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),
-      new Route({ method: DELETE, uri, handler: this._handleDelete.bind(this) })
+      new Route({ method: DELETE, uri, handler: this._handleDelete.bind(this) }),
+      new Route({ method: PUT, uri, handler: this._handlePut.bind(this) })
     ];
   }
 
@@ -186,11 +193,18 @@ class SessionApiHandler extends ApiHandler {
     response.status(404).send();
   }
 
+  _handlePut(request, response) {
+    const url = this.parseUrl(request);
+    switch (url.length) {
+      case 2:
+        return this._updateSession({ request, response });
+    }
+    response.status(404).send();
+  }
+
   _handleGet(request, response) {
     const url = this.parseUrl(request);
     switch (url.length) {
-      case 1:
-        return this._readSessions({ request, response });
       case 2:
         if (url[1] === "public") {
           return this._readPublicSessions({ response });

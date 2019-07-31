@@ -22,7 +22,7 @@ class Session {
       runningTests = {},
       completedTests = {},
       timeouts = null,
-      status = COMPLETED,
+      status = UNKNOWN,
       testFilesCount = this._calculateTestFilesCount(pendingTests),
       testFilesCompleted = this._calculateTestFilesCount(completedTests),
       dateStarted = null,
@@ -169,6 +169,11 @@ class Session {
     return this._timeouts;
   }
 
+  setTimeouts(timeouts) {
+    this._timeouts = timeouts;
+    return this;
+  }
+
   getTestFilesCount() {
     return this._testFilesCount;
   }
@@ -204,6 +209,11 @@ class Session {
 
   getReferenceTokens() {
     return this._referenceTokens;
+  }
+
+  setReferenceTokens(referenceTokens) {
+    this._referenceTokens = referenceTokens;
+    return this;
   }
 
   getClients() {

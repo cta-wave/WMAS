@@ -215,7 +215,7 @@ test("Updating session uses database api.", async () => {
     testLoader: mockTestLoader
   });
 
-  await sessionManager.updateSession(session);
+  await sessionManager.updateSession(session.getToken(), {});
   expect(sessionUpdatedInDatabase).toEqual(true);
 });
 

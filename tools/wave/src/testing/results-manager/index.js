@@ -77,7 +77,7 @@ class ResultsManager {
       session.setStatus(Session.COMPLETED);
       await this.createInfoFile(session);
     }
-    await this._sessionManager.updateSession(session);
+    await this._sessionManager.completeSession(token);
   }
 
   async readFlattenedResults(token) {

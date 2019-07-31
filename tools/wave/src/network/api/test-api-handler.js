@@ -42,6 +42,10 @@ class TestApiHandler extends ApiHandler {
     const session = await this._sessionManager.readSession(token);
 
     switch (session.getStatus()) {
+      case Session.PENDING: {
+        response.send();
+        return;
+      }
       case Session.PAUSED: {
         const url = this._generateWaveUrl({
           hostname,
@@ -76,7 +80,7 @@ class TestApiHandler extends ApiHandler {
         token
       });
       this._sendUrl({ response, url, redirect });
-      return await this._sessionManager.updateSession(session);
+      return;
     }
 
     const timeouts = session.getTimeouts();
@@ -92,7 +96,6 @@ class TestApiHandler extends ApiHandler {
 
     console.log("TEST", test);
     this._sendUrl({ response, url, redirect });
-    await this._sessionManager.updateSession(session);
   }
 
   _sendUrl({ url, response, redirect }) {

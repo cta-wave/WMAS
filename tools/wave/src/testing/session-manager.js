@@ -86,10 +86,10 @@ class SessionManager {
    */
   async readSession(token) {
     if (!token) return null;
-    let session = this._sessions.find(session => session.getToken() === token);
+    let session = this._readFromCache(token);
     if (!session) {
       session = await this._database.readSession(token);
-      if (session) this._sessions.push(session);
+      if (session) this._pushToCache(session);
     }
     return session;
   }
@@ -102,8 +102,35 @@ class SessionManager {
     return await this._database.readPublicSessions();
   }
 
-  async updateSession(session) {
-    return await this._database.updateSession(session);
+  async updateSession(
+    token,
+    { tests, types, timeouts, referenceTokens, webhookUrls }
+  ) {
+    const session = await this.readSession(token);
+
+    if (tests) {
+      if (!tests.include) tests.include = session.getTests().include;
+      if (!tests.exclude) tests.exclude = session.getTests().exclude;
+      if (!referenceTokens) referenceTokens = session.getReferenceTokens();
+      if (!types) types = session.getTypes();
+      const pendingTests = await this._testLoader.getTests({
+        includeList: tests.include,
+        excludeList: tests.exclude,
+        referenceTokens,
+        types
+      });
+      session.setPendingTests(pendingTests);
+      session.setTests(tests);
+    }
+
+    if (types) session.setTypes(types);
+    if (timeouts) session.setTimeouts(timeouts);
+    if (referenceTokens) session.setReferenceTokens(referenceTokens);
+    if (webhookUrls) session.setWebhookUrls(webhookUrls);
+
+    await this._database.updateSession(session);
+    this._pushToCache(session);
+    return session;
   }
 
   async deleteSession(token) {
@@ -112,6 +139,50 @@ class SessionManager {
       1
     );
     this._database.deleteSession(token);
+  }
+
+  async startSession(token) {
+    const session = await this.readSession(token);
+    if (session.getStatus() === Session.PENDING) {
+      session.setStatus(Session.RUNNING);
+    }
+    await this._database.updateSession(session);
+  }
+
+  async pauseSession(token) {
+    const session = await this.readSession(token);
+    if (session.getStatus() === Session.RUNNING) {
+      session.setStatus(Session.PAUSED);
+    }
+    await this._database.updateSession(session);
+  }
+
+  async resumeSession(token) {
+    const session = await this.readSession(token);
+    if (session.getStatus() === Session.PAUSED) {
+      session.setStatus(Session.RUNNING);
+    }
+    await this._database.updateSession(session);
+  }
+
+  async stopSession(token) {
+    const session = await this.readSession(token);
+    session.setStatus(Session.ABORTED);
+    await this._database.updateSession(session);
+  }
+
+  async completeSession(token) {
+    const session = await this.readSession(token);
+    session.setStatus(Session.COMPLETED);
+    await this._database.updateSession(session);
+  }
+
+  _readFromCache(token) {
+    return this._sessions.find(session => session.getToken() === token);
+  }
+
+  _pushToCache(session) {
+    if (!this._readFromCache(session.getToken())) this._sessions.push(session);
   }
 
   _generateUuid() {
