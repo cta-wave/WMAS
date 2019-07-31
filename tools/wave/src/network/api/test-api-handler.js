@@ -4,6 +4,7 @@ const ApiHandler = require("./api-handler");
 const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
 const TestManager = require("../../testing/test-manager");
+const Serializer = require("../../utils/serializer")
 
 const { GET } = Route;
 
@@ -32,12 +33,42 @@ class TestApiHandler extends ApiHandler {
     this._testManager = testManager;
   }
 
-  async _readTests({ request, response }) {
+  async _readTests({ response }) {
     try {
       const tests = await this._testManager.readTests();
       this.sendJson(tests, response);
     } catch (error) {
       console.error(new Error(`Failed to read tests:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _readSessionTests({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (!session) {
+        response.status(404).send();
+        return;
+      }
+      const tests = Serializer.serializeSession(session);
+      delete tests.tests;
+      delete tests.types;
+      delete tests.user_agent;
+      delete tests.timeouts;
+      delete tests.browser;
+      delete tests.date_started;
+      delete tests.date_finished;
+      delete tests.is_public;
+      delete tests.reference_tokens;
+      delete tests.webhook_urls;
+      delete tests.status;
+      delete tests.test_files_count;
+      delete tests.test_files_completed;
+      this.sendJson(tests, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read session tests:\n${error.stack}`));
       response.status(500).send();
     }
   }
@@ -179,7 +210,9 @@ class TestApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:
-        return this._readTests({ request, response });
+        return this._readTests({ response });
+        case 2:
+          return this._readSessionTests({request, response});
     }
     response.status(404).send();
   }
