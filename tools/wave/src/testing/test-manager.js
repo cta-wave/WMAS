@@ -91,21 +91,12 @@ class TestManager {
     this.removeTestFromList(pendingTests, test, api);
     this.addTestToList(runningTests, test, api);
 
-    const testTimeout = session.getTestTimeout();
+    const testTimeout = this.getTestTimeout({ test, session });
+    this._timeouts.push({
+      test,
+      timeout: setTimeout(() => onTimeout(token, test), testTimeout)
+    });
 
-    if (testTimeout) {
-      if (test.indexOf("manual") !== -1) {
-        this._timeouts.push({
-          test,
-          timeout: setTimeout(() => onTimeout(token, test), 5 * 60 * 1000)
-        });
-      } else {
-        this._timeouts.push({
-          test,
-          timeout: setTimeout(() => onTimeout(token, test), testTimeout)
-        });
-      }
-    }
     session.setPendingTests(pendingTests);
     session.setRunningTests(runningTests);
     return test;
@@ -155,6 +146,19 @@ class TestManager {
 
   async readTests() {
     return this._testLoader.getTests();
+  }
+
+  getTestTimeout({ test, session }) {
+    const timeouts = session.getTimeouts();
+    let testTimeout =
+      test.indexOf("manual") !== -1 ? timeouts.manual : timeouts.automatic;
+    const timeoutPath = Object.keys(timeouts).find(path =>
+      new RegExp("^" + path, "i").test(test)
+    );
+    if (timeoutPath) {
+      testTimeout = timeouts[timeoutPath];
+    }
+    return testTimeout;
   }
 }
 
