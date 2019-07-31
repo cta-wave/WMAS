@@ -107,6 +107,7 @@ class SessionManager {
     { tests, types, timeouts, referenceTokens, webhookUrls }
   ) {
     const session = await this.readSession(token);
+    if (session.getStatus() !== Session.PENDING) return;
 
     if (tests) {
       if (!tests.include) tests.include = session.getTests().include;
