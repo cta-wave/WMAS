@@ -73,6 +73,36 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _readSessionStatus({ request, response } = {}) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (!session) {
+        response.status(404).send();
+        return;
+      }
+      const sessionObject = Serializer.serializeSession(session);
+      delete sessionObject.pending_tests;
+      delete sessionObject.running_tests;
+      delete sessionObject.completed_tests;
+      delete sessionObject.tests;
+      delete sessionObject.types;
+      delete sessionObject.user_agent;
+      delete sessionObject.timeouts;
+      delete sessionObject.browser;
+      delete sessionObject.date_started;
+      delete sessionObject.date_finished;
+      delete sessionObject.is_public;
+      delete sessionObject.reference_tokens;
+      delete sessionObject.webhook_urls;
+      this.sendJson(sessionObject, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read session:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _readPublicSessions({ response }) {
     try {
       const publicSessions = await this._sessionManager.readPublicSessions();
@@ -88,7 +118,7 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _updateSession({request, response} = {}) {
+  async _updateSession({ request, response } = {}) {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
@@ -179,7 +209,11 @@ class SessionApiHandler extends ApiHandler {
     return [
       new Route({ method: POST, uri, handler: this._handlePost.bind(this) }),
       new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),
-      new Route({ method: DELETE, uri, handler: this._handleDelete.bind(this) }),
+      new Route({
+        method: DELETE,
+        uri,
+        handler: this._handleDelete.bind(this)
+      }),
       new Route({ method: PUT, uri, handler: this._handlePut.bind(this) })
     ];
   }
@@ -220,6 +254,8 @@ class SessionApiHandler extends ApiHandler {
             return this._stopSession({ request, response });
           case "token":
             return this._findToken({ request, response });
+          case "status":
+            return this._readSessionStatus({ request, response });
         }
     }
     response.status(404).send();
