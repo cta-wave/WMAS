@@ -237,6 +237,7 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handlePost(request, response) {
+    console.log(`POST   ${request.url}`)
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:
@@ -246,6 +247,7 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handlePut(request, response) {
+    console.log(`PUT    ${request.url}`)
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
@@ -255,6 +257,7 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handleGet(request, response) {
+    console.log(`GET    ${request.url}`)
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
@@ -283,6 +286,7 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handleDelete(request, response) {
+    console.log(`DELETE ${request.url}`)
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:

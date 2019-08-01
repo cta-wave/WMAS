@@ -49,6 +49,7 @@ class ResultsDatabase {
   }
 
   async _createResult(token, result) {
+    await this.loadDatabase(token);
     const resultsDataStore = this._db[token];
     await resultsDataStore.insert(result);
   }
@@ -60,10 +61,7 @@ class ResultsDatabase {
   }
 
   async _readResults(token) {
-    if (!this._db[token]) {
-      const databaseFile = path.join(this._directoryPath, token + ".db");
-      if (await FileSystem.exists(databaseFile)) await this.loadDatabase(token);
-    }
+    await this.loadDatabase(token);
     const resultsDataStore = this._db[token];
     return resultsDataStore.find({});
   }

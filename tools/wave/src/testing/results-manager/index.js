@@ -50,8 +50,6 @@ class ResultsManager {
   async createResult({ token, data }) {
     const result = this.prepareResult(data);
     let { test } = result;
-    if (test.startsWith("/")) test = test.substr(1);
-
     const session = await this._sessionManager.readSession(token);
     if (!session) return;
     if (!session.testExists(test)) return;
@@ -59,7 +57,7 @@ class ResultsManager {
     if (!session.isTestComplete(test)) {
       this._testManager.completeTest({ test, session });
       await this._database.createResult(token, result);
-      const api = test.split("/")[0];
+      const api = test.split("/").find(part => !!part);
       if (session.isApiComplete(api)) {
         await this.saveApiResults({ token, api });
         await this.generateReport({ token, api });
@@ -74,10 +72,9 @@ class ResultsManager {
           testFilesCompleted[api] !== testFilesCount[api]
       )
     ) {
-      session.setStatus(Session.COMPLETED);
+      await this._sessionManager.completeSession(token);
       await this.createInfoFile(session);
     }
-    await this._sessionManager.completeSession(token);
   }
 
   async readFlattenedResults(token) {
@@ -364,7 +361,6 @@ class ResultsManager {
           pass: 0,
           fail: 0,
           timeout: 0,
-          timeoutfiles: [],
           not_run: 0
         };
       }
@@ -384,9 +380,6 @@ class ResultsManager {
               flattenedResults[api].not_run++;
               break;
           }
-          if (results.xstatus === "SERVERTIMEOUT") {
-            flattenedResults[api].timeoutfiles.push(result.test);
-          }
           continue;
         }
         for (let test of result.subtests) {
@@ -403,9 +396,6 @@ class ResultsManager {
             case "NOTRUN":
               flattenedResults[api].not_run++;
               break;
-          }
-          if (test.xstatus === "SERVERTIMEOUT") {
-            flattenedResults[api].timeoutfiles.push(result.test);
           }
         }
       }

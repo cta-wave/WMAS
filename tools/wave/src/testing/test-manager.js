@@ -112,7 +112,7 @@ class TestManager {
     let completedTests = session.getCompletedTests();
     let clients = session.getClients();
 
-    const api = test.split("/")[0];
+    const api = test.split("/").find(part => !!part);
     this.removeTestFromList(runningTests, test, api);
     this.addTestToList(completedTests, test, api);
     for (let i = 0; i < this._timeouts.length; i++) {

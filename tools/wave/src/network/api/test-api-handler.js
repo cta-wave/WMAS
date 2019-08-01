@@ -78,7 +78,6 @@ class TestApiHandler extends ApiHandler {
       const requestUrl = this.parseUrl(request);
       const token = requestUrl[1];
       const { hostname } = request;
-      let { redirect } = this.parseQueryParameters(request);
 
       const session = await this._sessionManager.readSession(token);
 
@@ -98,7 +97,7 @@ class TestApiHandler extends ApiHandler {
         }
         case Session.COMPLETED:
         case Session.ABORTED: {
-          const url = this._generateUrl({
+          const url = this._generateWaveUrl({
             hostname,
             uri: "/complete.html",
             token
@@ -127,7 +126,7 @@ class TestApiHandler extends ApiHandler {
       const testTimeout = this._testManager.getTestTimeout({test, session});
       const url = this._generateTestUrl({ test, token, testTimeout, hostname });
 
-      console.log("TEST", test);
+      // console.log("TEST", test);
       this.sendJson({ next_test: url }, response);
     } catch (error) {
       console.error(new Error(`Failed to read next test:\n${error.stack}`));
@@ -178,7 +177,7 @@ class TestApiHandler extends ApiHandler {
   }
 
   _onTestTimeout(token, test) {
-    console.log("TIMEOUT", test);
+    // console.log("TIMEOUT", test);
     const data = {
       test,
       status: "TIMEOUT",
@@ -203,6 +202,7 @@ class TestApiHandler extends ApiHandler {
   }
 
   _handleGet(request, response) {
+    console.log(`GET    ${request.url}`)
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:

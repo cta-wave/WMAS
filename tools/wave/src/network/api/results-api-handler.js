@@ -19,10 +19,8 @@ class ResultsApiHandler extends ApiHandler {
 
   async _createResult({ request, response }) {
     try {
-      let { token } = this.parseQueryParameters(request);
-      if (!token) {
-        token = request.get("token");
-      }
+      const requestUrl = this.parseUrl(request);
+      const token = requestUrl[1];
       let data = request.body;
       if (!data) {
         try {
@@ -37,6 +35,7 @@ class ResultsApiHandler extends ApiHandler {
         }
       }
       await this._resultsManager.createResult({ token, data });
+      response.send();
     } catch (error) {
       console.error(new Error(`Failed to create result:\n${error.stack}`));
       response.status(500).send();
@@ -44,6 +43,18 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   async _readResult({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const results = await this._resultsManager.readFlattenedResults(token);
+      this.sendJson(results, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read result:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _readResultsCompact({ request, response }) {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
@@ -104,7 +115,9 @@ class ResultsApiHandler extends ApiHandler {
         .pop()}`;
       this.sendFile({ response, fileName, filePath });
     } catch (error) {
-      console.error(new Error(`Failed to download api result json:\n${error.stack}`));
+      console.error(
+        new Error(`Failed to download api result json:\n${error.stack}`)
+      );
       response.status(500).send();
     }
   }
@@ -117,7 +130,9 @@ class ResultsApiHandler extends ApiHandler {
       const fileName = token.split("-")[0] + "_results_html.zip";
       this.sendZip({ blob, response, fileName });
     } catch (error) {
-      console.error(new Error(`Failed to download result html:\n${error.stack}`));
+      console.error(
+        new Error(`Failed to download result html:\n${error.stack}`)
+      );
       response.status(500).send();
     }
   }
@@ -131,15 +146,17 @@ class ResultsApiHandler extends ApiHandler {
   }
 
   _handlePost(request, response) {
+    console.log(`POST   ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
-      case 1:
-        response.send();
+      case 2:
         return this._createResult({ request, response });
     }
+    response.status(404).send();
   }
 
   async _handleGet(request, response, next) {
+    console.log(`GET    ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1: {
@@ -160,6 +177,8 @@ class ResultsApiHandler extends ApiHandler {
             return this._downloadResultHtml({ request, response });
           case "compare":
             return this._readResultComparison({ request, response });
+          case "compact":
+            return this._readResultsCompact({ request, response });
         }
       case 4: {
         switch (url[3]) {
