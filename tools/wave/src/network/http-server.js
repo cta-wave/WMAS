@@ -3,6 +3,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path");
+const compression = require("compression")
 const Route = require("../data/route");
 
 const DEFAULT_PORT = 8080;
@@ -16,6 +17,7 @@ class HttpServer {
   constructor() {
     this._app = express();
     this._app.use(cookieParser());
+    this._app.use(compression());
     this._app.use(
       bodyParser.urlencoded({
         extended: true,

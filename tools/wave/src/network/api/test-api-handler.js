@@ -6,6 +6,9 @@ const ResultsManager = require("../../testing/results-manager");
 const TestManager = require("../../testing/test-manager");
 const Serializer = require("../../utils/serializer");
 
+const DEFAULT_LAST_COMPLETED_TESTS_COUNT = 5;
+const DEFAULT_LAST_COMPLETED_TESTS_STATUS = ["ALL"];
+
 const { GET } = Route;
 
 class TestApiHandler extends ApiHandler {
@@ -107,10 +110,7 @@ class TestApiHandler extends ApiHandler {
         }
       }
 
-      let test = this._testManager.nextTest({
-        session,
-        onTimeout: this._onTestTimeout.bind(this)
-      });
+      let test = await this._testManager.nextTest(session);
 
       if (!test) {
         if (session.getStatus() !== Session.RUNNING) return;
@@ -123,7 +123,7 @@ class TestApiHandler extends ApiHandler {
         return;
       }
 
-      const testTimeout = this._testManager.getTestTimeout({test, session});
+      const testTimeout = this._testManager.getTestTimeout({ test, session });
       const url = this._generateTestUrl({ test, token, testTimeout, hostname });
 
       // console.log("TEST", test);
@@ -176,22 +176,46 @@ class TestApiHandler extends ApiHandler {
     return protocol + "://" + hostname + ":" + port + uri + query;
   }
 
-  _onTestTimeout(token, test) {
-    // console.log("TIMEOUT", test);
-    const data = {
-      test,
-      status: "TIMEOUT",
-      message: null,
-      subtests: [
-        {
-          status: "TIMEOUT",
-          xstatus: "SERVERTIMEOUT"
+  async _lastCompletedTests({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      let { count, status } = this.parseQueryParameters(request);
+      if (!count) count = DEFAULT_LAST_COMPLETED_TESTS_COUNT;
+      if (!status) status = DEFAULT_LAST_COMPLETED_TESTS_STATUS;
+      const {
+        pass,
+        fail,
+        timeout,
+        notRun
+      } = await this._testManager.readLastCompletedTests({ token, count });
+      const tests = {};
+      status.forEach(status => {
+        switch (status.toLowerCase()) {
+          case "pass":
+            tests.pass = pass;
+            break;
+          case "fail":
+            tests.fail = fail;
+            break;
+          case "timeout":
+            tests.timeout = timeout;
+            break;
+          case "not_run":
+            tests.not_run = notRun;
+            break;
+          case "all":
+            tests.pass = pass;
+            tests.fail = fail;
+            tests.timeout = timeout;
+            tests.not_run = notRun;
         }
-      ]
-    };
-    this._resultsManager
-      .createResult({ token, data })
-      .catch(error => console.error(error));
+      });
+      this.sendJson(tests, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read session tests:\n${error.stack}`));
+      response.status(500).send();
+    }
   }
 
   getRoutes() {
@@ -202,7 +226,7 @@ class TestApiHandler extends ApiHandler {
   }
 
   _handleGet(request, response) {
-    console.log(`GET    ${request.url}`)
+    console.log(`GET    ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:
@@ -210,7 +234,12 @@ class TestApiHandler extends ApiHandler {
       case 2:
         return this._readSessionTests({ request, response });
       case 3:
-        return this._nextTest({ request, response });
+        switch (url[2]) {
+          case "next":
+            return this._nextTest({ request, response });
+          case "last_completed":
+            return this._lastCompletedTests({ request, response });
+        }
     }
     response.status(404).send();
   }

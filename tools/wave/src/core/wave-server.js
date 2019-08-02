@@ -51,9 +51,11 @@ class WaveServer {
     println(" done.");
 
     const testLoader = new TestLoader();
-    const testManager = new TestManager({testLoader});
+    const testManager = new TestManager();
     const sessionManager = new SessionManager();
     const resultsManager = new ResultsManager();
+
+    testManager.initialize({ testLoader, resultsManager, sessionManager });
 
     sessionManager.initialize({
       database,

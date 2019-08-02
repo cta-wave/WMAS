@@ -82,7 +82,7 @@ class ResultComparator {
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       comparisonResults[token] = {};
-      const result = await this._resultsManager.getResults(token);
+      const result = await this._resultsManager.readResults(token);
       for (let api in result) {
         comparisonResults[token][api] = { passed: 0, total: 0 };
 
@@ -130,7 +130,7 @@ class ResultComparator {
     if (!tokens || tokens.length === 0) return null;
 
     const refSessionsResults = await Promise.all(
-      tokens.map(async token => await this._resultsManager.getResults(token))
+      tokens.map(async token => await this._resultsManager.readResults(token))
     );
 
     const passedTests = {};

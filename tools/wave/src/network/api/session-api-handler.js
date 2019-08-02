@@ -120,7 +120,7 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _updateSession({ request, response } = {}) {
+  async _updateSessionConfiguration({ request, response } = {}) {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
@@ -131,7 +131,7 @@ class SessionApiHandler extends ApiHandler {
         reference_tokens,
         webhook_urls
       } = request.body;
-      await this._sessionManager.updateSession(token, {
+      await this._sessionManager.updateSessionConfiguration(token, {
         tests: { include, exclude },
         types,
         timeouts,
@@ -251,7 +251,7 @@ class SessionApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
-        return this._updateSession({ request, response });
+        return this._updateSessionConfiguration({ request, response });
     }
     response.status(404).send();
   }

@@ -75,10 +75,11 @@ class ResultsManager {
       await this._sessionManager.completeSession(token);
       await this.createInfoFile(session);
     }
+    await this._sessionManager.updateSession(session);
   }
 
   async readFlattenedResults(token) {
-    const results = await this.getResults(token);
+    const results = await this.readResults(token);
     return this._flattenResults(results);
   }
 
@@ -163,7 +164,7 @@ class ResultsManager {
   }
 
   async saveApiResults({ token, api }) {
-    const apiResults = { results: (await this.getResults(token))[api] };
+    const apiResults = { results: (await this.readResults(token))[api] };
     const session = await this._sessionManager.readSession(token);
 
     await this._ensureResultsDirectoryExistence({ api, token, session });
@@ -306,7 +307,7 @@ class ResultsManager {
     return abbreviation + version + ".json";
   }
 
-  async getResults(token) {
+  async readResults(token) {
     const results = await this._database.readResults(token);
     const resultsPerApi = {};
     results.forEach(result => {

@@ -105,7 +105,7 @@ class TestLoader {
     types = [AUTOMATIC_TESTS, MANUAL_TESTS],
     includeList,
     excludeList,
-    referenceTokens = []
+    referenceTokens
   } = {}) {
     let tests = {};
 

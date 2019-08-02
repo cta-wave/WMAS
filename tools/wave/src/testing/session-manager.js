@@ -103,7 +103,11 @@ class SessionManager {
     return await this._database.readPublicSessions();
   }
 
-  async updateSession(
+  async updateSession(session) {
+    this._database.updateSession(session);
+  }
+
+  async updateSessionConfiguration(
     token,
     { tests, types, timeouts, referenceTokens, webhookUrls }
   ) {
