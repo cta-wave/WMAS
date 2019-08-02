@@ -22,16 +22,16 @@ class ResultsApiHandler extends ApiHandler {
       const requestUrl = this.parseUrl(request);
       const token = requestUrl[1];
       let data = request.body;
-      if (!data) {
+      if (!data || Object.keys(data).length === 0) {
         try {
-          data = { status: 3 }; // NOTRUN
-          data = JSON.parse(decodeURI(request.query.data));
+          data = JSON.parse(request.query.result);
         } catch (error) {
           console.error(
-            "Failed to load test data from uri:",
-            request.query.data
+            new Error(
+              `Failed to parse test result from uri:\n${request.query.data}`
+            )
           );
-          data = { status: 1 }; // ERROR
+          response.status(400).send();
         }
       }
       await this._resultsManager.createResult({ token, data });
@@ -170,6 +170,9 @@ class ResultsApiHandler extends ApiHandler {
         return this._createResult({ request, response });
       }
       case 2:
+        if (request.query.result) {
+          return this._createResult({ request, response });
+        }
         return this._readResult({ request, response });
       case 3:
         switch (url[2]) {

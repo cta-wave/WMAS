@@ -213,7 +213,7 @@ class TestApiHandler extends ApiHandler {
       });
       this.sendJson(tests, response);
     } catch (error) {
-      console.error(new Error(`Failed to read session tests:\n${error.stack}`));
+      console.error(new Error(`Failed to read last completed session tests:\n${error.stack}`));
       response.status(500).send();
     }
   }
