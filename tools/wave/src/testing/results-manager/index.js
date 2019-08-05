@@ -78,6 +78,24 @@ class ResultsManager {
     await this._sessionManager.updateSession(session);
   }
 
+  async readResults(token, filterPath) {
+    const filterApi = filterPath
+      ? filterPath.split("/").find(part => !!part)
+      : null;
+    const results = await this._database.readResults(token);
+    const resultsPerApi = {};
+    results.forEach(result => {
+      const api = result.test.split("/").find(part => !!part);
+      if (filterApi && api.toLowerCase() !== filterApi.toLowerCase()) return;
+      if (filterPath && !new RegExp("^" + filterPath, "i").test(result.test)) return;
+      if (!resultsPerApi[api]) resultsPerApi[api] = [];
+      delete result._id;
+      resultsPerApi[api].push(result);
+    });
+
+    return resultsPerApi;
+  }
+
   async readFlattenedResults(token) {
     const results = await this.readResults(token);
     return this._flattenResults(results);
@@ -305,24 +323,6 @@ class ResultsManager {
     } = UserAgentParser.parse(userAgent);
     const abbreviation = UserAgentParser.abbreviateBrowserName(name);
     return abbreviation + version + ".json";
-  }
-
-  async readResults(token) {
-    const results = await this._database.readResults(token);
-    const resultsPerApi = {};
-    results.forEach(result => {
-      let api;
-      if (result.test.startsWith("/")) {
-        api = result.test.split("/")[1];
-      } else {
-        api = result.test.split("/")[0];
-      }
-      if (!resultsPerApi[api]) resultsPerApi[api] = [];
-      delete result._id;
-      resultsPerApi[api].push(result);
-    });
-
-    return resultsPerApi;
   }
 
   prepareResult(result) {

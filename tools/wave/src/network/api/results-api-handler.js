@@ -46,7 +46,8 @@ class ResultsApiHandler extends ApiHandler {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      const results = await this._resultsManager.readResults(token);
+      const { path } = request.query;
+      const results = await this._resultsManager.readResults(token, path);
       this.sendJson(results, response);
     } catch (error) {
       console.error(new Error(`Failed to read result:\n${error.stack}`));
