@@ -1,6 +1,7 @@
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
+const FileSystem = require("../../utils/file-system");
 
 const { GET, POST } = Route;
 
@@ -84,7 +85,7 @@ class ResultsApiHandler extends ApiHandler {
     }
   }
 
-  async _readResultApiHtmlReport({ request, response }) {
+  async _downloadResultApiHtmlReport({ request, response }) {
     try {
       const url = this.parseUrl(request);
       const tokens = url[1].split(",");
@@ -110,14 +111,53 @@ class ResultsApiHandler extends ApiHandler {
       const url = this.parseUrl(request);
       const token = url[1];
       const api = url[2];
+      const blob = await this._resultsManager.exportResultJson({ token, api });
       const filePath = await this._resultsManager.getJsonPath({ token, api });
       const fileName = `${token.split("-").shift()}-${api}-${filePath
         .split("/")
         .pop()}`;
-      this.sendFile({ response, fileName, filePath });
+      if (blob) {
+        this.sendFile({ response, fileName, blob });
+      } else {
+        response.status(404).send();
+      }
     } catch (error) {
       console.error(
         new Error(`Failed to download api result json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsApiJson({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const blob = await this._resultsManager.exportResultsJson(token);
+      const fileName = token.split("-")[0] + "_results_json.zip";
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download results json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsReportHtml({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const api = url[2];
+      const blob = await this._resultsManager.exportResultsWptHtml({
+        token,
+        api
+      });
+      const fileName = token.split("-")[0] + "_results_json.zip";
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download results json:\n${error.stack}`)
       );
       response.status(500).send();
     }
@@ -177,19 +217,21 @@ class ResultsApiHandler extends ApiHandler {
         return this._readResult({ request, response });
       case 3:
         switch (url[2]) {
-          case "html":
+          case "overview":
             return this._downloadResultHtml({ request, response });
           case "compare":
             return this._readResultComparison({ request, response });
           case "compact":
             return this._readResultsCompact({ request, response });
+          case "json":
+            return this._downloadResultsApiJson({ request, response });
         }
       case 4: {
         switch (url[3]) {
           case "json":
             return this._downloadResultApiJson({ request, response });
-          case "html":
-            return this._readResultApiHtmlReport({ request, response });
+          case "report":
+            return this._downloadResultsReportHtml({ request, response });
         }
       }
     }

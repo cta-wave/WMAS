@@ -87,7 +87,8 @@ class ResultsManager {
     results.forEach(result => {
       const api = result.test.split("/").find(part => !!part);
       if (filterApi && api.toLowerCase() !== filterApi.toLowerCase()) return;
-      if (filterPath && !new RegExp("^" + filterPath, "i").test(result.test)) return;
+      if (filterPath && !new RegExp("^" + filterPath, "i").test(result.test))
+        return;
       if (!resultsPerApi[api]) resultsPerApi[api] = [];
       delete result._id;
       resultsPerApi[api].push(result);
@@ -322,7 +323,7 @@ class ResultsManager {
       browser: { name, version }
     } = UserAgentParser.parse(userAgent);
     const abbreviation = UserAgentParser.abbreviateBrowserName(name);
-    return abbreviation + version + ".json";
+    return abbreviation + ("00" + version).slice(-2) + ".json";
   }
 
   prepareResult(result) {
@@ -330,13 +331,21 @@ class ResultsManager {
       0: "OK",
       1: "ERROR",
       2: "TIMEOUT",
-      3: "NOTRUN"
+      3: "NOTRUN",
+      OK: "OK",
+      ERROR: "ERROR",
+      TIMEOUT: "TIMEOUT",
+      NOTRUN: "NOTRUN"
     };
     const subtest_status_map = {
       0: "PASS",
       1: "FAIL",
       2: "TIMEOUT",
-      3: "NOTRUN"
+      3: "NOTRUN",
+      PASS: "PASS",
+      FAIL: "FAIL",
+      TIMEOUT: "TIMEOUT",
+      NOTRUN: "NOTRUN"
     };
 
     if (result.tests) {
@@ -402,6 +411,45 @@ class ResultsManager {
       }
     }
     return flattenedResults;
+  }
+
+  async exportResultJson({ token, api }) {
+    const filePath = await this.getJsonPath({ token, api });
+    try {
+      const blob = await FileSystem.readFile(filePath);
+      return blob;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async exportResultsJson(token) {
+    const resultDirectory = path.join(this._resultsDirectoryPath, token);
+    const apis = await FileSystem.readDirectory(resultDirectory);
+
+    const zip = new JSZip();
+    for (let api of apis) {
+      const blob = await this.exportResultJson({ token, api });
+      if (!blob) continue;
+      zip.file(`${api}.json`, blob);
+    }
+
+    return zip.generateAsync({ type: "nodebuffer" });
+  }
+
+  async exportResultsWptHtml({ token, api }) {
+    const apiDirectory = path.join(this._resultsDirectoryPath, token, api);
+    const files = await FileSystem.readDirectory(apiDirectory);
+
+    const zip = new JSZip();
+    for (let file of files) {
+      const blob = await FileSystem.readFile(path.join(apiDirectory, file));
+      if (!blob) continue;
+      if (new RegExp("\w\w\d\d.json").test(file)) continue
+      zip.file(file, blob);
+    }
+
+    return zip.generateAsync({ type: "nodebuffer" });
   }
 
   async exportResults(token) {

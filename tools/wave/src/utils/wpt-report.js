@@ -20,8 +20,9 @@ class WptReport {
           `${isMulti ? "--tokenFileName true " : ""}` +
           `${!referenceDir ? "" : `--pass 100 --ref ${referenceDir}`}`,
         (error, stdout, stderr) => {
-          if (error) reject(error);
-          if (stderr) reject(stderr);
+          if (error) reject(new Error(error.message));
+          // if (stderr) reject(new Error(stderr));
+          if (stderr) console.warn(`WARNING: ${stderr}`);
           resolve(stdout);
         }
       );
