@@ -55,7 +55,7 @@ class ResultsManager {
     if (!session.testExists(test)) return;
 
     if (!session.isTestComplete(test)) {
-      this._testManager.completeTest({ test, session });
+      await this._testManager.completeTest({ test, session });
       await this._database.createResult(token, result);
       const api = test.split("/").find(part => !!part);
       if (session.isApiComplete(api)) {
@@ -75,7 +75,6 @@ class ResultsManager {
       await this._sessionManager.completeSession(token);
       await this.createInfoFile(session);
     }
-    await this._sessionManager.updateSession(session);
   }
 
   async readResults(token, filterPath) {

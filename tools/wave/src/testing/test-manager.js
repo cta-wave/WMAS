@@ -128,10 +128,9 @@ class TestManager {
    * @param {Object} config
    * @param {Session} config.session
    */
-  completeTest({ test, session }) {
+  async completeTest({ test, session }) {
     let runningTests = session.getRunningTests();
     let completedTests = session.getCompletedTests();
-    let clients = session.getClients();
 
     const api = test.split("/").find(part => !!part);
     this.removeTestFromList(runningTests, test, api);
@@ -143,10 +142,8 @@ class TestManager {
         break;
       }
     }
-    clients.forEach(client => client.send("complete"));
 
-    session.setRunningTests(runningTests);
-    session.setCompletedTests(completedTests);
+    await this._sessionManager.updateTests({runningTests, completedTests, session});
   }
 
   removeTestFromList(testList, test, api) {
@@ -213,7 +210,7 @@ class TestManager {
     let testTimeout =
       test.indexOf("manual") !== -1 ? timeouts.manual : timeouts.automatic;
     const timeoutPath = Object.keys(timeouts).find(path =>
-      new RegExp("^" + path, "i").test(test)
+      new RegExp("^" + path, "i").test(test.replace(".", ""))
     );
     if (timeoutPath) {
       testTimeout = timeouts[timeoutPath];

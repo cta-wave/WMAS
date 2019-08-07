@@ -1,5 +1,4 @@
 const TestLoader = require("../testing/test-loader");
-const UserAgentParser = require("../utils/user-agent-parser");
 
 const PAUSED = "paused";
 const RUNNING = "running";
@@ -23,8 +22,8 @@ class Session {
       completedTests = {},
       timeouts = null,
       status = UNKNOWN,
-      testFilesCount = this._calculateTestFilesCount(pendingTests),
-      testFilesCompleted = this._calculateTestFilesCount(completedTests),
+      testFilesCount,
+      testFilesCompleted,
       dateStarted = null,
       dateFinished = null,
       isPublic = false,
@@ -44,25 +43,12 @@ class Session {
     this._testFilesCompleted = testFilesCompleted;
     this._timeouts = timeouts;
     this._status = status;
-    this._clients = [];
     this._dateStarted = dateStarted;
     this._dateFinished = dateFinished;
     this._public = isPublic;
     this._referenceTokens = referenceTokens;
     this._browser = browser;
-    if (!browser) {
-      const { browser: parsedBrowser } = UserAgentParser.parse(this._userAgent);
-      this._browser = parsedBrowser;
-    }
     this._webhookUrls = webhookUrls;
-  }
-
-  _calculateTestFilesCount(tests) {
-    let testFilesCount = {};
-    for (let api in tests) {
-      testFilesCount[api] = tests[api].length;
-    }
-    return testFilesCount;
   }
 
   isTestComplete(needleTest) {
@@ -87,16 +73,6 @@ class Session {
 
   isApiComplete(api) {
     return !this._pendingTests[api] && !this._runningTests[api];
-  }
-
-  addClient(client) {
-    this._clients.push(client);
-    return this;
-  }
-
-  removeClient(client) {
-    this._clients.splice(this._clients.indexOf(client), 1);
-    return this;
   }
 
   getToken() {
@@ -159,9 +135,6 @@ class Session {
 
   setCompletedTests(completedTests) {
     this._completedTests = completedTests;
-    this._testFilesCompleted = this._calculateTestFilesCount(
-      this._completedTests
-    );
     return this;
   }
 
@@ -178,8 +151,18 @@ class Session {
     return this._testFilesCount;
   }
 
+  setTestFilesCount(testFilesCount) {
+    this._testFilesCount = testFilesCount;
+    return this;
+  }
+
   getTestFilesCompleted() {
     return this._testFilesCompleted;
+  }
+
+  setTestFilesCompleted(testFilesCompleted) {
+    this._testFilesCompleted = testFilesCompleted;
+    return this;
   }
 
   getStatus() {
@@ -188,10 +171,6 @@ class Session {
 
   setStatus(status) {
     this._status = status;
-    this._clients.forEach(client => client.send("status"));
-    if (status === COMPLETED || status === ABORTED) {
-      this._dateFinished = Date.now();
-    }
     return this;
   }
 
@@ -199,8 +178,18 @@ class Session {
     return this._dateStarted;
   }
 
+  setDateStarted(dateStarted) {
+    this._dateStarted = dateStarted;
+    return this;
+  }
+
   getDateFinished() {
     return this._dateFinished;
+  }
+
+  setDateFinished(dateFinished) {
+    this._dateFinished = dateFinished;
+    return this;
   }
 
   isPublic() {

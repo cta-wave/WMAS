@@ -182,18 +182,6 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _resumeSession({ request, response }) {
-    try {
-      const url = this.parseUrl(request);
-      const token = url[1];
-      await this._sessionManager.resumeSession(token);
-      response.send();
-    } catch (error) {
-      console.error(new Error(`Failed to resume session:\n${error.stack}`));
-      response.status(500).send();
-    }
-  }
-
   async _stopSession({ request, response }) {
     try {
       const url = this.parseUrl(request);
@@ -274,8 +262,6 @@ class SessionApiHandler extends ApiHandler {
             return this._startSession({ request, response });
           case "pause":
             return this._pauseSession({ request, response });
-          case "resume":
-            return this._resumeSession({ request, response });
           case "stop":
             return this._stopSession({ request, response });
           case "status":
