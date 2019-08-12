@@ -22,7 +22,7 @@ class SessionManager {
    * @param {Object} config
    * @param {Database} config.database
    */
-  initialize({ database, testTimeout, testLoader }) {
+  initialize({ database, testTimeout, testLoader } = {}) {
     this._database = database;
     this._sessions = [];
     this._testTimeout = testTimeout;
@@ -31,7 +31,7 @@ class SessionManager {
   }
 
   async findToken(fragment) {
-    if (fragment.length < 7) return;
+    if (fragment.length < 8) return null;
     const tokens = await this._database.findTokens(fragment);
     if (tokens.length === 1) {
       return tokens[0];
@@ -46,7 +46,7 @@ class SessionManager {
     referenceTokens,
     webhookUrls,
     userAgent
-  }) {
+  } = {}) {
     if (!tests) tests = {};
     if (!tests.include) tests.include = [DEFAULT_TEST_PATH];
     if (!tests.exclude) tests.exclude = [];
@@ -102,15 +102,15 @@ class SessionManager {
   }
 
   async readSessions() {
-    return await this._database.readSessions();
+    return this._database.readSessions();
   }
 
   async readPublicSessions() {
-    return await this._database.readPublicSessions();
+    return this._database.readPublicSessions();
   }
 
   async updateSession(session) {
-    this._database.updateSession(session);
+    return this._database.updateSession(session);
   }
 
   async updateSessionConfiguration(
@@ -193,7 +193,11 @@ class SessionManager {
 
   async completeSession(token) {
     const session = await this.readSession(token);
-    if (session.getStatus() === Session.COMPLETED) return;
+    if (
+      session.getStatus() === Session.COMPLETED ||
+      session.getStatus() === Session.ABORTED
+    )
+      return;
     session.setStatus(Session.COMPLETED);
     session.setDateFinished(Date.now());
     await this._database.updateSession(session);
@@ -206,7 +210,10 @@ class SessionManager {
         this._calculateTestFilesCount(completedTests)
       );
       session.setCompletedTests(completedTests);
-      this.sendClientMessage({ token: session.getToken(), message: "complete" });
+      this.sendClientMessage({
+        token: session.getToken(),
+        message: "complete"
+      });
     }
     if (pendingTests) {
       session.setPendingTests(pendingTests);
