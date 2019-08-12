@@ -8,7 +8,7 @@ class TestManager {
    * @param {TestLoader} config.testLoader
    * @param {ResultsManager} config.resultsManager
    */
-  initialize({ testLoader, resultsManager, sessionManager }) {
+  initialize({ testLoader, resultsManager, sessionManager } = {}) {
     this._timeouts = [];
     this._testLoader = testLoader;
     this._resultsManager = resultsManager;
@@ -90,8 +90,8 @@ class TestManager {
       test = null;
     }
 
-    this.removeTestFromList(pendingTests, test, api);
-    this.addTestToList(runningTests, test, api);
+    pendingTests = this.removeTestFromList(pendingTests, test);
+    runningTests = this.addTestToList(runningTests, test);
 
     const testTimeout = this.getTestTimeout({ test, session });
     this._timeouts.push({
@@ -105,7 +105,7 @@ class TestManager {
     return test;
   }
 
-  _onTestTimeout(token, test) {
+  async _onTestTimeout(token, test) {
     // console.log("TIMEOUT", test);
     const data = {
       test,
@@ -118,9 +118,13 @@ class TestManager {
         }
       ]
     };
-    this._resultsManager
-      .createResult({ token, data })
-      .catch(error => console.error(error));
+    try {
+      await this._resultsManager.createResult({ token, data });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to create result from timeout:\n${error.stack}`)
+      );
+    }
   }
 
   /**
@@ -132,21 +136,24 @@ class TestManager {
     let runningTests = session.getRunningTests();
     let completedTests = session.getCompletedTests();
 
-    const api = test.split("/").find(part => !!part);
-    this.removeTestFromList(runningTests, test, api);
-    this.addTestToList(completedTests, test, api);
-    for (let i = 0; i < this._timeouts.length; i++) {
-      if (this._timeouts[i].test === test) {
-        clearTimeout(this._timeouts[i].timeout);
-        this._timeouts.splice(i, 1);
-        break;
-      }
-    }
+    runningTests = this.removeTestFromList(runningTests, test);
+    completedTests = this.addTestToList(completedTests, test);
+    session.setRunningTests(runningTests);
+    session.setCompletedTests(completedTests);
 
-    await this._sessionManager.updateTests({runningTests, completedTests, session});
+    const index = this._timeouts.findIndex(timeout => timeout.test === test);
+    if (index !== -1) clearTimeout(this._timeouts.splice(index, 1)[0].timeout);
+
+    await this._sessionManager.updateTests({
+      runningTests,
+      completedTests,
+      session
+    });
   }
 
-  removeTestFromList(testList, test, api) {
+  removeTestFromList(testList, test) {
+    testList = JSON.parse(JSON.stringify(testList));
+    const api = test.split("/").find(part => !!part);
     if (!testList[api]) return;
     const index = testList[api].indexOf(test);
     if (index === -1) return;
@@ -154,12 +161,16 @@ class TestManager {
     if (testList[api].length === 0) {
       delete testList[api];
     }
+    return testList;
   }
 
-  addTestToList(testList, test, api) {
+  addTestToList(testList, test) {
+    testList = JSON.parse(JSON.stringify(testList));
+    const api = test.split("/").find(part => !!part);
     if (testList[api] && testList[api].indexOf(test) !== -1) return;
     if (!testList[api]) testList[api] = [];
     testList[api].push(test);
+    return testList;
   }
 
   async readTests() {
