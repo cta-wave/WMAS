@@ -3,14 +3,14 @@ const Session = require("../../src/data/session");
 
 test("Turn a session instance into a plain javascript object.", () => {
   const session = new Session("test_token", {
-    path: "/path/one,/path/two",
+    tests: { include: ["/apiOne", "/apiTwo"], exclude: ["/apiTwo/sub"] },
     types: ["TEST_HARNESS", "MANUAL"],
     userAgent: "Some user agent string",
     pendingTests: {
       apiOne: [
-        "/pending/test/one.html",
-        "/pending/test/two.html",
-        "/pending/test/three.html"
+        "/apiOne/test/one.html",
+        "/apiOne/test/two.html",
+        "/apiOne/test/three.html"
       ],
       apiTwo: [],
       apiThree: []
@@ -18,9 +18,9 @@ test("Turn a session instance into a plain javascript object.", () => {
     runningTests: {
       apiOne: [],
       apiTwo: [
-        "/running/test/one.html",
-        "/running/test/two.html",
-        "/running/test/three.html"
+        "/apiTwo/test/one.html",
+        "/apiTwo/test/two.html",
+        "/apiTwo/test/three.html"
       ],
       apiThree: []
     },
@@ -28,18 +28,19 @@ test("Turn a session instance into a plain javascript object.", () => {
       apiOne: [],
       apiTwo: [],
       apiThree: [
-        "/completed/test/one.html",
-        "/completed/test/two.html",
-        "/completed/test/three.html"
+        "/apiThree/test/one.html",
+        "/apiThree/test/two.html",
+        "/apiThree/test/three.html"
       ]
     },
-    testTimeout: 30000,
+    timeouts: { automatic: 60000, manual: 300000 },
     status: "running",
     testFilesCount: 9,
     testFilesCompleted: 3,
     dateStarted: 654346464,
     dateFinished: null,
     isPublic: false,
+    browser: { name: "Mocking Browser", version: "1.0" },
     referenceTokens: ["reference_token_one", "reference_token_two"]
   });
 
@@ -47,14 +48,21 @@ test("Turn a session instance into a plain javascript object.", () => {
 
   expect(object).toBeInstanceOf(Object);
   expect(object).toHaveProperty("token", "test_token");
-  expect(object).toHaveProperty("path", "/path/one,/path/two");
+  const tests = object.tests;
+  expect(tests).toBeInstanceOf(Object);
+  expect(tests).toHaveProperty("include");
+  expect(tests.include).toBeInstanceOf(Array);
+  expect(tests.include).toContain("/apiOne");
+  expect(tests.include).toContain("/apiTwo");
+  expect(tests.exclude).toBeInstanceOf(Array);
+  expect(tests.exclude).toContain("/apiTwo/sub");
   expect(object).toHaveProperty("types", ["TEST_HARNESS", "MANUAL"]);
   expect(object).toHaveProperty("user_agent", "Some user agent string");
   expect(object).toHaveProperty("pending_tests", {
     apiOne: [
-      "/pending/test/one.html",
-      "/pending/test/two.html",
-      "/pending/test/three.html"
+      "/apiOne/test/one.html",
+      "/apiOne/test/two.html",
+      "/apiOne/test/three.html"
     ],
     apiTwo: [],
     apiThree: []
@@ -62,9 +70,9 @@ test("Turn a session instance into a plain javascript object.", () => {
   expect(object).toHaveProperty("running_tests", {
     apiOne: [],
     apiTwo: [
-      "/running/test/one.html",
-      "/running/test/two.html",
-      "/running/test/three.html"
+      "/apiTwo/test/one.html",
+      "/apiTwo/test/two.html",
+      "/apiTwo/test/three.html"
     ],
     apiThree: []
   });
@@ -72,12 +80,16 @@ test("Turn a session instance into a plain javascript object.", () => {
     apiOne: [],
     apiTwo: [],
     apiThree: [
-      "/completed/test/one.html",
-      "/completed/test/two.html",
-      "/completed/test/three.html"
+      "/apiThree/test/one.html",
+      "/apiThree/test/two.html",
+      "/apiThree/test/three.html"
     ]
   });
-  expect(object).toHaveProperty("test_timeout", 30000);
+  const timeouts = object.timeouts;
+  expect(timeouts).toBeInstanceOf(Object);
+  expect(timeouts).toHaveProperty("automatic");
+  expect(timeouts.automatic).toBe(60000);
+  expect(timeouts).toHaveProperty("manual");
   expect(object).toHaveProperty("status", "running");
   expect(object).toHaveProperty("browser");
   expect(object.browser).toHaveProperty("name");
@@ -94,104 +106,78 @@ test("Turn a session instance into a plain javascript object.", () => {
 });
 
 test("Turn multiple session instances into an array of plain javascript objects.", () => {
-  const sessions = [
-    new Session("test_token1", {
-      path: "/path/one,/path/two",
-      types: ["TEST_HARNESS", "MANUAL"],
-      userAgent: "Some user agent string",
-      pendingTests: {
-        apiOne: [
-          "/pending/test/one.html",
-          "/pending/test/two.html",
-          "/pending/test/three.html"
-        ],
-        apiTwo: [],
-        apiThree: []
-      },
-      runningTests: {
-        apiOne: [],
-        apiTwo: [
-          "/running/test/one.html",
-          "/running/test/two.html",
-          "/running/test/three.html"
-        ],
-        apiThree: []
-      },
-      completedTests: {
-        apiOne: [],
-        apiTwo: [],
-        apiThree: [
-          "/completed/test/one.html",
-          "/completed/test/two.html",
-          "/completed/test/three.html"
-        ]
-      },
-      testTimeout: 30000,
-      status: "running",
-      testFilesCount: 9,
-      testFilesCompleted: 3,
-      dateStarted: 654346464,
-      dateFinished: null,
-      isPublic: false,
-      referenceTokens: ["reference_token_one", "reference_token_two"]
-    }),
-    new Session("test_token2", {
-      path: "/path/one,/path/two",
-      types: ["TEST_HARNESS", "MANUAL"],
-      userAgent: "Some user agent string",
-      pendingTests: {
-        apiOne: [
-          "/pending/test/one.html",
-          "/pending/test/two.html",
-          "/pending/test/three.html"
-        ],
-        apiTwo: [],
-        apiThree: []
-      },
-      runningTests: {
-        apiOne: [],
-        apiTwo: [
-          "/running/test/one.html",
-          "/running/test/two.html",
-          "/running/test/three.html"
-        ],
-        apiThree: []
-      },
-      completedTests: {
-        apiOne: [],
-        apiTwo: [],
-        apiThree: [
-          "/completed/test/one.html",
-          "/completed/test/two.html",
-          "/completed/test/three.html"
-        ]
-      },
-      testTimeout: 30000,
-      status: "running",
-      testFilesCount: 9,
-      testFilesCompleted: 3,
-      dateStarted: 654346464,
-      dateFinished: null,
-      isPublic: false,
-      referenceTokens: ["reference_token_one", "reference_token_two"]
-    })
-  ];
+  const sessions = [];
+
+  for (let i = 0; i < 2; i++) {
+    sessions.push(
+      new Session("test_token" + i, {
+        tests: { include: ["/apiOne", "/apiTwo"], exclude: ["/apiTwo/sub"] },
+        types: ["TEST_HARNESS", "MANUAL"],
+        userAgent: "Some user agent string",
+        pendingTests: {
+          apiOne: [
+            "/apiOne/test/one.html",
+            "/apiOne/test/two.html",
+            "/apiOne/test/three.html"
+          ],
+          apiTwo: [],
+          apiThree: []
+        },
+        runningTests: {
+          apiOne: [],
+          apiTwo: [
+            "/apiTwo/test/one.html",
+            "/apiTwo/test/two.html",
+            "/apiTwo/test/three.html"
+          ],
+          apiThree: []
+        },
+        completedTests: {
+          apiOne: [],
+          apiTwo: [],
+          apiThree: [
+            "/apiThree/test/one.html",
+            "/apiThree/test/two.html",
+            "/apiThree/test/three.html"
+          ]
+        },
+        timeouts: { automatic: 60000, manual: 300000 },
+        status: "running",
+        testFilesCount: 9,
+        testFilesCompleted: 3,
+        dateStarted: 654346464,
+        dateFinished: null,
+        isPublic: false,
+        browser: { name: "Mocking Browser", version: "1.0" },
+        referenceTokens: ["reference_token_one", "reference_token_two"]
+      })
+    );
+  }
 
   const objects = Serializer.serializeSessions(sessions);
 
   expect(objects).toBeInstanceOf(Array);
 
-  for (let i = 1; i <= 2; i++) {
-    const object = objects[i - 1];
+  for (let i = 0; i < 2; i++) {
+    const object = objects[i];
+
+    expect(object).toBeInstanceOf(Object);
     expect(object).toHaveProperty("token", "test_token" + i);
-    expect(object).toHaveProperty("path", "/path/one,/path/two");
+    const tests = object.tests;
+    expect(tests).toBeInstanceOf(Object);
+    expect(tests).toHaveProperty("include");
+    expect(tests.include).toBeInstanceOf(Array);
+    expect(tests.include).toContain("/apiOne");
+    expect(tests.include).toContain("/apiTwo");
+    expect(tests.exclude).toBeInstanceOf(Array);
+    expect(tests.exclude).toContain("/apiTwo/sub");
     expect(object).toHaveProperty("types", ["TEST_HARNESS", "MANUAL"]);
     expect(object).toHaveProperty("user_agent", "Some user agent string");
     expect(object).toHaveProperty("pending_tests", {
       apiOne: [
-        "/pending/test/one.html",
-        "/pending/test/two.html",
-        "/pending/test/three.html"
+        "/apiOne/test/one.html",
+        "/apiOne/test/two.html",
+        "/apiOne/test/three.html"
       ],
       apiTwo: [],
       apiThree: []
@@ -199,9 +185,9 @@ test("Turn multiple session instances into an array of plain javascript objects.
     expect(object).toHaveProperty("running_tests", {
       apiOne: [],
       apiTwo: [
-        "/running/test/one.html",
-        "/running/test/two.html",
-        "/running/test/three.html"
+        "/apiTwo/test/one.html",
+        "/apiTwo/test/two.html",
+        "/apiTwo/test/three.html"
       ],
       apiThree: []
     });
@@ -209,12 +195,16 @@ test("Turn multiple session instances into an array of plain javascript objects.
       apiOne: [],
       apiTwo: [],
       apiThree: [
-        "/completed/test/one.html",
-        "/completed/test/two.html",
-        "/completed/test/three.html"
+        "/apiThree/test/one.html",
+        "/apiThree/test/two.html",
+        "/apiThree/test/three.html"
       ]
     });
-    expect(object).toHaveProperty("test_timeout", 30000);
+    const timeouts = object.timeouts;
+    expect(timeouts).toBeInstanceOf(Object);
+    expect(timeouts).toHaveProperty("automatic");
+    expect(timeouts.automatic).toBe(60000);
+    expect(timeouts).toHaveProperty("manual");
     expect(object).toHaveProperty("status", "running");
     expect(object).toHaveProperty("browser");
     expect(object.browser).toHaveProperty("name");
