@@ -7,7 +7,6 @@ const WptReport = require("../../utils/wpt-report");
 const Serializer = require("../../utils/serializer");
 const Deserializer = require("../../utils/deserializer");
 const SessionManager = require("../session-manager");
-const Session = require("../../data/session");
 const ResultComparator = require("./result-comparator");
 const Database = require("../../database");
 const TestManager = require("../../testing/test-manager");
@@ -26,12 +25,12 @@ class ResultsManager {
    * @param {Database} config.database
    */
   initialize({
-    resultsDirectoryPath,
+    resultsDirectoryPath = ".",
     database,
     sessionManager,
     testManager,
     exportTemplateDirectoryPath
-  }) {
+  } = {}) {
     this._resultsDirectoryPath = path.resolve(resultsDirectoryPath);
     this._database = database;
     this._sessionManager = sessionManager;
@@ -51,30 +50,23 @@ class ResultsManager {
     const result = this.prepareResult(data);
     let { test } = result;
     const session = await this._sessionManager.readSession(token);
+
     if (!session) return;
     if (!session.testExists(test)) return;
+    if (session.isTestComplete(test)) return;
+    await this._testManager.completeTest({ test, session });
+    await this._database.createResult(token, result);
 
-    if (!session.isTestComplete(test)) {
-      await this._testManager.completeTest({ test, session });
-      await this._database.createResult(token, result);
-      const api = test.split("/").find(part => !!part);
-      if (session.isApiComplete(api)) {
-        await this.saveApiResults({ token, api });
-        await this.generateReport({ token, api });
-      }
-    }
-    const testFilesCompleted = session.getTestFilesCompleted();
+    const api = test.split("/").find(part => !!part);
+    if (!session.isApiComplete(api)) return;
+    await this.saveApiResults({ token, api });
+    await this.generateReport({ token, api });
+
     const testFilesCount = session.getTestFilesCount();
-    if (
-      !Object.keys(testFilesCount).some(
-        api =>
-          !testFilesCompleted[api] ||
-          testFilesCompleted[api] !== testFilesCount[api]
-      )
-    ) {
-      await this._sessionManager.completeSession(token);
-      await this.createInfoFile(session);
-    }
+    const apis = Object.keys(testFilesCount);
+    if (apis.some(api => !session.isApiComplete(api))) return;
+    await this._sessionManager.completeSession(token);
+    await this.createInfoFile(session);
   }
 
   async readResults(token, filterPath) {
@@ -98,33 +90,79 @@ class ResultsManager {
 
   async readFlattenedResults(token) {
     const results = await this.readResults(token);
-    return this._flattenResults(results);
+    const flattenedResults = {};
+    for (let api in results) {
+      if (!flattenedResults[api]) {
+        flattenedResults[api] = {
+          pass: 0,
+          fail: 0,
+          timeout: 0,
+          not_run: 0
+        };
+      }
+      for (let result of results[api]) {
+        if (!result.subtests) {
+          switch (result.status) {
+            case "OK":
+              flattenedResults[api].pass++;
+              break;
+            case "ERROR":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+          continue;
+        }
+        for (let test of result.subtests) {
+          switch (test.status) {
+            case "PASS":
+              flattenedResults[api].pass++;
+              break;
+            case "FAIL":
+              flattenedResults[api].fail++;
+              break;
+            case "TIMEOUT":
+              flattenedResults[api].timeout++;
+              break;
+            case "NOTRUN":
+              flattenedResults[api].not_run++;
+              break;
+          }
+        }
+      }
+    }
+    return flattenedResults;
   }
 
-  async readResultComparison({ tokens, refTokens }) {
-    await Promise.all(
-      refTokens
-        .filter(token => !token.includes("-"))
-        .map(async (token, index) => {
-          refTokens.splice(index, 1);
-          const hashTokens = await this._resultsManager.getTokensFromHash(
-            token
-          );
-          refTokens = refTokens.concat(hashTokens);
-        })
-    );
-    let comparison = await this._resultComparator.readComparison({
-      tokens,
-      refTokens
-    });
-    if (!comparison) {
-      comparison = await this._resultComparator.generateComparison({
-        tokens,
-        refTokens
-      });
-    }
-    return comparison;
-  }
+  // async readResultComparison({ tokens, refTokens }) {
+  //   await Promise.all(
+  //     refTokens
+  //       .filter(token => !token.includes("-"))
+  //       .map(async (token, index) => {
+  //         refTokens.splice(index, 1);
+  //         const hashTokens = await this._resultsManager.getTokensFromHash(
+  //           token
+  //         );
+  //         refTokens = refTokens.concat(hashTokens);
+  //       })
+  //   );
+  //   let comparison = await this._resultComparator.readComparison({
+  //     tokens,
+  //     refTokens
+  //   });
+  //   if (!comparison) {
+  //     comparison = await this._resultComparator.generateComparison({
+  //       tokens,
+  //       refTokens
+  //     });
+  //   }
+  //   return comparison;
+  // }
 
   async readResultApiHtmlReportPath({ tokens, refTokens, token, api }) {
     if (refTokens && refTokens.length > 0)
@@ -214,7 +252,7 @@ class ResultsManager {
       const session = await this._loadSessionFromInfoFile(infoFilePath);
       if (!session) continue;
       const browser = session.getBrowser();
-      print(`Loading ${browser.name} ${browser.version} results ...`);
+      console.log(`Loading ${browser.name} ${browser.version} results ...`);
 
       const results = await this.loadResult(resultDirectoryPath);
 
@@ -222,7 +260,6 @@ class ResultsManager {
       for (let result of results) {
         await database.createResult(token, result);
       }
-      println(" done.");
     }
   }
 
@@ -262,23 +299,23 @@ class ResultsManager {
     });
   }
 
-  async getTokensFromHash(hash) {
-    let tokens = [];
-    const tempPath = path.join(this._resultsDirectoryPath, hash);
-    if (await FileSystem.exists(tempPath)) {
-      const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/;
-      const apiNames = await FileSystem.readDirectory(tempPath);
-      const targetFolder = path.join(tempPath, apiNames[0]);
-      tokens = await FileSystem.readDirectory(targetFolder);
-      tokens = tokens.filter(name => {
-        return tokenUaRegex.exec(name);
-      });
-      for (let i = 0; i < tokens.length; i++) {
-        tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, "");
-      }
-    }
-    return tokens;
-  }
+  // async getTokensFromHash(hash) {
+  //   let tokens = [];
+  //   const tempPath = path.join(this._resultsDirectoryPath, hash);
+  //   if (await FileSystem.exists(tempPath)) {
+  //     const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/;
+  //     const apiNames = await FileSystem.readDirectory(tempPath);
+  //     const targetFolder = path.join(tempPath, apiNames[0]);
+  //     tokens = await FileSystem.readDirectory(targetFolder);
+  //     tokens = tokens.filter(name => {
+  //       return tokenUaRegex.exec(name);
+  //     });
+  //     for (let i = 0; i < tokens.length; i++) {
+  //       tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, "");
+  //     }
+  //   }
+  //   return tokens;
+  // }
 
   async _ensureResultsDirectoryExistence({ token, api, session }) {
     if (!(await FileSystem.exists(this._resultsDirectoryPath))) {
@@ -362,56 +399,6 @@ class ResultsManager {
     return result;
   }
 
-  _flattenResults(results) {
-    const flattenedResults = {};
-    for (let api in results) {
-      if (!flattenedResults[api]) {
-        flattenedResults[api] = {
-          pass: 0,
-          fail: 0,
-          timeout: 0,
-          not_run: 0
-        };
-      }
-      for (let result of results[api]) {
-        if (!result.subtests) {
-          switch (result.status) {
-            case "OK":
-              flattenedResults[api].pass++;
-              break;
-            case "ERROR":
-              flattenedResults[api].fail++;
-              break;
-            case "TIMEOUT":
-              flattenedResults[api].timeout++;
-              break;
-            case "NOTRUN":
-              flattenedResults[api].not_run++;
-              break;
-          }
-          continue;
-        }
-        for (let test of result.subtests) {
-          switch (test.status) {
-            case "PASS":
-              flattenedResults[api].pass++;
-              break;
-            case "FAIL":
-              flattenedResults[api].fail++;
-              break;
-            case "TIMEOUT":
-              flattenedResults[api].timeout++;
-              break;
-            case "NOTRUN":
-              flattenedResults[api].not_run++;
-              break;
-          }
-        }
-      }
-    }
-    return flattenedResults;
-  }
-
   async exportResultJson({ token, api }) {
     const filePath = await this.getJsonPath({ token, api });
     try {
@@ -444,7 +431,7 @@ class ResultsManager {
     for (let file of files) {
       const blob = await FileSystem.readFile(path.join(apiDirectory, file));
       if (!blob) continue;
-      if (new RegExp("\w\w\d\d.json").test(file)) continue
+      if (new RegExp("wwdd.json").test(file)) continue;
       zip.file(file, blob);
     }
 
