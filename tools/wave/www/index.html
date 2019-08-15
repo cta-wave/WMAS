@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/fontawesome.min.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/keycodes.js"></script>
+    <script src="lib/wave-service.js"></script>
   </head>
   <body>
     <section class="section">
@@ -200,8 +201,8 @@
             laptop). Just note down at least the first section (8 characters) of
             the session token you will be presented on the first screen and
             enter them on second screen at this location
-            <a href="http://web-platform.test:8050/results.html"
-              >http://web-platform.test:8050/results.html</a
+            <a href="http://web-platform.test:8050/overview.html"
+              >http://web-platform.test:8050/overview.html</a
             >.
           </p>
         </div>
@@ -391,6 +392,7 @@
       selectAllButton.setAttribute("data-uid", checkboxes.length + 8);
     });
 
+    // Resume
     var resumeToken = document.cookie
       .split(";")
       .find(
@@ -407,20 +409,11 @@
         var fragment = tokenText.value;
         if (!fragment) return;
 
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", function() {
-          var response = JSON.parse(xhr.response);
-          var token = response.token;
-          if (token) {
-            location.href = `/next.html?token=${token}&hostname=${
-              location.hostname
-            }`;
-          } else {
+        WaveService.findToken(fragment, function (token) {
+          location.href = "/next.html?token=" + token;
+        }, function () {
             unknownTokenError.style.display = "block";
-          }
         });
-        xhr.open("GET", `/api/sessions/${fragment}/token`, true);
-        xhr.send();
       });
 
     document.onkeydown = function(event) {

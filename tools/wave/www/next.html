@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html>
-  <head>
+  <body>
+    <div id="console" style="font-family: monospace; padding: 5px"></div>
     <script>
+      var screenConsole = document.getElementById("console");
+      var log = function() {
+        var text = "";
+        for (var i = 0; i < arguments.length; i++) {
+          text += arguments[i] + " ";
+        }
+        console.log(text);
+        text = text.replace(/ /gm, "&nbsp;");
+        text = text.replace(/\n/gm, "<br/>");
+        screenConsole.innerHTML += "<br/>" + text;
+      };
+
       var HOSTNAME = location.hostname;
       var PORT = location.port;
       var PROTOCOL = location.protocol.replace(/:/, "");
@@ -11,21 +24,76 @@
       if (TOKEN)
         document.cookie = `resume_token=${TOKEN}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
 
-      var uri = "/api/next";
-      var url = PROTOCOL + "://";
-      url += HOSTNAME + ":" + PORT;
-      url += uri + "?&token=" + TOKEN;
-      url += "&hostname=" + HOSTNAME;
-
-      var xhr = new XMLHttpRequest();
-      xhr.addEventListener("load", function() {
-        var url = xhr.response;
-        if (url) {
+      log("Loading next test ...");
+      log("Assuming to be on wave server ...");
+      readNextTestWave(
+        TOKEN,
+        function(url) {
+          log("Redirecting to " + url);
           location.href = url;
+        },
+        function() {
+          log("Connection failed.");
+          log("Assuming to be on wpt server ...");
+          readNextTestWpt(
+            TOKEN,
+            function(url) {
+              log("Redirecting to " + url);
+              location.href = url;
+            },
+            function() {
+              log("Failed to load next test.");
+            }
+          );
         }
-      });
-      xhr.open("GET", url, true);
-      xhr.send();
+      );
+
+      function readNextTestWave(token, onSuccess, onError) {
+        sendRequest(
+          "GET",
+          "/api/tests/" + token + "/next",
+          null,
+          null,
+          function(response) {
+            var jsonObject = JSON.parse(response);
+            onSuccess(jsonObject.next_test);
+          },
+          onError
+        );
+      }
+
+      function readNextTestWpt(token, onSuccess, onError) {
+        sendRequest(
+          "GET",
+          "/nodejs/api/tests/" + token + "/next",
+          null,
+          null,
+          function(response) {
+            var jsonObject = JSON.parse(response);
+            onSuccess(jsonObject.next_test);
+          },
+          onError
+        );
+      }
+
+      function sendRequest(method, uri, headers, data, onSuccess, onError) {
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", function() {
+          if (xhr.status === 200) {
+            onSuccess(xhr.response);
+          } else {
+            onError(xhr.statusText);
+          }
+        });
+        xhr.addEventListener("error", function() {
+          if (onError) onError();
+        });
+        xhr.open(method, uri, true);
+        for (var header in headers) {
+          xhr.setRequestHeader(header, headers[header]);
+        }
+        xhr.send(data);
+      }
     </script>
-  </head>
+  </body>
 </html>

@@ -25,7 +25,8 @@ class TestApiHandler extends ApiHandler {
     wptSslPort,
     resultsManager,
     sessionManager,
-    testManager
+    testManager,
+    hostname
   }) {
     super();
     this._wptPort = wptPort;
@@ -34,6 +35,7 @@ class TestApiHandler extends ApiHandler {
     this._resultsManager = resultsManager;
     this._sessionManager = sessionManager;
     this._testManager = testManager;
+    this._hostname = hostname;
   }
 
   async _readTests({ response }) {
@@ -80,15 +82,11 @@ class TestApiHandler extends ApiHandler {
     try {
       const requestUrl = this.parseUrl(request);
       const token = requestUrl[1];
-      const { hostname } = request;
+      const hostname = this._hostname;
 
       const session = await this._sessionManager.readSession(token);
 
       switch (session.getStatus()) {
-        case Session.PENDING: {
-          response.send();
-          return;
-        }
         case Session.PAUSED: {
           const url = this._generateWaveUrl({
             hostname,
@@ -102,7 +100,16 @@ class TestApiHandler extends ApiHandler {
         case Session.ABORTED: {
           const url = this._generateWaveUrl({
             hostname,
-            uri: "/complete.html",
+            uri: "/finish.html",
+            token
+          });
+          this.sendJson({ next_test: url }, response);
+          return;
+        }
+        case Session.PENDING: {
+          const url = this._generateWaveUrl({
+            hostname,
+            uri: "/newsession.html",
             token
           });
           this.sendJson({ next_test: url }, response);

@@ -2,25 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Complete - Web Platform Test Runner</title>
+    <title>Session Finished - Web Platform Test Runner</title>
     <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/qrcode.js"></script>
     <script src="lib/keycodes.js"></script>
+    <script src="lib/wave-service.js"></script>
   </head>
   <body>
     <section class="section">
       <div class="container site-header">
         <img src="res/wavelogo_2016.jpg" alt="WAVE Logo" class="site-logo" />
-        <h1 class="title is-spaced">Web Platform Test Runner</h1>
-        <h2 class="subtitle">Result Page</h2>
+        <h1 class="title is-spaced" id="title"></h1>
       </div>
 
       <div class="container">
         <div id="content">
           <div id="qr-code"></div>
+          <div id="button-wrapper">
+            <button
+              id="results-button"
+              class="button is-success is-large tabbable"
+            >
+              View Result Page
+            </button>
+          </div>
           <div id="details-wrapper">
+            <h3 class="title is-5 is-spaced">Details</h3>
             <div class="detail">
               <div>Token:</div>
               <div id="token"></div>
@@ -30,29 +39,25 @@
               <div id="user-agent"></div>
             </div>
             <div class="detail">
-              <div>Test Path:</div>
-              <div id="test-path"></div>
-            </div>
-            <div class="detail">
               <div>Test Types:</div>
               <div id="test-types"></div>
             </div>
             <div class="detail">
-              <div>Total Tests:</div>
+              <div>Total Test Files:</div>
               <div id="total-tests"></div>
             </div>
             <div class="detail">
-              <div>Test Timeout:</div>
+              <div>Reference Tokens:</div>
+              <div id="reference-tokens"></div>
+            </div>
+            <div class="detail">
+              <div>Test Timeouts:</div>
               <div id="test-timeout"></div>
             </div>
-          </div>
-          <div id="button-wrapper">
-            <button
-              id="results-button"
-              class="button is-success is-large tabbable"
-            >
-              View Result Page
-            </button>
+            <div class="detail">
+              <div>Test Paths:</div>
+              <div id="test-path"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -67,41 +72,44 @@
       var TOKEN = match ? match[1] : null;
       var selectedTabbable = -1;
 
-      function sendRequest(method, uri, data, callback, headers) {
-        var url = PROTOCOL + "://";
-        url += HOSTNAME + ":" + PORT;
-        url += uri + "?" + QUERY;
-        url += "&hostname=" + HOSTNAME;
-
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", function() {
-          callback(xhr.response);
-        });
-        xhr.open(method, url, true);
-        if (headers) {
-          for (var header in headers) {
-            xhr.setRequestHeader(header, headers[header]);
+      function displaySessionConfiguration(configuration) {
+        var userAgent = document.getElementById("user-agent");
+        userAgent.innerText = configuration.userAgent;
+        var testPath = document.getElementById("test-path");
+        for (var path of configuration.tests.include) {
+          testPath.innerText += path + "\n";
+        }
+        var testTypes = document.getElementById("test-types");
+        testTypes.innerText = configuration.types.join(", ");
+        var testTimeout = document.getElementById("test-timeout");
+        for (var timeout in configuration.timeouts) {
+          testTimeout.innerText +=
+            timeout + ": " + configuration.timeouts[timeout] / 1000 + "s\n";
+        }
+        var referenceTokens = document.getElementById("reference-tokens");
+        if (configuration.referenceTokens.length === 0) {
+          referenceTokens.innerText = "none";
+        } else {
+          for (var token of configuration.referenceTokens) {
+            referenceTokens.innerText += token + "\n";
           }
         }
-        xhr.setRequestHeader("Token", TOKEN);
-        xhr.send(data);
       }
 
-      function displaySessionDetails(details) {
-        const userAgent = document.getElementById("user-agent");
-        userAgent.innerText = details.user_agent;
-        const testPath = document.getElementById("test-path");
-        testPath.innerText = details.path;
-        const testTypes = document.getElementById("test-types");
-        testTypes.innerText = details.types.join(", ");
-        const totalTests = document.getElementById("total-tests");
-        const { test_files_count } = details;
-        totalTests.innerText = Object.keys(test_files_count).reduce(
-          (sum, api) => (sum += test_files_count[api]),
-          0
-        );
-        const testTimeout = document.getElementById("test-timeout");
-        testTimeout.innerText = details.test_timeout;
+      function displaySessionStatus(status) {
+        var title = document.getElementById("title");
+        if (status.status === "aborted") {
+          title.innerText = "Session Aborted";
+        } else {
+          title.innerText = "Session Complete";
+        }
+
+        var testTypes = document.getElementById("total-tests");
+        var count = 0;
+        for (var api in status.testFilesCount) {
+          count += status.testFilesCount[api];
+        }
+        testTypes.innerText = count;
       }
 
       function startTests() {
@@ -111,7 +119,7 @@
       }
 
       var resultsUrl =
-        "http://" + location.host + "/results.html" + location.search;
+        "http://" + location.host + "/overview.html" + location.search;
       new QRCode(document.getElementById("qr-code"), resultsUrl);
 
       var resultsButton = document.getElementById("results-button");
@@ -193,9 +201,8 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/api/sessions/" + token, null, function(response) {
-        displaySessionDetails(JSON.parse(response));
-      });
+      WaveService.readSession(token, displaySessionConfiguration);
+      WaveService.readSessionStatus(token, displaySessionStatus);
     </script>
   </body>
 </html>

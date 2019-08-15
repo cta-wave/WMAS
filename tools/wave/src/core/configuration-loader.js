@@ -35,16 +35,22 @@ class ConfigurationLoader {
     if (testTimeout) {
       configuration.testTimeout = parseInt(testTimeout);
     }
-    const wptPort = configurationLoaded.ports.http[0];
 
+    const wptPort = configurationLoaded.ports.http[0];
     if (wptPort) {
       configuration.wptPort = parseInt(wptPort);
     }
-    const wptSslPort = configurationLoaded.ports.https[0];
 
+    const wptSslPort = configurationLoaded.ports.https[0];
     if (wptSslPort) {
       configuration.wptSslPort = wptSslPort;
     }
+
+    const hostname = configurationLoaded.browser_host;
+    if (hostname) {
+      configuration.hostname = hostname;
+    }
+
     configuration.testsDirectoryPath = path.join(
       applicationDirectoryPath,
       "../.."

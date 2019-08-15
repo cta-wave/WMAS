@@ -67,6 +67,8 @@ class SessionApiHandler extends ApiHandler {
       delete sessionObject.completed_tests;
       delete sessionObject.test_files_count;
       delete sessionObject.test_files_completed;
+      delete sessionObject.date_started;
+      delete sessionObject.date_finished;
       delete sessionObject.status;
       this.sendJson(sessionObject, response);
     } catch (error) {
@@ -93,8 +95,6 @@ class SessionApiHandler extends ApiHandler {
       delete sessionObject.user_agent;
       delete sessionObject.timeouts;
       delete sessionObject.browser;
-      delete sessionObject.date_started;
-      delete sessionObject.date_finished;
       delete sessionObject.is_public;
       delete sessionObject.reference_tokens;
       delete sessionObject.webhook_urls;

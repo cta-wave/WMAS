@@ -31,7 +31,8 @@ class WaveServer {
       dbCompactionInterval,
       testTimeout,
       wptPort,
-      wptSslPort
+      wptSslPort,
+      hostname
     } = config;
     println(" done.");
     const includeListFilePath = path.join(
@@ -94,7 +95,8 @@ class WaveServer {
       wavePort: port,
       resultsManager,
       sessionManager,
-      testManager
+      testManager,
+      hostname
     });
     httpServer.registerRoutes(testApiHandler.getRoutes());
 

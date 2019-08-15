@@ -62,7 +62,7 @@ class SessionManager {
       referenceTokens,
       types
     });
-    const { browser } = UserAgentParser.parse(this._userAgent);
+    const { browser } = UserAgentParser.parse(userAgent);
 
     const session = new Session(token, {
       userAgent,

@@ -17,7 +17,7 @@ class HttpServer {
   constructor() {
     this._app = express();
     this._app.use(cookieParser());
-    this._app.use(compression());
+    // this._app.use(compression());
     this._app.use(
       bodyParser.urlencoded({
         extended: true,
