@@ -250,6 +250,64 @@ var WaveService = {
       onError
     );
   },
+  readResultComparison: function(tokens, onSuccess, onError) {
+    var comparison = {};
+    var fetchComplete = function(results) {
+      comparison.total = {};
+      for (var result of results) {
+        var token = result.token;
+        comparison[token] = {};
+        for (var api in result) {
+          if (api === "token") continue;
+          comparison[token][api] = result[api].pass;
+          if (!comparison.total[api]) {
+            var total = 0;
+            for (var status in result[api]) {
+              total = total + result[api][status];
+            }
+            comparison.total[api] = total;
+          }
+        }
+      }
+      onSuccess(comparison);
+    };
+    var requestsLeft = tokens.length;
+    if (requestsLeft === 0) onSuccess([]);
+    var results = [];
+    for (var token of tokens) {
+      (function(token) {
+        WaveService.readResultsCompact(
+          token,
+          function(result) {
+            requestsLeft--;
+            result.token = token;
+            results.push(result);
+            if (requestsLeft === 0) fetchComplete(results);
+          },
+          function(responseStatus) {
+            if (responseStatus === 404) requestsLeft--;
+            if (status !== 404 && onError) onError();
+            if (requestsLeft === 0) fetchComplete(results);
+          }
+        );
+      })(token);
+    }
+  },
+  downloadApiResult: function(token, api) {
+    location.href = "/api/results/" + token + "/" + api + "/json";
+  },
+  downloadAllApiResults: function(token, api) {
+    location.href = "/api/results/" + token + "/json";
+  },
+  downloadReport: function(token, api) {
+    location.href = "/api/results/" + token + "/" + api + "/report";
+  },
+  viewReport: function(token, api) {
+    location.href = "/results/" + token + "/" + api + "/all.html";
+  },
+  downloadResultsOverview: function(token) {
+    location.href = "/api/results/" + token + "/overview";
+  },
 
   // UTILITY
   addRecentSession: function(token) {

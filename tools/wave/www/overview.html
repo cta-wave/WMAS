@@ -206,9 +206,9 @@
           if (!comparison) return false;
           if (comparison.length <= 1) return false;
           const comparingSessions = comparison.map(token => sessions[token]);
-          const referenceTokens = comparingSessions[0].reference_tokens;
+          const referenceTokens = comparingSessions[0].referenceTokens;
           for (let comparingSession of comparingSessions) {
-            const comparingReferenceTokens = comparingSession.reference_tokens;
+            const comparingReferenceTokens = comparingSession.referenceTokens;
             if (referenceTokens.length !== comparingReferenceTokens.length)
               return false;
             for (let token of comparingReferenceTokens) {

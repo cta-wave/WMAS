@@ -145,22 +145,18 @@
         downloadApiResultJson(api) {
           const { results } = resultUi.state;
           if (!results[api].isDone) return;
-          WaveService.downloadJson(api);
+          WaveService.downloadApiResult(token, api);
         },
         openHtmlReport(api) {
           const { results } = resultUi.state;
           if (!results[api].isDone) return;
-          WaveService.openHtmlReport(api);
+          WaveService.viewReport(token, api);
         },
         downloadFinishedApiJsons() {
-          const { results } = resultUi.state;
-          const finishedApis = Object.keys(results).filter(
-            api => results[api].isDone
-          );
-          WaveService.downloadJsons(finishedApis);
+          WaveService.downloadAllApiResults(token);
         },
         downloadHtmlZip() {
-          WaveService.downloadHtmlZip();
+          WaveService.downloadResultsOverview(token);
         },
         render() {
           const resultView = UI.createElement({
@@ -668,13 +664,13 @@
             } = results[api];
             return UI.createElement({
               element: "tr",
-              style: `background-image: linear-gradient(to right, hsl(0, 0%, 86%) ${utils.percent(
-                testFilesCompleted,
-                testFilesCount
-              )}%, white ${utils.percent(
-                testFilesCompleted,
-                testFilesCount
-              )}%); background-attachment: fixed;`,
+              // style: `background-image: linear-gradient(to right, hsl(0, 0%, 86%) ${utils.percent(
+              //   testFilesCompleted,
+              //   testFilesCount
+              // )}%, white ${utils.percent(
+              //   testFilesCompleted,
+              //   testFilesCount
+              // )}%); background-attachment: fixed;`,
               children: [
                 { element: "td", text: api },
                 {
@@ -747,13 +743,13 @@
 
           const footer = UI.createElement({
             element: "tfoot",
-            style: `background-image: linear-gradient(to right, hsl(0, 0%, 86%) ${utils.percent(
-              testFilesCompleted,
-              testFilesCount
-            )}%, white ${utils.percent(
-              testFilesCompleted,
-              testFilesCount
-            )}%); background-attachment: fixed;`,
+            // style: `background-image: linear-gradient(to right, hsl(0, 0%, 86%) ${utils.percent(
+            //   testFilesCompleted,
+            //   testFilesCount
+            // )}%, white ${utils.percent(
+            //   testFilesCompleted,
+            //   testFilesCount
+            // )}%); background-attachment: fixed;`,
             children: [
               {
                 element: "tr",

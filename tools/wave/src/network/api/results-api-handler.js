@@ -58,10 +58,8 @@ class ResultsApiHandler extends ApiHandler {
 
   async _readResultComparison({ request, response }) {
     try {
-      const { reftokens } = this.parseQueryParameters(request);
-      const refTokens = reftokens ? reftokens.split(",") : [];
-      const url = this.parseUrl(request);
-      const tokens = url[1].split(",");
+      let { refTokens, tokens } = this.parseQueryParameters(request);
+      refTokens = refTokens ? refTokens.split(",") : [];
       const comparison = await this._resultsManager.readResultComparison({
         tokens,
         refTokens
@@ -189,16 +187,16 @@ class ResultsApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
-        if (request.query.result) {
-          return this._createResult({ request, response });
+        switch (url[1]) {
+          // case "compare":
+          //   return this._readResultComparison({ request, response });
+          default:
+            return this._readResult({ request, response });
         }
-        return this._readResult({ request, response });
       case 3:
         switch (url[2]) {
           case "overview":
             return this._downloadResultHtml({ request, response });
-          case "compare":
-            return this._readResultComparison({ request, response });
           case "compact":
             return this._readResultsCompact({ request, response });
           case "json":

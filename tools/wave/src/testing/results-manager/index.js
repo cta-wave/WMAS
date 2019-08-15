@@ -140,17 +140,17 @@ class ResultsManager {
   }
 
   // async readResultComparison({ tokens, refTokens }) {
-  //   await Promise.all(
-  //     refTokens
-  //       .filter(token => !token.includes("-"))
-  //       .map(async (token, index) => {
-  //         refTokens.splice(index, 1);
-  //         const hashTokens = await this._resultsManager.getTokensFromHash(
-  //           token
-  //         );
-  //         refTokens = refTokens.concat(hashTokens);
-  //       })
-  //   );
+  //   // await Promise.all(
+  //   //   refTokens
+  //   //     .filter(token => !token.includes("-"))
+  //   //     .map(async (token, index) => {
+  //   //       refTokens.splice(index, 1);
+  //   //       const hashTokens = await this._resultsManager.getTokensFromHash(
+  //   //         token
+  //   //       );
+  //   //       refTokens = refTokens.concat(hashTokens);
+  //   //     })
+  //   // );
   //   let comparison = await this._resultComparator.readComparison({
   //     tokens,
   //     refTokens
@@ -162,6 +162,24 @@ class ResultsManager {
   //     });
   //   }
   //   return comparison;
+  // }
+
+  // async getTokensFromHash(hash) {
+  //   let tokens = [];
+  //   const tempPath = path.join(this._resultsDirectoryPath, hash);
+  //   if (await FileSystem.exists(tempPath)) {
+  //     const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/;
+  //     const apiNames = await FileSystem.readDirectory(tempPath);
+  //     const targetFolder = path.join(tempPath, apiNames[0]);
+  //     tokens = await FileSystem.readDirectory(targetFolder);
+  //     tokens = tokens.filter(name => {
+  //       return tokenUaRegex.exec(name);
+  //     });
+  //     for (let i = 0; i < tokens.length; i++) {
+  //       tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, "");
+  //     }
+  //   }
+  //   return tokens;
   // }
 
   async readResultApiHtmlReportPath({ tokens, refTokens, token, api }) {
@@ -298,24 +316,6 @@ class ResultsManager {
       specName: api
     });
   }
-
-  // async getTokensFromHash(hash) {
-  //   let tokens = [];
-  //   const tempPath = path.join(this._resultsDirectoryPath, hash);
-  //   if (await FileSystem.exists(tempPath)) {
-  //     const tokenUaRegex = /(.+)[-]([a-zA-Z]{2}\d+).json/;
-  //     const apiNames = await FileSystem.readDirectory(tempPath);
-  //     const targetFolder = path.join(tempPath, apiNames[0]);
-  //     tokens = await FileSystem.readDirectory(targetFolder);
-  //     tokens = tokens.filter(name => {
-  //       return tokenUaRegex.exec(name);
-  //     });
-  //     for (let i = 0; i < tokens.length; i++) {
-  //       tokens[i] = tokens[i].replace(/(-[a-zA-Z]{2}\d+).json/, "");
-  //     }
-  //   }
-  //   return tokens;
-  // }
 
   async _ensureResultsDirectoryExistence({ token, api, session }) {
     if (!(await FileSystem.exists(this._resultsDirectoryPath))) {

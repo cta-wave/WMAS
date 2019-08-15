@@ -46,6 +46,7 @@ class ApiHandler {
       tokens,
       reftoken,
       reftokens,
+      refTokens: reftokens,
       resume,
       redirect,
       data,

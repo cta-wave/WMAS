@@ -87,21 +87,21 @@
             .filter(token => allTokens.indexOf(token) === -1)
             .forEach(token => allTokens.push(token));
 
-          WaveService.getSessionDetails(allTokens, sessionDetails => {
+          WaveService.readMultipleSessions(allTokens, configurations => {
             const sessions = {};
-            sessionDetails.forEach(
+            configurations.forEach(
               details => (sessions[details.token] = details)
             );
             comparisonUi.state.sessions = sessions;
 
-            WaveService.getFilteredTestResults(tokens, refTokens, results => {
+            WaveService.readResultComparison(tokens, results => {
               comparisonUi.state.results = results;
               comparisonUi.renderApiResults();
             });
 
             const sessionsReferenceTokens = [];
-            sessionDetails.forEach(({ reference_tokens }) =>
-              reference_tokens
+            configurations.forEach(({ referenceTokens }) =>
+            referenceTokens
                 .filter(token => refTokens.indexOf(token) === -1)
                 .filter(token => sessionsReferenceTokens.indexOf(token) === -1)
                 .forEach(token => sessionsReferenceTokens.push(token))
@@ -111,11 +111,11 @@
               comparisonUi.state.refTokens.push(token)
             );
 
-            WaveService.getSessionDetails(
+            WaveService.readMultipleSessions(
               sessionsReferenceTokens,
-              sessionDetails => {
+              configurations => {
                 const { sessions } = comparisonUi.state;
-                sessionDetails.forEach(
+                configurations.forEach(
                   details => (sessions[details.token] = details)
                 );
                 comparisonUi.renderDetails();
@@ -391,13 +391,13 @@
                             "text-align: center; font-weight: bold;" +
                             `color: ${getColor(
                               utils.percent(
-                                results[token][api].passed,
-                                results[token][api].total
+                                results[token][api],
+                                results["total"][api]
                               )
                             )}`,
                           text: `${utils.percent(
-                            results[token][api].passed,
-                            results[token][api].total
+                            results[token][api],
+                            results["total"][api]
                           )}%`
                         }
                       : {
