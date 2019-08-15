@@ -77,7 +77,6 @@
         },
         refreshReferenceSessions(callback = () => {}) {
           const { configuration } = resultUi.state;
-          console.log(configuration);
           if (!configuration) return;
           const { referenceTokens } = configuration;
           if (!referenceTokens) return;
@@ -88,7 +87,7 @@
           });
         },
         refreshSessionResults(callback = () => {}) {
-          WaveService.readResults(token, results => {
+          WaveService.readResultsCompact(token, results => {
             const { status } = resultUi.state;
             Object.keys(status.testFilesCount).forEach(api =>
               !results[api] ? (results[api] = {}) : null

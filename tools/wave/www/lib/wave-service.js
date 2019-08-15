@@ -75,7 +75,7 @@ var WaveService = {
           if (requestsLeft === 0) onSuccess(configurations);
         },
         function(status) {
-          if (status === 404) requestsLeft --;
+          if (status === 404) requestsLeft--;
           if (status !== 404 && onError) onError();
           if (requestsLeft === 0) onSuccess(configurations);
         }
@@ -115,7 +115,7 @@ var WaveService = {
           if (requestsLeft === 0) onSuccess(statuses);
         },
         function(responseStatus) {
-          if (responseStatus === 404) requestsLeft --;
+          if (responseStatus === 404) requestsLeft--;
           if (status !== 404 && onError) onError();
           if (requestsLeft === 0) onSuccess(statuses);
         }
@@ -233,6 +233,19 @@ var WaveService = {
       null,
       function(response) {
         onSuccess(JSON.parse(response));
+      },
+      onError
+    );
+  },
+  readResultsCompact: function(token, onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/results/" + token + "/compact",
+      null,
+      null,
+      function(response) {
+        var jsonObject = JSON.parse(response);
+        onSuccess(jsonObject);
       },
       onError
     );
