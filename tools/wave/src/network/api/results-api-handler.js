@@ -216,6 +216,7 @@ class ResultsApiHandler extends ApiHandler {
       const token = url[1];
       const blob = await this._resultsManager.exportResultsOverview(token);
       const fileName = token.split("-")[0] + "_results_html.zip";
+      if (!blob) return response.status(404).send();
       this.sendZip({ blob, response, fileName });
     } catch (error) {
       console.error(

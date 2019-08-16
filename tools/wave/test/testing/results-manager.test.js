@@ -295,22 +295,8 @@ test("readFlattenedResults() returns the count of passed, failed, timed out and 
   expect(flattenedResults.apiTwo).toHaveProperty("not_run");
 });
 
-test("readResultApiHtmlReportPath() returns the path to the wpt report of a session for a specific api", async () => {
-  const resultsManager = new ResultsManager();
-  resultsManager.initialize();
-
-  const path = await resultsManager.readResultApiHtmlReportPath({
-    token: "token_abc",
-    api: "apiOne"
-  });
-
-  const pathParts = path.split("/");
-  expect(pathParts[0]).toBe("token_abc");
-  expect(pathParts[1]).toBe("apiOne");
-  expect(pathParts[2]).toBe("all.html");
-});
-
-test("readResultApiHtmlReportPath() returns the path to the wpt report of multiple sessions for a specific api", async () => {
+test("deleteResults() removes the results directory of a specific session", async () => {
+  let isRemoveDirectoryCalled = false;
   const resultsManager = new ResultsManager();
   resultsManager.initialize({
     sessionManager: {
@@ -318,17 +304,19 @@ test("readResultApiHtmlReportPath() returns the path to the wpt report of multip
     }
   });
 
-  const path = await resultsManager.readResultApiHtmlReportPath({
-    tokens: ["token_abc", "token_def", "token_ghi"],
-    api: "apiOne"
-  });
+  resultsManager.readResults = async () => ({ apiOne: "all_results" });
+  resultsManager._ensureResultsDirectoryExistence = async () => {};
 
-  const pathParts = path.split("/");
-  expect(pathParts[0]).toBe(
-    "comparison-token_abc-token_def-token_ghi-48888189"
-  );
-  expect(pathParts[1]).toBe("apiOne");
-  expect(pathParts[2]).toBe("all.html");
+  FileSystem.removeDirectory = async resultDirectoryPath => {
+    isRemoveDirectoryCalled = true;
+    const pathParts = resultDirectoryPath.split("/");
+    expect(pathParts.pop()).toBe("token_abc");
+  };
+
+  FileSystem.exists = async () => true;
+
+  await resultsManager.deleteResults("token_abc");
+  expect(isRemoveDirectoryCalled).toBe(true);
 });
 
 test("getJsonPath() returns the path to an apis result of a specific session", async () => {
@@ -371,30 +359,6 @@ test("saveApiResults() persists results of a specific api as json file in the se
 
   await resultsManager.saveApiResults({ token: "token_abc", api: "apiOne" });
   expect(isWriteFileCalled).toBe(true);
-});
-
-test("deleteResults() removes the results directory of a specific session", async () => {
-  let isRemoveDirectoryCalled = false;
-  const resultsManager = new ResultsManager();
-  resultsManager.initialize({
-    sessionManager: {
-      readSession: async () => ({ getUserAgent: () => "some user agent" })
-    }
-  });
-
-  resultsManager.readResults = async () => ({ apiOne: "all_results" });
-  resultsManager._ensureResultsDirectoryExistence = async () => {};
-
-  FileSystem.removeDirectory = async resultDirectoryPath => {
-    isRemoveDirectoryCalled = true;
-    const pathParts = resultDirectoryPath.split("/");
-    expect(pathParts.pop()).toBe("token_abc");
-  };
-
-  FileSystem.exists = async () => true;
-
-  await resultsManager.deleteResults("token_abc");
-  expect(isRemoveDirectoryCalled).toBe(true);
 });
 
 test("loadResults() performs lookup in database for all results in results directory and loads them if they are not present", async () => {
@@ -502,6 +466,43 @@ test("generateReport() triggers wpt report tool to generate a report", async () 
   expect(isGenerateReportCalled).toBe(true);
 });
 
+test("generateMultiReport() triggers wpt report tool to generate a report", async () => {
+  let isGenerateReportCalled = false;
+  const resultsManager = new ResultsManager();
+  resultsManager.initialize({
+    sessionManager: {
+      readSession: async () => ({ getUserAgent: () => "some user agent" })
+    }
+  });
+
+  FileSystem.exists = async path =>
+    path.split("/").pop() === "apiOne" ? false : true;
+  FileSystem.makeDirectory = async () => {};
+
+  WptReport.generateMultiReport = async ({
+    outputHtmlDirectoryPath,
+    specName,
+    resultJsonFiles
+  }) => {
+    isGenerateReportCalled = true;
+    expect(typeof outputHtmlDirectoryPath).toBe("string");
+    expect(specName).toBe("apiOne");
+    expect(resultJsonFiles).toBeInstanceOf(Array);
+    for (let file of resultJsonFiles) {
+      expect(file).toBeInstanceOf(Object);
+      expect(file).toHaveProperty("token");
+      expect(file).toHaveProperty("path");
+    }
+  };
+
+  await resultsManager.generateMultiReport({
+    tokens: ["token_abc", "token_def"],
+    api: "apiOne"
+  });
+
+  expect(isGenerateReportCalled).toBe(true);
+});
+
 test("createInfoFile() persists session config and status as a json file in the session result directory", async () => {
   let isWriteFileCalled = false;
   const session = createMockingSession();
@@ -525,7 +526,7 @@ test("createInfoFile() persists session config and status as a json file in the 
   expect(isWriteFileCalled).toBe(true);
 });
 
-test("exportResultJson() reads a sessions api results from the results directory and returns it as binary blob", async () => {
+test("exportResultsApiJson() reads a sessions api results from the results directory and returns it as binary blob", async () => {
   let isReadFileCalled = false;
   const resultsManager = new ResultsManager();
   resultsManager.initialize({
@@ -543,7 +544,7 @@ test("exportResultJson() reads a sessions api results from the results directory
     return "binary";
   };
 
-  const blob = await resultsManager.exportResultJson({
+  const blob = await resultsManager.exportResultsApiJson({
     token: "token_abc",
     api: "apiOne"
   });
@@ -552,25 +553,25 @@ test("exportResultJson() reads a sessions api results from the results directory
   expect(isReadFileCalled).toBe(true);
 });
 
-test("exportResultsJson() reads all api results of session, creates zip file and returns its binary blob", async () => {
+test("exportResultsAllApiJsons() reads all api results of session, creates zip file and returns its binary blob", async () => {
   let isExportResultsCalled = false;
   const resultsManager = new ResultsManager();
   resultsManager.initialize();
 
   FileSystem.readDirectory = async () => ["apiOne", "apiTwo"];
 
-  resultsManager.exportResultJson = async () => {
+  resultsManager.exportResultsApiJson = async () => {
     isExportResultsCalled = true;
     return "data";
-  }
+  };
 
-  const blob = await resultsManager.exportResultsJson("token_abc");
+  const blob = await resultsManager.exportResultsAllApiJsons("token_abc");
 
   expect(blob).toBeInstanceOf(Buffer);
   expect(isExportResultsCalled).toBe(true);
 });
 
-test("exportResultsWptHtml() reads all files generated by wpt report, creates zip file and returns its binary blob", async () => {
+test("exportResultsWptReport() reads all files generated by wpt report, creates zip file and returns its binary blob", async () => {
   let isReadDirectoryCalled = false;
   let isReadFileCalled = false;
   const resultsManager = new ResultsManager();
@@ -582,16 +583,16 @@ test("exportResultsWptHtml() reads all files generated by wpt report, creates zi
     expect(pathParts.pop()).toBe("token_abc");
     isReadDirectoryCalled = true;
     return ["file1", "file2"];
-  }
+  };
 
   FileSystem.readFile = async path => {
     const pathParts = path.split("/");
     expect(["file1", "file2"]).toContain(pathParts.pop());
     isReadFileCalled = true;
     return "data";
-  }
+  };
 
-  const blob = await resultsManager.exportResultsWptHtml({
+  const blob = await resultsManager.exportResultsWptReport({
     token: "token_abc",
     api: "apiOne"
   });
@@ -601,129 +602,81 @@ test("exportResultsWptHtml() reads all files generated by wpt report, creates zi
   expect(isReadFileCalled).toBe(true);
 });
 
-// test("Create result that doesn't finish neither api nor session.", async () => {
-//   let sessionUpdated = false;
-//   const session = createMockingSession({
-//     tests: {
-//       apiOne: ["apiOne/tests/one.html", "apiOne/tests/two.html"]
-//     },
-//     runningTests: {
-//       apiOne: ["apiOne/tests/one.html", "apiOne/tests/two.html"]
-//     },
-//     completedTests: {}
-//   });
-//   console.log(session.getTestFilesCount())
-//   const {
-//     mockSessionManager,
-//     mockTestManager,
-//     mockDatabase
-//   } = createMockingDependencies({
-//     sessionManager: {
-//       readSession: async token => {
-//         expect(typeof token).toEqual("string");
-//         return session;
-//       },
-//       updateSession: async session => {
-//         expect(session).toBeInstanceOf(Session);
-//         sessionUpdated = true;
-//       }
-//     }
-//   });
+test("readResultsWptReportUri() returns the path to the wpt report of a session for a specific api", async () => {
+  const resultsManager = new ResultsManager();
+  resultsManager.initialize();
 
-//   const resultsDirectoryPath = "./test/testing/results-manager/results";
-//   const resultsManager = new ResultsManager();
-//   resultsManager.initialize({
-//     resultsDirectoryPath,
-//     database: mockDatabase,
-//     sessionManager: mockSessionManager,
-//     testManager: mockTestManager
-//     // exportTemplateDirectoryPath
-//   });
+  FileSystem.exists = () => true;
 
-//   const token = session.getToken();
-//   const data = createMockingResultData("apiOne/tests/one.html");
+  const path = await resultsManager.readResultsWptReportUri({
+    token: "token_abc",
+    api: "apiOne"
+  });
 
-//   await resultsManager.createResult({ token, data });
-//   expect(sessionUpdated).toEqual(true);
+  const pathParts = path.split("/").filter(part => !!part);
+  expect(pathParts[0]).toBe("results");
+  expect(pathParts[1]).toBe("token_abc");
+  expect(pathParts[2]).toBe("apiOne");
+  expect(pathParts[3]).toBe("all.html");
+});
 
-//   // Clean up
-//   // const directories = await FileSystem.readDirectory(resultsDirectoryPath);
-//   // for (let directory of directories) {
-//   //   await FileSystem.removeDirectory(directory);
-//   // }
-// });
+test("exportResultsWptMultiReport() reads all files generated by wpt report, creates zip file and returns its binary blob", async () => {
+  let isGenerateMultiReportCalled = false;
+  let isReadDirectoryCalled = false;
+  let isReadFileCalled = false;
+  const resultsManager = new ResultsManager();
+  resultsManager.initialize();
 
-// test("Create result that finishes api but not session.", () => {});
-// test("Create result that finishes api and session.", () => {});
+  resultsManager.generateMultiReport = async () => {
+    isGenerateMultiReportCalled = true;
+  }
 
-// function createMockingResultData(testPath) {
-//   if (!testPath) testPath = "apiOne/tests/one.html";
-//   return {
-//     test: testPath,
-//     tests: [
-//       {
-//         name: "This is the description of a sample test results data.",
-//         status: 0,
-//         message: null,
-//         stack: null
-//       }
-//     ],
-//     status: 0,
-//     message: null,
-//     stack: null
-//   };
-// }
+  FileSystem.readDirectory = async path => {
+    const pathParts = path.split("/");
+    expect(pathParts.pop()).toBe("apiOne");
+    isReadDirectoryCalled = true;
+    return ["file1", "file2"];
+  };
 
-// function createMockingDependencies({
-//   sessionManager = {
-//     readSession: async token => {
-//       expect(typeof token).toEqual("string");
-//     },
-//     updateSession: async session => {
-//       expect(session).toBeInstanceOf(Session);
-//     }
-//   },
-//   testManager = {
-//     completeTest: ({ test, session }) => {
-//       expect(typeof test).toEqual("string");
-//       expect(session).toBeInstanceOf(Session);
-//       const testManager = new TestManager();
-//       const runningTests = session.getRunningTests();
-//       const completedTests = session.getCompletedTests();
-//       testManager.removeTestFromList(runningTests, test);
-//       testManager.addTestToList(completedTests, test);
-//     }
-//   },
-//   database = {
-//     results: [],
-//     createSession: async session => {
-//       expect(session).toBeInstanceOf(Session);
-//       return null;
-//     },
-//     readSession: async token => {
-//       expect(typeof token).toEqual("string");
-//       return null;
-//     },
-//     readSessions: async () => [],
-//     readPublicSessions: async () => [],
-//     updateSession: async session => expect(session).toBeInstanceOf(Session),
-//     deleteSession: async token => expect(typeof token).toBe("string"),
-//     createResult: async (token, result) => {
-//       expect(typeof token).toEqual("string");
-//       expect(result).toBeInstanceOf(Object);
-//       database.results.push(result);
-//     },
-//     readResults: async token => {
-//       expect(typeof token).toEqual("string");
-//       return database.results;
-//     }
-//   }
-// } = {}) {
-//   const mockSessionManager = sessionManager;
-//   const mockTestManager = testManager;
-//   const mockDatabase = database;
-//   return { mockSessionManager, mockTestManager, mockDatabase };
-// }
+  FileSystem.readFile = async path => {
+    const pathParts = path.split("/");
+    expect(["file1", "file2"]).toContain(pathParts.pop());
+    isReadFileCalled = true;
+    return "data";
+  };
+
+  const blob = await resultsManager.exportResultsWptMultiReport({
+    tokens: ["token_abc", "token_def", "token_ghi"],
+    api: "apiOne"
+  });
+
+  expect(blob).toBeInstanceOf(Buffer);
+  expect(isReadDirectoryCalled).toBe(true);
+  expect(isReadFileCalled).toBe(true);
+  expect(isGenerateMultiReportCalled).toBe(true);
+});
+
+test("readResultsWptMultiReportUri() returns the path to the wpt report of multiple sessions for a specific api", async () => {
+  const resultsManager = new ResultsManager();
+  resultsManager.initialize({
+    sessionManager: {
+      readSession: async () => ({ getUserAgent: () => "some user agent" })
+    }
+  });
+
+  const path = await resultsManager.readResultsWptMultiReportUri({
+    tokens: ["token_abc", "token_def", "token_ghi"],
+    api: "apiOne"
+  });
+
+  const pathParts = path.split("/").filter(part => !!part);
+  expect(pathParts[0]).toBe("results");
+  expect(pathParts[1]).toBe(
+    "comparison-token_abc-token_def-token_ghi-48888189"
+  );
+  expect(pathParts[2]).toBe("apiOne");
+  expect(pathParts[3]).toBe("all.html");
+});
 
 function createMockingResults() {
   const results = { apiOne: [], apiTwo: [] };
