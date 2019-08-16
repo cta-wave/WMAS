@@ -101,7 +101,7 @@
 
             const sessionsReferenceTokens = [];
             configurations.forEach(({ referenceTokens }) =>
-            referenceTokens
+              referenceTokens
                 .filter(token => refTokens.indexOf(token) === -1)
                 .filter(token => sessionsReferenceTokens.indexOf(token) === -1)
                 .forEach(token => sessionsReferenceTokens.push(token))
@@ -414,10 +414,12 @@
                       className:
                         "html-report button is-dark is-outlined is-small",
                       onclick: () =>
-                        WaveService.openHtmlReport(
+                        WaveService.readMultiReportUri(
                           comparisonUi.state.tokens,
                           api,
-                          comparisonUi.state.reftoken
+                          function(uri) {
+                            location.href = uri;
+                          }
                         ),
                       text: "report"
                     }

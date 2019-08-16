@@ -150,7 +150,9 @@
         openHtmlReport(api) {
           const { results } = resultUi.state;
           if (!results[api].isDone) return;
-          WaveService.viewReport(token, api);
+          WaveService.readReportUri(token, api, function(uri) {
+            location.href = uri;
+          });
         },
         downloadFinishedApiJsons() {
           WaveService.downloadAllApiResults(token);

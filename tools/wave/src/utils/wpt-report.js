@@ -13,7 +13,7 @@ class WptReport {
   }) {
     return new Promise((resolve, reject) => {
       exec(
-        `npx wptreport ` +
+        `cd tools/wave && npx wptreport ` +
           `--input ${inputJsonDirectoryPath} ` +
           `--output ${outputHtmlDirectoryPath} ` +
           `--spec ${specName} ` +

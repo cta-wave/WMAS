@@ -6,6 +6,8 @@ const rmdir = util.promisify(fs.rmdir);
 
 class FileSystem {
   async makeDirectory(directoryPath) {
+    const parent = path.dirname(directoryPath);
+    if (!(await this.exists(parent))) await this.makeDirectory(parent);
     return new Promise((resolve, reject) => {
       fs.mkdir(directoryPath, error => {
         if (error) reject(new Error(error.message));

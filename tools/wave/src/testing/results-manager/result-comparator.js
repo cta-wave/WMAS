@@ -18,7 +18,7 @@ class ResultComparator {
   }
 
   async readComparison({ tokens, refTokens }) {
-    const comparisonDirectory = this.getComparisonDirectoryName({
+    const comparisonDirectory = this.getComparisonIdentifier({
       tokens,
       refTokens
     });
@@ -36,7 +36,7 @@ class ResultComparator {
   }
 
   async generateComparison({ tokens, refTokens }) {
-    const comparisonDirectory = this.getComparisonDirectoryName({
+    const comparisonDirectory = this.getComparisonIdentifier({
       tokens,
       refTokens
     });
@@ -105,7 +105,7 @@ class ResultComparator {
   }
 
   async _saveComparison({ comparisonResult, tokens, refTokens }) {
-    const comparisonDirectory = this.getComparisonDirectoryName({
+    const comparisonDirectory = this.getComparisonIdentifier({
       tokens,
       refTokens
     });
@@ -162,7 +162,7 @@ class ResultComparator {
     return passedTests;
   }
 
-  getComparisonDirectoryName({ tokens, refTokens = [] } = {}) {
+  getComparisonIdentifier({ tokens, refTokens = [] } = {}) {
     let comparisonDirectory = "comparison";
     comparisonDirectory += tokens
       .map(token => token.split("-")[0])

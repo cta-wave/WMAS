@@ -302,8 +302,35 @@ var WaveService = {
   downloadReport: function(token, api) {
     location.href = "/api/results/" + token + "/" + api + "/report";
   },
-  viewReport: function(token, api) {
-    location.href = "/results/" + token + "/" + api + "/all.html";
+  readReportUri: function(token, api, onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/results/" + token + "/" + api + "/reporturl",
+      null,
+      null,
+      function(response) {
+        var jsonObject = JSON.parse(response);
+        onSuccess(jsonObject.uri);
+      },
+      onError
+    );
+  },
+  downloadMultiReport: function(tokens, api) {
+    location.href =
+      "/api/results/" + api + "/report?tokens=" + tokens.join(",");
+  },
+  readMultiReportUri: function(tokens, api, onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/results/" + api + "/reporturl?tokens=" + tokens.join(","),
+      null,
+      null,
+      function(response) {
+        var jsonObject = JSON.parse(response);
+        onSuccess(jsonObject.uri);
+      },
+      onError
+    );
   },
   downloadResultsOverview: function(token) {
     location.href = "/api/results/" + token + "/overview";

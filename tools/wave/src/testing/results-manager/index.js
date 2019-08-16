@@ -44,6 +44,9 @@ class ResultsManager {
     this.readCommonPassedTests = this._resultComparator.readCommonPassedTests.bind(
       this._resultComparator
     );
+    this.getComparisonIdentifier = this._resultComparator.getComparisonIdentifier.bind(
+      this._resultComparator
+    );
   }
 
   async createResult({ token, data }) {
@@ -182,50 +185,45 @@ class ResultsManager {
   //   return tokens;
   // }
 
-  async readResultApiHtmlReportPath({ tokens, refTokens, token, api }) {
-    if (refTokens && refTokens.length > 0)
-      throw new Error("WPT Reports using ref tokens is not supported yet!");
+  async exportResultsWptMultiReport({ tokens, api }) {
+    await this.generateMultiReport({ tokens, api });
 
-    // Single report
-    if (token) {
-      return `${token}/${api}/all.html`;
-    }
+    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
 
-    // Multi report
-    const comparisonDirectoryName = this._resultComparator.getComparisonDirectoryName(
-      {
-        tokens,
-        refTokens
-      }
-    );
-
-    const comparisonDirectoryPath = path.join(
+    const apiDirectoryPath = path.join(
       this._resultsDirectoryPath,
-      comparisonDirectoryName
+      comparisonDirectoryName,
+      api
     );
 
-    if (!(await FileSystem.exists(comparisonDirectoryPath))) {
-      await FileSystem.makeDirectory(comparisonDirectoryPath);
+    const files = await FileSystem.readDirectory(apiDirectoryPath);
+
+    const zip = new JSZip();
+    for (let file of files) {
+      if (new RegExp(/.*\w\w\d\d\.json/).test(file)) continue;
+      const blob = await FileSystem.readFile(path.join(apiDirectoryPath, file));
+      if (!blob) continue;
+      zip.file(file, blob);
     }
 
-    const apiDirectoryPath = path.join(comparisonDirectoryPath, api);
+    return zip.generateAsync({ type: "nodebuffer" });
+  }
+
+  async readResultsWptMultiReportUri({ tokens, api }) {
+    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
+
+    const relativeApiDirectoryPath = path.join(comparisonDirectoryName, api);
+
+    const apiDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      relativeApiDirectoryPath
+    );
+
     if (!(await FileSystem.exists(apiDirectoryPath))) {
-      await FileSystem.makeDirectory(apiDirectoryPath);
-
-      const resultJsonFiles = await Promise.all(
-        tokens.map(async token => ({
-          token,
-          path: await this.getJsonPath({ token, api })
-        }))
-      );
-      await WptReport.generateMultiReport({
-        outputHtmlDirectoryPath: apiDirectoryPath,
-        specName: api,
-        resultJsonFiles
-      });
+      await this.generateMultiReport({ tokens, api });
     }
 
-    return `${comparisonDirectoryName}/${api}/all.html`;
+    return `/results/${relativeApiDirectoryPath}/all.html`;
   }
 
   async getJsonPath({ token, api }) {
@@ -317,6 +315,36 @@ class ResultsManager {
     });
   }
 
+  async generateMultiReport({ tokens, api }) {
+    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
+
+    const apiDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      comparisonDirectoryName,
+      api
+    );
+
+    if (!(await FileSystem.exists(apiDirectoryPath))) {
+      await FileSystem.makeDirectory(apiDirectoryPath);
+
+      const resultJsonFiles = await Promise.all(
+        tokens.map(async token => ({
+          token,
+          path: await this.getJsonPath({ token, api })
+        }))
+      );
+      const pathExistens = await Promise.all(
+        resultJsonFiles.map(async ({ path }) => FileSystem.exists(path))
+      );
+      if (pathExistens.some(exists => !exists)) return null;
+      await WptReport.generateMultiReport({
+        outputHtmlDirectoryPath: apiDirectoryPath,
+        specName: api,
+        resultJsonFiles
+      });
+    }
+  }
+
   async _ensureResultsDirectoryExistence({ token, api, session }) {
     if (!(await FileSystem.exists(this._resultsDirectoryPath))) {
       await FileSystem.makeDirectory(this._resultsDirectoryPath);
@@ -399,7 +427,7 @@ class ResultsManager {
     return result;
   }
 
-  async exportResultJson({ token, api }) {
+  async exportResultsApiJson({ token, api }) {
     const filePath = await this.getJsonPath({ token, api });
     try {
       const blob = await FileSystem.readFile(filePath);
@@ -409,13 +437,13 @@ class ResultsManager {
     }
   }
 
-  async exportResultsJson(token) {
+  async exportResultsAllApiJsons(token) {
     const resultDirectory = path.join(this._resultsDirectoryPath, token);
     const apis = await FileSystem.readDirectory(resultDirectory);
 
     const zip = new JSZip();
     for (let api of apis) {
-      const blob = await this.exportResultJson({ token, api });
+      const blob = await this.exportResultsApiJson({ token, api });
       if (!blob) continue;
       zip.file(`${api}.json`, blob);
     }
@@ -423,7 +451,7 @@ class ResultsManager {
     return zip.generateAsync({ type: "nodebuffer" });
   }
 
-  async exportResultsWptHtml({ token, api }) {
+  async exportResultsWptReport({ token, api }) {
     const apiDirectory = path.join(this._resultsDirectoryPath, token, api);
     const files = await FileSystem.readDirectory(apiDirectory);
 
@@ -438,7 +466,13 @@ class ResultsManager {
     return zip.generateAsync({ type: "nodebuffer" });
   }
 
-  async exportResults(token) {
+  async readResultsWptReportUri({ token, api }) {
+    const apiDirectory = path.join(this._resultsDirectoryPath, token, api);
+    if (!(await FileSystem.exists(apiDirectory))) return null;
+    return `/results/${token}/${api}/all.html`;
+  }
+
+  async exportResultsOverview(token) {
     const zip = new JSZip();
 
     const flattenedResults = await this.readFlattenedResults(token);
