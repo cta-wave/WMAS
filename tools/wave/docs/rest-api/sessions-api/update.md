@@ -1,0 +1,1 @@
+# `update` - [Session API](../index.md#sessions-api)
