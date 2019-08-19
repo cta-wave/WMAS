@@ -109,11 +109,11 @@ class TestManager {
     // console.log("TIMEOUT", test);
     const data = {
       test,
-      status: 2, // TIMEOUT
+      status: "TIMEOUT",
       message: null,
       subtests: [
         {
-          status: 2, // TIMEOUT
+          status: "TIMEOUT",
           xstatus: "SERVERTIMEOUT"
         }
       ]
