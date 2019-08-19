@@ -165,7 +165,7 @@ function readNextTest(token, onSuccess, onError) {
 }
 
 function readNextAlt(token) {
-  location.href = getURL("/nodejs/next.html?token=" + token);
+  location.href = getWaveUrl("/nodejs/next.html?token=" + token);
 }
 
 function createResult(token, result, onSuccess, onError) {
@@ -182,7 +182,7 @@ function createResult(token, result, onSuccess, onError) {
 }
 
 function createResultAlt(token, result) {
-  location.href = getURL(
+  location.href = getWaveUrl(
     "/nodejs/submitresult.html?token=" +
       token +
       "&result=" +
@@ -191,7 +191,7 @@ function createResultAlt(token, result) {
 }
 
 function sendRequest(method, uri, headers, data, onSuccess, onError) {
-  var url = getURL(uri);
+  var url = getWaveUrl(uri);
   var xhr = new XMLHttpRequest();
   xhr.addEventListener("load", function() {
     onSuccess(xhr.response);
@@ -209,7 +209,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   xhr.send(data);
 }
 
-function getURL(uri) {
+function getWaveUrl(uri) {
   var url = __WAVE__PROTOCOL + "://";
   url += __WAVE__HOSTNAME + ":" + __WAVE__PORT;
   url += "/nodejs" + uri;
