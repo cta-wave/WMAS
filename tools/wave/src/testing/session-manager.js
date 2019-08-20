@@ -137,7 +137,12 @@ class SessionManager {
     }
 
     if (types) session.setTypes(types);
-    if (timeouts) session.setTimeouts(timeouts);
+    if (timeouts) {
+      const oldTimeouts = session.getTimeouts();
+      if (!timeouts.automatic) timeouts.automatic = oldTimeouts.automatic;
+      if (!timeouts.manual) timeouts.manual = oldTimeouts.manual;
+      session.setTimeouts(timeouts);
+    }
     if (referenceTokens) session.setReferenceTokens(referenceTokens);
     if (webhookUrls) session.setWebhookUrls(webhookUrls);
 
