@@ -151,7 +151,7 @@
           const { results } = resultUi.state;
           if (!results[api].isDone) return;
           WaveService.readReportUri(token, api, function(uri) {
-            location.href = uri;
+            window.open(uri, "_blank");
           });
         },
         downloadFinishedApiJsons() {
