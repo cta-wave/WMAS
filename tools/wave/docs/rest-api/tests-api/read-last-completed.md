@@ -11,7 +11,7 @@ The `read last completed` method of the tests API returns a list of test files, 
 | Parameter | Desciption                                                                                                                | Default | Example               |
 | --------- | ------------------------------------------------------------------------------------------------------------------------- | ------- | --------------------- |
 | `count`   | Number of files per status to return                                                                                      | 5       | `count=5`             |
-| `status`  | The status the result of the file had to have. Comma separated list. Possible values: `all`, `pass`, `fail` and `timeout` | `all`   | `status=timeout,pass` |
+| `status`  | The status the files results must have. Comma separated list. Possible values: `all`, `pass`, `fail` and `timeout` | `all`   | `status=timeout,pass` |
 
 ## Response Payload
 

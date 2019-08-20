@@ -33,15 +33,15 @@ The REST API allows the WAVE server to be integrated into other systems.
 
 ### Methods
 
-| Name                                               | Description                                                                     |
-| -------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [`create`](./results-api/create.md)                | Create a new test result for a test in a session.                               |
-| [`read`](./results-api/read.md)                    | Read all test results of a session.                                             |
-| [`read compact`](./results-api/read-compact.md)    | Read the number of passed, failed, timed out and not run tests of a session.    |
-| [`download api`](./results-api/create.md)          | Download all results of an API.                                                 |
-| [`download all apis`](./results-api/create.md)     | Download all results of all APIs.                                               |
-| [`download report`](./results-api/create.md)       | Download the WPT report of an API of a session.                                 |
-| [`download multi report`](./results-api/create.md) | Download the WPT report of an API of multiple sessions.                         |
-| [`download overview`](./results-api/create.md)     | Download an overview of results of all APIs of a session.                       |
-| [`view report`](./results-api/create.md)           | Read an url to a hosted version of a WPT report for an API of a session.        |
-| [`view multi report`](./results-api/create.md)     | Read an url to a hosted version of a WPT report for an API of multiple session. |
+| Name                                                                       | Description                                                                     |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [`create`](./results-api/create.md)                                        | Create a new test result for a test in a session.                               |
+| [`read`](./results-api/read.md)                                            | Read all test results of a session.                                             |
+| [`read compact`](./results-api/read-compact.md)                            | Read the number of passed, failed, timed out and not run tests of a session.    |
+| [`download api`](./results-api/download.md#download-api)                   | Download all results of an API.                                                 |
+| [`download all apis`](./results-api/download.md#download-all-apis)         | Download all results of all APIs.                                               |
+| [`download report`](./results-api/download.md#download-report)             | Download the WPT report of an API of a session.                                 |
+| [`download multi report`](./results-api/download.md#download-multi-report) | Download the WPT report of an API of multiple sessions.                         |
+| [`download overview`](./results-api/download.md#download-overview)         | Download an overview of results of all APIs of a session.                       |
+| [`view report`](./results-api/view.md)                                     | Read an url to a hosted version of a WPT report for an API of a session.        |
+| [`view multi report`](./results-api/view.md)                               | Read an url to a hosted version of a WPT report for an API of multiple session. |
