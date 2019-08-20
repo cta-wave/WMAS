@@ -12,7 +12,13 @@ The `read public` method of the sessions API fetches a list of all sessions that
 "Array<String>"
 ```
 
-### Example
+## Example
+
+**Request:**
+
+`GET /api/sessions/public`
+
+**Response:**
 
 ```json
 [
