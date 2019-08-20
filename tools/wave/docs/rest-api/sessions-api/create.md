@@ -1,14 +1,12 @@
-# `create` - [Session API](../index.md#sessions-api)
+# `create` - [Sessions API](../index.md#sessions-api)
 
-The `create` method of the sessions API creates a new session. If provided with an configuration it creates a session accordingly. If no configuration is provided it uses default values. While a session has the status `PENDING` it is possible to modify the configuration using the [`update`](./update.md) method of the sessions API. As it is required to create the session from the device under test, this is really helpful, since it allows to configure the session using a second device.
+The `create` method of the sessions API creates a new session. If provided with an configuration it creates a session accordingly. If no configuration is provided it uses default values. It returns the session token of the newly created session, which is the unique identifier of sessions. While a session has the status `PENDING` it is possible to modify the configuration using the [`update`](./update.md) method of the sessions API. As it is required to create the session from the device under test, this is really helpful, since it allows to configure the session using a second device.
 
 ## HTTP Request
 
 `POST /api/sessions`
 
 ## Request Payload
-
-### Structure
 
 ```json
 {
@@ -38,7 +36,7 @@ The `create` method of the sessions API creates a new session. If provided with 
   - **custom test paths**: Set the timeout for a test file or directory by putting the path with all dots removed as the key.
 - **reference_tokens** specifies a set of completed sessions that is used to filter out all tests that have not passed in all those sessions from the session that is going to be created.
 
-### Default Configuration
+### Default
 
 ```json
 {
@@ -55,7 +53,21 @@ The `create` method of the sessions API creates a new session. If provided with 
 }
 ```
 
-### Example Configuration
+## Response Payload
+
+If successful, the token of the new session is returned.
+
+```json
+{
+  "token": "String"
+}
+```
+
+## Example
+
+**Request:**
+
+`POST /api/sessions`
 
 ```json
 {
@@ -73,5 +85,13 @@ The `create` method of the sessions API creates a new session. If provided with 
     "ce2dc080-c283-11e9-b4d6-e046513784c2",
     "430f47d0-c283-11e9-8776-fcbc36b81035"
   ]
+}
+```
+
+**Response:**
+
+```json
+{
+  "token": "6fdbd1a0-c339-11e9-b775-6d49dd567772"
 }
 ```
