@@ -123,7 +123,7 @@ class TestApiHandler extends ApiHandler {
         if (session.getStatus() !== Session.RUNNING) return;
         const url = this._generateWaveUrl({
           hostname,
-          uri: "/complete.html",
+          uri: "/finish.html",
           token
         });
         this.sendJson({ next_test: url }, response);

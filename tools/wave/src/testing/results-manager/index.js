@@ -142,6 +142,12 @@ class ResultsManager {
     return flattenedResults;
   }
 
+  async deleteResults(token) {
+    const resultDirectory = path.join(this._resultsDirectoryPath, token);
+    if (!(await FileSystem.exists(resultDirectory))) return;
+    await FileSystem.removeDirectory(resultDirectory);
+  }
+
   // async readResultComparison({ tokens, refTokens }) {
   //   // await Promise.all(
   //   //   refTokens
@@ -185,47 +191,6 @@ class ResultsManager {
   //   return tokens;
   // }
 
-  async exportResultsWptMultiReport({ tokens, api }) {
-    await this.generateMultiReport({ tokens, api });
-
-    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
-
-    const apiDirectoryPath = path.join(
-      this._resultsDirectoryPath,
-      comparisonDirectoryName,
-      api
-    );
-
-    const files = await FileSystem.readDirectory(apiDirectoryPath);
-
-    const zip = new JSZip();
-    for (let file of files) {
-      if (new RegExp(/.*\w\w\d\d\.json/).test(file)) continue;
-      const blob = await FileSystem.readFile(path.join(apiDirectoryPath, file));
-      if (!blob) continue;
-      zip.file(file, blob);
-    }
-
-    return zip.generateAsync({ type: "nodebuffer" });
-  }
-
-  async readResultsWptMultiReportUri({ tokens, api }) {
-    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
-
-    const relativeApiDirectoryPath = path.join(comparisonDirectoryName, api);
-
-    const apiDirectoryPath = path.join(
-      this._resultsDirectoryPath,
-      relativeApiDirectoryPath
-    );
-
-    if (!(await FileSystem.exists(apiDirectoryPath))) {
-      await this.generateMultiReport({ tokens, api });
-    }
-
-    return `/results/${relativeApiDirectoryPath}/all.html`;
-  }
-
   async getJsonPath({ token, api }) {
     const session = await this._sessionManager.readSession(token);
     return this._getFilePath({
@@ -243,12 +208,6 @@ class ResultsManager {
 
     const filePath = await this.getJsonPath({ token, api });
     await FileSystem.writeFile(filePath, JSON.stringify(apiResults, null, 2));
-  }
-
-  async deleteResults(token) {
-    const resultDirectory = path.join(this._resultsDirectoryPath, token);
-    if (!(await FileSystem.exists(resultDirectory))) return;
-    await FileSystem.removeDirectory(resultDirectory);
   }
 
   async loadResults() {
@@ -472,6 +431,47 @@ class ResultsManager {
     return `/results/${token}/${api}/all.html`;
   }
 
+  async exportResultsWptMultiReport({ tokens, api }) {
+    await this.generateMultiReport({ tokens, api });
+
+    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
+
+    const apiDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      comparisonDirectoryName,
+      api
+    );
+
+    const files = await FileSystem.readDirectory(apiDirectoryPath);
+
+    const zip = new JSZip();
+    for (let file of files) {
+      if (new RegExp(/.*\w\w\d\d\.json/).test(file)) continue;
+      const blob = await FileSystem.readFile(path.join(apiDirectoryPath, file));
+      if (!blob) continue;
+      zip.file(file, blob);
+    }
+
+    return zip.generateAsync({ type: "nodebuffer" });
+  }
+
+  async readResultsWptMultiReportUri({ tokens, api }) {
+    const comparisonDirectoryName = this.getComparisonIdentifier({ tokens });
+
+    const relativeApiDirectoryPath = path.join(comparisonDirectoryName, api);
+
+    const apiDirectoryPath = path.join(
+      this._resultsDirectoryPath,
+      relativeApiDirectoryPath
+    );
+
+    if (!(await FileSystem.exists(apiDirectoryPath))) {
+      await this.generateMultiReport({ tokens, api });
+    }
+
+    return `/results/${relativeApiDirectoryPath}/all.html`;
+  }
+
   async exportResultsOverview(token) {
     const zip = new JSZip();
 
@@ -481,6 +481,7 @@ class ResultsManager {
     zip.file("results.json.js", resultsScript);
 
     const session = await this._sessionManager.readSession(token);
+    if (!session) return null;
     const sessionJson = Serializer.serializeSession(session);
     delete sessionJson.running_tests;
     delete sessionJson.completed_tests;

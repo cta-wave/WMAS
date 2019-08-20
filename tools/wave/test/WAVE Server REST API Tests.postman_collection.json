@@ -184,10 +184,6 @@
 											"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
 											"    pm.expect(jsonData.browser).to.have.property(\"version\");",
 											"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
-											"    pm.expect(jsonData).to.have.property(\"date_started\");",
-											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
-											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
-											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
@@ -204,8 +200,6 @@
 											"    pm.expect(jsonData.timeouts.manual).to.equal(300000);",
 											"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
 											"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
-											"    pm.expect(jsonData.date_started).to.be.null;",
-											"    pm.expect(jsonData.date_finished).to.be.null;",
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
@@ -258,6 +252,10 @@
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(jsonData).to.have.property(\"status\");",
 											"    pm.expect(typeof jsonData.status).to.equal(\"string\");",
+											"    pm.expect(jsonData).to.have.property(\"date_started\");",
+											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
+											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
+											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"pm.test(\"Session status is pending\", function () {",
@@ -274,7 +272,12 @@
 											"    }",
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(0);",
-											"})"
+											"})",
+											"",
+											"pm.test(\"Start and Finish date not set\", function () {",
+											"    pm.expect(jsonData.date_started).to.be.null;",
+											"    pm.expect(jsonData.date_finished).to.be.null;",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -527,10 +530,6 @@
 											"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
 											"    pm.expect(jsonData.browser).to.have.property(\"version\");",
 											"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
-											"    pm.expect(jsonData).to.have.property(\"date_started\");",
-											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
-											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
-											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
@@ -560,8 +559,6 @@
 											"    pm.expect(jsonData.timeouts[specialTimeoutTest]).to.equal(specialTimeout);",
 											"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
 											"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
-											"    pm.expect(jsonData.date_started).to.be.null;",
-											"    pm.expect(jsonData.date_finished).to.be.null;",
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
@@ -699,6 +696,10 @@
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(jsonData).to.have.property(\"status\");",
 											"    pm.expect(typeof jsonData.status).to.equal(\"string\");",
+											"    pm.expect(jsonData).to.have.property(\"date_started\");",
+											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
+											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
+											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"pm.test(\"Session status is pending\", function () {",
@@ -713,7 +714,12 @@
 											"        pm.expect(sessionTests[api]).to.have.lengthOf(jsonData.test_files_count[api]);",
 											"    }",
 											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(0);",
-											"})"
+											"})",
+											"",
+											"pm.test(\"Start and Finish date not set\", function () {",
+											"    pm.expect(jsonData.date_started).to.be.null;",
+											"    pm.expect(jsonData.date_finished).to.be.null;",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -1216,9 +1222,13 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
+											"var jsonData = pm.response.json();",
 											"pm.test(\"Status is running\", function () {",
-											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.status).to.equal(\"running\");",
+											"});",
+											"",
+											"pm.test(\"Start date is set\", function () {",
+											"    pm.expect(jsonData.date_started).to.be.below(Date.now());",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1631,9 +1641,13 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
+											"var jsonData = pm.response.json();",
 											"pm.test(\"Status is aborted\", function () {",
-											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.status).to.equal(\"aborted\");",
+											"});",
+											"",
+											"pm.test(\"Finish date is set\", function () {",
+											"    pm.expect(jsonData.date_finished).to.be.below(Date.now());",
 											"});"
 										],
 										"type": "text/javascript"
@@ -3055,10 +3069,6 @@
 											"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
 											"    pm.expect(jsonData.browser).to.have.property(\"version\");",
 											"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
-											"    pm.expect(jsonData).to.have.property(\"date_started\");",
-											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
-											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
-											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
@@ -3075,8 +3085,6 @@
 											"    pm.expect(jsonData.timeouts.manual).to.equal(300000);",
 											"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
 											"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
-											"    pm.expect(jsonData.date_started).to.be.null;",
-											"    pm.expect(jsonData.date_finished).to.be.null;",
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
@@ -3129,6 +3137,10 @@
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(jsonData).to.have.property(\"status\");",
 											"    pm.expect(typeof jsonData.status).to.equal(\"string\");",
+											"    pm.expect(jsonData).to.have.property(\"date_started\");",
+											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
+											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
+											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"pm.test(\"Session status is pending\", function () {",
@@ -3365,10 +3377,6 @@
 											"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
 											"    pm.expect(jsonData.browser).to.have.property(\"version\");",
 											"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
-											"    pm.expect(jsonData).to.have.property(\"date_started\");",
-											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
-											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
-											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
@@ -3398,8 +3406,6 @@
 											"    pm.expect(jsonData.timeouts[specialTimeoutTest]).to.equal(specialTimeout);",
 											"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
 											"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
-											"    pm.expect(jsonData.date_started).to.be.null;",
-											"    pm.expect(jsonData.date_finished).to.be.null;",
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
@@ -3537,6 +3543,10 @@
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(jsonData).to.have.property(\"status\");",
 											"    pm.expect(typeof jsonData.status).to.equal(\"string\");",
+											"    pm.expect(jsonData).to.have.property(\"date_started\");",
+											"    pm.expect(jsonData.date_started).to.satisfy(value => !value || typeof value === \"number\");",
+											"    pm.expect(jsonData).to.have.property(\"date_finished\");",
+											"    pm.expect(jsonData.date_finished).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"pm.test(\"Session status is pending\", function () {",
@@ -3552,7 +3562,12 @@
 											"    }",
 											"    pm.expect(typeof jsonData.test_files_completed).to.equal(\"object\");",
 											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(0);",
-											"})"
+											"})",
+											"",
+											"pm.test(\"Start and Finish date not set\", function () {",
+											"    pm.expect(jsonData.date_started).to.be.null;",
+											"    pm.expect(jsonData.date_finished).to.be.null;",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -3856,11 +3871,13 @@
 											"    pm.response.to.have.status(200);",
 											"});",
 											"",
-											"const response = pm.response.body;",
+											"var jsonData = pm.response.json();",
+											"const nextTest = jsonData.next_test;",
+											"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 											"",
-											"pm.test(\"Payload is empty\", function () {",
-											"    pm.expect(response).to.be.undefined;",
-											"})"
+											"pm.test(\"Returned test is new session page\", function () {",
+											"    pm.expect(test).to.equal(\"/newsession.html\");",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -4767,12 +4784,12 @@
 							"response": []
 						},
 						{
-							"name": "Create Result Alternative",
+							"name": "Create Result",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
-										"id": "d9327c67-c540-4ea9-832f-a53755e2b7c1",
+										"id": "91dd9303-8cae-4aa7-ab22-a1892270e313",
 										"exec": [
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
@@ -4782,11 +4799,8 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
-								"method": "GET",
+								"method": "POST",
 								"header": [
 									{
 										"key": "Content-Type",
@@ -4797,10 +4811,10 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": ""
+									"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"PASS\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}?result=%7B%22test%22%3A%22{{current_test}}%22%2C%22status%22%3A\"OK\"%2C%22message%22%3Anull%2C%22subtests%22%3A%5B%7B%22name%22%3A%22Subtest%20testing%20feature%20xy%22%2C%22status%22%3A%22PASS%22%2C%22message%22%3A%22Error%20message%22%7D%5D%7D",
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
@@ -4810,12 +4824,6 @@
 										"api",
 										"results",
 										"{{session_token}}"
-									],
-									"query": [
-										{
-											"key": "result",
-											"value": "%7B%22test%22%3A%22{{current_test}}%22%2C%22status%22%3A\"OK\"%2C%22message%22%3Anull%2C%22subtests%22%3A%5B%7B%22name%22%3A%22Subtest%20testing%20feature%20xy%22%2C%22status%22%3A%22PASS%22%2C%22message%22%3A%22Error%20message%22%7D%5D%7D"
-										}
 									]
 								}
 							},
@@ -4857,7 +4865,11 @@
 											"    var api = Object.keys(jsonData.test_files_count)[0];",
 											"    pm.expect(jsonData.test_files_count[api]).to.equal(2);",
 											"    pm.expect(jsonData.test_files_completed[api]).to.equal(2);",
-											"})"
+											"})",
+											"",
+											"pm.test(\"Finish date is set\", function () {",
+											"    pm.expect(jsonData.date_finished).to.be.below(Date.now());",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -5194,8 +5206,8 @@
 											"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 											"pm.globals.set(\"current_test\", test);",
 											"",
-											"pm.test(\"Returned test is second of two specified tests\", function () {",
-											"    pm.expect(test).to.equal(\"/complete.html\");",
+											"pm.test(\"Returned test finish page\", function () {",
+											"    pm.expect(test).to.equal(\"/finish.html\");",
 											"});"
 										],
 										"type": "text/javascript"
@@ -5244,6 +5256,726 @@
 										"api",
 										"sessions",
 										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Viewing and Downloading Reports",
+			"item": [
+				{
+					"name": "Create Sessions",
+					"item": [
+						{
+							"name": "First Session",
+							"item": [
+								{
+									"name": "Create Session One Tests",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"const response = pm.response.json();",
+													"const token = response.token;",
+													"pm.globals.set(\"session_token\", token);"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "9e886f98-b49b-42bf-a60e-8621ff3ce71c",
+												"exec": [
+													"const availableTests = pm.globals.get(\"available_tests\");",
+													"const test1 = availableTests[Object.keys(availableTests)[0]][0];",
+													"const test2 = availableTests[Object.keys(availableTests)[0]][1];",
+													"const apiName = test1.split(\"/\").filter(part => !!part)[0];",
+													"",
+													"pm.globals.set(\"single_test_1\", test1);",
+													"pm.globals.set(\"single_test_2\", test2);",
+													"pm.globals.set(\"api_name\", apiName);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"sessions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Start Session",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1ebc9934-0b47-4b0b-9796-43ba8f1518dc",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}/start",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"sessions",
+												"{{session_token}}",
+												"start"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Read Next Test of Session",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "b39fe619-0b3e-4db5-9fdc-f94503326471",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"const response = pm.response.json();",
+													"",
+													"const nextTest = response.next_test;",
+													"pm.globals.set(\"current_test_url\", nextTest);",
+													"if (!nextTest) return;",
+													"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
+													"pm.globals.set(\"current_test\", test);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/tests/{{session_token}}/next",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"tests",
+												"{{session_token}}",
+												"next"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create Result",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "91dd9303-8cae-4aa7-ab22-a1892270e313",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"results",
+												"{{session_token}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Second Session",
+							"item": [
+								{
+									"name": "Create Session One Tests",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"const response = pm.response.json();",
+													"const token = response.token;",
+													"pm.globals.set(\"session_token_comp\", token);"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "9e886f98-b49b-42bf-a60e-8621ff3ce71c",
+												"exec": [
+													"const availableTests = pm.globals.get(\"available_tests\");",
+													"const test1 = availableTests[Object.keys(availableTests)[0]][0];",
+													"const test2 = availableTests[Object.keys(availableTests)[0]][1];",
+													"",
+													"pm.globals.set(\"single_test_1\", test1);",
+													"pm.globals.set(\"single_test_2\", test2);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    }\n}"
+										},
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"sessions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Start Session",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "1ebc9934-0b47-4b0b-9796-43ba8f1518dc",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token_comp}}/start",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"sessions",
+												"{{session_token_comp}}",
+												"start"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Read Next Test of Session",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "b39fe619-0b3e-4db5-9fdc-f94503326471",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"const response = pm.response.json();",
+													"",
+													"const nextTest = response.next_test;",
+													"pm.globals.set(\"current_test_url\", nextTest);",
+													"if (!nextTest) return;",
+													"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
+													"pm.globals.set(\"current_test\", test);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/tests/{{session_token_comp}}/next",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"tests",
+												"{{session_token_comp}}",
+												"next"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create Result",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "91dd9303-8cae-4aa7-ab22-a1892270e313",
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token_comp}}",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"api",
+												"results",
+												"{{session_token_comp}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Download reports",
+					"item": [
+						{
+							"name": "Download Results Overview",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "077c4b9f-f6f0-4462-8c2e-ff1a0e2da0a0",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}/overview",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{session_token}}",
+										"overview"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download All Apis Json",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}/json",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{session_token}}",
+										"json"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download WPT Multi Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{api_name}}/report?tokens={{session_token}},{{session_token_comp}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{api_name}}",
+										"report"
+									],
+									"query": [
+										{
+											"key": "tokens",
+											"value": "{{session_token}},{{session_token_comp}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download WPT Multi Report Url",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Uri returned\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(typeof jsonData.uri).to.equal(\"string\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{api_name}}/reporturl?tokens={{session_token}},{{session_token_comp}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{api_name}}",
+										"reporturl"
+									],
+									"query": [
+										{
+											"key": "tokens",
+											"value": "{{session_token}},{{session_token_comp}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download Results Api Json",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7f0021ba-d8ed-4869-befe-c9d58be170f6",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}/{{api_name}}/json",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{session_token}}",
+										"{{api_name}}",
+										"json"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download WPT Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7f0021ba-d8ed-4869-befe-c9d58be170f6",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}/{{api_name}}/report",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{session_token}}",
+										"{{api_name}}",
+										"report"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download WPT Report Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d21e4ab0-2d92-4941-8cee-1c94dbb8086c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Uri returned\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(typeof jsonData.uri).to.equal(\"string\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7f0021ba-d8ed-4869-befe-c9d58be170f6",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/results/{{session_token}}/{{api_name}}/reporturl",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"results",
+										"{{session_token}}",
+										"{{api_name}}",
+										"reporturl"
 									]
 								}
 							},
