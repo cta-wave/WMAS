@@ -1,4 +1,4 @@
-# `find` - [Session API](../index.md#sessions-api)
+# `find` - [Sessions API](../index.md#sessions-api)
 
 The `find` method of the sessions API searches for a session token using a provided token fragment, which is the beginning of a session token with at least 8 characters. Due to data protection, it is not possible to find multiple tokens using one fragment. If the server finds more than one session token, it returns none. In this case more characters need to be added to the fragment, until it matches only one session token.
 
