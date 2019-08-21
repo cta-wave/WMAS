@@ -17,7 +17,7 @@ class WptReport {
           `--input ${inputJsonDirectoryPath} ` +
           `--output ${outputHtmlDirectoryPath} ` +
           `--spec ${specName} ` +
-          `--sort true`+
+          `--sort true `+
           `${isMulti ? "--tokenFileName true " : ""}` +
           `${!referenceDir ? "" : `--pass 100 --ref ${referenceDir}`}`,
         (error, stdout, stderr) => {
