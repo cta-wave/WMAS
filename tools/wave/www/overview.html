@@ -49,8 +49,11 @@
         resultsUi.render();
         resultsUi.loadData();
       };
-
-      var sortDetail = {sortColumn: 'dateStarted', ascending: true};
+      var sortDetail = {};
+      const defaultSortDetail = {sortColumn: 'dateStarted', ascending: true};;
+      sortDetail["recentSessions"] = defaultSortDetail;
+      sortDetail["pinnedSessions"] = defaultSortDetail;
+      sortDetail["publicSessions"] = defaultSortDetail;
 
       const resultsUi = {
         state: {
@@ -194,21 +197,35 @@
         openSessionResult(token) {
           location.href = `results.html?token=${token}`;
         },
-        sortSessions(column) {
-          if(sortDetail.sortColumn == column){
-            sortDetail.ascending = !sortDetail.ascending;
+        sortSessions(tableType, column) {
+          if (tableType in sortDetail){
+          if(sortDetail[tableType].sortColumn == column){
+            sortDetail[tableType].ascending = !sortDetail[tableType].ascending;
           }else{
-            sortDetail.sortColumn = column;
-            sortDetail.ascending = true;
+            sortDetail[tableType].sortColumn = column;
+            sortDetail[tableType].ascending = true;
           }
-          resultsUi.renderRecentSessions();
+          switch(tableType){
+            case "recentSessions":
+              resultsUi.renderRecentSessions();
+              break;
+            case "pinnedSessions":
+              resultsUi.renderPinnedSessions();
+              break;
+            case "publicSessions":
+              resultsUi.renderPublicSessions();
+              break;
+        }
+      }
         },
         sortSessionsByColumn(sessions,recentSessions,column, ascending){
-          const resultArray = recentSessions
+          var resultArray = recentSessions
           .map(token => sessions[token])
           .sort(function(sessionA, sessionB){
-             if(sessionA[column] < sessionB[column]) { return -1; }
-             if(sessionA[column] > sessionB[column]) { return 1; }
+            const columnA = column == "browser" ? sessionA[column].name + sessionA[column].version : sessionA[column];
+            const columnB = column == "browser" ? sessionB[column].name + sessionA[column].version : sessionB[column];
+             if(columnA < columnB) { return -1; }
+             if(columnA > columnB) { return 1; }
              return 0;
           });
           if(ascending){
@@ -487,14 +504,11 @@
               className: "title is-5"
             })
           );
+          const sortedPublicSessions = resultsUi.sortSessionsByColumn(sessions,publicSessions, sortDetail["publicSessions"].sortColumn, sortDetail["publicSessions"].ascending);
           publicSessionsView.appendChild(
             resultsUi.createSessionsTable(
-              publicSessions
-                .map(token => sessions[token])
-                .sort(
-                  (sessionA, sessionB) =>
-                    sessionB.date_started - sessionA.date_started
-                ),
+            "publicSessions",
+              sortedPublicSessions,
               { static: true }
             )
           );
@@ -511,14 +525,11 @@
           pinnedSessionsView.appendChild(
             UI.createElement({ text: "Pinned", className: "title is-5" })
           );
+          const sortedPinnedSessions = resultsUi.sortSessionsByColumn(sessions,pinnedSessions, sortDetail["pinnedSessions"].sortColumn, sortDetail["pinnedSessions"].ascending);
           pinnedSessionsView.appendChild(
             resultsUi.createSessionsTable(
-              pinnedSessions
-                .map(token => sessions[token])
-                .sort(
-                  (sessionA, sessionB) =>
-                    sessionB.date_started - sessionA.date_started
-                ),
+              "pinnedSessions",
+              sortedPinnedSessions,
               { pinned: true }
             )
           );
@@ -535,9 +546,10 @@
           recentSessionsView.appendChild(
             UI.createElement({ text: "Recent", className: "title is-5" })
           );
-          const sortedRecentSessions = resultsUi.sortSessionsByColumn(sessions,recentSessions, sortDetail.sortColumn, sortDetail.ascending);
+          const sortedRecentSessions = resultsUi.sortSessionsByColumn(sessions,recentSessions, sortDetail["recentSessions"].sortColumn, sortDetail["recentSessions"].ascending);
           recentSessionsView.appendChild(
             resultsUi.createSessionsTable(
+              "recentSessions",
               sortedRecentSessions,
               { pinned: false }
             )
@@ -593,7 +605,7 @@
             return;
           }
         },
-        createSessionsTable(sessions, { pinned = false, static = false } = {}) {
+        createSessionsTable(tableType, sessions, { pinned = false, static = false } = {}) {
           const getTagStyle = status => {
             switch (status) {
               case "completed":
@@ -608,7 +620,10 @@
                 return "is-primary";
             }
           };
-          var sortIcon = sortDetail.ascending ? "fas fa-sort-down" : "fas fa-sort-up";
+          var sortIcon = null;
+          if (tableType in sortDetail){
+          sortIcon = sortDetail[tableType].ascending ? "fas fa-sort-down" : "fas fa-sort-up";
+        }
           return UI.createElement({
             element: "table",
             className: "table is-bordered is-hoverable is-fullwidth",
@@ -624,20 +639,20 @@
                       text: "Cp",
                       title: "Select for comparison"
                     },
-                    {element: "td", text: "Token", onclick: () => resultsUi.sortSessions("token"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortDetail.sortColumn == "token" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "Token", onclick: () => resultsUi.sortSessions(tableType, "token"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "token" ? "visible;" : "hidden;")}]
                     },
-                    {element: "td", text: "Browser", onclick: () => resultsUi.sortSessions("browser"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortDetail.sortColumn == "browser" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "Browser", onclick: () => resultsUi.sortSessions(tableType,"browser"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "browser" ? "visible;" : "hidden;")}]
                     },
-                    {element: "td", text: "Status", onclick: () => resultsUi.sortSessions("status"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortDetail.sortColumn == "status" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "Status", onclick: () => resultsUi.sortSessions(tableType,"status"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "status" ? "visible;" : "hidden;")}]
                     },
-                    {element: "td", text: "User Agent", onclick: () => resultsUi.sortSessions("userAgent"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortDetail.sortColumn == "userAgent" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "User Agent", onclick: () => resultsUi.sortSessions(tableType,"userAgent"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "userAgent" ? "visible;" : "hidden;")}]
                     },
-                    {element: "td", text: "Date Started", onclick: () => resultsUi.sortSessions("dateStarted"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortDetail.sortColumn == "dateStarted" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "Date Started", onclick: () => resultsUi.sortSessions(tableType,"dateStarted"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "dateStarted" ? "visible;" : "hidden;")}]
                     },
                     static
                       ? null
