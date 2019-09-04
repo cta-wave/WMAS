@@ -27,7 +27,7 @@ The `read` method of the sessions API fetches the configuration of a session, in
     "name": "String",
     "version": "String"
   },
-  "is_public": "false"
+  "is_public": "Boolean"
 }
 ```
 

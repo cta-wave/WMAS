@@ -13,6 +13,7 @@ The REST API allows the WAVE server to be integrated into other systems.
 | [`read public`](./sessions-api/read-public.md) | Reads all public sessions tokens.                    |
 | [`update`](./sessions-api/update.md)           | Updates a session configuration.                     |
 | [`delete`](./sessions-api/delete.md)           | Deletes a test session.                              |
+| [`status`](./sessions-api/status.md)           | Reads the status and progress of a session.          |
 | [`start`](./sessions-api/control.md#start)     | Starts a test session.                               |
 | [`stop`](./sessions-api/control.md#stop)       | Stops a test session.                                |
 | [`pause`](./sessions-api/control.md#pause)     | Pauses a test session.                               |
