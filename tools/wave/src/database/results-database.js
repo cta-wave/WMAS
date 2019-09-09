@@ -2,7 +2,6 @@ const path = require("path");
 
 const Database = require("./database");
 const FileSystem = require("../utils/file-system");
-const DatabaseUtils = require("../utils/database-utils");
 const JobQueue = require("../utils/job-queue");
 
 const DEFAULT_DIRECTORY_PATH = ".";
@@ -14,6 +13,7 @@ const MAX_GROUP_JOBS = 5;
 
 class ResultsDatabase extends Database {
   constructor() {
+    super();
     this._resultsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });

@@ -25,7 +25,8 @@ var WaveService = {
       tests: configuration.tests,
       types: configuration.types,
       timeouts: configuration.timeouts,
-      reference_tokens: configuration.referenceTokens
+      reference_tokens: configuration.referenceTokens,
+      expiration_date: configuration.expirationDate
     });
     sendRequest(
       "POST",

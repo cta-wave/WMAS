@@ -58,7 +58,7 @@ class WaveServer {
 
     testManager.initialize({ testLoader, resultsManager, sessionManager });
 
-    sessionManager.initialize({
+    await sessionManager.initialize({
       database,
       testTimeout,
       testLoader

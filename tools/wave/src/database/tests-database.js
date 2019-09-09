@@ -13,6 +13,7 @@ const MAX_GROUP_JOBS = 5;
 
 class TestsDatabase extends Database {
   constructor() {
+    super();
     this._testsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });

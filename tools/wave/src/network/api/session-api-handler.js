@@ -32,7 +32,8 @@ class SessionApiHandler extends ApiHandler {
         types,
         timeouts,
         reference_tokens,
-        webhook_urls
+        webhook_urls,
+        expiration_date
       } = request.body;
       const session = await this._sessionManager.createSession({
         tests: { include, exclude },
@@ -40,7 +41,8 @@ class SessionApiHandler extends ApiHandler {
         timeouts,
         referenceTokens: reference_tokens,
         webhookUrls: webhook_urls,
-        userAgent
+        userAgent,
+        expirationDate: expiration_date
       });
 
       const token = session.getToken();

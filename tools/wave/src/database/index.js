@@ -48,6 +48,7 @@ class Database {
     this.createSession = sessionsDatabase.createSession.bind(sessionsDatabase);
     this.readSession = sessionsDatabase.readSession.bind(sessionsDatabase);
     this.readSessions = sessionsDatabase.readSessions.bind(sessionsDatabase);
+    this.readExpiringSessions = sessionsDatabase.readExpiringSessions.bind(sessionsDatabase);
     this.readPublicSessions = sessionsDatabase.readPublicSessions.bind(
       sessionsDatabase
     );

@@ -13,7 +13,7 @@ const MAX_GROUP_JOBS = 5;
 
 class SessionsDatabase extends Database {
   constructor() {
-    this._compactionInterval = compactionInterval;
+    super();
     this._sessionsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });
@@ -104,6 +104,18 @@ class SessionsDatabase extends Database {
     if (!result) {
       return [];
     }
+    return Deserializer.deserializeSessions(result);
+  }
+
+  async readExpiringSessions() {
+    return this._queueSessionsAccess(() => this._readExpiringSession(), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readExpiringSession() {
+    const result = await this._db.find({ expiration: { $ne: null } });
+    if (!result) return [];
     return Deserializer.deserializeSessions(result);
   }
 

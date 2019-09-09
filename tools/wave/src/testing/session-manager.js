@@ -22,12 +22,15 @@ class SessionManager {
    * @param {Object} config
    * @param {Database} config.database
    */
-  initialize({ database, testTimeout, testLoader } = {}) {
+  async initialize({ database, testTimeout, testLoader } = {}) {
     this._database = database;
     this._sessions = [];
     this._testTimeout = testTimeout;
     this._testLoader = testLoader;
     this._sessionClients = [];
+
+    await this.deleteExpiredSessions();
+    await this.setExpirationTimer();
   }
 
   async findToken(fragment) {
@@ -45,7 +48,8 @@ class SessionManager {
     timeouts,
     referenceTokens,
     webhookUrls,
-    userAgent
+    userAgent,
+    expirationDate
   } = {}) {
     if (!tests) tests = {};
     if (!tests.include) tests.include = [DEFAULT_TEST_PATH];
@@ -75,10 +79,12 @@ class SessionManager {
       testFilesCompleted: {},
       status: Session.PENDING,
       referenceTokens,
-      webhookUrls
+      webhookUrls,
+      expirationDate
     });
     await this._database.createSession(session);
     this._sessions.push(session);
+    if (expirationDate) await this.setExpirationTimer();
     return session;
   }
 
@@ -169,6 +175,7 @@ class SessionManager {
 
     if (session.getStatus() === Session.PENDING) {
       session.setDateStarted(Date.now());
+      session.setExpirationDate(null);
     }
     session.setStatus(Session.RUNNING);
     await this._database.updateSession(session);
@@ -252,6 +259,36 @@ class SessionManager {
     this._sessionClients
       .filter(client => client.token === token)
       .forEach(client => client.socket.send(message));
+  }
+
+  async deleteExpiredSessions() {
+    const expiringSessions = await this._database.readExpiringSessions();
+    await Promise.all(
+      expiringSessions
+        .filter(session => session.getExpirationDate() < Date.now())
+        .map(session => this.deleteSession(session.getToken()))
+    );
+  }
+
+  async setExpirationTimer() {
+    const expiringSessions = await this._database.readExpiringSessions();
+    if (expiringSessions.length === 0) return;
+
+    const nextSession = expiringSessions.reduce(
+      (currentNext, session) =>
+        !currentNext || currentNext.getExpirationDate() > session.getExpirationDate()
+          ? session
+          : currentNext,
+      null
+    );
+
+    if (this._expirationTimeout) clearTimeout(this._expirationTimeout);
+    let timeout = nextSession.getExpirationDate() - Date.now();
+    if (timeout < 0) timeout = 0;
+    this._expirationTimeout = setTimeout(async () => {
+      await this.deleteExpiredSessions();
+      await this.setExpirationTimer();
+    }, timeout);
   }
 
   _readFromCache(token) {
