@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/keycodes.js"></script>
     <script src="lib/wave-service.js"></script>
+    <script src="lib/qrcode.js"></script>
   </head>
   <body>
     <section class="section">
@@ -31,6 +32,18 @@
 
       <div class="container">
         <form id="apis" class="field">
+          <div class="columns is-vcentered" style="margin-top: 20px">
+            <div class="column is-narrow">
+              <div
+                id="qr-code"
+                style="padding: 5px; border: 1px gray solid; border-radius: 3px;"
+              ></div>
+            </div>
+            <div class="column">
+              Configure a new session on a second device by scanning the QR-Code
+            </div>
+          </div>
+
           <div id="api-controls" class="field-controls">
             <!-- Checkboxes are injected via JS -->
           </div>
@@ -218,31 +231,31 @@
     var selectAllButton = document.getElementById("select-all");
     var selectNoneButton = document.getElementById("select-none");
     var apis = [
-      { title: "2D Context", path: "2dcontext" },
-      { title: "Content Security Policy", path: "content-security-policy" },
-      { title: "CSS", path: "css" },
-      { title: "DOM", path: "dom" },
-      { title: "ECMAScript", path: "ecmascript" },
-      { title: "Encrypted media", path: "encrypted-media" },
-      { title: "Fetch", path: "fetch" },
-      { title: "FileAPI", path: "FileAPI" },
-      { title: "Fullscreen", path: "fullscreen" },
-      { title: "WebGL", path: "webgl" },
-      { title: "HTML", path: "html" },
-      { title: "IndexedDB", path: "IndexedDB" },
-      { title: "Media Source", path: "media-source" },
-      { title: "Notifications", path: "notifications" },
-      { title: "Page Visibility", path: "page-visibility" },
-      { title: "Service Workers", path: "service-workers" },
-      { title: "UI Events", path: "uievents" },
-      { title: "WAVE Extra", path: "wave-extra" },
-      { title: "Webaudio", path: "webaudio" },
-      { title: "WebCryptoAPI", path: "WebCryptoAPI" },
-      { title: "Webmessaging", path: "webmessaging" },
-      { title: "Websockets", path: "websockets" },
-      { title: "Webstorage", path: "webstorage" },
-      { title: "Workers", path: "workers" },
-      { title: "XHR", path: "xhr" }
+      { title: "2D Context", path: "/2dcontext" },
+      { title: "Content Security Policy", path: "/content-security-policy" },
+      { title: "CSS", path: "/css" },
+      { title: "DOM", path: "/dom" },
+      { title: "ECMAScript", path: "/ecmascript" },
+      { title: "Encrypted media", path: "/encrypted-media" },
+      { title: "Fetch", path: "/fetch" },
+      { title: "FileAPI", path: "/FileAPI" },
+      { title: "Fullscreen", path: "/fullscreen" },
+      { title: "WebGL", path: "/webgl" },
+      { title: "HTML", path: "/html" },
+      { title: "IndexedDB", path: "/IndexedDB" },
+      { title: "Media Source", path: "/media-source" },
+      { title: "Notifications", path: "/notifications" },
+      { title: "Page Visibility", path: "/page-visibility" },
+      { title: "Service Workers", path: "/service-workers" },
+      { title: "UI Events", path: "/uievents" },
+      { title: "WAVE Extra", path: "/wave-extra" },
+      { title: "Webaudio", path: "/webaudio" },
+      { title: "WebCryptoAPI", path: "/WebCryptoAPI" },
+      { title: "Webmessaging", path: "/webmessaging" },
+      { title: "Websockets", path: "/websockets" },
+      { title: "Webstorage", path: "/webstorage" },
+      { title: "Workers", path: "/workers" },
+      { title: "XHR", path: "/xhr" }
     ];
     var selectedTabbable = -1;
 
@@ -409,11 +422,15 @@
         var fragment = tokenText.value;
         if (!fragment) return;
 
-        WaveService.findToken(fragment, function (token) {
-          location.href = "/next.html?token=" + token;
-        }, function () {
+        WaveService.findToken(
+          fragment,
+          function(token) {
+            location.href = "/next.html?token=" + token;
+          },
+          function() {
             unknownTokenError.style.display = "block";
-        });
+          }
+        );
       });
 
     document.onkeydown = function(event) {
@@ -487,5 +504,18 @@
       return query;
       return "";
     }
+
+    WaveService.createSession({ /*expirationDate: Date.now() + 15000*/ }, function(
+      token
+    ) {
+      console.log("Session created:", token);
+
+      var configurationUrl =
+        "http://" + location.host + "/configuration.html?token=" + token;
+      new QRCode(document.getElementById("qr-code"), configurationUrl);
+      document.getElementById("qr-code").onclick = function() {
+        window.open(configurationUrl, "_blank");
+      };
+    });
   </script>
 </html>

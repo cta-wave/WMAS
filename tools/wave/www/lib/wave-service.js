@@ -136,6 +136,25 @@ var WaveService = {
       onError
     );
   },
+  updateSession: function(token, configuration, onSuccess, onError) {
+    var data = JSON.stringify({
+      tests: configuration.tests,
+      types: configuration.types,
+      timeouts: configuration.timeouts,
+      reference_tokens: configuration.referenceTokens,
+      expiration_date: configuration.expirationDate
+    });
+    sendRequest(
+      "PUT",
+      "/api/sessions/" + token,
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        onSuccess();
+      },
+      onError
+    );
+  },
   findToken: function(fragment, onSuccess, onError) {
     sendRequest(
       "GET",

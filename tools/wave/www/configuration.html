@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Session Configuration - Web Platform Test</title>
+    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
+    <link rel="stylesheet" href="css/result.css" />
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/utils.js"></script>
+    <script src="lib/wave-service.js"></script>
+    <script src="lib/ui.js"></script>
+  </head>
+  <body>
+    <script>
+      var apis = [
+        { title: "2D Context", path: "/2dcontext" },
+        { title: "Content Security Policy", path: "/content-security-policy" },
+        { title: "CSS", path: "/css" },
+        { title: "DOM", path: "/dom" },
+        { title: "ECMAScript", path: "/ecmascript" },
+        { title: "Encrypted media", path: "/encrypted-media" },
+        { title: "Fetch", path: "/fetch" },
+        { title: "FileAPI", path: "/FileAPI" },
+        { title: "Fullscreen", path: "/fullscreen" },
+        { title: "WebGL", path: "/webgl" },
+        { title: "HTML", path: "/html" },
+        { title: "IndexedDB", path: "/IndexedDB" },
+        { title: "Media Source", path: "/media-source" },
+        { title: "Notifications", path: "/notifications" },
+        { title: "Page Visibility", path: "/page-visibility" },
+        { title: "Service Workers", path: "/service-workers" },
+        { title: "UI Events", path: "/uievents" },
+        { title: "WAVE Extra", path: "/wave-extra" },
+        { title: "Webaudio", path: "/webaudio" },
+        { title: "WebCryptoAPI", path: "/WebCryptoAPI" },
+        { title: "Webmessaging", path: "/webmessaging" },
+        { title: "Websockets", path: "/websockets" },
+        { title: "Webstorage", path: "/webstorage" },
+        { title: "Workers", path: "/workers" },
+        { title: "XHR", path: "/xhr" }
+      ];
+
+      var types = [
+        { title: "Automatic", value: "automatic" },
+        { title: "Manual", value: "manual" }
+      ];
+
+      var referenceSessions = [
+        {
+          title: "Edge 44.17763",
+          engine: "",
+          token: "b2924d20-6a93-11e9-98b4-a11fb92a6d1c",
+          icon: "fab fa-edge"
+        },
+        {
+          title: "Firefox 64.0",
+          engine: "Gecko 64.0",
+          token: "bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f",
+          icon: "fab fa-firefox"
+        },
+        {
+          title: "WebKit 605.1.15",
+          engine: "Revision 239158",
+          token: "caf823e0-6a92-11e9-b732-3188d0065ebc",
+          icon: "fab fa-safari"
+        },
+        {
+          title: "Chromium 73.0.3640.0",
+          engine: "Blink 537.36",
+          token: "a50c6db0-6a94-11e9-8d1b-e23fc4555885",
+          icon: "fab fa-chrome"
+        }
+      ];
+
+      window.onload = function() {
+        const query = utils.parseQuery(location.search);
+        token = query.token;
+        configurationUi.render();
+        WaveService.readSession(token, function(configuration) {
+          if (
+            configuration.tests.include.findIndex(test => test === "/") !== -1
+          ) {
+            configuration.tests.include = apis.map(api => api.path);
+          }
+          configurationUi.state.configurationBackup = utils.copyObject(
+            configuration
+          );
+          configurationUi.state.configuration = configuration;
+          configurationUi.renderSessionConfiguration();
+        });
+      };
+
+      var configurationUi = {
+        state: {},
+        hasIncludedTest: function(path) {
+          var configuration = configurationUi.state.configuration;
+          var index = configuration.tests.include.findIndex(
+            test => test === path
+          );
+          return index !== -1;
+        },
+        handleIncludedTestToggle: function(path) {
+          var configuration = configurationUi.state.configuration;
+          if (configurationUi.hasIncludedTest(path)) {
+            var index = configuration.tests.include.findIndex(
+              test => test === path
+            );
+            configuration.tests.include.splice(index, 1);
+          } else {
+            configuration.tests.include.push(path);
+          }
+          configurationUi.renderSessionConfiguration();
+        },
+        selectAllTests: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.tests.include = apis.map(api => api.path);
+          configurationUi.renderSessionConfiguration();
+        },
+        deselectAllTests: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.tests.include = [];
+          configurationUi.renderSessionConfiguration();
+        },
+        hasTestType: function(value) {
+          var configuration = configurationUi.state.configuration;
+          var index = configuration.types.findIndex(type => type === value);
+          return index !== -1;
+        },
+        handleTestTypeToggle: function(value) {
+          var configuration = configurationUi.state.configuration;
+          if (configurationUi.hasTestType(value)) {
+            var index = configuration.types.findIndex(type => type === value);
+            configuration.types.splice(index, 1);
+          } else {
+            configuration.types.push(value);
+          }
+          configurationUi.renderSessionConfiguration();
+        },
+        selectAllTestTypes: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.types = types.map(type => type.value);
+          configurationUi.renderSessionConfiguration();
+        },
+        deselectAllTestTypes: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.types = [];
+          configurationUi.renderSessionConfiguration();
+        },
+        hasRefSession: function(session) {
+          var configuration = configurationUi.state.configuration;
+          var index = configuration.referenceTokens.findIndex(
+            token => token === session.token
+          );
+          return index !== -1;
+        },
+        handleRefSessionToggle: function(session) {
+          var configuration = configurationUi.state.configuration;
+          if (configurationUi.hasRefSession(session)) {
+            var index = configuration.referenceTokens.findIndex(
+              token => token === session.token
+            );
+            configuration.referenceTokens.splice(index, 1);
+          } else {
+            configuration.referenceTokens.push(session.token);
+          }
+          configurationUi.renderSessionConfiguration();
+        },
+        selectAllRefSessions: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.referenceTokens = referenceSessions.map(
+            session => session.token
+          );
+          configurationUi.renderSessionConfiguration();
+        },
+        deselectAllRefSessions: function() {
+          var configuration = configurationUi.state.configuration;
+          configuration.referenceTokens = [];
+          configurationUi.renderSessionConfiguration();
+        },
+        isTestListValid: function() {
+          var configuration = configurationUi.state.configuration;
+          return configuration.tests.include.length > 0;
+        },
+        isTestTypeListValid: function() {
+          var configuration = configurationUi.state.configuration;
+          return configuration.types.length > 0;
+        },
+        isConfigurationValid: function() {
+          if (!configurationUi.isTestListValid()) return false;
+          if (!configurationUi.isTestTypeListValid()) return false;
+          return true;
+        },
+        handleSaveChanges: function() {
+          var configuration = configurationUi.state.configuration;
+          WaveService.updateSession(
+            configuration.token,
+            configuration,
+            function() {
+              console.log("SAVE SUCCESSFUL!");
+            }
+          );
+        },
+        handleDiscardChanges: function() {
+          configurationUi.state.configuration = utils.copyObject(
+            configurationUi.state.configurationBackup
+          );
+          configurationUi.renderSessionConfiguration();
+        },
+        render: function() {
+          const configurationView = UI.createElement({
+            className: "content",
+            style: "margin-bottom: 40px;",
+            children: [
+              {
+                className: "header",
+                children: [
+                  {
+                    children: [
+                      {
+                        element: "img",
+                        src: "res/wavelogo_2016.jpg",
+                        className: "site-logo"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                id: "header",
+                children: [
+                  { className: "title", text: "Session Configuration" },
+                  { id: "controls" }
+                ]
+              },
+              { id: "session-configuration" }
+            ]
+          });
+          const root = UI.getRoot();
+          root.innerHTML = "";
+          root.appendChild(configurationView);
+          configurationUi.renderSessionConfiguration();
+        },
+        renderSessionConfiguration: function() {
+          var configuration = configurationUi.state.configuration;
+          var sessionConfigurationView = UI.createElement();
+          var sessionConfiguration = UI.getElement("session-configuration");
+          sessionConfiguration.innerHTML = "";
+
+          if (!configuration) {
+            var loadingIndicator = UI.createElement({
+              className: "level",
+              children: {
+                element: "span",
+                className: "level-item icon",
+                children: [
+                  {
+                    element: "i",
+                    className: "fas fa-spinner fa-pulse"
+                  },
+                  {
+                    style: "margin-left: 0.4em;",
+                    text: "Loading configuration ..."
+                  }
+                ]
+              }
+            });
+            sessionConfigurationView.appendChild(loadingIndicator);
+            sessionConfiguration.appendChild(sessionConfigurationView);
+            return;
+          }
+
+          var configurationTable = UI.createElement({
+            element: "table",
+            className: "table",
+            children: [
+              {
+                element: "tbody",
+                children: [
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Token" },
+                      { element: "td", text: configuration.token }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      {
+                        element: "td",
+                        children: [
+                          { element: "span", text: "Tests" },
+                          configurationUi.createSelectDeselectButtons(
+                            configurationUi.selectAllTests,
+                            configurationUi.deselectAllTests
+                          )
+                        ]
+                      },
+                      {
+                        element: "td",
+                        class: "field-controls",
+                        children: [
+                          configurationUi.isTestListValid()
+                            ? null
+                            : configurationUi.createErrorMessage(
+                                "Select at least one API"
+                              )
+                        ].concat(configurationUi.createApiList(apis))
+                      }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      {
+                        element: "td",
+                        style: "min-width: 8em",
+                        children: [
+                          { element: "span", text: "Test Types" },
+                          configurationUi.createSelectDeselectButtons(
+                            configurationUi.selectAllTestTypes,
+                            configurationUi.deselectAllTestTypes
+                          )
+                        ]
+                      },
+                      {
+                        element: "td",
+                        children: [
+                          configurationUi.isTestTypeListValid()
+                            ? null
+                            : configurationUi.createErrorMessage(
+                                "Select at least one test type"
+                              )
+                        ].concat(configurationUi.createTestTypeList(types))
+                      }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      {
+                        element: "td",
+                        children: [
+                          { element: "span", text: "Reference Sessions" },
+                          configurationUi.createSelectDeselectButtons(
+                            configurationUi.selectAllRefSessions,
+                            configurationUi.deselectAllRefSessions
+                          )
+                        ]
+                      },
+                      {
+                        element: "td",
+                        children: configurationUi.createRefSessionsList(
+                          referenceSessions
+                        )
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(configurationTable);
+
+          var buttonList = UI.createElement({
+            className: "level level-right",
+            children: [
+              {
+                element: "button",
+                className: "button is-success",
+                style: "margin-right: 0.3em",
+                disabled: !configurationUi.isConfigurationValid(),
+                onClick: configurationUi.handleSaveChanges,
+                children: [
+                  {
+                    element: "span",
+                    className: "icon",
+                    children: [
+                      {
+                        element: "i",
+                        className: "fas fa-check"
+                      }
+                    ]
+                  },
+                  {
+                    element: "span",
+                    text: "Save Changes"
+                  }
+                ]
+              },
+              {
+                element: "button",
+                className: "button",
+                onClick: configurationUi.handleDiscardChanges,
+                children: [
+                  {
+                    element: "span",
+                    className: "icon",
+                    children: [
+                      {
+                        element: "i",
+                        className: "fas fa-times"
+                      }
+                    ]
+                  },
+                  {
+                    element: "span",
+                    text: "Discard Changes"
+                  }
+                ]
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(buttonList);
+        },
+        createApiList: function(apis) {
+          return apis.map(api => ({
+            element: "button",
+            style: "margin-right: 0.3em; margin-bottom: 0.3em",
+            className:
+              "button" +
+              (configurationUi.hasIncludedTest(api.path) ? " is-info" : ""),
+            text: api.title,
+            onClick: function(event) {
+              configurationUi.handleIncludedTestToggle(api.path);
+            }
+          }));
+        },
+        createTestTypeList: function(types) {
+          return types.map(type => ({
+            element: "button",
+            style: "margin-right: 0.3em; margin-bottom: 0.3em",
+            className:
+              "button" +
+              (configurationUi.hasTestType(type.value) ? " is-info" : ""),
+            text: type.title,
+            onClick: function(event) {
+              configurationUi.handleTestTypeToggle(type.value);
+            }
+          }));
+        },
+        createRefSessionsList: function(referenceSessions) {
+          return referenceSessions.map(session => ({
+            element: "button",
+            className:
+              "button" +
+              (configurationUi.hasRefSession(session) ? " is-info" : ""),
+            style: "margin-right: 0.3em; margin-bottom: 0.3em; height: auto",
+            onClick: function() {
+              configurationUi.handleRefSessionToggle(session);
+            },
+            children: [
+              {
+                element: "span",
+                className: "icon",
+                children: [{ element: "i", className: session.icon }]
+              },
+              {
+                element: "span",
+                children: [
+                  { text: session.title },
+                  {
+                    text: session.engine,
+                    style: "font-size: 0.8em"
+                  }
+                ]
+              }
+            ]
+          }));
+        },
+        createSelectDeselectButtons: function(onSelect, onDeselect) {
+          return {
+            style: "margin-top: 0.3em",
+            children: [
+              {
+                element: "button",
+                style: "margin-right: 0.3em",
+                className: "button is-rounded is-small",
+                text: "All",
+                onClick: onSelect
+              },
+              {
+                element: "button",
+                className: "button is-rounded is-small",
+                text: "None",
+                onClick: onDeselect
+              }
+            ]
+          };
+        },
+        createErrorMessage: function(message) {
+          return {
+            element: "article",
+            className: "message is-danger",
+            children: [
+              {
+                className: "message-body",
+                text: message
+              }
+            ]
+          };
+        }
+      };
+    </script>
+  </body>
+</html>
