@@ -30,7 +30,7 @@
         state: { details: null, results: null, referenceSessions: [] },
         refreshData: toUpdate => {
           switch (toUpdate) {
-            case "complete":
+            case "test_completed":
               resultUi.refreshSessionStatus(() => {
                 resultUi.refreshSessionResults(() => {
                   resultUi.renderApiResults();
@@ -113,10 +113,10 @@
           });
         },
         connectWebSocket() {
-          if (!WaveService.socket) {
+          if (!WaveService.isConnected()) {
             WaveService.connect(token);
             WaveService.onMessage(message => {
-              resultUi.refreshData(message.data);
+              resultUi.refreshData(message.type);
             });
           }
         },

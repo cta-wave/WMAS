@@ -191,15 +191,14 @@
           if (!configurationUi.isTestTypeListValid()) return false;
           return true;
         },
-        handleSaveChanges: function() {
+        handleStart: function() {
           var configuration = configurationUi.state.configuration;
-          WaveService.updateSession(
-            configuration.token,
-            configuration,
-            function() {
-              console.log("SAVE SUCCESSFUL!");
-            }
-          );
+          var token = configuration.token;
+          WaveService.updateSession(token, configuration, function() {
+            WaveService.startSession(token, function() {
+              location.href = "/results.html?token=" + token;
+            });
+          });
         },
         handleDiscardChanges: function() {
           configurationUi.state.configuration = utils.copyObject(
@@ -371,7 +370,7 @@
                 className: "button is-success",
                 style: "margin-right: 0.3em",
                 disabled: !configurationUi.isConfigurationValid(),
-                onClick: configurationUi.handleSaveChanges,
+                onClick: configurationUi.handleStart,
                 children: [
                   {
                     element: "span",
@@ -385,7 +384,7 @@
                   },
                   {
                     element: "span",
-                    text: "Save Changes"
+                    text: "Start Session"
                   }
                 ]
               },

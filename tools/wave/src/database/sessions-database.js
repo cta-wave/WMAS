@@ -114,7 +114,7 @@ class SessionsDatabase extends Database {
   }
 
   async _readExpiringSession() {
-    const result = await this._db.find({ expiration: { $ne: null } });
+    const result = await this._db.find({ expiration_date: { $ne: null } });
     if (!result) return [];
     return Deserializer.deserializeSessions(result);
   }

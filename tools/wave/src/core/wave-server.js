@@ -12,6 +12,7 @@ const TestManager = require("../testing/test-manager");
 const ConfigurationLoader = require("../core/configuration-loader");
 const WebSocketServer = require("../network/web-socket-server");
 const Route = require("../data/route");
+const EventDispatcher = require("../testing/event-dispatcher");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -51,17 +52,24 @@ class WaveServer {
     await database.initialize(databaseDirectoryPath);
     println(" done.");
 
+    const eventDispatcher = new EventDispatcher();
     const testLoader = new TestLoader();
     const testManager = new TestManager();
     const sessionManager = new SessionManager();
     const resultsManager = new ResultsManager();
 
-    testManager.initialize({ testLoader, resultsManager, sessionManager });
+    testManager.initialize({
+      testLoader,
+      resultsManager,
+      sessionManager,
+      eventDispatcher
+    });
 
     await sessionManager.initialize({
       database,
       testTimeout,
-      testLoader
+      testLoader,
+      eventDispatcher
     });
 
     resultsManager.initialize({
@@ -102,7 +110,8 @@ class WaveServer {
 
     const sessionApiHandler = new SessionApiHandler(
       sessionManager,
-      resultsManager
+      resultsManager,
+      eventDispatcher
     );
     httpServer.registerRoutes(sessionApiHandler.getRoutes());
 
@@ -136,8 +145,8 @@ class WaveServer {
     httpServer.registerRoutes(staticRoutes);
 
     const webSocketServer = new WebSocketServer({
-      sessionManager,
-      server: httpServer.getServer()
+      server: httpServer.getServer(),
+      eventDispatcher
     });
 
     this._httpServer = httpServer;
