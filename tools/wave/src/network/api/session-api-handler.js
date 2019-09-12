@@ -145,6 +145,19 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _setSessionLabel({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const { sessionLabel } = request.body;
+      await this._sessionManager.setSessionLabel(token, sessionLabel);
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to set session label:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _deleteSession({ request, response }) {
     try {
       const url = this.parseUrl(request);
@@ -240,6 +253,11 @@ class SessionApiHandler extends ApiHandler {
     switch (url.length) {
       case 2:
         return this._updateSessionConfiguration({ request, response });
+      case 3:
+        switch (url[2].toLowerCase()) {
+          case "label":
+          return this._setSessionLabel({ request, response });
+        }
     }
     response.status(404).send();
   }

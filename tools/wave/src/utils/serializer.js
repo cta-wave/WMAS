@@ -19,6 +19,7 @@ class Serializer {
     const tests = session.getTests();
     const types = session.getTypes();
     const user_agent = session.getUserAgent();
+    const sessionLabel = session.getSessionLabel();
     const timeouts = session.getTimeouts();
     const test_files_count = session.getTestFilesCount();
     const test_files_completed = session.getTestFilesCompleted();
@@ -37,6 +38,7 @@ class Serializer {
       tests,
       types,
       user_agent,
+      sessionLabel,
       timeouts,
       test_files_count,
       test_files_completed,

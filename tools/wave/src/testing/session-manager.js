@@ -151,6 +151,16 @@ class SessionManager {
     return session;
   }
 
+  async setSessionLabel(token, sessionLabel) {
+    if(!token || !sessionLabel){
+      return;
+    }
+    const session = await this.readSession(token);
+   session.setSessionLabel(sessionLabel);
+   await this._database.updateSession(session);
+    console.log(" label ", session.getSessionLabel());
+    return;
+  }
   async deleteSession(token) {
     this._sessions.splice(
       this._sessions.findIndex(session => session.getToken() === token),
