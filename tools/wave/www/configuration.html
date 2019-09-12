@@ -77,17 +77,24 @@
         const query = utils.parseQuery(location.search);
         token = query.token;
         configurationUi.render();
-        WaveService.readSession(token, function(configuration) {
-          if (
-            configuration.tests.include.findIndex(test => test === "/") !== -1
-          ) {
-            configuration.tests.include = apis.map(api => api.path);
+        WaveService.readSessionStatus(token, function(status) {
+          if (status.status !== "pending") {
+            configurationUi.openResultsPage();
+            return;
           }
-          configurationUi.state.configurationBackup = utils.copyObject(
-            configuration
-          );
-          configurationUi.state.configuration = configuration;
-          configurationUi.renderSessionConfiguration();
+
+          WaveService.readSession(token, function(configuration) {
+            if (
+              configuration.tests.include.findIndex(test => test === "/") !== -1
+            ) {
+              configuration.tests.include = apis.map(api => api.path);
+            }
+            configurationUi.state.configurationBackup = utils.copyObject(
+              configuration
+            );
+            configurationUi.state.configuration = configuration;
+            configurationUi.renderSessionConfiguration();
+          });
         });
       };
 
@@ -191,20 +198,29 @@
           if (!configurationUi.isTestTypeListValid()) return false;
           return true;
         },
+        isSessionStarting: function() {
+          return configurationUi.state.isStarting;
+        },
         handleStart: function() {
+          if (configurationUi.isSessionStarting()) return;
           var configuration = configurationUi.state.configuration;
           var token = configuration.token;
           WaveService.updateSession(token, configuration, function() {
             WaveService.startSession(token, function() {
-              location.href = "/results.html?token=" + token;
+              configurationUi.openResultsPage();
             });
           });
+          configurationUi.state.isStarting = true;
+          configurationUi.renderSessionConfiguration();
         },
         handleDiscardChanges: function() {
           configurationUi.state.configuration = utils.copyObject(
             configurationUi.state.configurationBackup
           );
           configurationUi.renderSessionConfiguration();
+        },
+        openResultsPage: function() {
+          location.href = "/results.html?token=" + token;
         },
         render: function() {
           const configurationView = UI.createElement({
@@ -378,13 +394,17 @@
                     children: [
                       {
                         element: "i",
-                        className: "fas fa-check"
+                        className: configurationUi.isSessionStarting()
+                          ? "fas fa-spinner fa-pulse"
+                          : "fas fa-play"
                       }
                     ]
                   },
                   {
                     element: "span",
-                    text: "Start Session"
+                    text: configurationUi.isSessionStarting()
+                      ? "Starting Session ..."
+                      : "Start Session"
                   }
                 ]
               },
@@ -392,6 +412,7 @@
                 element: "button",
                 className: "button",
                 onClick: configurationUi.handleDiscardChanges,
+                disabled: configurationUi.isSessionStarting(),
                 children: [
                   {
                     element: "span",

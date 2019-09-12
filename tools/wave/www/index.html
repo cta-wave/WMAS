@@ -406,11 +406,9 @@
     });
 
     // Resume
-    var resumeToken = document.cookie
-      .split(";")
-      .find(
-        cookie => cookie.split("=")[0].replace(/ /g, "") === "resume_token"
-      );
+    var resumeToken = document.cookie.split(";").find(function(cookie) {
+      return cookie.split("=")[0].replace(/ /g, "") === "resume_token";
+    });
     var tokenText = document.getElementById("resume_token");
     if (resumeToken) tokenText.value = resumeToken.split("=")[1];
     var unknownTokenError = document.getElementById("unknown_token_error");
@@ -506,17 +504,25 @@
     }
 
     var lifeTime = 30 * 60 * 1000; // 30min
-    WaveService.createSession({ expirationDate: Date.now() + lifeTime }, function(
-      token
-    ) {
-      console.log("Session created:", token);
+    WaveService.createSession(
+      { expirationDate: Date.now() + lifeTime },
+      function(token) {
+        var configurationUrl =
+          "http://" + location.host + "/configuration.html?token=" + token;
+        new QRCode(document.getElementById("qr-code"), configurationUrl);
+        document.getElementById("qr-code").onclick = function() {
+          window.open(configurationUrl, "_blank");
+        };
 
-      var configurationUrl =
-        "http://" + location.host + "/configuration.html?token=" + token;
-      new QRCode(document.getElementById("qr-code"), configurationUrl);
-      document.getElementById("qr-code").onclick = function() {
-        window.open(configurationUrl, "_blank");
-      };
-    });
+        WaveService.connect(token);
+        WaveService.onMessage(function(message) {
+          if (message.type !== "status") return;
+          if (message.data === "pending") return;
+          WaveService.readNextTest(token, function(url) {
+            location.href = url;
+          });
+        });
+      }
+    );
   </script>
 </html>
