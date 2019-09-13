@@ -122,6 +122,20 @@ var WaveService = {
       );
     }
   },
+  setSessionLabel: function(token,sessionLabel, onSuccess, onError) {
+    const label = {"sessionLabel" : sessionLabel};
+    sendRequest(
+      "PUT",
+      "/api/sessions/" + token + "/label",
+      { "Content-Type": "application/json" },
+      JSON.stringify(label),
+      function() {
+        onSuccess();
+      },
+      onError
+    );
+    console.log("set label: ", sessionLabel);
+  },
   readPublicSessions: function(onSuccess, onError) {
     sendRequest(
       "GET",

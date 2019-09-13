@@ -29,7 +29,7 @@
       }
 
       .content {
-        width: 1000px;
+        width: 1100px;
         padding: 0 10px;
       }
 
@@ -654,6 +654,9 @@
                     {element: "td", text: "Date Started", onclick: () => resultsUi.sortSessions(tableType,"dateStarted"), style: "cursor: pointer",
                       children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "dateStarted" ? "visible;" : "hidden;")}]
                     },
+                    {element: "td", text: "Label", onclick: () => resultsUi.sortSessions(tableType,"sessionLabel"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "sessionLabel" ? "visible;" : "hidden;")}]
+                    },
                     static
                       ? null
                       : {
@@ -733,6 +736,12 @@
                     {
                       element: "td",
                       text: session.dateStarted ? new Date(session.dateStarted).toLocaleString() : "not started"
+                    },
+                    {
+                      element: "td",
+                      className: "is-family-monospace",
+                      style: "vertical-align: middle;",
+                      text: session.sessionLabel ? `${session.sessionLabel.substr(0, 15)} ...`: ""
                     },
                     static
                       ? null

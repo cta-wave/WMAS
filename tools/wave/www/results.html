@@ -10,6 +10,7 @@
     <script src="lib/utils.js"></script>
     <script src="lib/wave-service.js"></script>
     <script src="lib/ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   </head>
   <body>
     <script>
@@ -28,6 +29,11 @@
 
       const resultUi = {
         state: { details: null, results: null, referenceSessions: [] },
+        registerEventListener(){
+          $("#sessionLabelInput").on('input',function(e){
+            resultUi.onLabelChanged();
+          });
+        },
         refreshData: toUpdate => {
           switch (toUpdate) {
             case "complete":
@@ -159,6 +165,15 @@
         },
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
+        },
+        setSessionLabel() {
+          const label = document.getElementById("sessionLabelInput").value
+          if(!resultUi.state.labelSaved){
+          WaveService.setSessionLabel(token, label,function() {
+            resultUi.state.labelSaved = true;
+            $("#saveLabelButton").attr("disabled", "disabled");
+          });
+        }
         },
         render() {
           const resultView = UI.createElement({
@@ -526,7 +541,29 @@
                         }
                       ]
                     }
-                  : null
+                  : null,
+                  {
+                    element: "tr",
+                    children: [
+                      {
+                        element: "td", text: "Label:"
+                      },
+                      {
+                        element: "input",
+                        style: "margin: 10px",
+                        id: "sessionLabelInput",
+                        type: "text"
+                      },
+                      {
+                        className: "button is-dark is-outlined is-small",
+                        style: "margin-top: 8px",
+                        id:"saveLabelButton",
+                        disabled: !resultUi.state.labelSaved,
+                        text: "save",
+                        onClick: () => resultUi.setSessionLabel(token)
+                      },
+                    ]
+                  }
               ]
             }
           });
@@ -536,6 +573,7 @@
           sessionDetails.innerHTML = "";
           sessionDetails.appendChild(sessionDetailsView);
           resultUi.renderReferenceSessions();
+          resultUi.registerEventListener();
         },
         renderReferenceSessions() {
           const { referenceSessions } = resultUi.state;
@@ -891,6 +929,10 @@
           const exportElement = UI.getElement("export");
           exportElement.innerHTML = "";
           exportElement.appendChild(exportView);
+        },
+        onLabelChanged(){
+          resultUi.state.labelSaved= false;
+          $("#saveLabelButton").removeAttr("disabled");
         }
       };
     </script>
