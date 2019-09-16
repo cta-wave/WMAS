@@ -387,6 +387,31 @@ class ResultsManager {
     return result;
   }
 
+  async importResults(blob) {
+    const extractZip = async (blob, destinationPath) => {
+      const zip = new JSZip();
+      const content = await zip.loadAsync(blob);
+      const keys = Object.keys(content.files);
+      for (let i = 0; i < keys.length; i++) {
+        const file = content.files[keys[i]];
+        const filePath = path.join(destinationPath, file.name);
+        if (file.dir) {
+          await FileSystem.makeDirectory(filePath);
+        } else {
+          const data = await file.async("string");
+          await FileSystem.writeFile(filePath, data);
+        }
+      }
+    };
+    const zip = await JSZip.loadAsync(blob);
+    const info = JSON.parse(await zip.file("/info.json").async("string"));
+    if (!info.token) throw new Error("Invalid session ZIP!");
+    const destinationPath = path.join(this._resultsDirectoryPath, info.token);
+    await extractZip(blob, destinationPath);
+    await this.loadResults();
+    return info.token;
+  }
+
   async exportResults(token) {
     if (!token) return;
     const session = await this._sessionManager.readSession(token);
@@ -417,7 +442,9 @@ class ResultsManager {
     const files = await readDirectoryFiles(sessionResultsDirectory);
 
     const zip = new JSZip();
-    files.forEach(file => zip.file(file.path.replace(sessionResultsDirectory, ""), file.data));
+    files.forEach(file =>
+      zip.file(file.path.replace(sessionResultsDirectory, ""), file.data)
+    );
     return zip.generateAsync({ type: "nodebuffer" });
   }
 

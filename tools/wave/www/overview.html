@@ -50,7 +50,7 @@
         resultsUi.loadData();
       };
       var sortDetail = {};
-      const defaultSortDetail = {sortColumn: 'dateStarted', ascending: true};;
+      const defaultSortDetail = { sortColumn: "dateStarted", ascending: true };
       sortDetail["recentSessions"] = defaultSortDetail;
       sortDetail["pinnedSessions"] = defaultSortDetail;
       sortDetail["publicSessions"] = defaultSortDetail;
@@ -147,16 +147,20 @@
         },
         findSession(fragment, callback) {
           if (!fragment || fragment.length < 8) return;
-          WaveService.findToken(fragment, token => {
-            WaveService.readSession(token, session => {
-              WaveService.readSessionStatus(token, status => {
-                session.status = status.status;
-                session.dateStarted = status.dateStarted;
-                session.dateFinished = status.dateFinished;
-                callback(session);
-              })
-            });
-          }, () => callback(null));
+          WaveService.findToken(
+            fragment,
+            token => {
+              WaveService.readSession(token, session => {
+                WaveService.readSessionStatus(token, status => {
+                  session.status = status.status;
+                  session.dateStarted = status.dateStarted;
+                  session.dateFinished = status.dateFinished;
+                  callback(session);
+                });
+              });
+            },
+            () => callback(null)
+          );
         },
         addSession(session) {
           const token = session.token;
@@ -198,38 +202,49 @@
           location.href = `results.html?token=${token}`;
         },
         sortSessions(tableType, column) {
-          if (tableType in sortDetail){
-          if(sortDetail[tableType].sortColumn == column){
-            sortDetail[tableType].ascending = !sortDetail[tableType].ascending;
-          }else{
-            sortDetail[tableType].sortColumn = column;
-            sortDetail[tableType].ascending = true;
+          if (tableType in sortDetail) {
+            if (sortDetail[tableType].sortColumn == column) {
+              sortDetail[tableType].ascending = !sortDetail[tableType]
+                .ascending;
+            } else {
+              sortDetail[tableType].sortColumn = column;
+              sortDetail[tableType].ascending = true;
+            }
+            switch (tableType) {
+              case "recentSessions":
+                resultsUi.renderRecentSessions();
+                break;
+              case "pinnedSessions":
+                resultsUi.renderPinnedSessions();
+                break;
+              case "publicSessions":
+                resultsUi.renderPublicSessions();
+                break;
+            }
           }
-          switch(tableType){
-            case "recentSessions":
-              resultsUi.renderRecentSessions();
-              break;
-            case "pinnedSessions":
-              resultsUi.renderPinnedSessions();
-              break;
-            case "publicSessions":
-              resultsUi.renderPublicSessions();
-              break;
-        }
-      }
         },
-        sortSessionsByColumn(sessions,recentSessions,column, ascending){
+        sortSessionsByColumn(sessions, recentSessions, column, ascending) {
           var resultArray = recentSessions
-          .map(token => sessions[token])
-          .sort(function(sessionA, sessionB){
-            const columnA = column == "browser" ? sessionA[column].name + sessionA[column].version : sessionA[column];
-            const columnB = column == "browser" ? sessionB[column].name + sessionA[column].version : sessionB[column];
-             if(columnA < columnB) { return -1; }
-             if(columnA > columnB) { return 1; }
-             return 0;
-          });
-          if(ascending){
-            resultArray.reverse()
+            .map(token => sessions[token])
+            .sort(function(sessionA, sessionB) {
+              const columnA =
+                column == "browser"
+                  ? sessionA[column].name + sessionA[column].version
+                  : sessionA[column];
+              const columnB =
+                column == "browser"
+                  ? sessionB[column].name + sessionA[column].version
+                  : sessionB[column];
+              if (columnA < columnB) {
+                return -1;
+              }
+              if (columnA > columnB) {
+                return 1;
+              }
+              return 0;
+            });
+          if (ascending) {
+            resultArray.reverse();
           }
           return resultArray;
         },
@@ -305,7 +320,7 @@
           const tokenFragmentInput = UI.getElement("token-fragment");
           const fragment = tokenFragmentInput.value;
           resultsUi.findSession(fragment, session => {
-            console.log(session)
+            console.log(session);
             if (!session) {
               resultsUi.showAddSessionError();
               return;
@@ -314,6 +329,17 @@
             resultsUi.hideAddSessionError();
             resultsUi.addSession(session);
           });
+        },
+        handleImportSession() {
+          const file = UI.getElement("import-session-file").files[0];
+          const reader = new FileReader();
+          reader.readAsArrayBuffer(file);
+          reader.onload = () => {
+            const data = reader.result;
+            WaveService.importResults(data, function(token) {
+              location.href = "/results.html?token=" + token;
+            });
+          };
         },
         render() {
           const { getRoot, createElement, getElement } = UI;
@@ -468,6 +494,88 @@
                   }
                 ]
               },
+              {
+                className: "columns",
+                children: [
+                  {
+                    className: "column",
+                    children: [
+                      { text: "Import Sessions", className: "title is-5" },
+                      {
+                        style: "display: flex; margin-bottom: 10px;",
+                        children: [
+                          {
+                            className: "file",
+                            children: [
+                              {
+                                element: "label",
+                                className: "file-label",
+                                children: [
+                                  {
+                                    element: "input",
+                                    className: "file-input",
+                                    type: "file",
+                                    accept: ".zip",
+                                    id: "import-session-file"
+                                  },
+                                  {
+                                    element: "span",
+                                    className: "file-cta",
+                                    children: [
+                                      {
+                                        element: "span",
+                                        className: "file-icon",
+                                        children: [
+                                          {
+                                            element: "i",
+                                            className: "fas fa-upload"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        element: "span",
+                                        className: "file-label",
+                                        text: "Choose ZIP file"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        style: "text-align: right",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-plus"
+                                  }
+                                ]
+                              },
+                              { text: "Import Session", element: "span" }
+                            ],
+                            style: "margin-left: 20px",
+                            onclick: resultsUi.handleImportSession
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    className: "column",
+                    children: []
+                  }
+                ]
+              },
               { id: "sessions" }
             ]
           });
@@ -504,10 +612,15 @@
               className: "title is-5"
             })
           );
-          const sortedPublicSessions = resultsUi.sortSessionsByColumn(sessions,publicSessions, sortDetail["publicSessions"].sortColumn, sortDetail["publicSessions"].ascending);
+          const sortedPublicSessions = resultsUi.sortSessionsByColumn(
+            sessions,
+            publicSessions,
+            sortDetail["publicSessions"].sortColumn,
+            sortDetail["publicSessions"].ascending
+          );
           publicSessionsView.appendChild(
             resultsUi.createSessionsTable(
-            "publicSessions",
+              "publicSessions",
               sortedPublicSessions,
               { static: true }
             )
@@ -525,7 +638,12 @@
           pinnedSessionsView.appendChild(
             UI.createElement({ text: "Pinned", className: "title is-5" })
           );
-          const sortedPinnedSessions = resultsUi.sortSessionsByColumn(sessions,pinnedSessions, sortDetail["pinnedSessions"].sortColumn, sortDetail["pinnedSessions"].ascending);
+          const sortedPinnedSessions = resultsUi.sortSessionsByColumn(
+            sessions,
+            pinnedSessions,
+            sortDetail["pinnedSessions"].sortColumn,
+            sortDetail["pinnedSessions"].ascending
+          );
           pinnedSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "pinnedSessions",
@@ -546,7 +664,12 @@
           recentSessionsView.appendChild(
             UI.createElement({ text: "Recent", className: "title is-5" })
           );
-          const sortedRecentSessions = resultsUi.sortSessionsByColumn(sessions,recentSessions, sortDetail["recentSessions"].sortColumn, sortDetail["recentSessions"].ascending);
+          const sortedRecentSessions = resultsUi.sortSessionsByColumn(
+            sessions,
+            recentSessions,
+            sortDetail["recentSessions"].sortColumn,
+            sortDetail["recentSessions"].ascending
+          );
           recentSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "recentSessions",
@@ -605,7 +728,11 @@
             return;
           }
         },
-        createSessionsTable(tableType, sessions, { pinned = false, static = false } = {}) {
+        createSessionsTable(
+          tableType,
+          sessions,
+          { pinned = false, static = false } = {}
+        ) {
           const getTagStyle = status => {
             switch (status) {
               case "completed":
@@ -621,9 +748,11 @@
             }
           };
           var sortIcon = null;
-          if (tableType in sortDetail){
-          sortIcon = sortDetail[tableType].ascending ? "fas fa-sort-down" : "fas fa-sort-up";
-        }
+          if (tableType in sortDetail) {
+            sortIcon = sortDetail[tableType].ascending
+              ? "fas fa-sort-down"
+              : "fas fa-sort-up";
+          }
           return UI.createElement({
             element: "table",
             className: "table is-bordered is-hoverable is-fullwidth",
@@ -639,20 +768,99 @@
                       text: "Cp",
                       title: "Select for comparison"
                     },
-                    {element: "td", text: "Token", onclick: () => resultsUi.sortSessions(tableType, "token"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "token" ? "visible;" : "hidden;")}]
+                    {
+                      element: "td",
+                      text: "Token",
+                      onclick: () => resultsUi.sortSessions(tableType, "token"),
+                      style: "cursor: pointer",
+                      children: [
+                        {
+                          element: "i",
+                          className: sortIcon,
+                          style:
+                            "padding-left: 20px; visibility:" +
+                            (sortIcon &&
+                            sortDetail[tableType].sortColumn == "token"
+                              ? "visible;"
+                              : "hidden;")
+                        }
+                      ]
                     },
-                    {element: "td", text: "Browser", onclick: () => resultsUi.sortSessions(tableType,"browser"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "browser" ? "visible;" : "hidden;")}]
+                    {
+                      element: "td",
+                      text: "Browser",
+                      onclick: () =>
+                        resultsUi.sortSessions(tableType, "browser"),
+                      style: "cursor: pointer",
+                      children: [
+                        {
+                          element: "i",
+                          className: sortIcon,
+                          style:
+                            "padding-left: 20px; visibility:" +
+                            (sortIcon &&
+                            sortDetail[tableType].sortColumn == "browser"
+                              ? "visible;"
+                              : "hidden;")
+                        }
+                      ]
                     },
-                    {element: "td", text: "Status", onclick: () => resultsUi.sortSessions(tableType,"status"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "status" ? "visible;" : "hidden;")}]
+                    {
+                      element: "td",
+                      text: "Status",
+                      onclick: () =>
+                        resultsUi.sortSessions(tableType, "status"),
+                      style: "cursor: pointer",
+                      children: [
+                        {
+                          element: "i",
+                          className: sortIcon,
+                          style:
+                            "padding-left: 20px; visibility:" +
+                            (sortIcon &&
+                            sortDetail[tableType].sortColumn == "status"
+                              ? "visible;"
+                              : "hidden;")
+                        }
+                      ]
                     },
-                    {element: "td", text: "User Agent", onclick: () => resultsUi.sortSessions(tableType,"userAgent"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "userAgent" ? "visible;" : "hidden;")}]
+                    {
+                      element: "td",
+                      text: "User Agent",
+                      onclick: () =>
+                        resultsUi.sortSessions(tableType, "userAgent"),
+                      style: "cursor: pointer",
+                      children: [
+                        {
+                          element: "i",
+                          className: sortIcon,
+                          style:
+                            "padding-left: 20px; visibility:" +
+                            (sortIcon &&
+                            sortDetail[tableType].sortColumn == "userAgent"
+                              ? "visible;"
+                              : "hidden;")
+                        }
+                      ]
                     },
-                    {element: "td", text: "Date Started", onclick: () => resultsUi.sortSessions(tableType,"dateStarted"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "dateStarted" ? "visible;" : "hidden;")}]
+                    {
+                      element: "td",
+                      text: "Date Started",
+                      onclick: () =>
+                        resultsUi.sortSessions(tableType, "dateStarted"),
+                      style: "cursor: pointer",
+                      children: [
+                        {
+                          element: "i",
+                          className: sortIcon,
+                          style:
+                            "padding-left: 20px; visibility:" +
+                            (sortIcon &&
+                            sortDetail[tableType].sortColumn == "dateStarted"
+                              ? "visible;"
+                              : "hidden;")
+                        }
+                      ]
                     },
                     static
                       ? null
@@ -732,7 +940,9 @@
                     },
                     {
                       element: "td",
-                      text: session.dateStarted ? new Date(session.dateStarted).toLocaleString() : "not started"
+                      text: session.dateStarted
+                        ? new Date(session.dateStarted).toLocaleString()
+                        : "not started"
                     },
                     static
                       ? null

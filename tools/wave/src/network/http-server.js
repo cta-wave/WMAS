@@ -3,7 +3,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const path = require("path");
-const compression = require("compression")
+const compression = require("compression");
 const Route = require("../data/route");
 
 const DEFAULT_PORT = 8080;
@@ -25,6 +25,7 @@ class HttpServer {
       })
     );
     this._app.use(bodyParser.json({ limit: "50mb" }));
+    this._app.use(bodyParser.raw({ limit: "50mb" }));
     this._server = http.createServer(this._app);
   }
 
@@ -43,7 +44,7 @@ class HttpServer {
   }
 
   /**
-   * @param {Route} route 
+   * @param {Route} route
    */
   registerRoute(route) {
     const uri = route.getUri();

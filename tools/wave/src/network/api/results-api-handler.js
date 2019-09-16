@@ -94,6 +94,19 @@ class ResultsApiHandler extends ApiHandler {
   //   }
   // }
 
+  async _importResults({ request, response }) {
+    try {
+      const blob = request.body;
+      const token = await this._resultsManager.importResults(blob);
+      this.sendJson({ token }, response);
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download api result json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
   async _downloadResults({ request, response }) {
     try {
       const url = this.parseUrl(request);
@@ -258,7 +271,12 @@ class ResultsApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
-        return this._createResult({ request, response });
+        switch (url[1]) {
+          case "import":
+            return this._importResults({ request, response });
+          default:
+            return this._createResult({ request, response });
+        }
     }
     response.status(404).send();
   }

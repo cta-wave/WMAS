@@ -12,6 +12,7 @@ const UI = {
         case "style":
         case "placeholder":
         case "title":
+        case "accept":
           element.setAttribute(property, value);
           return;
         case "classname":

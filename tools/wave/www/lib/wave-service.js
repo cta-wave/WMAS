@@ -305,6 +305,19 @@ var WaveService = {
   downloadReport: function(token, api) {
     location.href = "/api/results/" + token + "/" + api + "/report";
   },
+  importResults: function(data, onSuccess, onError) {
+    sendRequest(
+      "POST",
+      "/api/results/import",
+      { "Content-Type": "application/octet-stream" },
+      data,
+      function(response) {
+        var token = JSON.parse(response).token;
+        onSuccess(token);
+      },
+      onError
+    );
+  },
   readReportUri: function(token, api, onSuccess, onError) {
     sendRequest(
       "GET",

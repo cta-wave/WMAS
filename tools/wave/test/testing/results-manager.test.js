@@ -1,4 +1,5 @@
 const path = require("path");
+const JSZip = require("jszip");
 
 const ResultsManager = require("../../src/testing/results-manager");
 const Session = require("../../src/data/session");
@@ -523,6 +524,30 @@ test("createInfoFile() persists session config and status as a json file in the 
 
   await resultsManager.createInfoFile(session);
 
+  expect(isWriteFileCalled).toBe(true);
+});
+
+test("importResults() extracts provided ZIP file to results directory", async () => {
+  let isWriteFileCalled = false;
+  const resultsManager = new ResultsManager();
+  await resultsManager.initialize();
+  resultsManager.loadResults = () => {};
+
+  const zip = new JSZip();
+  zip.file("/info.json", JSON.stringify({ token: "token1" }));
+  const blob = await zip.generateAsync({ type: "nodebuffer" });
+
+  FileSystem.makeDirectory = path => {
+    expect(path.split("/").pop()).toBe("token1");
+  };
+  FileSystem.writeFile = (path, data) => {
+    expect(path.split("/").pop()).toBe("info.json");
+    expect(data).toBe('{"token":"token1"}');
+    isWriteFileCalled = true;
+  };
+
+  const token = await resultsManager.importResults(blob);
+  expect(token).toBe("token1");
   expect(isWriteFileCalled).toBe(true);
 });
 
