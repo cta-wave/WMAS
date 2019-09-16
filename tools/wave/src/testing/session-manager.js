@@ -45,7 +45,8 @@ class SessionManager {
     timeouts,
     referenceTokens,
     webhookUrls,
-    userAgent
+    userAgent,
+    labels
   } = {}) {
     if (!tests) tests = {};
     if (!tests.include) tests.include = [DEFAULT_TEST_PATH];
@@ -75,7 +76,8 @@ class SessionManager {
       testFilesCompleted: {},
       status: Session.PENDING,
       referenceTokens,
-      webhookUrls
+      webhookUrls,
+      labels
     });
     await this._database.createSession(session);
     this._sessions.push(session);
@@ -151,15 +153,13 @@ class SessionManager {
     return session;
   }
 
-  async setSessionLabel(token, sessionLabel) {
-    if(!token || !sessionLabel){
+  async updateLabels(token, labels) {
+    if (!token || !labels) {
       return;
     }
     const session = await this.readSession(token);
-   session.setSessionLabel(sessionLabel);
-   await this._database.updateSession(session);
-    console.log(" label ", session.getSessionLabel());
-    return;
+    session.setLabels(labels);
+    await this._database.updateSession(session);
   }
   async deleteSession(token) {
     this._sessions.splice(

@@ -32,7 +32,8 @@ class SessionApiHandler extends ApiHandler {
         types,
         timeouts,
         reference_tokens,
-        webhook_urls
+        webhook_urls,
+        labels
       } = request.body;
       const session = await this._sessionManager.createSession({
         tests: { include, exclude },
@@ -40,7 +41,8 @@ class SessionApiHandler extends ApiHandler {
         timeouts,
         referenceTokens: reference_tokens,
         webhookUrls: webhook_urls,
-        userAgent
+        userAgent,
+        labels
       });
 
       const token = session.getToken();
@@ -145,12 +147,12 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
-  async _setSessionLabel({ request, response }) {
+  async _updateLabels({ request, response }) {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      const { sessionLabel } = request.body;
-      await this._sessionManager.setSessionLabel(token, sessionLabel);
+      const { labels } = request.body;
+      await this._sessionManager.updateLabels(token, labels);
       response.send();
     } catch (error) {
       console.error(new Error(`Failed to set session label:\n${error.stack}`));
@@ -255,8 +257,8 @@ class SessionApiHandler extends ApiHandler {
         return this._updateSessionConfiguration({ request, response });
       case 3:
         switch (url[2].toLowerCase()) {
-          case "label":
-          return this._setSessionLabel({ request, response });
+          case "labels":
+          return this._updateLabels({ request, response });
         }
     }
     response.status(404).send();

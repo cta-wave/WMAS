@@ -84,9 +84,7 @@ class SessionsDatabase {
       return null;
     }
     const session = Deserializer.deserializeSession(result[0]);
-    if(session.sessionLabel){
-    console.log("**DEBUG** _ SESSION LABEL:", session.sessionLabel);
-  }
+
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
       await this._testsDatabase.loadDatabase(token);
@@ -98,7 +96,6 @@ class SessionsDatabase {
         if (running_tests) session.setRunningTests(running_tests);
       }
     }
-
     return session;
   }
 
@@ -146,14 +143,12 @@ class SessionsDatabase {
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
       await this._testsDatabase.loadDatabase(token);
-      const { pending_tests, running_tests, completed_tests} = sessionObject;
+      const { pending_tests, running_tests, completed_tests } = sessionObject;
       await this._testsDatabase.updateTests(token, {
         pending_tests,
         running_tests,
         completed_tests
       });
-
-
     } else {
       await this._testsDatabase.deleteTests(token);
     }
