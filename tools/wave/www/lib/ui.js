@@ -23,6 +23,9 @@ const UI = {
         case "text":
           element.innerText = value;
           return;
+        case "value":
+          element.value = value;
+          return;
         case "html":
           element.innerHTML = value;
           return;

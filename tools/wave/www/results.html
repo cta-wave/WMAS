@@ -26,7 +26,6 @@
         }
         WaveService.addRecentSession(token);
       };
-
       const resultUi = {
         state: { details: null, results: null, referenceSessions: [] },
         registerEventListener(){
@@ -166,9 +165,9 @@
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
         },
-        setSessionLabel() {
-          const label = document.getElementById("sessionLabelInput").value
+        putSessionLabel() {
           if(!resultUi.state.labelSaved){
+          const label = document.getElementById("sessionLabelInput").value
           WaveService.setSessionLabel(token, label,function() {
             resultUi.state.labelSaved = true;
             $("#saveLabelButton").attr("disabled", "disabled");
@@ -552,7 +551,8 @@
                         element: "input",
                         style: "margin: 10px",
                         id: "sessionLabelInput",
-                        type: "text"
+                        type: "text",
+                        value: configuration.labels.length > 0 ? configuration.labels[0] : ""
                       },
                       {
                         className: "button is-dark is-outlined is-small",
@@ -560,7 +560,7 @@
                         id:"saveLabelButton",
                         disabled: !resultUi.state.labelSaved,
                         text: "save",
-                        onClick: () => resultUi.setSessionLabel(token)
+                        onClick: () => resultUi.putSessionLabel(token)
                       },
                     ]
                   }

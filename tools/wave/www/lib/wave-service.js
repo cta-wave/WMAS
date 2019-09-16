@@ -52,6 +52,7 @@ var WaveService = {
           tests: jsonObject.tests,
           types: jsonObject.types,
           userAgent: jsonObject.user_agent,
+          labels: jsonObject.labels,
           timeouts: jsonObject.timeouts,
           browser: jsonObject.browser,
           isPublic: jsonObject.is_public,
@@ -123,10 +124,10 @@ var WaveService = {
     }
   },
   setSessionLabel: function(token,sessionLabel, onSuccess, onError) {
-    const label = {"sessionLabel" : sessionLabel};
+    const label = {"labels" : [sessionLabel]};
     sendRequest(
       "PUT",
-      "/api/sessions/" + token + "/label",
+      "/api/sessions/" + token + "/labels",
       { "Content-Type": "application/json" },
       JSON.stringify(label),
       function() {
@@ -134,7 +135,6 @@ var WaveService = {
       },
       onError
     );
-    console.log("set label: ", sessionLabel);
   },
   readPublicSessions: function(onSuccess, onError) {
     sendRequest(

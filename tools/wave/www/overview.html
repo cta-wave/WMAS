@@ -654,8 +654,8 @@
                     {element: "td", text: "Date Started", onclick: () => resultsUi.sortSessions(tableType,"dateStarted"), style: "cursor: pointer",
                       children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "dateStarted" ? "visible;" : "hidden;")}]
                     },
-                    {element: "td", text: "Label", onclick: () => resultsUi.sortSessions(tableType,"sessionLabel"), style: "cursor: pointer",
-                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "sessionLabel" ? "visible;" : "hidden;")}]
+                    {element: "td", text: "Label", onclick: () => resultsUi.sortSessions(tableType,"labels"), style: "cursor: pointer",
+                      children: [{element: "i",className: sortIcon, style: "padding-left: 20px; visibility:"+ (sortIcon && sortDetail[tableType].sortColumn == "labels" ? "visible;" : "hidden;")}]
                     },
                     static
                       ? null
@@ -739,9 +739,7 @@
                     },
                     {
                       element: "td",
-                      className: "is-family-monospace",
-                      style: "vertical-align: middle;",
-                      text: session.sessionLabel ? `${session.sessionLabel.substr(0, 15)} ...`: ""
+                      text: session.labels.length > 0 ? resultsUi.truncateString(session.labels[0], 15): ""
                     },
                     static
                       ? null
@@ -876,6 +874,12 @@
           } else {
             compareButton.setAttribute("disabled", true);
           }
+        },
+        truncateString(s, maxLength){
+          if(s && maxLength && s.length > maxLength){
+            return `${s.substr(0, maxLength)} ...`
+          }
+          return s;
         }
       };
     </script>
