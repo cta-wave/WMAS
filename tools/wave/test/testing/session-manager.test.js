@@ -1227,6 +1227,75 @@ test("updateTests() recalculates the total completed tests", async () => {
   expect(session.getTestFilesCompleted()).toHaveProperty("apiOne", 3);
 });
 
+test("deleteExpiredSessions() deletes all expired sessions", async () => {
+  let isSession1Deleted = false;
+  let isSession2Deleted = false;
+  const session1 = createMockingSession({
+    token: "token1",
+    expirationDate: Date.now() - 30000
+  });
+  const session2 = createMockingSession({
+    token: "token2",
+    expirationDate: Date.now() - 100
+  });
+  const session3 = createMockingSession({
+    token: "token3",
+    expirationDate: Date.now() + 30000
+  });
+  const session4 = createMockingSession({
+    token: "token4",
+    expirationDate: Date.now() + 1000
+  });
+  const sessionManager = new SessionManager();
+  sessionManager.deleteSession = token => {
+    if (token === "token1") isSession1Deleted = true;
+    if (token === "token2") isSession2Deleted = true;
+    expect(token).not.toBe("token3");
+    expect(token).not.toBe("token4");
+  };
+  await sessionManager.initialize({
+    database: {
+      readExpiringSessions: () => [session1, session2, session3, session4]
+    }
+  });
+
+  sessionManager.deleteExpiredSessions();
+
+  expect(isSession1Deleted).toBe(true);
+  expect(isSession2Deleted).toBe(true);
+});
+
+test("setExpirationTimer() calls deleteExpiredSessions() and resets the timer when session expires", async () => {
+  let isDeleteExpiredSessionsCalled = false;
+  let isTimerReset = false;
+  const session1 = createMockingSession({
+    token: "token1",
+    expirationDate: Date.now() + 30000
+  });
+  const session2 = createMockingSession({
+    token: "token2",
+    expirationDate: Date.now() + 100
+  });
+  const sessionManager = new SessionManager();
+  sessionManager.deleteExpiredSessions = () => {
+    isDeleteExpiredSessionsCalled = true;
+  };
+  await sessionManager.initialize({
+    database: {
+      readExpiringSessions: () => [session1, session2]
+    }
+  });
+
+  await sessionManager.setExpirationTimer();
+
+  sessionManager.setExpirationTimer = () => {
+    isTimerReset = true;
+  }
+  await new Promise(resolve => setTimeout(resolve, 120));
+  expect(isDeleteExpiredSessionsCalled).toBe(true);
+  expect(isTimerReset).toBe(true);
+});
+
 function createMockingSession({
   token = "test_token",
   path = "/path/one,/path/two",
@@ -1266,7 +1335,8 @@ function createMockingSession({
   dateStarted = 654346464,
   dateFinished = null,
   isPublic = false,
-  referenceTokens = ["reference_token_one", "reference_token_two"]
+  referenceTokens = ["reference_token_one", "reference_token_two"],
+  expirationDate = null
 } = {}) {
   const session = new Session(token, {
     path,
@@ -1282,7 +1352,8 @@ function createMockingSession({
     dateStarted,
     dateFinished,
     isPublic,
-    referenceTokens
+    referenceTokens,
+    expirationDate
   });
   return session;
 }

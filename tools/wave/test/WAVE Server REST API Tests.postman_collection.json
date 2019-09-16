@@ -188,6 +188,8 @@
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
 											"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"pm.test(\"Configuration is default\", function () {",
@@ -203,6 +205,7 @@
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+											"    pm.expect(jsonData.expiration_date).to.be.null;",
 											"});"
 										],
 										"type": "text/javascript"
@@ -534,6 +537,8 @@
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
 											"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
 											"});",
 											"",
 											"var includedTests = JSON.parse(pm.globals.get(\"included_tests\"));",
@@ -562,6 +567,7 @@
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+											"    pm.expect(jsonData.expiration_date).to.be.null;",
 											"});"
 										],
 										"type": "text/javascript"
@@ -787,6 +793,426 @@
 									""
 								]
 							}
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "With Expiration",
+					"item": [
+						{
+							"name": "Create Session With Expiration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"Responds with token in JSON format\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property(\"token\");",
+											"    pm.expect(jsonData.token).to.match(tokenRegex);",
+											"});",
+											"",
+											"",
+											"const response = pm.response.json();",
+											"const token = response.token;",
+											"pm.globals.set(\"session_token\", token);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "40bfea04-ec49-4c29-8f01-6a367372083e",
+										"exec": [
+											"var expirationDate = Date.now() + 3000;",
+											"pm.globals.set(\"expiration_date\", expirationDate);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read Session Configuration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f6b545d7-6252-4609-b873-73be94532d87",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"JSON structure contains expiration date\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
+											"});",
+											"",
+											"var expirationDate = pm.globals.get(\"expiration_date\");",
+											"",
+											"pm.test(\"Expiration date is as specified\", function () {",
+											"    pm.expect(jsonData.expiration_date).to.equal(expirationDate);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read Expired Session",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f6b545d7-6252-4609-b873-73be94532d87",
+										"exec": [
+											"pm.test(\"Status code is 404\", function () {",
+											"    pm.response.to.have.status(404);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "b1e4a2d8-a9b6-4372-a3fd-68a3dfbd9aab",
+										"exec": [
+											"var expirationDate = pm.globals.get(\"expiration_date\");",
+											"",
+											"setTimeout(function () {}, expirationDate - Date.now());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clean Up",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Start expiring session remove expiration date",
+					"item": [
+						{
+							"name": "Create Session With Expiration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"Responds with token in JSON format\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property(\"token\");",
+											"    pm.expect(jsonData.token).to.match(tokenRegex);",
+											"});",
+											"",
+											"",
+											"const response = pm.response.json();",
+											"const token = response.token;",
+											"pm.globals.set(\"session_token\", token);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "40bfea04-ec49-4c29-8f01-6a367372083e",
+										"exec": [
+											"var expirationDate = Date.now() + 10000;",
+											"pm.globals.set(\"expiration_date\", expirationDate);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}"
+								},
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read Session Configuration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f6b545d7-6252-4609-b873-73be94532d87",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"JSON structure contains expiration date\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
+											"});",
+											"",
+											"var expirationDate = pm.globals.get(\"expiration_date\");",
+											"",
+											"pm.test(\"Expiration date is as specified\", function () {",
+											"    pm.expect(jsonData.expiration_date).to.equal(expirationDate);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Start Session",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "1ebc9934-0b47-4b0b-9796-43ba8f1518dc",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}/start",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}",
+										"start"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read Session Configuration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f6b545d7-6252-4609-b873-73be94532d87",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"JSON structure contains expiration date\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
+											"});",
+											"",
+											"pm.test(\"Expiration date is null\", function () {",
+											"    pm.expect(jsonData.expiration_date).to.be.null;",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clean Up",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"_postman_isSubFolder": true
