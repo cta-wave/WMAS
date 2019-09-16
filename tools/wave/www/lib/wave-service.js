@@ -293,6 +293,9 @@ var WaveService = {
       })(token);
     }
   },
+  downloadResults: function(token) {
+    location.href = "/api/results/" + token + "/export";
+  },
   downloadApiResult: function(token, api) {
     location.href = "/api/results/" + token + "/" + api + "/json";
   },

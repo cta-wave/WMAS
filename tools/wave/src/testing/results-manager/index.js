@@ -10,6 +10,7 @@ const SessionManager = require("../session-manager");
 const ResultComparator = require("./result-comparator");
 const Database = require("../../database");
 const TestManager = require("../../testing/test-manager");
+const Session = require("../../data/session");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -384,6 +385,40 @@ class ResultsManager {
     result.status = harness_status_map[result.status];
 
     return result;
+  }
+
+  async exportResults(token) {
+    if (!token) return;
+    const session = await this._sessionManager.readSession(token);
+    if (session.getStatus() !== Session.COMPLETED) return null;
+
+    const readDirectoryFiles = async directoryPath => {
+      const fileNames = await FileSystem.readDirectory(directoryPath);
+      let files = [];
+      for (let fileName of fileNames) {
+        const filePath = path.join(directoryPath, fileName);
+        const stats = await FileSystem.stats(filePath);
+        if (stats.isDirectory()) {
+          files = files.concat(await readDirectoryFiles(filePath));
+        } else {
+          files.push({
+            path: filePath,
+            data: await FileSystem.readFile(filePath)
+          });
+        }
+      }
+      return files;
+    };
+
+    const sessionResultsDirectory = path.join(
+      this._resultsDirectoryPath,
+      token
+    );
+    const files = await readDirectoryFiles(sessionResultsDirectory);
+
+    const zip = new JSZip();
+    files.forEach(file => zip.file(file.path.replace(sessionResultsDirectory, ""), file.data));
+    return zip.generateAsync({ type: "nodebuffer" });
   }
 
   async exportResultsApiJson({ token, api }) {
