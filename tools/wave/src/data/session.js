@@ -16,7 +16,7 @@ class Session {
     {
       types = [TestLoader.TEST_HARNESS_TESTS],
       userAgent = null,
-      labels = null,
+      labels = [],
       tests,
       pendingTests = {},
       runningTests = {},

@@ -188,6 +188,8 @@
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
 											"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+											"    pm.expect(jsonData).to.have.property(\"labels\");",
+											"    pm.expect(jsonData.labels).to.be.an.instanceof(Array);",
 											"});",
 											"",
 											"pm.test(\"Configuration is default\", function () {",
@@ -203,6 +205,7 @@
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+											"    pm.expect(jsonData.labels).to.be.empty;",
 											"});"
 										],
 										"type": "text/javascript"
@@ -473,7 +476,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    }\n}"
+									"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
 								},
 								"url": {
 									"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
@@ -534,6 +537,8 @@
 											"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
 											"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
 											"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+											"    pm.expect(jsonData).to.have.property(\"labels\");",
+											"    pm.expect(jsonData.labels).to.be.an.instanceof(Array);",
 											"});",
 											"",
 											"var includedTests = JSON.parse(pm.globals.get(\"included_tests\"));",
@@ -562,6 +567,8 @@
 											"    pm.expect(jsonData.is_public).to.equal(false);",
 											"    pm.expect(jsonData.reference_tokens).to.be.empty;",
 											"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+											"    pm.expect(jsonData.labels).to.include(\"label1\");",
+											"    pm.expect(jsonData.labels).to.include(\"label2\");",
 											"});"
 										],
 										"type": "text/javascript"
@@ -3638,6 +3645,323 @@
 						}
 					],
 					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Update Session Labels",
+			"item": [
+				{
+					"name": "Create Session \\w Configuration Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+									"",
+									"pm.test(\"Responds with token in JSON format\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"token\");",
+									"    pm.expect(jsonData.token).to.match(tokenRegex);",
+									"});",
+									"",
+									"",
+									"const response = pm.response.json();",
+									"const token = response.token;",
+									"pm.globals.set(\"session_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6e5b17e0-0c3b-48ed-835d-906bee5dad19",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"labels\": [\"label1\", \"label2\"]\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Session Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+									"",
+									"pm.test(\"JSON structure is as expected\", function () {",
+									"    pm.expect(jsonData).to.have.property(\"token\");",
+									"    pm.expect(typeof jsonData.token).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"tests\");",
+									"    pm.expect(typeof jsonData.tests).to.equal(\"object\");",
+									"    pm.expect(jsonData.tests).to.have.property(\"include\");",
+									"    pm.expect(jsonData.tests.include).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData.tests).to.have.property(\"exclude\");",
+									"    pm.expect(jsonData.tests.exclude).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"types\");",
+									"    pm.expect(jsonData.types).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"user_agent\");",
+									"    pm.expect(typeof jsonData.user_agent).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"timeouts\");",
+									"    pm.expect(typeof jsonData.timeouts).to.equal(\"object\")",
+									"    pm.expect(jsonData.timeouts).to.have.property(\"automatic\");",
+									"    pm.expect(typeof jsonData.timeouts.automatic).to.equal(\"number\");",
+									"    pm.expect(jsonData.timeouts).to.have.property(\"manual\");",
+									"    pm.expect(typeof jsonData.timeouts.manual).to.equal(\"number\");",
+									"    pm.expect(jsonData).to.have.property(\"browser\");",
+									"    pm.expect(typeof jsonData.browser).to.equal(\"object\");",
+									"    pm.expect(jsonData.browser).to.have.property(\"name\");",
+									"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
+									"    pm.expect(jsonData.browser).to.have.property(\"version\");",
+									"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
+									"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
+									"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"labels\");",
+									"    pm.expect(jsonData.labels).to.be.an.instanceof(Array);",
+									"});",
+									"",
+									"pm.test(\"Configuration is default\", function () {",
+									"    pm.expect(jsonData.token).to.match(tokenRegex);",
+									"    pm.expect(jsonData.tests.include).to.include(\"/\");",
+									"    pm.expect(jsonData.types).to.include(\"automatic\");",
+									"    pm.expect(jsonData.types).to.include(\"manual\");",
+									"    pm.expect(jsonData.user_agent).to.include(\"PostmanRuntime\");",
+									"    pm.expect(jsonData.timeouts.automatic).to.equal(60000);",
+									"    pm.expect(jsonData.timeouts.manual).to.equal(300000);",
+									"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
+									"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
+									"    pm.expect(jsonData.is_public).to.equal(false);",
+									"    pm.expect(jsonData.reference_tokens).to.be.empty;",
+									"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+									"    pm.expect(jsonData.labels).to.include(\"label1\");",
+									"    pm.expect(jsonData.labels).to.include(\"label2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"sessions",
+								"{{session_token}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Labels Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "58198160-2de3-4818-8c97-9ae38e62ae5f",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"labels\": [\"new\", \"labels\"]\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}/labels",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"sessions",
+								"{{session_token}}",
+								"labels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Session Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+									"",
+									"pm.test(\"JSON structure is as expected\", function () {",
+									"    pm.expect(jsonData).to.have.property(\"token\");",
+									"    pm.expect(typeof jsonData.token).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"tests\");",
+									"    pm.expect(typeof jsonData.tests).to.equal(\"object\");",
+									"    pm.expect(jsonData.tests).to.have.property(\"include\");",
+									"    pm.expect(jsonData.tests.include).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData.tests).to.have.property(\"exclude\");",
+									"    pm.expect(jsonData.tests.exclude).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"types\");",
+									"    pm.expect(jsonData.types).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"user_agent\");",
+									"    pm.expect(typeof jsonData.user_agent).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"timeouts\");",
+									"    pm.expect(typeof jsonData.timeouts).to.equal(\"object\")",
+									"    pm.expect(jsonData.timeouts).to.have.property(\"automatic\");",
+									"    pm.expect(typeof jsonData.timeouts.automatic).to.equal(\"number\");",
+									"    pm.expect(jsonData.timeouts).to.have.property(\"manual\");",
+									"    pm.expect(typeof jsonData.timeouts.manual).to.equal(\"number\");",
+									"    pm.expect(jsonData).to.have.property(\"browser\");",
+									"    pm.expect(typeof jsonData.browser).to.equal(\"object\");",
+									"    pm.expect(jsonData.browser).to.have.property(\"name\");",
+									"    pm.expect(typeof jsonData.browser.name).to.equal(\"string\");",
+									"    pm.expect(jsonData.browser).to.have.property(\"version\");",
+									"    pm.expect(typeof jsonData.browser.version).to.equal(\"string\");",
+									"    pm.expect(jsonData).to.have.property(\"reference_tokens\");",
+									"    pm.expect(jsonData.reference_tokens).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"webhook_urls\");",
+									"    pm.expect(jsonData.webhook_urls).to.be.an.instanceof(Array);",
+									"    pm.expect(jsonData).to.have.property(\"labels\");",
+									"    pm.expect(jsonData.labels).to.be.an.instanceof(Array);",
+									"});",
+									"",
+									"pm.test(\"Configuration is default\", function () {",
+									"    pm.expect(jsonData.token).to.match(tokenRegex);",
+									"    pm.expect(jsonData.tests.include).to.include(\"/\");",
+									"    pm.expect(jsonData.types).to.include(\"automatic\");",
+									"    pm.expect(jsonData.types).to.include(\"manual\");",
+									"    pm.expect(jsonData.user_agent).to.include(\"PostmanRuntime\");",
+									"    pm.expect(jsonData.timeouts.automatic).to.equal(60000);",
+									"    pm.expect(jsonData.timeouts.manual).to.equal(300000);",
+									"    pm.expect(jsonData.browser.name).to.equal(\"Other\");",
+									"    pm.expect(jsonData.browser.version).to.equal(\"0\");",
+									"    pm.expect(jsonData.is_public).to.equal(false);",
+									"    pm.expect(jsonData.reference_tokens).to.be.empty;",
+									"    pm.expect(jsonData.webhook_urls).to.be.empty;",
+									"    pm.expect(jsonData.labels).to.include(\"new\");",
+									"    pm.expect(jsonData.labels).to.include(\"labels\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"sessions",
+								"{{session_token}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clean Up",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/sessions/{{session_token}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"sessions",
+								"{{session_token}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

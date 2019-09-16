@@ -104,6 +104,9 @@ test("createSession() creates session with defaults if no config provided", asyn
   const webhookUrls = session.getWebhookUrls();
   expect(webhookUrls).toBeInstanceOf(Array);
   expect(webhookUrls).toHaveLength(0);
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(0);
 });
 
 test("createSession() creates session with provided config", async () => {
@@ -124,7 +127,8 @@ test("createSession() creates session with provided config", async () => {
     timeouts: { automatic: 500, "/apiTwo": 600 },
     referenceTokens: ["ref_token_1", "ref_token_2"],
     webhookUrls: ["http://webhook.url/endpoint"],
-    userAgent: "some user agent"
+    userAgent: "some user agent",
+    labels: ["label1", "label2"]
   });
   expect(session.getUserAgent()).toBe("some user agent");
   const tests = session.getTests();
@@ -188,6 +192,11 @@ test("createSession() creates session with provided config", async () => {
   expect(webhookUrls).toBeInstanceOf(Array);
   expect(webhookUrls).toHaveLength(1);
   expect(webhookUrls).toContain("http://webhook.url/endpoint");
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(2);
+  expect(labels).toContain("label1");
+  expect(labels).toContain("label2");
 });
 
 test("createSession() calls testLoader.getTests() with parameters from config", async () => {
@@ -614,6 +623,22 @@ test("updateSessionConfiguration() calls database.updateSession()", async () => 
   });
 
   expect(isUpdateSessionCalled).toBe(true);
+});
+
+test("updateLabels() applies new set of labels to session", async () => {
+  let session = createMockingSession({ labels: [] });
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({ database: { createSession: () => {} } });
+  await sessionManager.addSession(session);
+
+  sessionManager.updateLabels(session.getToken(), ["new", "labels"]);
+
+  session = await sessionManager.readSession(session.getToken());
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(2);
+  expect(labels).toContain("new");
+  expect(labels).toContain("labels");
 });
 
 test("deleteSession() removes session from cache", async () => {
@@ -1203,7 +1228,8 @@ function createMockingSession({
   dateStarted = 654346464,
   dateFinished = null,
   isPublic = false,
-  referenceTokens = ["reference_token_one", "reference_token_two"]
+  referenceTokens = ["reference_token_one", "reference_token_two"],
+  labels = ["label1", "label2"]
 } = {}) {
   const session = new Session(token, {
     path,
@@ -1219,7 +1245,8 @@ function createMockingSession({
     dateStarted,
     dateFinished,
     isPublic,
-    referenceTokens
+    referenceTokens,
+    labels
   });
   return session;
 }
