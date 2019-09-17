@@ -7,6 +7,9 @@ const FileSystem = require("../../src/utils/file-system");
 const TestManager = require("../../src/testing/test-manager");
 const WptReport = require("../../src/utils/wpt-report");
 const Serializer = require("../../src/utils/serializer");
+const DuplicateError = require("../../src/data/errors/duplicate-error");
+const PermissionDeniedError = require("../../src/data/errors/permission-denied-error");
+const InvalidDataError = require("../../src/data/errors/invalid-data-error");
 
 const mockingResults = createMockingResults();
 
@@ -530,7 +533,10 @@ test("createInfoFile() persists session config and status as a json file in the 
 test("importResults() extracts provided ZIP file to results directory", async () => {
   let isWriteFileCalled = false;
   const resultsManager = new ResultsManager();
-  await resultsManager.initialize();
+  await resultsManager.initialize({
+    importEnabled: true,
+    sessionManager: { readSession: () => null }
+  });
   resultsManager.loadResults = () => {};
 
   const zip = new JSZip();
@@ -549,6 +555,58 @@ test("importResults() extracts provided ZIP file to results directory", async ()
   const token = await resultsManager.importResults(blob);
   expect(token).toBe("token1");
   expect(isWriteFileCalled).toBe(true);
+});
+
+test("importResults() throws error if session already exists", async () => {
+  const resultsManager = new ResultsManager();
+  await resultsManager.initialize({
+    importEnabled: true,
+    sessionManager: { readSession: () => createMockingSession() }
+  });
+
+  const zip = new JSZip();
+  zip.file("/info.json", JSON.stringify({ token: "token1" }));
+  const blob = await zip.generateAsync({ type: "nodebuffer" });
+
+  try {
+    await resultsManager.importResults(blob);
+  } catch (error) {
+    expect(error).toBeInstanceOf(DuplicateError);
+  }
+});
+
+test("importResults() throws error if import feature disabled", async () => {
+  const resultsManager = new ResultsManager();
+  await resultsManager.initialize({
+    importEnabled: false
+  });
+
+  const zip = new JSZip();
+  zip.file("/info.json", JSON.stringify({ token: "token1" }));
+  const blob = await zip.generateAsync({ type: "nodebuffer" });
+
+  try {
+    await resultsManager.importResults(blob);
+  } catch (error) {
+    expect(error).toBeInstanceOf(PermissionDeniedError);
+  }
+});
+
+test("importResults() throws error if zip invalid", async () => {
+  const resultsManager = new ResultsManager();
+  await resultsManager.initialize({
+    importEnabled: true
+  });
+
+  const zip = new JSZip();
+  zip.file("/some.json", JSON.stringify({ some: "value" }));
+  const blob = await zip.generateAsync({ type: "nodebuffer" });
+
+  try {
+    await resultsManager.importResults(blob);
+  } catch (error) {
+    expect(error).toBeInstanceOf(InvalidDataError);
+  }
 });
 
 test("exportResults() returns ZIP file if session is completed", async () => {
