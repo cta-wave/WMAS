@@ -39,6 +39,9 @@ The REST API allows the WAVE server to be integrated into other systems.
 | [`create`](./results-api/create.md)                                        | Create a new test result for a test in a session.                               |
 | [`read`](./results-api/read.md)                                            | Read all test results of a session.                                             |
 | [`read compact`](./results-api/read-compact.md)                            | Read the number of passed, failed, timed out and not run tests of a session.    |
+| [`import`](./results-api/import.md)                                        | Import session results.                                                         |
+| [`import enabled`](./results-api/import.md#enabled)                        | Check whether or not the import feature is enabled.                             |
+| [`download`](./results-api/download.md#download)                           | Download all session results to import into other WMATS instance.               |
 | [`download api`](./results-api/download.md#download-api)                   | Download all results of an API.                                                 |
 | [`download all apis`](./results-api/download.md#download-all-apis)         | Download all results of all APIs.                                               |
 | [`download report`](./results-api/download.md#download-report)             | Download the WPT report of an API of a session.                                 |
