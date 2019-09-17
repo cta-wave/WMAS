@@ -30,7 +30,8 @@ class Session {
       referenceTokens = [],
       browser = null,
       webhookUrls = [],
-      expirationDate = null
+      expirationDate = null,
+      malfunctioningTests = []
     } = {}
   ) {
     this._token = token;
@@ -51,6 +52,7 @@ class Session {
     this._browser = browser;
     this._webhookUrls = webhookUrls;
     this._expirationDate = expirationDate;
+    this._malfunctioningTests = malfunctioningTests;
   }
 
   isTestComplete(needleTest) {
@@ -240,6 +242,15 @@ class Session {
 
   setExpirationDate(expirationDate) {
     this._expirationDate = expirationDate;
+    return this;
+  }
+
+  getMalfunctioningTests() {
+    return this._malfunctioningTests;
+  }
+
+  setMalfunctioningTests(malfunctioningTests) {
+    this._malfunctioningTests = malfunctioningTests;
     return this;
   }
 }
