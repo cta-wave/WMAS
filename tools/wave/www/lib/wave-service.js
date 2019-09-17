@@ -4,7 +4,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
     if (xhr.status === 200) {
       onSuccess(xhr.response);
     } else {
-      if (onError) onError(xhr.status, xhr.statusText);
+      if (onError) onError(xhr.status, xhr.response);
     }
   });
   xhr.addEventListener("error", function() {
@@ -315,7 +315,15 @@ var WaveService = {
         var token = JSON.parse(response).token;
         onSuccess(token);
       },
-      onError
+      function(status, response) {
+        var errorMessage;
+        if (status === 500) {
+          errorMessage = "Internal server error.";
+        } else {
+          errorMessage = JSON.parse(response).error;
+        }
+        onError(errorMessage);
+      }
     );
   },
   readReportUri: function(token, api, onSuccess, onError) {

@@ -1,7 +1,8 @@
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
-const FileSystem = require("../../utils/file-system");
+const DuplicateError = require("../../data/errors/duplicate-error");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
 
 const { GET, POST } = Route;
 
@@ -100,6 +101,14 @@ class ResultsApiHandler extends ApiHandler {
       const token = await this._resultsManager.importResults(blob);
       this.sendJson({ token }, response);
     } catch (error) {
+      if (error instanceof DuplicateError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
+      if (error instanceof InvalidDataError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
       console.error(
         new Error(`Failed to download api result json:\n${error.stack}`)
       );

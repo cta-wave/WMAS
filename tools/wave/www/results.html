@@ -56,6 +56,7 @@
                   resultUi.refreshSessionResults(() => {
                     resultUi.renderApiResults();
                   });
+                  resultUi.renderExportView();
                 });
               });
               break;
@@ -161,6 +162,7 @@
           WaveService.downloadResultsOverview(token);
         },
         downloadResults() {
+          if (resultUi.state.status.status !== "completed") return;
           WaveService.downloadResults(token);
         },
         render() {
@@ -807,6 +809,8 @@
           apiResults.appendChild(apiResultsView);
         },
         renderExportView() {
+          const { status } = resultUi.state;
+          if (!status) return;
           const exportView = UI.createElement({
             children: [
               { className: "title is-4", text: "Export" },
@@ -834,7 +838,8 @@
                           children: {
                             className:
                               "button is-dark is-outlined is-small is-fullwidth",
-                            onclick: resultUi.downloadResults,
+                            onClick: resultUi.downloadResults,
+                            disabled: status.status !== "completed",
                             children: [
                               {
                                 element: "span",

@@ -11,6 +11,8 @@ const ResultComparator = require("./result-comparator");
 const Database = require("../../database");
 const TestManager = require("../../testing/test-manager");
 const Session = require("../../data/session");
+const DuplicateError = require("../../data/errors/duplicate-error");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -404,9 +406,14 @@ class ResultsManager {
       }
     };
     const zip = await JSZip.loadAsync(blob);
+    if (!zip.file("/info.json")) throw new InvalidDataError("Invalid session ZIP!");
     const info = JSON.parse(await zip.file("/info.json").async("string"));
-    if (!info.token) throw new Error("Invalid session ZIP!");
-    const destinationPath = path.join(this._resultsDirectoryPath, info.token);
+    const { token } = info;
+    if (!token) throw new InvalidDataError("Invalid session ZIP!");
+    const session = await this._sessionManager.readSession(token);
+    if (session) throw new DuplicateError("Session already exists!");
+    const destinationPath = path.join(this._resultsDirectoryPath, token);
+    await FileSystem.makeDirectory(destinationPath);
     await extractZip(blob, destinationPath);
     await this.loadResults();
     return info.token;

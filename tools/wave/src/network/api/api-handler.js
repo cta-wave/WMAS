@@ -1,8 +1,8 @@
 class ApiHandler {
-  sendJson(object, response) {
+  sendJson(object, response, status = 200) {
     const data = JSON.stringify(object, null, 2);
     response.set("Content-Type", "Application/JSON");
-    response.send(data);
+    response.status(status).send(data);
   }
 
   parseQueryParameters(request) {
