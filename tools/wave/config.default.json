@@ -34,5 +34,6 @@
   },
   "aliases": [],
   "results": "./results",
-  "timeout": 65000
+  "timeout": 65000,
+  "enable_results_import": false
 }

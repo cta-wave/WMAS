@@ -3,6 +3,7 @@ const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
 const DuplicateError = require("../../data/errors/duplicate-error");
 const InvalidDataError = require("../../data/errors/invalid-data-error");
+const PermissionDeniedError = require("../../data/errors/permission-denied-error");
 
 const { GET, POST } = Route;
 
@@ -109,8 +110,24 @@ class ResultsApiHandler extends ApiHandler {
         this.sendJson({ error: error.message }, response, 400);
         return;
       }
+      if (error instanceof PermissionDeniedError) {
+        this.sendJson({ error: "Permission denied." }, response, 403);
+        return;
+      }
+      console.error(new Error(`Failed to import results:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _importResultsEnabled({ request, response }) {
+    try {
+      const enabled = await this._resultsManager.isImportEnabled();
+      this.sendJson({ enabled }, response);
+    } catch (error) {
       console.error(
-        new Error(`Failed to download api result json:\n${error.stack}`)
+        new Error(
+          `Failed to determine status of import feature:\n${error.stack}`
+        )
       );
       response.status(500).send();
     }
@@ -298,6 +315,8 @@ class ResultsApiHandler extends ApiHandler {
         switch (url[1]) {
           // case "compare":
           //   return this._readResultComparison({ request, response });
+          case "import":
+            return this._importResultsEnabled({ request, response });
           default:
             return this._readResult({ request, response });
         }

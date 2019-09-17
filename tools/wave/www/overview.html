@@ -58,7 +58,8 @@
       const resultsUi = {
         state: {
           comparison: [],
-          recentSessions: null
+          recentSessions: null,
+          importResultsEnabled: false
         },
         loadData() {
           const pinnedSessions = WaveService.getPinnedSessions().filter(
@@ -143,6 +144,10 @@
                 );
               })
             );
+          });
+          WaveService.isImportResultsEnabled(function(enabled) {
+            resultsUi.state.importResultsEnabled = enabled;
+            resultsUi.renderManageSessions();
           });
         },
         findSession(fragment, callback) {
@@ -610,8 +615,10 @@
               }
             ]
           };
+          const { importResultsEnabled } = resultsUi.state;
           manageSessionsView.appendChild(UI.createElement(heading));
           manageSessionsView.appendChild(UI.createElement(addCompareSessions));
+          if (!importResultsEnabled) return;
           manageSessionsView.appendChild(UI.createElement(importSessions));
         },
         renderSessions() {

@@ -326,6 +326,19 @@ var WaveService = {
       }
     );
   },
+  isImportResultsEnabled: function(onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/results/import",
+      null,
+      null,
+      function(response) {
+        var enabled = JSON.parse(response).enabled;
+        onSuccess(enabled);
+      },
+      onError
+    );
+  },
   readReportUri: function(token, api, onSuccess, onError) {
     sendRequest(
       "GET",

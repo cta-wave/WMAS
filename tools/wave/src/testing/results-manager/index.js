@@ -13,6 +13,7 @@ const TestManager = require("../../testing/test-manager");
 const Session = require("../../data/session");
 const DuplicateError = require("../../data/errors/duplicate-error");
 const InvalidDataError = require("../../data/errors/invalid-data-error");
+const PermissionDeniedError = require("../../data/errors/permission-denied-error");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -32,7 +33,8 @@ class ResultsManager {
     database,
     sessionManager,
     testManager,
-    exportTemplateDirectoryPath
+    exportTemplateDirectoryPath,
+    importEnabled
   } = {}) {
     this._resultsDirectoryPath = path.resolve(resultsDirectoryPath);
     this._database = database;
@@ -40,6 +42,7 @@ class ResultsManager {
     this._testManager = testManager;
     this._generatingComparisons = [];
     this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
+    this._importEnabled = importEnabled;
     this._resultComparator = new ResultComparator({
       resultsDirectoryPath,
       resultsManager: this
@@ -390,6 +393,7 @@ class ResultsManager {
   }
 
   async importResults(blob) {
+    if (!this.isImportEnabled()) throw new PermissionDeniedError();
     const extractZip = async (blob, destinationPath) => {
       const zip = new JSZip();
       const content = await zip.loadAsync(blob);
@@ -587,6 +591,10 @@ class ResultsManager {
     });
 
     return zip.generateAsync({ type: "nodebuffer" });
+  }
+
+  isImportEnabled() {
+    return this._importEnabled;
   }
 }
 
