@@ -244,6 +244,31 @@ var WaveService = {
       onError
     );
   },
+  readLastCompletedTests: function(token, resultTypes, onSuccess, onError) {
+    var status = "";
+    if (resultTypes) {
+      for (var type of resultTypes) {
+        status += type + ",";
+      }
+    }
+    sendRequest(
+      "GET",
+      "/api/tests/" + token + "/last_completed?status=" + status,
+      null,
+      null,
+      function(response) {
+        var tests = JSON.parse(response);
+        var parsedTests = [];
+        for (var status in tests) {
+          for (var path of tests[status]) {
+            parsedTests.push({ path: path, status: status });
+          }
+        }
+        onSuccess(parsedTests);
+      },
+      onError
+    );
+  },
 
   // RESULTS API
   createResult: function(token, result, onSuccess, onError) {
@@ -461,10 +486,10 @@ var WaveService = {
     };
     WaveService.socket.send = function(message) {
       webSocket.send(message);
-    }
+    };
     WaveService.socket.close = function() {
       webSocket.close();
-    }
+    };
   },
   connectHttpPolling: function(token) {
     var poll = function() {
@@ -486,7 +511,7 @@ var WaveService = {
         WaveService.socket.state = CLOSED;
         WaveService.socket.onStateChange(CLOSED);
         WaveService.socket.onClose();
-      }
+      };
     };
     poll();
     WaveService.socket.onOpen();
@@ -503,7 +528,7 @@ var WaveService = {
   onMessage: function(callback) {
     WaveService.socket.onMessage = callback;
   },
-  isConnected: function () {
+  isConnected: function() {
     return WaveService.socket.state === OPEN;
   },
   openSession: function(token) {
