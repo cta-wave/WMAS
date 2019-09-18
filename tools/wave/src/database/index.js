@@ -23,12 +23,12 @@ class Database {
 
     const resultsDirectoryPath = path.join(databaseDirectoryPath, "results");
     await this._resultsDatabase.initialize({
-      resultsDirectoryPath,
+      directoryPath: resultsDirectoryPath,
       compactionInterval: this._dbCompactionInterval
     });
     const testsDirectoryPath = path.join(databaseDirectoryPath, "tests");
     await this._testsDatabase.initialize({
-      testsDirectoryPath,
+      directoryPath: testsDirectoryPath,
       compactionInterval: this._dbCompactionInterval
     });
     const sessionsDatabaseFilePath = path.join(
