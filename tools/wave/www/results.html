@@ -31,7 +31,8 @@
           details: null,
           results: null,
           referenceSessions: [],
-          lastCompletedTests: []
+          lastCompletedTests: [],
+          malfunctioningTests: []
         },
         refreshData: toUpdate => {
           switch (toUpdate) {
@@ -66,6 +67,9 @@
                   });
                   resultUi.refreshLastCompletedTests(() => {
                     resultUi.renderLastCompletedTests();
+                  });
+                  resultUi.refreshMalfunctioningTests(() => {
+                    resultUi.renderMalfunctioningTests();
                   });
                 });
               });
@@ -129,6 +133,12 @@
             callback();
           });
         },
+        refreshMalfunctioningTests(callback = () => {}) {
+          WaveService.readMalfunctioningTests(token, tests => {
+            resultUi.state.malfunctioningTests = tests;
+            callback();
+          });
+        },
         connectWebSocket() {
           if (!WaveService.isConnected()) {
             WaveService.connect(token);
@@ -176,6 +186,28 @@
         },
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
+        },
+        addMalfunctioningTest(testPath) {
+          const { malfunctioningTests } = resultUi.state;
+          malfunctioningTests.push(testPath);
+          WaveService.updateMalfunctioningTests(
+            token,
+            malfunctioningTests,
+            () => {
+              this.renderMalfunctioningTests();
+            }
+          );
+        },
+        removeMalfunctioningTest(testPath) {
+          const { malfunctioningTests } = resultUi.state;
+          malfunctioningTests.splice(malfunctioningTests.indexOf(testPath), 1);
+          WaveService.updateMalfunctioningTests(
+            token,
+            malfunctioningTests,
+            () => {
+              this.renderMalfunctioningTests();
+            }
+          );
         },
         render() {
           const resultView = UI.createElement({
@@ -227,7 +259,8 @@
               { id: "last-completed-tests" },
               { id: "api-results" },
               { id: "timeout-files" },
-              { id: "export" }
+              { id: "export" },
+              { id: "malfunctioning-tests" }
             ]
           });
           const root = UI.getRoot();
@@ -614,7 +647,11 @@
             className: "title is-4",
             children: [
               { element: "span", text: "Last Timed-Out Test Files" },
-              { element: "span", className: "title is-7", text: " (most recent first)" }
+              {
+                element: "span",
+                className: "title is-7",
+                text: " (most recent first)"
+              }
             ]
           });
           lastCompletedTestsView.appendChild(heading);
@@ -632,7 +669,7 @@
                     children: [
                       { element: "td", text: "Test File" },
                       // { element: "td", text: "Status" },
-                      // { element: "td", text: "Malfunctioning List" }
+                      { element: "td", text: "Malfunctioning List" }
                     ]
                   }
                 ]
@@ -644,25 +681,26 @@
                   children: [
                     { element: "td", text: path },
                     // { element: "td", text: status }
-                    // {
-                    //   element: "td",
-                    //   children: [
-                    //     {
-                    //       element: "button",
-                    //       className: "button is-dark is-outlined is-small",
-                    //       children: [
-                    //         {
-                    //           element: "span",
-                    //           className: "icon",
-                    //           children: [
-                    //             { element: "i", className: "fas fa-plus" }
-                    //           ]
-                    //         },
-                    //         { element: "span", text: "Add" }
-                    //       ]
-                    //     }
-                    //   ]
-                    // }
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "button",
+                          className: "button is-dark is-outlined is-small",
+                          onClick: () => resultUi.addMalfunctioningTest(path),
+                          title: "Add to malfunctioning tests list.",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                { element: "i", className: "fas fa-plus" }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }))
               }
@@ -903,6 +941,7 @@
         },
         renderExportView() {
           const exportView = UI.createElement({
+            style: "margin-bottom: 20px",
             children: [
               { className: "title is-4", text: "Export" },
               {
@@ -989,6 +1028,81 @@
           const exportElement = UI.getElement("export");
           exportElement.innerHTML = "";
           exportElement.appendChild(exportView);
+        },
+        renderMalfunctioningTests() {
+          const malfunctioningTestsView = UI.createElement({
+            style: "margin-bottom: 20px"
+          });
+          const heading = UI.createElement({
+            className: "title is-4",
+            text: "Malfunctioning Tests"
+          });
+          malfunctioningTestsView.appendChild(heading);
+
+          const { malfunctioningTests } = resultUi.state;
+          const testsTable = UI.createElement({
+            element: "table",
+            className: "table",
+            children: [
+              {
+                element: "thead",
+                children: [
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Test File" },
+                      { element: "td", text: "Remove Test" }
+                    ]
+                  }
+                ]
+              },
+              {
+                element: "tbody",
+                children: malfunctioningTests.map(path => ({
+                  element: "tr",
+                  children: [
+                    { element: "td", text: path },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "button",
+                          className: "button is-dark is-outlined is-small",
+                          onClick: () =>
+                            resultUi.removeMalfunctioningTest(path),
+                          title: "Remove from malfunctioning tests list.",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                { element: "i", className: "fas fa-minus" }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }))
+              }
+            ]
+          });
+          if (malfunctioningTests.length > 0) {
+            malfunctioningTestsView.appendChild(testsTable);
+          } else {
+            const noTestsLabel = UI.createElement({
+              text: "- No Tests Available -",
+              style: "text-align: center"
+            });
+            malfunctioningTestsView.appendChild(noTestsLabel);
+          }
+
+          const malfunctioningTestsElement = UI.getElement(
+            "malfunctioning-tests"
+          );
+          malfunctioningTestsElement.innerHTML = "";
+          malfunctioningTestsElement.appendChild(malfunctioningTestsView);
         }
       };
     </script>

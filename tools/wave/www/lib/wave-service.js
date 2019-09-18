@@ -269,6 +269,43 @@ var WaveService = {
       onError
     );
   },
+  readMalfunctioningTests: function(token, onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/tests/" + token + "/malfunctioning",
+      null,
+      null,
+      function(response) {
+        var tests = JSON.parse(response);
+        onSuccess(tests);
+      },
+      function(response) {
+        var errorMessage = JSON.parse(response).error;
+        onError(errorMessage);
+      }
+    );
+  },
+  updateMalfunctioningTests: function(
+    token,
+    malfunctioningTests,
+    onSuccess,
+    onError
+  ) {
+    var data = JSON.stringify(malfunctioningTests);
+    sendRequest(
+      "PUT",
+      "/api/tests/" + token + "/malfunctioning",
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        onSuccess();
+      },
+      function(response) {
+        var errorMessage = JSON.parse(response).error;
+        onError(errorMessage);
+      }
+    );
+  },
 
   // RESULTS API
   createResult: function(token, result, onSuccess, onError) {
