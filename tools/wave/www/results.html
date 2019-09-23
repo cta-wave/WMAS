@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Session Results - Web Platform Test</title>
-    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
     <link rel="stylesheet" href="css/result.css" />
     <script src="lib/jszip.min.js"></script>
@@ -189,6 +189,7 @@
         },
         addMalfunctioningTest(testPath) {
           const { malfunctioningTests } = resultUi.state;
+          if (malfunctioningTests.indexOf(testPath) !== -1) return;
           malfunctioningTests.push(testPath);
           WaveService.updateMalfunctioningTests(
             token,
@@ -197,6 +198,7 @@
               this.renderMalfunctioningTests();
             }
           );
+          resultUi.renderLastCompletedTests();
         },
         removeMalfunctioningTest(testPath) {
           const { malfunctioningTests } = resultUi.state;
@@ -208,6 +210,19 @@
               this.renderMalfunctioningTests();
             }
           );
+          resultUi.renderLastCompletedTests();
+        },
+        isTestOnMalfunctioningList(test) {
+          const { malfunctioningTests } = resultUi.state;
+          return malfunctioningTests.indexOf(test) !== -1;
+        },
+        showExcluded() {
+          resultUi.state.showExcluded = true;
+          resultUi.renderSessionDetails();
+        },
+        hideExcluded() {
+          resultUi.state.showExcluded = false;
+          resultUi.renderSessionDetails();
         },
         render() {
           const resultView = UI.createElement({
@@ -461,6 +476,7 @@
           }
 
           const { testFilesCount } = status;
+          const { showExcluded } = state;
           const detailsTable = UI.createElement({
             element: "table",
             children: {
@@ -469,7 +485,7 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Token:", style: "width: 175px;" },
+                    { element: "td", text: "Token:", style: "width: 180px;" },
                     {
                       element: "td",
                       text: token,
@@ -487,12 +503,45 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Test Path:" },
+                    { element: "td", text: "Test Paths:" },
                     {
                       element: "td",
                       text: configuration.tests.include
                         .reduce((text, test) => text + test + ", ", "")
                         .slice(0, -2)
+                    }
+                  ]
+                },
+                {
+                  element: "tr",
+                  children: [
+                    { element: "td", text: "Excluded Test Paths:" },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "span",
+                          text: configuration.tests.exclude.length
+                        },
+                        {
+                          element: "span",
+                          className: "button is-small is-rounded",
+                          style: "margin-left: 10px",
+                          text: showExcluded ? "hide" : "show",
+                          onClick: showExcluded ? resultUi.hideExcluded : resultUi.showExcluded
+                        },
+                        showExcluded
+                          ? {
+                              style:
+                                "max-height: 250px; overflow: auto; margin-bottom: 10px",
+                              children: configuration.tests.exclude.map(
+                                test => ({
+                                  text: test
+                                })
+                              )
+                            }
+                          : null
+                      ]
                     }
                   ]
                 },
@@ -694,7 +743,14 @@
                               element: "span",
                               className: "icon",
                               children: [
-                                { element: "i", className: "fas fa-plus" }
+                                {
+                                  element: "i",
+                                  className: resultUi.isTestOnMalfunctioningList(
+                                    path
+                                  )
+                                    ? "fas fa-check"
+                                    : "fas fa-plus"
+                                }
                               ]
                             }
                           ]
@@ -710,7 +766,7 @@
             lastCompletedTestsView.appendChild(testsTable);
           } else {
             const noTestsLabel = UI.createElement({
-              text: "- No Tests Available -",
+              text: "- No Timed-Out Tests -",
               style: "text-align: center"
             });
             lastCompletedTestsView.appendChild(noTestsLabel);
@@ -1051,7 +1107,7 @@
                     element: "tr",
                     children: [
                       { element: "td", text: "Test File" },
-                      { element: "td", text: "Remove Test" }
+                      { element: "td", text: "" }
                     ]
                   }
                 ]
@@ -1076,7 +1132,7 @@
                               element: "span",
                               className: "icon",
                               children: [
-                                { element: "i", className: "fas fa-minus" }
+                                { element: "i", className: "fas fa-trash-alt" }
                               ]
                             }
                           ]

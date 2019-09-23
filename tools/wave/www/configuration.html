@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Session Configuration - Web Platform Test</title>
-    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
     <link rel="stylesheet" href="css/result.css" />
     <script src="lib/jszip.min.js"></script>
@@ -94,6 +94,7 @@
             );
             configurationUi.state.configuration = configuration;
             configurationUi.renderSessionConfiguration();
+            configurationUi.renderExcludedTests();
           });
         });
       };
@@ -222,6 +223,101 @@
         openResultsPage: function() {
           location.href = "/results.html?token=" + token;
         },
+        handleAddExludedTestsRaw: function() {
+          var excludedTestsTextArea = UI.getElement("excluded-tests-text");
+          var tests = excludedTestsTextArea.value.split("\n");
+          var configuration = configurationUi.state.configuration;
+          var excludedTests = configuration.tests.exclude;
+          for (var test of tests) {
+            if (!test) continue;
+            if (test.startsWith("#")) continue;
+            if (excludedTests.indexOf(test) !== -1) continue;
+            excludedTests.push(test);
+          }
+
+          excludedTestsTextArea.value = "";
+          configurationUi.renderExcludedTests();
+        },
+        handleAddExludedTestsMalfunctioning: function() {
+          var excludedTestsTextArea = UI.getElement("excluded-tests-text");
+          var token = excludedTestsTextArea.value;
+          var tokenRegExp = new RegExp(
+            "^[a-f0-9]{8}(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,12}|$)"
+          );
+          var configuration = configurationUi.state.configuration;
+          var excludedTests = configuration.tests.exclude;
+          if (tokenRegExp.test(token)) {
+            WaveService.findToken(
+              token,
+              function(token) {
+                WaveService.readMalfunctioningTests(token, function(
+                  malfunctioningTests
+                ) {
+                  for (var test of malfunctioningTests) {
+                    if (!test) continue;
+                    if (excludedTests.indexOf(test) !== -1) continue;
+                    excludedTests.push(test);
+                  }
+                  configurationUi.renderExcludedTests();
+                });
+              },
+              function() {
+                configurationUi.state.excludedTestError = "Session not found";
+                configurationUi.renderExcludedTests();
+              }
+            );
+          } else {
+            configurationUi.state.excludedTestError = "Invalid session token";
+            configurationUi.renderExcludedTests();
+          }
+        },
+        handleAddExludedTestsExcluded: function() {
+          var excludedTestsTextArea = UI.getElement("excluded-tests-text");
+          var token = excludedTestsTextArea.value;
+          var tokenRegExp = new RegExp(
+            "^[a-f0-9]{8}(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,4}|$)(-[a-f0-9]{0,12}|$)"
+          );
+          var configuration = configurationUi.state.configuration;
+          var excludedTests = configuration.tests.exclude;
+          if (tokenRegExp.test(token)) {
+            WaveService.findToken(
+              token,
+              function(token) {
+                WaveService.readSession(token, function(sessionConfig) {
+                  var prevExcludedTests = sessionConfig.tests.exclude;
+                  for (var test of prevExcludedTests) {
+                    if (!test) continue;
+                    if (excludedTests.indexOf(test) !== -1) continue;
+                    excludedTests.push(test);
+                  }
+                  configurationUi.renderExcludedTests();
+                });
+              },
+              function() {
+                configurationUi.state.excludedTestError = "Session not found";
+                configurationUi.renderExcludedTests();
+              }
+            );
+          } else {
+            configurationUi.state.excludedTestError = "Invalid session token";
+            configurationUi.renderExcludedTests();
+          }
+        },
+        handleRemoveExcludedTest: function(test) {
+          var configuration = configurationUi.state.configuration;
+          var excludedTests = configuration.tests.exclude;
+          var index = excludedTests.indexOf(test);
+          excludedTests.splice(index, 1);
+          configurationUi.renderExcludedTests();
+        },
+        handleExcludeInputChange: function(type) {
+          if (configurationUi.state.activeExcludeInput === type) {
+            configurationUi.state.activeExcludeInput = null;
+          } else {
+            configurationUi.state.activeExcludeInput = type;
+          }
+          configurationUi.renderExcludedTests();
+        },
         render: function() {
           const configurationView = UI.createElement({
             className: "content",
@@ -284,6 +380,7 @@
             sessionConfiguration.appendChild(sessionConfigurationView);
             return;
           }
+          var excludedTests = configuration.tests.exclude;
 
           var configurationTable = UI.createElement({
             element: "table",
@@ -305,7 +402,7 @@
                       {
                         element: "td",
                         children: [
-                          { element: "span", text: "Tests" },
+                          { element: "span", text: "APIs" },
                           configurationUi.createSelectDeselectButtons(
                             configurationUi.selectAllTests,
                             configurationUi.deselectAllTests
@@ -322,6 +419,16 @@
                                 "Select at least one API"
                               )
                         ].concat(configurationUi.createApiList(apis))
+                      }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Excluded Tests" },
+                      {
+                        element: "td",
+                        id: "excluded-tests-view"
                       }
                     ]
                   },
@@ -433,6 +540,185 @@
             ]
           });
           sessionConfiguration.appendChild(buttonList);
+          configurationUi.renderExcludedTests();
+        },
+        renderExcludedTests: function() {
+          var excludedTestsView = UI.getElement("excluded-tests-view");
+          excludedTestsView.innerHTML = "";
+
+          var errorMessage = configurationUi.state.excludedTestError;
+          if (errorMessage) {
+            var error = configurationUi.createErrorMessage(errorMessage);
+            excludedTestsView.appendChild(UI.createElement(error));
+          }
+
+          var excludeInputs = [
+            { title: "Add Raw", type: "raw" },
+            { title: "Add Malfunctioning", type: "malfunc" },
+            { title: "Add Previous Excluded", type: "excluded" }
+          ];
+
+          var activeExcludeInput = configurationUi.state.activeExcludeInput;
+
+          var excludedTestInputSwitch = UI.createElement({
+            className: "tabs is-centered is-toggle is-small",
+            children: {
+              element: "ul",
+              children: excludeInputs.map(function(input) {
+                return {
+                  element: "li",
+                  onClick: function() {
+                    configurationUi.handleExcludeInputChange(input.type);
+                  },
+                  className: (function() {
+                    if (activeExcludeInput === input.type) return "is-active";
+                    return "";
+                  })(),
+                  children: { element: "a", text: input.title }
+                };
+              })
+            }
+          });
+          excludedTestsView.appendChild(excludedTestInputSwitch);
+
+          if (activeExcludeInput === "raw") {
+            var rawInput = UI.createElement({
+              children: [
+                {
+                  className: "is-size-7",
+                  style: "margin-bottom: 20px",
+                  text:
+                    "Provide paths to test files or directories to exclude them from the session. One path per line, lines starting with # are omitted."
+                },
+                {
+                  element: "textarea",
+                  className: "textarea",
+                  id: "excluded-tests-text"
+                },
+                {
+                  style: "margin-top: 10px",
+                  onClick: function() {
+                    configurationUi.handleAddExludedTestsRaw();
+                  },
+                  children: [
+                    {
+                      element: "button",
+                      className: "button",
+                      style: "margin-bottom: 20px",
+                      text: "Add"
+                    }
+                  ]
+                }
+              ]
+            });
+            excludedTestsView.appendChild(rawInput);
+          } else if (
+            activeExcludeInput === "malfunc" ||
+            activeExcludeInput === "excluded"
+          ) {
+            var malfuncInput = UI.createElement({
+              style: "margin-bottom: 20px",
+              children: [
+                {
+                  className: "is-size-7",
+                  style: "margin-bottom: 20px",
+                  text:
+                    activeExcludeInput === "malfunc"
+                      ? "Add malfunctioning tests from past sessions by providing at least the first eight characters of the session's token."
+                      : "Add excluded tests from past sessions by providing at least the first eight characters of the session's token."
+                },
+                {
+                  className: "field is-grouped is-grouped-centered",
+                  children: [
+                    {
+                      element: "p",
+                      className: "control",
+                      style: "padding-top: 0.3rem",
+                      text: "Session Token"
+                    },
+                    {
+                      element: "p",
+                      className: "control",
+                      children: {
+                        children: {
+                          id: "excluded-tests-text",
+                          className: "input",
+                          element: "input",
+                          type: "text"
+                        }
+                      }
+                    },
+                    {
+                      element: "p",
+                      className: "control",
+                      children: {
+                        className: "button",
+                        text: "Add",
+                        onClick: function() {
+                          if (activeExcludeInput === "malfunc") {
+                            configurationUi.handleAddExludedTestsMalfunctioning();
+                          } else {
+                            configurationUi.handleAddExludedTestsExcluded();
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            });
+            excludedTestsView.appendChild(malfuncInput);
+          }
+
+          var excludedTestsTable = configurationUi.createExcludedTestsTable();
+          var tableWrapper = UI.createElement({
+            style: "max-height: 250px; overflow: auto; margin-bottom: 10px"
+          });
+          tableWrapper.appendChild(excludedTestsTable);
+          excludedTestsView.appendChild(tableWrapper);
+        },
+        createExcludedTestsTable: function() {
+          var excludedTests = configurationUi.state.configuration.tests.exclude;
+          var table = UI.createElement({
+            element: "table",
+            className: "table",
+            children: (function() {
+              if (excludedTests.length === 0) {
+                return {
+                  style: "text-align: center",
+                  text: "- No Excluded Tests -"
+                };
+              } else {
+                return excludedTests.map(function(test) {
+                  return {
+                    element: "tr",
+                    children: [
+                      { element: "td", style: "width: 100%;", text: test },
+                      {
+                        element: "td",
+                        children: {
+                          element: "button",
+                          className: "button is-small",
+                          onClick: function() {
+                            configurationUi.handleRemoveExcludedTest(test);
+                          },
+                          children: {
+                            element: "span",
+                            className: "icon",
+                            children: {
+                              element: "i",
+                              className: "fas fa-trash-alt"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  };
+                });
+              }
+            })()
+          });
+          return table;
         },
         createApiList: function(apis) {
           return apis.map(api => ({
