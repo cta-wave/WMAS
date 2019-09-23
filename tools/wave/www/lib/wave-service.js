@@ -70,7 +70,8 @@ var WaveService = {
           browser: jsonObject.browser,
           isPublic: jsonObject.is_public,
           referenceTokens: jsonObject.reference_tokens,
-          webhookUrls: jsonObject.webhook_urls
+          webhookUrls: jsonObject.webhook_urls,
+          expirationDate: jsonObject.expiration_date
         });
       },
       onError
