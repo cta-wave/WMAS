@@ -93,6 +93,10 @@
               configuration
             );
             configurationUi.state.configuration = configuration;
+            setTimeout(
+              configurationUi.handleExpiration,
+              configuration.expirationDate - Date.now()
+            );
             configurationUi.renderSessionConfiguration();
           });
         });
@@ -219,6 +223,10 @@
           );
           configurationUi.renderSessionConfiguration();
         },
+        handleExpiration: function() {
+          configurationUi.state.expired = true;
+          configurationUi.renderSessionConfiguration();
+        },
         openResultsPage: function() {
           location.href = "/results.html?token=" + token;
         },
@@ -285,6 +293,25 @@
             return;
           }
 
+          if (configurationUi.state.expired) {
+            var expiredIndicator = UI.createElement({
+              className: "level",
+              children: {
+                element: "span",
+                className: "level-item icon",
+                children: [
+                  {
+                    style: "margin-left: 0.4em;",
+                    text: "Session expired. Please create a new one."
+                  }
+                ]
+              }
+            });
+            sessionConfigurationView.appendChild(expiredIndicator);
+            sessionConfiguration.appendChild(sessionConfigurationView);
+            return;
+          }
+
           var configurationTable = UI.createElement({
             element: "table",
             className: "table",
@@ -297,6 +324,18 @@
                     children: [
                       { element: "td", text: "Token" },
                       { element: "td", text: configuration.token }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Expires" },
+                      {
+                        element: "td",
+                        text: new Date(
+                          configuration.expirationDate
+                        ).toLocaleString()
+                      }
                     ]
                   },
                   {
