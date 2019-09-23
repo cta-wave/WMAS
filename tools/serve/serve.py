@@ -774,7 +774,8 @@ class ConfigBuilder(config.ConfigBuilder):
         },
         "aliases": [],
         "results": "./results",
-        "timeout": 65000
+        "timeout": 65000,
+        "enable_results_import": False
     }
 
     computed_properties = ["ws_doc_root"] + config.ConfigBuilder.computed_properties
