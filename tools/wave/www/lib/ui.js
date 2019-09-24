@@ -38,6 +38,9 @@ const UI = {
         case "onkeydown":
           element.onkeydown = value.bind(element);
           return;
+        case "onkeyup":
+          element.onkeyup = value.bind(element);
+          return;
         case "type":
           if (elementType === "input") element.setAttribute("type", value);
           return;

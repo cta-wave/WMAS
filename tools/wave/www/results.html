@@ -10,7 +10,6 @@
     <script src="lib/utils.js"></script>
     <script src="lib/wave-service.js"></script>
     <script src="lib/ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   </head>
   <body>
     <script>
@@ -27,11 +26,11 @@
         WaveService.addRecentSession(token);
       };
       const resultUi = {
-        state: { details: null, results: null, referenceSessions: [] },
-        registerEventListener(){
-          $("#sessionLabelInput").on('input',function(e){
-            resultUi.onLabelChanged();
-          });
+        state: {
+          details: null,
+          results: null,
+          referenceSessions: [],
+          addLabelVisible: false
         },
         refreshData: toUpdate => {
           switch (toUpdate) {
@@ -165,14 +164,30 @@
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
         },
-        putSessionLabel() {
-          if(!resultUi.state.labelSaved){
-          const label = document.getElementById("sessionLabelInput").value
-          WaveService.setSessionLabel(token, label,function() {
-            resultUi.state.labelSaved = true;
-            $("#saveLabelButton").attr("disabled", "disabled");
-          });
-        }
+        addLabel() {
+          const label = UI.getElement("session-label-input").value;
+          if (!label) return;
+          const { configuration } = resultUi.state;
+          configuration.labels.push(label);
+          WaveService.updateSessionLabels(token, configuration.labels);
+          resultUi.renderSessionDetails();
+          UI.getElement("session-label-input").focus();
+        },
+        removeLabel(index) {
+          if (!index) return;
+          const { configuration } = resultUi.state;
+          configuration.labels.splice(index, 1);
+          WaveService.updateSessionLabels(token, configuration.labels);
+          resultUi.renderSessionDetails();
+        },
+        showAddLabel() {
+          resultUi.state.addLabelVisible = true;
+          resultUi.renderSessionDetails();
+          UI.getElement("session-label-input").focus();
+        },
+        hideAddLabel() {
+          resultUi.state.addLabelVisible = false;
+          resultUi.renderSessionDetails();
         },
         render() {
           const resultView = UI.createElement({
@@ -422,6 +437,7 @@
               }, 1000);
           }
 
+          const { addLabelVisible } = state;
           const { testFilesCount } = status;
           const detailsTable = UI.createElement({
             element: "table",
@@ -541,29 +557,83 @@
                       ]
                     }
                   : null,
-                  {
-                    element: "tr",
-                    children: [
-                      {
-                        element: "td", text: "Label:"
-                      },
-                      {
-                        element: "input",
-                        style: "margin: 10px",
-                        id: "sessionLabelInput",
-                        type: "text",
-                        value: configuration.labels.length > 0 ? configuration.labels[0] : ""
-                      },
-                      {
-                        className: "button is-dark is-outlined is-small",
-                        style: "margin-top: 8px",
-                        id:"saveLabelButton",
-                        disabled: !resultUi.state.labelSaved,
-                        text: "save",
-                        onClick: () => resultUi.putSessionLabel(token)
-                      },
-                    ]
-                  }
+                {
+                  element: "tr",
+                  children: [
+                    {
+                      element: "td",
+                      text: "Labels:"
+                    },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          className: "field is-grouped is-grouped-multiline",
+                          children: configuration.labels
+                            .map((label, index) => ({
+                              className: "control",
+                              children: {
+                                className: "tags has-addons",
+                                children: [
+                                  {
+                                    element: "a",
+                                    className: "tag is-info",
+                                    text: label
+                                  },
+                                  {
+                                    element: "a",
+                                    className: "tag is-delete",
+                                    onClick: () => resultUi.removeLabel(index)
+                                  }
+                                ]
+                              }
+                            }))
+                            .concat(
+                              addLabelVisible
+                                ? [
+                                    {
+                                      className:
+                                        "control field is-grouped is-grouped-multiline",
+                                      children: [
+                                        {
+                                          element: "input",
+                                          className: "input is-small control",
+                                          style: "width: 10rem",
+                                          id: "session-label-input",
+                                          type: "text",
+                                          onKeyUp: event =>
+                                            event.keyCode === 13
+                                              ? resultUi.addLabel()
+                                              : null
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "save",
+                                          onClick: resultUi.addLabel
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "cancel",
+                                          onClick: resultUi.hideAddLabel
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                : [
+                                    {
+                                      className: "button is-rounded is-small",
+                                      text: "Add",
+                                      onClick: resultUi.showAddLabel
+                                    }
+                                  ]
+                            )
+                        }
+                      ]
+                    }
+                  ]
+                }
               ]
             }
           });
@@ -573,7 +643,6 @@
           sessionDetails.innerHTML = "";
           sessionDetails.appendChild(sessionDetailsView);
           resultUi.renderReferenceSessions();
-          resultUi.registerEventListener();
         },
         renderReferenceSessions() {
           const { referenceSessions } = resultUi.state;
@@ -929,10 +998,6 @@
           const exportElement = UI.getElement("export");
           exportElement.innerHTML = "";
           exportElement.appendChild(exportView);
-        },
-        onLabelChanged(){
-          resultUi.state.labelSaved= false;
-          $("#saveLabelButton").removeAttr("disabled");
         }
       };
     </script>

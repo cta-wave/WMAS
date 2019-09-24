@@ -123,19 +123,6 @@ var WaveService = {
       );
     }
   },
-  setSessionLabel: function(token,sessionLabel, onSuccess, onError) {
-    const label = {"labels" : [sessionLabel]};
-    sendRequest(
-      "PUT",
-      "/api/sessions/" + token + "/labels",
-      { "Content-Type": "application/json" },
-      JSON.stringify(label),
-      function() {
-        onSuccess();
-      },
-      onError
-    );
-  },
   readPublicSessions: function(onSuccess, onError) {
     sendRequest(
       "GET",
@@ -145,6 +132,19 @@ var WaveService = {
       function(response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject);
+      },
+      onError
+    );
+  },
+  updateSessionLabels: function(token, labels, onSuccess, onError) {
+    var data = JSON.stringify({ labels: labels });
+    sendRequest(
+      "PUT",
+      "/api/sessions/" + token + "/labels",
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        if (onSuccess) onSuccess();
       },
       onError
     );

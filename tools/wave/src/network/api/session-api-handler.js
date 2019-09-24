@@ -152,7 +152,6 @@ class SessionApiHandler extends ApiHandler {
       const url = this.parseUrl(request);
       const token = url[1];
       const { labels } = request.body;
-      console.log("okk ", labels)
       await this._sessionManager.updateLabels(token, labels);
       response.send();
     } catch (error) {
