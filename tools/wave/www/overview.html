@@ -655,7 +655,7 @@
           recentSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "recentSessions",
-              sortedRecentSessions,
+              filteredRecentSessions,
               { pinned: false }
             )
           );
@@ -715,7 +715,7 @@
 
           const filters = UI.createElement({
             className: "field is-grouped",
-            style: "height: 2rem",
+            style: "min-height: 2rem",
             children: [
               { text: "Filter by labels:", style: "margin-right: 1rem" },
               {
@@ -727,7 +727,7 @@
                       className: "tags has-addons",
                       children: [
                         {
-                          element: "a",
+                          element: "span",
                           className: "tag is-info",
                           text: label
                         },
@@ -744,7 +744,7 @@
                       ? [
                           {
                             className:
-                              "control field is-grouped is-grouped-multiline",
+                              "control field is-grouped",
                             children: [
                               {
                                 element: "input",

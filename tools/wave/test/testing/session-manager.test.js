@@ -652,9 +652,16 @@ test("updateSessionConfiguration() calls database.updateSession()", async () => 
 });
 
 test("updateLabels() applies new set of labels to session", async () => {
+  let updateSessionCalled = false;
   let session = createMockingSession({ labels: [] });
   const sessionManager = new SessionManager();
-  await sessionManager.initialize({ database: { createSession: () => {} } });
+  await sessionManager.initialize({
+    database: {
+      createSession: () => {},
+      readExpiringSessions: () => [],
+      updateSession: () => (updateSessionCalled = true)
+    }
+  });
   await sessionManager.addSession(session);
 
   sessionManager.updateLabels(session.getToken(), ["new", "labels"]);
@@ -665,6 +672,7 @@ test("updateLabels() applies new set of labels to session", async () => {
   expect(labels).toHaveLength(2);
   expect(labels).toContain("new");
   expect(labels).toContain("labels");
+  expect(updateSessionCalled).toBe(true);
 });
 
 test("deleteSession() removes session from cache", async () => {
@@ -1315,7 +1323,7 @@ test("setExpirationTimer() calls deleteExpiredSessions() and resets the timer wh
 
   sessionManager.setExpirationTimer = () => {
     isTimerReset = true;
-  }
+  };
   await new Promise(resolve => setTimeout(resolve, 120));
   expect(isDeleteExpiredSessionsCalled).toBe(true);
   expect(isTimerReset).toBe(true);

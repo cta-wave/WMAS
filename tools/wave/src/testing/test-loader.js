@@ -118,9 +118,9 @@ class TestLoader {
         for (let testPath of this._tests[type][api]) {
           if (!this._isValidTest({ testPath, includeList, excludeList }))
             continue;
-          if (!tests[api]) tests[api] = [];
           if (referenceResults && !referenceResults[api].includes(testPath))
             continue;
+          if (!tests[api]) tests[api] = [];
           tests[api].push(testPath);
         }
       }

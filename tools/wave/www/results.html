@@ -174,7 +174,6 @@
           UI.getElement("session-label-input").focus();
         },
         removeLabel(index) {
-          if (!index) return;
           const { configuration } = resultUi.state;
           configuration.labels.splice(index, 1);
           WaveService.updateLabels(token, configuration.labels);
@@ -569,6 +568,7 @@
                       children: [
                         {
                           className: "field is-grouped is-grouped-multiline",
+                          style: "min-height: 1.5rem",
                           children: configuration.labels
                             .map((label, index) => ({
                               className: "control",
@@ -576,7 +576,7 @@
                                 className: "tags has-addons",
                                 children: [
                                   {
-                                    element: "a",
+                                    element: "span",
                                     className: "tag is-info",
                                     text: label
                                   },
@@ -593,7 +593,7 @@
                                 ? [
                                     {
                                       className:
-                                        "control field is-grouped is-grouped-multiline",
+                                        "control field is-grouped",
                                       children: [
                                         {
                                           element: "input",

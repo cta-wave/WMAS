@@ -39,7 +39,8 @@ var WaveService = {
       types: configuration.types,
       timeouts: configuration.timeouts,
       reference_tokens: configuration.referenceTokens,
-      expiration_date: configuration.expirationDate
+      expiration_date: configuration.expirationDate,
+      labels: configuration.labels
     });
     sendRequest(
       "POST",
@@ -115,7 +116,9 @@ var WaveService = {
           status: jsonObject.status
         });
       },
-      onError
+      function() {
+        if (onError) onError();
+      }
     );
   },
   readMultipleSessionStatuses: function(tokens, onSuccess, onError) {
@@ -130,9 +133,8 @@ var WaveService = {
           statuses.push(status);
           if (requestsLeft === 0) onSuccess(statuses);
         },
-        function(responseStatus) {
-          if (responseStatus === 404) requestsLeft--;
-          if (status !== 404 && onError) onError();
+        function() {
+          requestsLeft--;
           if (requestsLeft === 0) onSuccess(statuses);
         }
       );
