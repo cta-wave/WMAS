@@ -15,17 +15,31 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
     xhr.setRequestHeader(header, headers[header]);
   }
   xhr.send(data);
+  return xhr;
 }
+
+var OPEN = "open";
+var CLOSED = "closed";
 
 var WaveService = {
   uriPrefix: "",
+  socket: {
+    state: CLOSED,
+    onMessage: function() {},
+    onOpen: function() {},
+    onClose: function() {},
+    send: function() {},
+    close: function() {},
+    onStateChange: function() {}
+  },
   // SESSIONS API
   createSession: function(configuration, onSuccess, onError) {
     var data = JSON.stringify({
       tests: configuration.tests,
       types: configuration.types,
       timeouts: configuration.timeouts,
-      reference_tokens: configuration.referenceTokens
+      reference_tokens: configuration.referenceTokens,
+      expiration_date: configuration.expirationDate
     });
     sendRequest(
       "POST",
@@ -57,7 +71,8 @@ var WaveService = {
           browser: jsonObject.browser,
           isPublic: jsonObject.is_public,
           referenceTokens: jsonObject.reference_tokens,
-          webhookUrls: jsonObject.webhook_urls
+          webhookUrls: jsonObject.webhook_urls,
+          expirationDate: jsonObject.expiration_date
         });
       },
       onError
@@ -136,7 +151,26 @@ var WaveService = {
       onError
     );
   },
-  updateSessionLabels: function(token, labels, onSuccess, onError) {
+  updateSession: function(token, configuration, onSuccess, onError) {
+    var data = JSON.stringify({
+      tests: configuration.tests,
+      types: configuration.types,
+      timeouts: configuration.timeouts,
+      reference_tokens: configuration.referenceTokens,
+      expiration_date: configuration.expirationDate
+    });
+    sendRequest(
+      "PUT",
+      "/api/sessions/" + token,
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        onSuccess();
+      },
+      onError
+    );
+  },
+  updateLabels: function(token, labels, onSuccess, onError) {
     var data = JSON.stringify({ labels: labels });
     sendRequest(
       "PUT",
@@ -416,24 +450,76 @@ var WaveService = {
     var storage = window.localStorage;
     storage.setItem("wave", JSON.stringify(state));
   },
-  connect: function(token) {
-    if (!WaveService.socket) {
-      var protocol;
-      if (location.protocol === "https:") {
-        protocol = "wss";
-      } else {
-        protocol = "ws";
-      }
-      var url = protocol + "://" + location.host;
-      console.log("Connecting to" + url);
-      WaveService.socket = new WebSocket(url);
-      WaveService.socket.onopen = function() {
-        WaveService.socket.send(JSON.stringify({ token }));
+  connectWebSocket: function(token) {
+    var protocol;
+    if (location.protocol === "https:") {
+      protocol = "wss";
+    } else {
+      protocol = "ws";
+    }
+    var url = protocol + "://" + location.host;
+    console.log("Connecting web socket to" + url);
+    var webSocket = new WebSocket(url);
+    webSocket.onmessage = function(message) {
+      WaveService.socket.onMessage(JSON.parse(message.data));
+    };
+    webSocket.onclose = function() {
+      WaveService.socket.state = CLOSED;
+      WaveService.socket.onStateChange(CLOSED);
+      WaveService.socket.onClose();
+    };
+    webSocket.onopen = function() {
+      WaveService.socket.state = OPEN;
+      WaveService.socket.onStateChange(OPEN);
+      WaveService.socket.onOpen();
+      webSocket.send(JSON.stringify({ token }));
+    };
+    WaveService.socket.send = function(message) {
+      webSocket.send(message);
+    };
+    WaveService.socket.close = function() {
+      webSocket.close();
+    };
+  },
+  connectHttpPolling: function(token) {
+    var poll = function() {
+      var request = sendRequest(
+        "GET",
+        "/api/sessions/" + token + "/events",
+        null,
+        null,
+        function(response) {
+          if (WaveService.socket.state === OPEN) poll();
+          WaveService.socket.onMessage(JSON.parse(response));
+        },
+        function() {
+          if (WaveService.socket.state === OPEN) poll();
+        }
+      );
+      WaveService.socket.close = function() {
+        request.abort();
+        WaveService.socket.state = CLOSED;
+        WaveService.socket.onStateChange(CLOSED);
+        WaveService.socket.onClose();
       };
+    };
+    poll();
+    WaveService.socket.onOpen();
+    WaveService.socket.state = OPEN;
+    WaveService.socket.onStateChange(OPEN);
+  },
+  connect: function(token) {
+    if (window.WebSocket) {
+      WaveService.connectWebSocket(token);
+    } else {
+      WaveService.connectHttpPolling(token);
     }
   },
   onMessage: function(callback) {
-    WaveService.socket.onmessage = callback;
+    WaveService.socket.onMessage = callback;
+  },
+  isConnected: function() {
+    return WaveService.socket.state === OPEN;
   },
   openSession: function(token) {
     location.href = "/results.html?token=" + token;

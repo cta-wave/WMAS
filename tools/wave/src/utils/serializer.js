@@ -33,6 +33,7 @@ class Serializer {
     const is_public = session.isPublic();
     const reference_tokens = session.getReferenceTokens();
     const webhook_urls = session.getWebhookUrls();
+    const expiration_date = session.getExpirationDate();
     return {
       token,
       tests,
@@ -51,7 +52,8 @@ class Serializer {
       date_finished,
       is_public,
       reference_tokens,
-      webhook_urls
+      webhook_urls,
+      expiration_date
     };
   }
 }

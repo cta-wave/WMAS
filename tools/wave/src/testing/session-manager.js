@@ -5,6 +5,7 @@ const Session = require("../data/session");
 const TestLoader = require("../testing/test-loader");
 const Database = require("../database");
 const UserAgentParser = require("../utils/user-agent-parser");
+const EventDispatcher = require("./event-dispatcher");
 
 const DEFAULT_TEST_PATH = "/";
 const DEFAULT_TEST_TYPES = [
@@ -22,12 +23,21 @@ class SessionManager {
    * @param {Object} config
    * @param {Database} config.database
    */
-  initialize({ database, testTimeout, testLoader } = {}) {
+  async initialize({
+    database,
+    testTimeout,
+    testLoader,
+    eventDispatcher
+  } = {}) {
     this._database = database;
     this._sessions = [];
     this._testTimeout = testTimeout;
     this._testLoader = testLoader;
     this._sessionClients = [];
+    this._eventDispatcher = eventDispatcher;
+
+    await this.deleteExpiredSessions();
+    await this.setExpirationTimer();
   }
 
   async findToken(fragment) {
@@ -46,7 +56,8 @@ class SessionManager {
     referenceTokens,
     webhookUrls,
     userAgent,
-    labels
+    labels,
+    expirationDate
   } = {}) {
     if (!tests) tests = {};
     if (!tests.include) tests.include = [DEFAULT_TEST_PATH];
@@ -77,10 +88,12 @@ class SessionManager {
       status: Session.PENDING,
       referenceTokens,
       webhookUrls,
-      labels
+      labels,
+      expirationDate
     });
     await this._database.createSession(session);
     this._sessions.push(session);
+    if (expirationDate) await this.setExpirationTimer();
     return session;
   }
 
@@ -179,10 +192,16 @@ class SessionManager {
 
     if (session.getStatus() === Session.PENDING) {
       session.setDateStarted(Date.now());
+      session.setExpirationDate(null);
     }
     session.setStatus(Session.RUNNING);
     await this._database.updateSession(session);
-    this.sendClientMessage({ token, message: "status" });
+
+    this._eventDispatcher.dispatchEvent({
+      token,
+      type: EventDispatcher.STATUS_EVENT,
+      data: session.getStatus()
+    });
   }
 
   async pauseSession(token) {
@@ -190,7 +209,11 @@ class SessionManager {
     if (session.getStatus() !== Session.RUNNING) return;
     session.setStatus(Session.PAUSED);
     await this._database.updateSession(session);
-    this.sendClientMessage({ token, message: "status" });
+    this._eventDispatcher.dispatchEvent({
+      token,
+      type: EventDispatcher.STATUS_EVENT,
+      data: session.getStatus()
+    });
   }
 
   async stopSession(token) {
@@ -203,7 +226,11 @@ class SessionManager {
     session.setStatus(Session.ABORTED);
     session.setDateFinished(Date.now());
     await this._database.updateSession(session);
-    this.sendClientMessage({ token, message: "status" });
+    this._eventDispatcher.dispatchEvent({
+      token,
+      type: EventDispatcher.STATUS_EVENT,
+      data: session.getStatus()
+    });
   }
 
   async completeSession(token) {
@@ -216,7 +243,11 @@ class SessionManager {
     session.setStatus(Session.COMPLETED);
     session.setDateFinished(Date.now());
     await this._database.updateSession(session);
-    this.sendClientMessage({ token, message: "status" });
+    this._eventDispatcher.dispatchEvent({
+      token,
+      type: EventDispatcher.STATUS_EVENT,
+      data: session.getStatus()
+    });
   }
 
   async updateTests({ pendingTests, runningTests, completedTests, session }) {
@@ -225,10 +256,6 @@ class SessionManager {
         this._calculateTestFilesCount(completedTests)
       );
       session.setCompletedTests(completedTests);
-      this.sendClientMessage({
-        token: session.getToken(),
-        message: "complete"
-      });
     }
     if (pendingTests) {
       session.setPendingTests(pendingTests);
@@ -239,29 +266,35 @@ class SessionManager {
     await this.updateSession(session);
   }
 
-  addSessionClient({ socket, token }) {
-    this._sessionClients.push({ socket, token });
-  }
-
-  removeSessionClient({ socket, token }) {
-    this._sessionClients.splice(
-      this._sessionClients.findIndex(
-        client => client.socket === socket && client.token === token
-      ),
-      1
+  async deleteExpiredSessions() {
+    const expiringSessions = await this._database.readExpiringSessions();
+    await Promise.all(
+      expiringSessions
+        .filter(session => session.getExpirationDate() < Date.now())
+        .map(session => this.deleteSession(session.getToken()))
     );
   }
 
-  getSessionClients(token) {
-    return this._sessionClients
-      .filter(client => client.token === token)
-      .map(client => client.socket);
-  }
+  async setExpirationTimer() {
+    const expiringSessions = await this._database.readExpiringSessions();
+    if (expiringSessions.length === 0) return;
 
-  sendClientMessage({ token, message }) {
-    this._sessionClients
-      .filter(client => client.token === token)
-      .forEach(client => client.socket.send(message));
+    const nextSession = expiringSessions.reduce(
+      (currentNext, session) =>
+        !currentNext ||
+        currentNext.getExpirationDate() > session.getExpirationDate()
+          ? session
+          : currentNext,
+      null
+    );
+
+    if (this._expirationTimeout) clearTimeout(this._expirationTimeout);
+    let timeout = nextSession.getExpirationDate() - Date.now();
+    if (timeout < 0) timeout = 0;
+    this._expirationTimeout = setTimeout(async () => {
+      await this.deleteExpiredSessions();
+      await this.setExpirationTimer();
+    }, timeout);
   }
 
   _readFromCache(token) {

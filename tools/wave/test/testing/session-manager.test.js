@@ -1,10 +1,14 @@
 const SessionManager = require("../../src/testing/session-manager");
 const Session = require("../../src/data/session");
 const TestLoader = require("../../src/testing/test-loader");
+const EventDispatcher = require("../../src/testing/event-dispatcher");
+const HttpPollingClient = require("../../src/data/http-polling-client");
 
 test("findToken() only accepts fragments with 8 characters or more", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({ database: { findTokens: () => [true] } });
+  await sessionManager.initialize({
+    database: { findTokens: () => [true], readExpiringSessions: () => [] }
+  });
 
   let found;
 
@@ -18,7 +22,7 @@ test("findToken() only accepts fragments with 8 characters or more", async () =>
 test("findToken() calls database.findTokens() and returns nothing if there are more than one matching", async () => {
   let isFindTokensCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       findTokens: fragment => {
         isFindTokensCalled = true;
@@ -27,7 +31,8 @@ test("findToken() calls database.findTokens() and returns nothing if there are m
         } else {
           return [true, true];
         }
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
 
@@ -44,11 +49,11 @@ test("findToken() calls database.findTokens() and returns nothing if there are m
 
 test("createSession() creates session with defaults if no config provided", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({ apiOne: ["/apiOne/test/one.html"] })
     },
-    database: { createSession: async () => {} }
+    database: { createSession: async () => {}, readExpiringSessions: () => [] }
   });
 
   const session = await sessionManager.createSession();
@@ -111,14 +116,14 @@ test("createSession() creates session with defaults if no config provided", asyn
 
 test("createSession() creates session with provided config", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({
         apiOne: ["/apiOne/test/one.html"],
         apiTwo: ["/apiTwo/test/one.html"]
       })
     },
-    database: { createSession: async () => {} }
+    database: { createSession: async () => {}, readExpiringSessions: () => [] }
   });
 
   const session = await sessionManager.createSession({
@@ -202,7 +207,7 @@ test("createSession() creates session with provided config", async () => {
 test("createSession() calls testLoader.getTests() with parameters from config", async () => {
   let isGetTestsCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async ({
         includeList,
@@ -228,7 +233,7 @@ test("createSession() calls testLoader.getTests() with parameters from config", 
         return {};
       }
     },
-    database: { createSession: async () => {} }
+    database: { createSession: async () => {}, readExpiringSessions: () => [] }
   });
 
   const session = await sessionManager.createSession({
@@ -243,12 +248,13 @@ test("createSession() calls testLoader.getTests() with parameters from config", 
 test("createSession() calls database.createSession()", async () => {
   let isCreateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: { getTests: async () => ({}) },
     database: {
       createSession: async () => {
         isCreateSessionCalled = true;
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   const session = await sessionManager.createSession();
@@ -258,13 +264,14 @@ test("createSession() calls database.createSession()", async () => {
 test("createSession() adds created session to cache", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: { getTests: async () => ({}) },
     database: {
       createSession: async () => {},
       readSession: () => {
         isReadSessionCalled = true;
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   const session = await sessionManager.createSession();
@@ -278,12 +285,13 @@ test("addSession() calls database.createSesson()", async () => {
   let isCreateSessionCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async addedSession => {
         isCreateSessionCalled = true;
         expect(addedSession).toEqual(session);
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   await sessionManager.addSession(session);
@@ -294,12 +302,13 @@ test("addSession() adds the provided session to the cache", async () => {
   let isReadSessionCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async () => {},
       readSession: () => {
         isReadSessionCalled = true;
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   await sessionManager.addSession(session);
@@ -312,13 +321,14 @@ test("readSession() calls database.readSession() and adds it to the cache, if no
   let isReadSessionCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: { getTests: async () => ({}) },
     database: {
       readSession: () => {
         isReadSessionCalled = true;
         return session;
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   let readSession = await sessionManager.readSession(session.getToken());
@@ -337,12 +347,13 @@ test("readSessions() calls database.readSessions()", async () => {
   let isReadSessionsCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       readSessions: () => {
         isReadSessionsCalled = true;
         return [session];
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   const readSessions = await sessionManager.readSessions();
@@ -356,12 +367,13 @@ test("readPublicSessions() calls database.readPublicSessions()", async () => {
   let isReadPublicSessionsCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       readPublicSessions: () => {
         isReadPublicSessionsCalled = true;
         return [session];
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   const readPublicSessions = await sessionManager.readPublicSessions();
@@ -375,12 +387,13 @@ test("updateSession() calls database.updateSession()", async () => {
   let isUpdateSessionCalled = false;
   const session = createMockingSession();
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       updateSession: updatedSession => {
         isUpdateSessionCalled = true;
         expect(updatedSession).toEqual(session);
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
   await sessionManager.updateSession(session);
@@ -390,7 +403,7 @@ test("updateSession() calls database.updateSession()", async () => {
 
 test("updateSessionConfiguration() updates the config of a session if its status is pending", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async ({ includeList }) =>
         includeList.indexOf("/apiTwo") === -1
@@ -402,7 +415,11 @@ test("updateSessionConfiguration() updates the config of a session if its status
               apiTwo: ["/apiTwo/test/one.html"]
             }
     },
-    database: { createSession: async () => {}, updateSession: async () => {} }
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    }
   });
 
   let session = await sessionManager.createSession();
@@ -547,13 +564,17 @@ test("updateSessionConfiguration() updates the config of a session if its status
 test("updateSessionConfiguartion() calls sessionManager.readSession()", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({
         apiOne: ["/apiOne/test/one.html"]
       })
     },
-    database: { createSession: async () => {}, updateSession: async () => {} }
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    }
   });
 
   let session = await sessionManager.createSession();
@@ -572,7 +593,7 @@ test("updateSessionConfiguartion() calls sessionManager.readSession()", async ()
 test("updateSessionConfiguration() calls testLoader.getTests() if session tests are updated", async () => {
   let isGetTestsCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => {
         isGetTestsCalled = true;
@@ -581,7 +602,11 @@ test("updateSessionConfiguration() calls testLoader.getTests() if session tests 
         };
       }
     },
-    database: { createSession: async () => {}, updateSession: async () => {} }
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    }
   });
 
   let session = await sessionManager.createSession();
@@ -602,7 +627,7 @@ test("updateSessionConfiguration() calls testLoader.getTests() if session tests 
 test("updateSessionConfiguration() calls database.updateSession()", async () => {
   let isUpdateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({
         apiOne: ["/apiOne/test/one.html"]
@@ -612,7 +637,8 @@ test("updateSessionConfiguration() calls database.updateSession()", async () => 
       createSession: async () => {},
       updateSession: async () => {
         isUpdateSessionCalled = true;
-      }
+      },
+      readExpiringSessions: () => []
     }
   });
 
@@ -644,7 +670,7 @@ test("updateLabels() applies new set of labels to session", async () => {
 test("deleteSession() removes session from cache", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({
         apiOne: ["/apiOne/test/one.html"]
@@ -655,8 +681,10 @@ test("deleteSession() removes session from cache", async () => {
       readSession: () => {
         isReadSessionCalled = true;
       },
-      deleteSession: () => {}
-    }
+      deleteSession: () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
 
   let session = await sessionManager.createSession();
@@ -670,7 +698,7 @@ test("deleteSession() removes session from cache", async () => {
 test("deleteSession() calls database.deleteSession()", async () => {
   let isDeleteSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     testLoader: {
       getTests: async () => ({
         apiOne: ["/apiOne/test/one.html"]
@@ -680,8 +708,10 @@ test("deleteSession() calls database.deleteSession()", async () => {
       createSession: async () => {},
       deleteSession: () => {
         isDeleteSessionCalled = true;
-      }
-    }
+      },
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
 
   let session = await sessionManager.createSession();
@@ -693,8 +723,13 @@ test("deleteSession() calls database.deleteSession()", async () => {
 
 test("startSession() changes session status to Session.RUNNING from Session.PENDING or Session.PAUSED", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -719,8 +754,13 @@ test("startSession() changes session status to Session.RUNNING from Session.PEND
 test("startSession() calls sessionManager.readSession()", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   sessionManager.readSession = () => {
@@ -736,8 +776,13 @@ test("startSession() calls sessionManager.readSession()", async () => {
 
 test("startSession() sets date started when successful", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -751,13 +796,15 @@ test("startSession() sets date started when successful", async () => {
 test("startSession() calls database.updateSession() when successful", async () => {
   let isUpdateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async () => {},
       updateSession: async () => {
         isUpdateSessionCalled = true;
-      }
-    }
+      },
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -767,27 +814,45 @@ test("startSession() calls database.updateSession() when successful", async () =
   expect(isUpdateSessionCalled).toBe(true);
 });
 
-test("startSession() calls sessionManager.sendClientMessage() when successful", async () => {
-  let isSendClientMessageCalled = false;
-  const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
-  });
-  sessionManager.sendClientMessage = () => {
-    isSendClientMessageCalled = true;
-  };
+test("startSession() dispatches 'status' event when successful", async () => {
+  let isEventDispatched = false;
   const session = createMockingSession();
+  const eventDispatcher = new EventDispatcher();
+  const httpPollingClient = new HttpPollingClient(
+    session.getToken(),
+    message => {
+      isEventDispatched = true;
+      message = JSON.parse(message);
+      expect(message.type).toBe(EventDispatcher.STATUS_EVENT);
+      expect(message.data).toBe(Session.RUNNING);
+    }
+  );
+  eventDispatcher.addSessionClient(httpPollingClient);
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher
+  });
   await sessionManager.addSession(session);
 
   session.setStatus(Session.PENDING);
   await sessionManager.startSession(session.getToken());
-  expect(isSendClientMessageCalled).toBe(true);
+  expect(isEventDispatched).toBe(true);
 });
 
 test("pauseSession() changes status to Session.PAUSED from Session.RUNNING", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -812,8 +877,13 @@ test("pauseSession() changes status to Session.PAUSED from Session.RUNNING", asy
 test("pauseSession() calls sessionManager.readSession()", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   sessionManager.readSession = () => {
@@ -830,13 +900,15 @@ test("pauseSession() calls sessionManager.readSession()", async () => {
 test("pauseSession() calls database.updateSession()", async () => {
   let isUpdateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async () => {},
       updateSession: async () => {
         isUpdateSessionCalled = true;
-      }
-    }
+      },
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -846,27 +918,45 @@ test("pauseSession() calls database.updateSession()", async () => {
   expect(isUpdateSessionCalled).toBe(true);
 });
 
-test("pauseSession() calls sessionManager.sendClientMessage()", async () => {
-  let isSendClientMessageCalled = false;
-  const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
-  });
-  sessionManager.sendClientMessage = () => {
-    isSendClientMessageCalled = true;
-  };
+test("pauseSession() dispatches 'status' event", async () => {
+  let isEventDispatched = false;
   const session = createMockingSession();
+  const eventDispatcher = new EventDispatcher();
+  const httpPollingClient = new HttpPollingClient(
+    session.getToken(),
+    message => {
+      isEventDispatched = true;
+      message = JSON.parse(message);
+      expect(message.type).toBe(EventDispatcher.STATUS_EVENT);
+      expect(message.data).toBe(Session.PAUSED);
+    }
+  );
+  eventDispatcher.addSessionClient(httpPollingClient);
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher
+  });
   await sessionManager.addSession(session);
 
   session.setStatus(Session.RUNNING);
   await sessionManager.pauseSession(session.getToken());
-  expect(isSendClientMessageCalled).toBe(true);
+  expect(isEventDispatched).toBe(true);
 });
 
 test("stopSession() changes status to Session.ABORTED if not already Session.ABORTED or Session.COMPLETED", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -891,8 +981,13 @@ test("stopSession() changes status to Session.ABORTED if not already Session.ABO
 test("stopSession() calls sessionManager.readSession()", async () => {
   let isReadSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   sessionManager.readSession = () => {
@@ -908,8 +1003,13 @@ test("stopSession() calls sessionManager.readSession()", async () => {
 
 test("stopSession() sets date finished when successful", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -922,13 +1022,15 @@ test("stopSession() sets date finished when successful", async () => {
 test("stopSession() calls database.updateSession() when successful", async () => {
   let isUpdateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async () => {},
       updateSession: async () => {
         isUpdateSessionCalled = true;
-      }
-    }
+      },
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -938,27 +1040,45 @@ test("stopSession() calls database.updateSession() when successful", async () =>
   expect(isUpdateSessionCalled).toBe(true);
 });
 
-test("stopSession() calls sessionManager.sendClientMessage() when successful", async () => {
-  let isSendClientMessageCalled = false;
-  const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
-  });
-  sessionManager.sendClientMessage = () => {
-    isSendClientMessageCalled = true;
-  };
+test("stopSession() dispatches 'status' event when successful", async () => {
+  let isEventDispatched = false;
   const session = createMockingSession();
+  const eventDispatcher = new EventDispatcher();
+  const httpPollingClient = new HttpPollingClient(
+    session.getToken(),
+    message => {
+      isEventDispatched = true;
+      message = JSON.parse(message);
+      expect(message.type).toBe(EventDispatcher.STATUS_EVENT);
+      expect(message.data).toBe(Session.ABORTED);
+    }
+  );
+  eventDispatcher.addSessionClient(httpPollingClient);
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher
+  });
   await sessionManager.addSession(session);
 
   session.setStatus(Session.RUNNING);
   await sessionManager.stopSession(session.getToken());
-  expect(isSendClientMessageCalled).toBe(true);
+  expect(isEventDispatched).toBe(true);
 });
 
 test("completeSession() sets the status to Session.COMPLETED", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -982,8 +1102,13 @@ test("completeSession() sets the status to Session.COMPLETED", async () => {
 
 test("completeSession() sets date finished when successful", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -996,13 +1121,15 @@ test("completeSession() sets date finished when successful", async () => {
 test("completeSession() calls database.updateSession()", async () => {
   let isUpdateSessionCalled = false;
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
+  await sessionManager.initialize({
     database: {
       createSession: async () => {},
       updateSession: async () => {
         isUpdateSessionCalled = true;
-      }
-    }
+      },
+      readExpiringSessions: () => []
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const session = createMockingSession();
   await sessionManager.addSession(session);
@@ -1012,27 +1139,44 @@ test("completeSession() calls database.updateSession()", async () => {
   expect(isUpdateSessionCalled).toBe(true);
 });
 
-test("completeSession() calls sessionManager.sendClientMessage() when successful", async () => {
-  let isSendClientMessageCalled = false;
-  const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
-  });
-  sessionManager.sendClientMessage = () => {
-    isSendClientMessageCalled = true;
-  };
+test("completeSession() dispatches 'status' event when successful", async () => {
+  let isEventDispatched = false;
   const session = createMockingSession();
+  const eventDispatcher = new EventDispatcher();
+  const httpPollingClient = new HttpPollingClient(
+    session.getToken(),
+    message => {
+      isEventDispatched = true;
+      message = JSON.parse(message);
+      expect(message.type).toBe(EventDispatcher.STATUS_EVENT);
+      expect(message.data).toBe(Session.ABORTED);
+    }
+  );
+  eventDispatcher.addSessionClient(httpPollingClient);
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    },
+    eventDispatcher
+  });
   await sessionManager.addSession(session);
 
   session.setStatus(Session.RUNNING);
   await sessionManager.stopSession(session.getToken());
-  expect(isSendClientMessageCalled).toBe(true);
+  expect(isEventDispatched).toBe(true);
 });
 
 test("updateTests() sets the corresponding test lists of the provided session and calls database.updateSession", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    }
   });
   const session = createMockingSession({
     pendingTests: {},
@@ -1076,8 +1220,12 @@ test("updateTests() sets the corresponding test lists of the provided session an
 
 test("updateTests() recalculates the total completed tests", async () => {
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
+  await sessionManager.initialize({
+    database: {
+      createSession: async () => {},
+      updateSession: async () => {},
+      readExpiringSessions: () => []
+    }
   });
   const session = createMockingSession({
     pendingTests: {},
@@ -1104,89 +1252,73 @@ test("updateTests() recalculates the total completed tests", async () => {
   expect(session.getTestFilesCompleted()).toHaveProperty("apiOne", 3);
 });
 
-test("updateTests() calls sessionManager.sendClientMessage() when completedTests are updated", async () => {
-  let isSendClientMessageCalled = false;
+test("deleteExpiredSessions() deletes all expired sessions", async () => {
+  let isSession1Deleted = false;
+  let isSession2Deleted = false;
+  const session1 = createMockingSession({
+    token: "token1",
+    expirationDate: Date.now() - 30000
+  });
+  const session2 = createMockingSession({
+    token: "token2",
+    expirationDate: Date.now() - 100
+  });
+  const session3 = createMockingSession({
+    token: "token3",
+    expirationDate: Date.now() + 30000
+  });
+  const session4 = createMockingSession({
+    token: "token4",
+    expirationDate: Date.now() + 1000
+  });
   const sessionManager = new SessionManager();
-  sessionManager.initialize({
-    database: { createSession: async () => {}, updateSession: async () => {} }
-  });
-  const session = createMockingSession({
-    pendingTests: {},
-    runningTests: {},
-    completedTests: {}
-  });
-  const pendingTests = { apiOne: [] };
-  const runningTests = { apiOne: [] };
-  const completedTests = {
-    apiOne: [
-      "/apiOne/test/one.html",
-      "/apiOne/test/two.html",
-      "/apiOne/test/three.html"
-    ]
+  sessionManager.deleteSession = token => {
+    if (token === "token1") isSession1Deleted = true;
+    if (token === "token2") isSession2Deleted = true;
+    expect(token).not.toBe("token3");
+    expect(token).not.toBe("token4");
   };
-
-  sessionManager.sendClientMessage = () => {
-    isSendClientMessageCalled = true;
-  };
-
-  await sessionManager.updateTests({
-    pendingTests,
-    runningTests,
-    completedTests,
-    session
-  });
-  expect(isSendClientMessageCalled).toBe(true);
-  isSendClientMessageCalled = false;
-
-  await sessionManager.updateTests({
-    pendingTests,
-    runningTests,
-    session
-  });
-
-  expect(isSendClientMessageCalled).toBe(false);
-});
-
-test("addSessionClient() adds a client that can be retrieved with getSessionClient()", () => {
-  const sessionManager = new SessionManager();
-  sessionManager.initialize();
-  const client = { send: () => {} };
-  sessionManager.addSessionClient({ socket: client, token: "token101" });
-  const clients = sessionManager.getSessionClients("token101");
-  expect(clients).toBeInstanceOf(Array);
-  expect(clients).toContain(client);
-});
-
-test("removeSessionClient() removes a session client from a session", () => {
-  const sessionManager = new SessionManager();
-  sessionManager.initialize();
-  const client = { send: () => {} };
-  sessionManager.addSessionClient({ socket: client, token: "token101" });
-  let clients = sessionManager.getSessionClients("token101");
-  expect(clients).toBeInstanceOf(Array);
-  expect(clients).toContain(client);
-  sessionManager.removeSessionClient({ socket: client, token: "token101" });
-  clients = sessionManager.getSessionClients("token101");
-  expect(clients).toBeInstanceOf(Array);
-  expect(clients).not.toContain(client);
-});
-
-test("sendClientMessage() sends a message to all session specific clients", () => {
-  let isMessageSent = false;
-  const sessionManager = new SessionManager();
-  sessionManager.initialize();
-  const client = {
-    send: message => {
-      isMessageSent = true;
-      expect(message).toBe("do_something");
+  await sessionManager.initialize({
+    database: {
+      readExpiringSessions: () => [session1, session2, session3, session4]
     }
-  };
-  sessionManager.addSessionClient({ socket: client, token: "token101" });
-  sessionManager.sendClientMessage({
-    token: "token101",
-    message: "do_something"
   });
-  expect(isMessageSent).toBe(true);
+
+  sessionManager.deleteExpiredSessions();
+
+  expect(isSession1Deleted).toBe(true);
+  expect(isSession2Deleted).toBe(true);
+});
+
+test("setExpirationTimer() calls deleteExpiredSessions() and resets the timer when session expires", async () => {
+  let isDeleteExpiredSessionsCalled = false;
+  let isTimerReset = false;
+  const session1 = createMockingSession({
+    token: "token1",
+    expirationDate: Date.now() + 30000
+  });
+  const session2 = createMockingSession({
+    token: "token2",
+    expirationDate: Date.now() + 100
+  });
+  const sessionManager = new SessionManager();
+  sessionManager.deleteExpiredSessions = () => {
+    isDeleteExpiredSessionsCalled = true;
+  };
+  await sessionManager.initialize({
+    database: {
+      readExpiringSessions: () => [session1, session2]
+    }
+  });
+
+  await sessionManager.setExpirationTimer();
+
+  sessionManager.setExpirationTimer = () => {
+    isTimerReset = true;
+  }
+  await new Promise(resolve => setTimeout(resolve, 120));
+  expect(isDeleteExpiredSessionsCalled).toBe(true);
+  expect(isTimerReset).toBe(true);
 });
 
 function createMockingSession({
@@ -1229,7 +1361,8 @@ function createMockingSession({
   dateFinished = null,
   isPublic = false,
   referenceTokens = ["reference_token_one", "reference_token_two"],
-  labels = ["label1", "label2"]
+  labels = ["label1", "label2"],
+  expirationDate = null
 } = {}) {
   const session = new Session(token, {
     path,
@@ -1246,7 +1379,8 @@ function createMockingSession({
     dateFinished,
     isPublic,
     referenceTokens,
-    labels
+    labels,
+    expirationDate
   });
   return session;
 }

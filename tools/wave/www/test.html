@@ -105,6 +105,11 @@
         includedTests.push(path.trim());
       }
 
+      var excludedTests = [
+        "/html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-classic.html",
+        "/html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-module.html"
+      ];
+
       var referenceTokens = [];
       if (parsedQuery["reftoken"]) {
         for (var path of parsedQuery["reftoken"].split(",")) {
@@ -126,7 +131,7 @@
       }
       log("Please wait ...");
       WaveService.createSession(
-        { tests: { include: includedTests }, referenceTokens: referenceTokens },
+        { tests: { include: includedTests, exclude: excludedTests }, referenceTokens: referenceTokens },
         function(token) {
           log("Session created successfully! Token: " + token);
           log("Redirecting ...");

@@ -34,7 +34,7 @@
         },
         refreshData: toUpdate => {
           switch (toUpdate) {
-            case "complete":
+            case "test_completed":
               resultUi.refreshSessionStatus(() => {
                 resultUi.refreshSessionResults(() => {
                   resultUi.renderApiResults();
@@ -117,10 +117,10 @@
           });
         },
         connectWebSocket() {
-          if (!WaveService.socket) {
+          if (!WaveService.isConnected()) {
             WaveService.connect(token);
             WaveService.onMessage(message => {
-              resultUi.refreshData(message.data);
+              resultUi.refreshData(message.type);
             });
           }
         },
@@ -169,7 +169,7 @@
           if (!label) return;
           const { configuration } = resultUi.state;
           configuration.labels.push(label);
-          WaveService.updateSessionLabels(token, configuration.labels);
+          WaveService.updateLabels(token, configuration.labels);
           resultUi.renderSessionDetails();
           UI.getElement("session-label-input").focus();
         },
@@ -177,7 +177,7 @@
           if (!index) return;
           const { configuration } = resultUi.state;
           configuration.labels.splice(index, 1);
-          WaveService.updateSessionLabels(token, configuration.labels);
+          WaveService.updateLabels(token, configuration.labels);
           resultUi.renderSessionDetails();
         },
         showAddLabel() {
