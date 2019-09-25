@@ -18,6 +18,7 @@ class WptReport {
           `--output ${outputHtmlDirectoryPath} ` +
           `--spec ${specName} ` +
           `--sort true `+
+          `--failures true `+
           `${isMulti ? "--tokenFileName true " : ""}` +
           `${!referenceDir ? "" : `--pass 100 --ref ${referenceDir}`}`,
         (error, stdout, stderr) => {
