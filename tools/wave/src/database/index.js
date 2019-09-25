@@ -11,12 +11,8 @@ class Database {
   constructor({ dbCompactionInterval }) {
     this._db = {};
     this._dbCompactionInterval = dbCompactionInterval;
-    this._bindSessionsDatabase({
-      compactionInterval: dbCompactionInterval
-    });
-    this._bindResultsDatabase({
-      compactionInterval: dbCompactionInterval
-    });
+    this._bindSessionsDatabase();
+    this._bindResultsDatabase();
     this._testsDatabase = new TestsDatabase();
   }
 
@@ -26,9 +22,15 @@ class Database {
     }
 
     const resultsDirectoryPath = path.join(databaseDirectoryPath, "results");
-    await this._resultsDatabase.initialize(resultsDirectoryPath);
+    await this._resultsDatabase.initialize({
+      directoryPath: resultsDirectoryPath,
+      compactionInterval: this._dbCompactionInterval
+    });
     const testsDirectoryPath = path.join(databaseDirectoryPath, "tests");
-    await this._testsDatabase.initialize(testsDirectoryPath);
+    await this._testsDatabase.initialize({
+      directoryPath: testsDirectoryPath,
+      compactionInterval: this._dbCompactionInterval
+    });
     const sessionsDatabaseFilePath = path.join(
       databaseDirectoryPath,
       "./sessions.db"
@@ -36,15 +38,17 @@ class Database {
     await this._sessionsDatabase.initialize({
       filePath: sessionsDatabaseFilePath,
       resultsDatabase: this._resultsDatabase,
-      testsDatabase: this._testsDatabase
+      testsDatabase: this._testsDatabase,
+      compactionInterval: this._dbCompactionInterval
     });
   }
 
-  _bindSessionsDatabase(options) {
-    const sessionsDatabase = new SessionsDatabase(options);
+  _bindSessionsDatabase() {
+    const sessionsDatabase = new SessionsDatabase();
     this.createSession = sessionsDatabase.createSession.bind(sessionsDatabase);
     this.readSession = sessionsDatabase.readSession.bind(sessionsDatabase);
     this.readSessions = sessionsDatabase.readSessions.bind(sessionsDatabase);
+    this.readExpiringSessions = sessionsDatabase.readExpiringSessions.bind(sessionsDatabase);
     this.readPublicSessions = sessionsDatabase.readPublicSessions.bind(
       sessionsDatabase
     );
@@ -54,8 +58,8 @@ class Database {
     this._sessionsDatabase = sessionsDatabase;
   }
 
-  _bindResultsDatabase(options) {
-    const resultsDatabase = new ResultsDatabase(options);
+  _bindResultsDatabase() {
+    const resultsDatabase = new ResultsDatabase();
     this.createResult = resultsDatabase.createResult.bind(resultsDatabase);
     this.readResults = resultsDatabase.readResults.bind(resultsDatabase);
     this.deleteResults = resultsDatabase.deleteResults.bind(resultsDatabase);

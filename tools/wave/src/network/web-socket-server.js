@@ -1,20 +1,28 @@
 const WebSocket = require("ws");
+const WebSocketClient = require("../data/web-socket-client");
 
 class WebSocketServer {
-  constructor({ server, sessionManager }) {
-    this._sessionManager = sessionManager;
+  constructor({ server, eventDispatcher }) {
+    this._eventDispatcher = eventDispatcher;
     this._webSocketServer = new WebSocket.Server({ server });
     this._webSocketServer.on("connection", this._handleConnection.bind(this));
   }
 
-  _handleConnection(client) {
-    client.on("message", async data => {
+  _handleConnection(socket) {
+    socket.on("message", async data => {
       data = JSON.parse(data);
       if (!data) return;
       const { token } = data;
-      this._sessionManager.addSessionClient({ socket: client, token });
-      client.on("close", () => {
-        this._sessionManager.removeSessionClient({ socket: client, token });
+      const webSocketClient = new WebSocketClient(token, socket);
+      this._eventDispatcher.addSessionClient(webSocketClient);
+      socket.on("close", () => {
+        try {
+          this._eventDispatcher.removeSessionClient(webSocketClient);
+        } catch (error) {
+          console.error(
+            `Failed to remove client from event dispatcher:\n${error.stack}`
+          );
+        }
       });
     });
   }

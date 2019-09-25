@@ -50,5 +50,8 @@ const utils = {
       case "webkit":
         return "fab fa-safari";
     }
+  },
+  copyObject(object) {
+    return JSON.parse(JSON.stringify(object));
   }
 };

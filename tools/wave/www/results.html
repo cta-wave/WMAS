@@ -25,12 +25,16 @@
         }
         WaveService.addRecentSession(token);
       };
-
       const resultUi = {
-        state: { details: null, results: null, referenceSessions: [] },
+        state: {
+          details: null,
+          results: null,
+          referenceSessions: [],
+          addLabelVisible: false
+        },
         refreshData: toUpdate => {
           switch (toUpdate) {
-            case "complete":
+            case "test_completed":
               resultUi.refreshSessionStatus(() => {
                 resultUi.refreshSessionResults(() => {
                   resultUi.renderApiResults();
@@ -113,10 +117,10 @@
           });
         },
         connectWebSocket() {
-          if (!WaveService.socket) {
+          if (!WaveService.isConnected()) {
             WaveService.connect(token);
             WaveService.onMessage(message => {
-              resultUi.refreshData(message.data);
+              resultUi.refreshData(message.type);
             });
           }
         },
@@ -159,6 +163,30 @@
         },
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
+        },
+        addLabel() {
+          const label = UI.getElement("session-label-input").value;
+          if (!label) return;
+          const { configuration } = resultUi.state;
+          configuration.labels.push(label);
+          WaveService.updateLabels(token, configuration.labels);
+          resultUi.renderSessionDetails();
+          UI.getElement("session-label-input").focus();
+        },
+        removeLabel(index) {
+          const { configuration } = resultUi.state;
+          configuration.labels.splice(index, 1);
+          WaveService.updateLabels(token, configuration.labels);
+          resultUi.renderSessionDetails();
+        },
+        showAddLabel() {
+          resultUi.state.addLabelVisible = true;
+          resultUi.renderSessionDetails();
+          UI.getElement("session-label-input").focus();
+        },
+        hideAddLabel() {
+          resultUi.state.addLabelVisible = false;
+          resultUi.renderSessionDetails();
         },
         render() {
           const resultView = UI.createElement({
@@ -408,6 +436,7 @@
               }, 1000);
           }
 
+          const { addLabelVisible } = state;
           const { testFilesCount } = status;
           const detailsTable = UI.createElement({
             element: "table",
@@ -526,7 +555,85 @@
                         }
                       ]
                     }
-                  : null
+                  : null,
+                {
+                  element: "tr",
+                  children: [
+                    {
+                      element: "td",
+                      text: "Labels:"
+                    },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          className: "field is-grouped is-grouped-multiline",
+                          style: "min-height: 1.5rem",
+                          children: configuration.labels
+                            .map((label, index) => ({
+                              className: "control",
+                              children: {
+                                className: "tags has-addons",
+                                children: [
+                                  {
+                                    element: "span",
+                                    className: "tag is-info",
+                                    text: label
+                                  },
+                                  {
+                                    element: "a",
+                                    className: "tag is-delete",
+                                    onClick: () => resultUi.removeLabel(index)
+                                  }
+                                ]
+                              }
+                            }))
+                            .concat(
+                              addLabelVisible
+                                ? [
+                                    {
+                                      className:
+                                        "control field is-grouped",
+                                      children: [
+                                        {
+                                          element: "input",
+                                          className: "input is-small control",
+                                          style: "width: 10rem",
+                                          id: "session-label-input",
+                                          type: "text",
+                                          onKeyUp: event =>
+                                            event.keyCode === 13
+                                              ? resultUi.addLabel()
+                                              : null
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "save",
+                                          onClick: resultUi.addLabel
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "cancel",
+                                          onClick: resultUi.hideAddLabel
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                : [
+                                    {
+                                      className: "button is-rounded is-small",
+                                      text: "Add",
+                                      onClick: resultUi.showAddLabel
+                                    }
+                                  ]
+                            )
+                        }
+                      ]
+                    }
+                  ]
+                }
               ]
             }
           });

@@ -18,6 +18,7 @@ The REST API allows the WAVE server to be integrated into other systems.
 | [`stop`](./sessions-api/control.md#stop)       | Stops a test session.                                |
 | [`pause`](./sessions-api/control.md#pause)     | Pauses a test session.                               |
 | [`find`](./sessions-api/find.md)               | Finds a session token by providing a token fragment. |
+| [`labels`](./sessions-api/labels.md)             | Attach labels to sessions for organization purposes. |
 
 ## Tests API <a name="tests-api"></a>
 

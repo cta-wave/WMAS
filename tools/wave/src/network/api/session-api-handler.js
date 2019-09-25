@@ -1,9 +1,9 @@
 const Route = require("../../data/route");
 const Serializer = require("../../utils/serializer");
 const ApiHandler = require("./api-handler");
-const Session = require("../../data/session");
 const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
+const HttpPollingClient = require("../../data/http-polling-client");
 
 const { GET, POST, DELETE, PUT } = Route;
 
@@ -18,10 +18,11 @@ class SessionApiHandler extends ApiHandler {
    * @param {SessionManager} sessionManager
    * @param {ResultsManager} resultsManager
    */
-  constructor(sessionManager, resultsManager) {
+  constructor(sessionManager, resultsManager, eventDispatcher) {
     super();
     this._sessionManager = sessionManager;
     this._resultsManager = resultsManager;
+    this._eventDispatcher = eventDispatcher;
   }
 
   async _createSession({ request, response }) {
@@ -32,7 +33,9 @@ class SessionApiHandler extends ApiHandler {
         types,
         timeouts,
         reference_tokens,
-        webhook_urls
+        webhook_urls,
+        labels,
+        expiration_date
       } = request.body;
       const session = await this._sessionManager.createSession({
         tests: { include, exclude },
@@ -40,7 +43,9 @@ class SessionApiHandler extends ApiHandler {
         timeouts,
         referenceTokens: reference_tokens,
         webhookUrls: webhook_urls,
-        userAgent
+        userAgent,
+        labels,
+        expirationDate: expiration_date
       });
 
       const token = session.getToken();
@@ -145,6 +150,19 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _updateLabels({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const { labels } = request.body;
+      await this._sessionManager.updateLabels(token, labels);
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to set session label:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _deleteSession({ request, response }) {
     try {
       const url = this.parseUrl(request);
@@ -210,6 +228,21 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _registerEventListener({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const httpPollingClient = new HttpPollingClient(token, message => {
+        response.send(message);
+        this._eventDispatcher.removeSessionClient(httpPollingClient);
+      });
+      this._eventDispatcher.addSessionClient(httpPollingClient);
+    } catch (error) {
+      console.error(new Error(`Failed to find session:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   getRoutes() {
     const uri = "/api/sessions*";
     return [
@@ -225,7 +258,7 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handlePost(request, response) {
-    console.log(`POST   ${request.url}`)
+    console.log(`POST   ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 1:
@@ -235,17 +268,22 @@ class SessionApiHandler extends ApiHandler {
   }
 
   _handlePut(request, response) {
-    console.log(`PUT    ${request.url}`)
+    console.log(`PUT    ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
         return this._updateSessionConfiguration({ request, response });
+      case 3:
+        switch (url[2].toLowerCase()) {
+          case "labels":
+          return this._updateLabels({ request, response });
+        }
     }
     response.status(404).send();
   }
 
   _handleGet(request, response) {
-    console.log(`GET    ${request.url}`)
+    console.log(`GET    ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
@@ -266,13 +304,15 @@ class SessionApiHandler extends ApiHandler {
             return this._stopSession({ request, response });
           case "status":
             return this._readSessionStatus({ request, response });
+          case "events":
+            return this._registerEventListener({ request, response });
         }
     }
     response.status(404).send();
   }
 
   _handleDelete(request, response) {
-    console.log(`DELETE ${request.url}`)
+    console.log(`DELETE ${request.url}`);
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:

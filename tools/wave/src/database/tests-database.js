@@ -1,11 +1,9 @@
 const path = require("path");
-const DataStore = require("nedb");
 
+const Database = require("./database");
 const FileSystem = require("../utils/file-system");
-const DatabaseUtils = require("../utils/database-utils");
 const JobQueue = require("../utils/job-queue");
 
-const { promisifyNedbDataStore } = DatabaseUtils;
 const DEFAULT_DIRECTORY_PATH = ".";
 const DEFAULT_COMPACTION_INTERVAL = 60000;
 
@@ -13,9 +11,9 @@ const READ_JOB_GROUP = "read";
 const MAX_ACCESS_JOBS = 1;
 const MAX_GROUP_JOBS = 5;
 
-class TestsDatabase {
-  constructor({ compactionInterval = DEFAULT_COMPACTION_INTERVAL } = {}) {
-    this._compactionInterval = compactionInterval;
+class TestsDatabase extends Database {
+  constructor() {
+    super();
     this._testsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });
@@ -24,22 +22,24 @@ class TestsDatabase {
     );
   }
 
-  async initialize(directoryPath = DEFAULT_DIRECTORY_PATH) {
+  async initialize({
+    directoryPath = DEFAULT_DIRECTORY_PATH,
+    compactionInterval = DEFAULT_COMPACTION_INTERVAL
+  } = {}) {
     if (!(await FileSystem.exists(directoryPath))) {
       await FileSystem.makeDirectory(directoryPath);
     }
     this._directoryPath = directoryPath;
     this._db = {};
+    this._compactionInterval = compactionInterval;
   }
 
   async loadDatabase(token) {
     if (this._db[token]) return;
-    let testsDataStore = new DataStore({
-      filename: path.join(this._directoryPath, token + ".db")
+    const testsDataStore = this._createDataStore({
+      filePath: path.join(this._directoryPath, token + ".db"),
+      compactionInterval: this._compactionInterval
     });
-    testsDataStore = promisifyNedbDataStore(testsDataStore);
-    testsDataStore.compactDatafile();
-    testsDataStore.setAutocompactionInterval(this._compactionInterval);
     await testsDataStore.loadDatabase();
     this._db[token] = testsDataStore;
   }
@@ -69,14 +69,23 @@ class TestsDatabase {
     return null;
   }
 
-  async updateTests(token, tests) {
+  async updateTests(token, tests, sessionLabel) {
     return this._queueTestsAccess(() => this._updateTests(token, tests));
   }
 
-  async _updateTests(token, tests) {
+  async updateLabel(token, sessionLabel) {
+    return this._queueTestsAccess(() => this._updateLabel(token, sessionLabel));
+  }
+
+  async _updateTests(token, tests, sessionLabel) {
     const sessionTests = this._db[token];
     tests.token = token;
     await sessionTests.update({ token }, tests);
+  }
+
+  async _updateLabel(token, sessionLabel) {
+    const sessionTests = this._db[token];
+    await sessionTests.update({ token },  sessionLabel );
   }
 
   async deleteTests(token) {

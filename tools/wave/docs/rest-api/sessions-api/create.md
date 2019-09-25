@@ -20,7 +20,8 @@ The `create` method of the sessions API creates a new session. If provided with 
     "manual": "Integer",
     "<test_path>": "Integer"
   },
-  "reference_tokens": "Array<String>"
+  "reference_tokens": "Array<String>",
+  "labels": "Array<String>"
 }
 ```
 
@@ -35,6 +36,7 @@ The `create` method of the sessions API creates a new session. If provided with 
   - **manual**: Sets the default timeout for all manual tests.
   - **custom test paths**: Set the timeout for a test file or directory by putting the path with all dots removed as the key.
 - **reference_tokens** specifies a set of completed sessions that is used to filter out all tests that have not passed in all those sessions from the session that is going to be created.
+- **labels** specifies the initial set of labels for the session.
 
 ### Default
 
@@ -49,7 +51,8 @@ The `create` method of the sessions API creates a new session. If provided with 
     "automatic": 60000,
     "manual": 300000
   },
-  "reference_tokens": []
+  "reference_tokens": [],
+  "labels": []
 }
 ```
 
@@ -84,7 +87,8 @@ If successful, the token of the new session is returned.
   "reference_tokens": [
     "ce2dc080-c283-11e9-b4d6-e046513784c2",
     "430f47d0-c283-11e9-8776-fcbc36b81035"
-  ]
+  ],
+  "labels": ["label1", "label2", "label3"]
 }
 ```
 
