@@ -44,11 +44,11 @@
           <div class="column">
             <table style="margin-bottom: 1.5em">
               <tr>
-                <td class="has-text-weight-bold" style="width: 4rem">Token:</td>
+                <td class="has-text-weight-bold" style="padding-right: 1rem">Token:</td>
                 <td id="session-token" class="is-family-monospace"></td>
               </tr>
               <tr>
-                <td class="has-text-weight-bold">Expires:</td>
+                <td class="has-text-weight-bold" style="padding-right: 1rem">Expires:</td>
                 <td id="expiary-date"></td>
               </tr>
               <tr>
@@ -168,6 +168,7 @@
       return cookie.split("=")[0].replace(/ /g, "") === "resume_token";
     });
     if (resumeToken) resumeToken = resumeToken.split("=")[1];
+    if (!resumeToken) resumeToken = "";
     var tokenText = document.getElementById("resume_token");
     tokenText.value = resumeToken;
     var unknownTokenError = document.getElementById("unknown_token_error");

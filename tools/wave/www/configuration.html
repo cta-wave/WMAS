@@ -840,6 +840,7 @@
         },
         renderResumeView: function() {
           var query = utils.parseQuery(location.search);
+          console.log(query)
           var resumeToken = query.resume;
           if (!resumeToken) resumeToken = "";
 
