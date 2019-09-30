@@ -77,30 +77,38 @@
         const query = utils.parseQuery(location.search);
         token = query.token;
         configurationUi.render();
-        WaveService.readSessionStatus(token, function(status) {
-          if (status.status !== "pending") {
-            configurationUi.openResultsPage();
-            return;
-          }
-
-          WaveService.readSession(token, function(configuration) {
-            if (
-              configuration.tests.include.findIndex(test => test === "/") !== -1
-            ) {
-              configuration.tests.include = apis.map(api => api.path);
+        WaveService.readSessionStatus(
+          token,
+          function(status) {
+            if (status.status !== "pending") {
+              configurationUi.openResultsPage();
+              return;
             }
-            configurationUi.state.configurationBackup = utils.copyObject(
-              configuration
-            );
-            configurationUi.state.configuration = configuration;
-            setTimeout(
-              configurationUi.handleExpiration,
-              configuration.expirationDate - Date.now()
-            );
+
+            WaveService.readSession(token, function(configuration) {
+              if (
+                configuration.tests.include.findIndex(test => test === "/") !==
+                -1
+              ) {
+                configuration.tests.include = apis.map(api => api.path);
+              }
+              configurationUi.state.configurationBackup = utils.copyObject(
+                configuration
+              );
+              configurationUi.state.configuration = configuration;
+              setTimeout(
+                configurationUi.handleExpiration,
+                configuration.expirationDate - Date.now()
+              );
+              configurationUi.renderSessionConfiguration();
+            });
+          },
+          function() {
+            configurationUi.state.expired = true;
             configurationUi.renderSessionConfiguration();
             configurationUi.renderExcludedTests();
-          });
-        });
+          }
+        );
       };
 
       var configurationUi = {
@@ -211,8 +219,10 @@
           var configuration = configurationUi.state.configuration;
           var token = configuration.token;
           WaveService.updateSession(token, configuration, function() {
-            WaveService.startSession(token, function() {
-              configurationUi.openResultsPage();
+            WaveService.updateLabels(token, configuration.labels, function() {
+              WaveService.startSession(token, function() {
+                configurationUi.openResultsPage();
+              });
             });
           });
           configurationUi.state.isStarting = true;
@@ -326,6 +336,27 @@
           }
           configurationUi.renderExcludedTests();
         },
+        showAddLabel: function() {
+          configurationUi.state.addLabelVisible = true;
+          configurationUi.renderSessionConfiguration();
+          UI.getElement("session-label-input").focus();
+        },
+        hideAddLabel: function() {
+          configurationUi.state.addLabelVisible = false;
+          configurationUi.renderSessionConfiguration();
+        },
+        addLabel: function() {
+          var label = UI.getElement("session-label-input").value;
+          if (!label) return;
+          configurationUi.state.configuration.labels.push(label);
+          configurationUi.renderSessionConfiguration();
+          UI.getElement("session-label-input").focus();
+        },
+        removeLabel: function(index) {
+          const { configuration } = configurationUi.state;
+          configuration.labels.splice(index, 1);
+          configurationUi.renderSessionConfiguration();
+        },
         render: function() {
           const configurationView = UI.createElement({
             className: "content",
@@ -366,6 +397,25 @@
           var sessionConfiguration = UI.getElement("session-configuration");
           sessionConfiguration.innerHTML = "";
 
+          if (configurationUi.state.expired) {
+            var expiredIndicator = UI.createElement({
+              className: "level",
+              children: {
+                element: "span",
+                className: "level-item icon",
+                children: [
+                  {
+                    style: "margin-left: 0.4em;",
+                    text: "Session expired. Please create a new one."
+                  }
+                ]
+              }
+            });
+            sessionConfigurationView.appendChild(expiredIndicator);
+            sessionConfiguration.appendChild(sessionConfigurationView);
+            return;
+          }
+
           if (!configuration) {
             var loadingIndicator = UI.createElement({
               className: "level",
@@ -388,26 +438,8 @@
             sessionConfiguration.appendChild(sessionConfigurationView);
             return;
           }
-          var excludedTests = configuration.tests.exclude;
 
-          if (configurationUi.state.expired) {
-            var expiredIndicator = UI.createElement({
-              className: "level",
-              children: {
-                element: "span",
-                className: "level-item icon",
-                children: [
-                  {
-                    style: "margin-left: 0.4em;",
-                    text: "Session expired. Please create a new one."
-                  }
-                ]
-              }
-            });
-            sessionConfigurationView.appendChild(expiredIndicator);
-            sessionConfiguration.appendChild(sessionConfigurationView);
-            return;
-          }
+          var addLabelVisible = configurationUi.state.addLabelVisible;
 
           var configurationTable = UI.createElement({
             element: "table",
@@ -432,6 +464,79 @@
                         text: new Date(
                           configuration.expirationDate
                         ).toLocaleString()
+                      }
+                    ]
+                  },
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Labels" },
+                      {
+                        element: "td",
+                        children: {
+                          className: "field is-grouped is-grouped-multiline",
+                          style: "min-height: 1.5rem",
+                          children: configuration.labels
+                            .map((label, index) => ({
+                              className: "control",
+                              children: {
+                                className: "tags has-addons",
+                                children: [
+                                  {
+                                    element: "span",
+                                    className: "tag is-info",
+                                    text: label
+                                  },
+                                  {
+                                    element: "a",
+                                    className: "tag is-delete",
+                                    onClick: () =>
+                                      configurationUi.removeLabel(index)
+                                  }
+                                ]
+                              }
+                            }))
+                            .concat(
+                              addLabelVisible
+                                ? [
+                                    {
+                                      className: "control field is-grouped",
+                                      children: [
+                                        {
+                                          element: "input",
+                                          className: "input is-small control",
+                                          style: "width: 10rem",
+                                          id: "session-label-input",
+                                          type: "text",
+                                          onKeyUp: event =>
+                                            event.keyCode === 13
+                                              ? configurationUi.addLabel()
+                                              : null
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "save",
+                                          onClick: configurationUi.addLabel
+                                        },
+                                        {
+                                          className:
+                                            "button is-dark is-outlined is-small is-rounded control",
+                                          text: "cancel",
+                                          onClick: configurationUi.hideAddLabel
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                : [
+                                    {
+                                      className: "button is-rounded is-small",
+                                      text: "Add",
+                                      onClick: configurationUi.showAddLabel
+                                    }
+                                  ]
+                            )
+                        }
                       }
                     ]
                   },

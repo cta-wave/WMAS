@@ -60,6 +60,7 @@ class SessionManager {
     referenceTokens,
     webhookUrls,
     userAgent,
+    labels,
     expirationDate
   } = {}) {
     if (!tests) tests = {};
@@ -91,6 +92,7 @@ class SessionManager {
       status: Session.PENDING,
       referenceTokens,
       webhookUrls,
+      labels,
       expirationDate
     });
     await this._database.createSession(session);
@@ -168,6 +170,14 @@ class SessionManager {
     return session;
   }
 
+  async updateLabels(token, labels) {
+    if (!token || !labels) {
+      return;
+    }
+    const session = await this.readSession(token);
+    session.setLabels(labels);
+    await this._database.updateSession(session);
+  }
   async deleteSession(token) {
     this._sessions.splice(
       this._sessions.findIndex(session => session.getToken() === token),

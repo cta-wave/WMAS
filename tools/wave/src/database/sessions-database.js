@@ -98,7 +98,6 @@ class SessionsDatabase extends Database {
       if (malfunctioning_tests)
         session.setMalfunctioningTests(malfunctioning_tests);
     }
-
     return session;
   }
 

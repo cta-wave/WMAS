@@ -109,6 +109,9 @@ test("createSession() creates session with defaults if no config provided", asyn
   const webhookUrls = session.getWebhookUrls();
   expect(webhookUrls).toBeInstanceOf(Array);
   expect(webhookUrls).toHaveLength(0);
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(0);
 });
 
 test("createSession() creates session with provided config", async () => {
@@ -129,7 +132,8 @@ test("createSession() creates session with provided config", async () => {
     timeouts: { automatic: 500, "/apiTwo": 600 },
     referenceTokens: ["ref_token_1", "ref_token_2"],
     webhookUrls: ["http://webhook.url/endpoint"],
-    userAgent: "some user agent"
+    userAgent: "some user agent",
+    labels: ["label1", "label2"]
   });
   expect(session.getUserAgent()).toBe("some user agent");
   const tests = session.getTests();
@@ -193,6 +197,11 @@ test("createSession() creates session with provided config", async () => {
   expect(webhookUrls).toBeInstanceOf(Array);
   expect(webhookUrls).toHaveLength(1);
   expect(webhookUrls).toContain("http://webhook.url/endpoint");
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(2);
+  expect(labels).toContain("label1");
+  expect(labels).toContain("label2");
 });
 
 test("createSession() calls testLoader.getTests() with parameters from config", async () => {
@@ -640,6 +649,30 @@ test("updateSessionConfiguration() calls database.updateSession()", async () => 
   });
 
   expect(isUpdateSessionCalled).toBe(true);
+});
+
+test("updateLabels() applies new set of labels to session", async () => {
+  let updateSessionCalled = false;
+  let session = createMockingSession({ labels: [] });
+  const sessionManager = new SessionManager();
+  await sessionManager.initialize({
+    database: {
+      createSession: () => {},
+      readExpiringSessions: () => [],
+      updateSession: () => (updateSessionCalled = true)
+    }
+  });
+  await sessionManager.addSession(session);
+
+  sessionManager.updateLabels(session.getToken(), ["new", "labels"]);
+
+  session = await sessionManager.readSession(session.getToken());
+  const labels = session.getLabels();
+  expect(labels).toBeInstanceOf(Array);
+  expect(labels).toHaveLength(2);
+  expect(labels).toContain("new");
+  expect(labels).toContain("labels");
+  expect(updateSessionCalled).toBe(true);
 });
 
 test("deleteSession() removes session from cache", async () => {
@@ -1290,7 +1323,7 @@ test("setExpirationTimer() calls deleteExpiredSessions() and resets the timer wh
 
   sessionManager.setExpirationTimer = () => {
     isTimerReset = true;
-  }
+  };
   await new Promise(resolve => setTimeout(resolve, 120));
   expect(isDeleteExpiredSessionsCalled).toBe(true);
   expect(isTimerReset).toBe(true);
@@ -1336,6 +1369,7 @@ function createMockingSession({
   dateFinished = null,
   isPublic = false,
   referenceTokens = ["reference_token_one", "reference_token_two"],
+  labels = ["label1", "label2"],
   expirationDate = null
 } = {}) {
   const session = new Session(token, {
@@ -1353,6 +1387,7 @@ function createMockingSession({
     dateFinished,
     isPublic,
     referenceTokens,
+    labels,
     expirationDate
   });
   return session;

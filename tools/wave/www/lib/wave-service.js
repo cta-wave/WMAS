@@ -39,7 +39,8 @@ var WaveService = {
       types: configuration.types,
       timeouts: configuration.timeouts,
       reference_tokens: configuration.referenceTokens,
-      expiration_date: configuration.expirationDate
+      expiration_date: configuration.expirationDate,
+      labels: configuration.labels
     });
     sendRequest(
       "POST",
@@ -66,6 +67,7 @@ var WaveService = {
           tests: jsonObject.tests,
           types: jsonObject.types,
           userAgent: jsonObject.user_agent,
+          labels: jsonObject.labels,
           timeouts: jsonObject.timeouts,
           browser: jsonObject.browser,
           isPublic: jsonObject.is_public,
@@ -114,7 +116,9 @@ var WaveService = {
           status: jsonObject.status
         });
       },
-      onError
+      function() {
+        if (onError) onError();
+      }
     );
   },
   readMultipleSessionStatuses: function(tokens, onSuccess, onError) {
@@ -129,9 +133,8 @@ var WaveService = {
           statuses.push(status);
           if (requestsLeft === 0) onSuccess(statuses);
         },
-        function(responseStatus) {
-          if (responseStatus === 404) requestsLeft--;
-          if (status !== 404 && onError) onError();
+        function() {
+          requestsLeft--;
           if (requestsLeft === 0) onSuccess(statuses);
         }
       );
@@ -165,6 +168,19 @@ var WaveService = {
       data,
       function() {
         onSuccess();
+      },
+      onError
+    );
+  },
+  updateLabels: function(token, labels, onSuccess, onError) {
+    var data = JSON.stringify({ labels: labels });
+    sendRequest(
+      "PUT",
+      "/api/sessions/" + token + "/labels",
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        if (onSuccess) onSuccess();
       },
       onError
     );

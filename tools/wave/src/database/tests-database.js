@@ -69,14 +69,23 @@ class TestsDatabase extends Database {
     return null;
   }
 
-  async updateTests(token, tests) {
+  async updateTests(token, tests, sessionLabel) {
     return this._queueTestsAccess(() => this._updateTests(token, tests));
   }
 
-  async _updateTests(token, tests) {
+  async updateLabel(token, sessionLabel) {
+    return this._queueTestsAccess(() => this._updateLabel(token, sessionLabel));
+  }
+
+  async _updateTests(token, tests, sessionLabel) {
     const sessionTests = this._db[token];
     tests.token = token;
     await sessionTests.update({ token }, tests);
+  }
+
+  async _updateLabel(token, sessionLabel) {
+    const sessionTests = this._db[token];
+    await sessionTests.update({ token },  sessionLabel );
   }
 
   async deleteTests(token) {

@@ -16,6 +16,7 @@ class Session {
     {
       types = [TestLoader.TEST_HARNESS_TESTS],
       userAgent = null,
+      labels = [],
       tests,
       pendingTests = {},
       runningTests = {},
@@ -38,6 +39,7 @@ class Session {
     this._tests = tests;
     this._types = types;
     this._userAgent = userAgent;
+    this._labels = labels;
     this._pendingTests = pendingTests;
     this._runningTests = runningTests;
     this._completedTests = completedTests;
@@ -94,6 +96,15 @@ class Session {
 
   setUserAgent(userAgent) {
     this._userAgent = userAgent;
+    return this;
+  }
+
+  getLabels() {
+    return this._labels;
+  }
+
+  setLabels(labels) {
+    this._labels = labels;
     return this;
   }
 
