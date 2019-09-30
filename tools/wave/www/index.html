@@ -251,9 +251,7 @@
 
           if (message.type !== "status") return;
           if (message.data === "pending") return;
-          WaveService.readNextTest(token, function(url) {
-            location.href = url;
-          });
+          location.href = "/next.html?token=" + token;
         });
       }
     );
