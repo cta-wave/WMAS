@@ -51,6 +51,9 @@ class ConfigurationLoader {
       configuration.hostname = hostname;
     }
 
+    const importEnabled = configurationLoaded["enable_results_import"];
+    configuration.importEnabled = !!importEnabled;
+
     configuration.testsDirectoryPath = path.join(
       applicationDirectoryPath,
       "../.."

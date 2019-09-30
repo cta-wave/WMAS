@@ -33,7 +33,8 @@ class WaveServer {
       testTimeout,
       wptPort,
       wptSslPort,
-      hostname
+      hostname,
+      importEnabled
     } = config;
     println(" done.");
     const includeListFilePath = path.join(
@@ -80,7 +81,8 @@ class WaveServer {
       exportTemplateDirectoryPath: path.join(
         applicationDirectoryPath,
         "./export"
-      )
+      ),
+      importEnabled
     });
     await resultsManager.loadResults();
 

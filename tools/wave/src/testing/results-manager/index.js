@@ -10,6 +10,10 @@ const SessionManager = require("../session-manager");
 const ResultComparator = require("./result-comparator");
 const Database = require("../../database");
 const TestManager = require("../../testing/test-manager");
+const Session = require("../../data/session");
+const DuplicateError = require("../../data/errors/duplicate-error");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
+const PermissionDeniedError = require("../../data/errors/permission-denied-error");
 
 const print = text => process.stdout.write(text);
 const println = text => console.log(text);
@@ -29,7 +33,8 @@ class ResultsManager {
     database,
     sessionManager,
     testManager,
-    exportTemplateDirectoryPath
+    exportTemplateDirectoryPath,
+    importEnabled
   } = {}) {
     this._resultsDirectoryPath = path.resolve(resultsDirectoryPath);
     this._database = database;
@@ -37,6 +42,7 @@ class ResultsManager {
     this._testManager = testManager;
     this._generatingComparisons = [];
     this._exportTemplateDirectoryPath = exportTemplateDirectoryPath;
+    this._importEnabled = importEnabled;
     this._resultComparator = new ResultComparator({
       resultsDirectoryPath,
       resultsManager: this
@@ -386,6 +392,73 @@ class ResultsManager {
     return result;
   }
 
+  async importResults(blob) {
+    if (!this.isImportEnabled()) throw new PermissionDeniedError();
+    const extractZip = async (blob, destinationPath) => {
+      const zip = new JSZip();
+      const content = await zip.loadAsync(blob);
+      const keys = Object.keys(content.files);
+      for (let i = 0; i < keys.length; i++) {
+        const file = content.files[keys[i]];
+        const filePath = path.join(destinationPath, file.name);
+        if (file.dir) {
+          await FileSystem.makeDirectory(filePath);
+        } else {
+          const data = await file.async("string");
+          await FileSystem.writeFile(filePath, data);
+        }
+      }
+    };
+    const zip = await JSZip.loadAsync(blob);
+    if (!zip.file("/info.json")) throw new InvalidDataError("Invalid session ZIP!");
+    const info = JSON.parse(await zip.file("/info.json").async("string"));
+    const { token } = info;
+    if (!token) throw new InvalidDataError("Invalid session ZIP!");
+    const session = await this._sessionManager.readSession(token);
+    if (session) throw new DuplicateError("Session already exists!");
+    const destinationPath = path.join(this._resultsDirectoryPath, token);
+    await FileSystem.makeDirectory(destinationPath);
+    await extractZip(blob, destinationPath);
+    await this.loadResults();
+    return info.token;
+  }
+
+  async exportResults(token) {
+    if (!token) return;
+    const session = await this._sessionManager.readSession(token);
+    if (session.getStatus() !== Session.COMPLETED) return null;
+
+    const readDirectoryFiles = async directoryPath => {
+      const fileNames = await FileSystem.readDirectory(directoryPath);
+      let files = [];
+      for (let fileName of fileNames) {
+        const filePath = path.join(directoryPath, fileName);
+        const stats = await FileSystem.stats(filePath);
+        if (stats.isDirectory()) {
+          files = files.concat(await readDirectoryFiles(filePath));
+        } else {
+          files.push({
+            path: filePath,
+            data: await FileSystem.readFile(filePath)
+          });
+        }
+      }
+      return files;
+    };
+
+    const sessionResultsDirectory = path.join(
+      this._resultsDirectoryPath,
+      token
+    );
+    const files = await readDirectoryFiles(sessionResultsDirectory);
+
+    const zip = new JSZip();
+    files.forEach(file =>
+      zip.file(file.path.replace(sessionResultsDirectory, ""), file.data)
+    );
+    return zip.generateAsync({ type: "nodebuffer" });
+  }
+
   async exportResultsApiJson({ token, api }) {
     const filePath = await this.getJsonPath({ token, api });
     try {
@@ -518,6 +591,10 @@ class ResultsManager {
     });
 
     return zip.generateAsync({ type: "nodebuffer" });
+  }
+
+  isImportEnabled() {
+    return this._importEnabled;
   }
 }
 

@@ -4,7 +4,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
     if (xhr.status === 200) {
       onSuccess(xhr.response);
     } else {
-      if (onError) onError(xhr.status, xhr.statusText);
+      if (onError) onError(xhr.status, xhr.response);
     }
   });
   xhr.addEventListener("error", function() {
@@ -405,6 +405,9 @@ var WaveService = {
       })(token);
     }
   },
+  downloadResults: function(token) {
+    location.href = "/api/results/" + token + "/export";
+  },
   downloadApiResult: function(token, api) {
     location.href = "/api/results/" + token + "/" + api + "/json";
   },
@@ -413,6 +416,40 @@ var WaveService = {
   },
   downloadReport: function(token, api) {
     location.href = "/api/results/" + token + "/" + api + "/report";
+  },
+  importResults: function(data, onSuccess, onError) {
+    sendRequest(
+      "POST",
+      "/api/results/import",
+      { "Content-Type": "application/octet-stream" },
+      data,
+      function(response) {
+        var token = JSON.parse(response).token;
+        onSuccess(token);
+      },
+      function(status, response) {
+        var errorMessage;
+        if (status === 500) {
+          errorMessage = "Internal server error.";
+        } else {
+          errorMessage = JSON.parse(response).error;
+        }
+        onError(errorMessage);
+      }
+    );
+  },
+  isImportResultsEnabled: function(onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "/api/results/import",
+      null,
+      null,
+      function(response) {
+        var enabled = JSON.parse(response).enabled;
+        onSuccess(enabled);
+      },
+      onError
+    );
   },
   readReportUri: function(token, api, onSuccess, onError) {
     sendRequest(

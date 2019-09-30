@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Results - Web Platform Test</title>
+    <title>Overview - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
     <script src="lib/utils.js"></script>
@@ -57,6 +57,7 @@
         state: {
           comparison: [],
           recentSessions: null,
+          importResultsEnabled: false,
           filterLabels: []
         },
         loadData() {
@@ -142,6 +143,10 @@
                 );
               })
             );
+          });
+          WaveService.isImportResultsEnabled(function(enabled) {
+            resultsUi.state.importResultsEnabled = enabled;
+            resultsUi.renderManageSessions();
           });
         },
         findSession(fragment, callback) {
@@ -327,6 +332,33 @@
             resultsUi.addSession(session);
           });
         },
+        handleImportSession() {
+          resultsUi.state.importError = null;
+          resultsUi.state.importInProgress = true;
+          resultsUi.renderManageSessions();
+          const { importSessionFile: file } = resultsUi.state;
+          const reader = new FileReader();
+          reader.readAsArrayBuffer(file);
+          reader.onload = () => {
+            const data = reader.result;
+            WaveService.importResults(
+              data,
+              function(token) {
+                location.href = "/results.html?token=" + token;
+              },
+              function(error) {
+                resultsUi.state.importError = error;
+                resultsUi.state.importInProgress = false;
+                resultsUi.renderManageSessions();
+              }
+            );
+          };
+        },
+        handleImportSessionSelection() {
+          const file = UI.getElement("import-session-file").files[0];
+          resultsUi.state.importSessionFile = file;
+          resultsUi.renderManageSessions();
+        },
         addFilterLabel() {
           const label = UI.getElement("filter-label-input").value;
           if (!label) return;
@@ -360,148 +392,7 @@
                 className: "site-logo"
               },
               { text: "Results", className: "title" },
-              { text: "Manage Sessions", className: "title is-4" },
-              {
-                className: "columns",
-                children: [
-                  {
-                    className: "column",
-                    children: [
-                      { text: "Add Sessions", className: "title is-5" },
-                      {
-                        element: "article",
-                        className: "message is-danger",
-                        id: "find-error",
-                        children: [
-                          {
-                            text:
-                              "Could not find any sessions! Try adding more characters of the token.",
-                            className: "message-body"
-                          }
-                        ],
-                        style: "display: none"
-                      },
-                      {
-                        element: "label",
-                        text: "Session token:"
-                      },
-                      {
-                        style: "display: flex; margin-bottom: 10px;",
-                        children: [
-                          {
-                            element: "input",
-                            inputType: "text",
-                            className: "input is-family-monospace",
-                            id: "token-fragment",
-                            placeholder:
-                              "First 8 characters or more of session token",
-                            onKeyDown: event =>
-                              event.key === "Enter"
-                                ? resultsUi.handleAddSession()
-                                : null
-                          }
-                        ]
-                      },
-                      {
-                        style: "text-align: right",
-                        children: [
-                          {
-                            className: "button is-dark is-outlined",
-                            children: [
-                              {
-                                element: "span",
-                                className: "icon",
-                                children: [
-                                  {
-                                    element: "i",
-                                    className: "fas fa-plus"
-                                  }
-                                ]
-                              },
-                              { text: "Add Session", element: "span" }
-                            ],
-                            style: "margin-left: 20px",
-                            onclick: resultsUi.handleAddSession
-                          }
-                        ]
-                      }
-                      // {
-                      //   className: "button is-dark is-outlined",
-                      //   text: "View Results",
-                      //   onclick: () => {
-                      //     const fragment = getElement("token-fragment").value;
-                      //     if (!fragment || fragment.length < 8) return;
-                      //     WaveService.findToken(fragment, token => {
-                      //       if (token) {
-                      //         location.href = "/results.html?token=" + token;
-                      //       } else {
-                      //         const errorBox = getElement("find-error");
-                      //         errorBox.setAttribute(
-                      //           "style",
-                      //           "display: block"
-                      //         );
-                      //       }
-                      //     });
-                      //   }
-                      // }
-                    ]
-                  },
-                  {
-                    className: "column",
-                    children: [
-                      { text: "Compare Sessions", className: "title is-5" },
-                      {
-                        element: "label",
-                        text:
-                          "Compare sessions by selecting them in the list below. " +
-                          "Only sessions with the same set of reference sessions can be compared. " +
-                          "Sessions have to be finished."
-                      },
-                      // {
-                      //   element: "label",
-                      //   text: "Session token as reference (optional):"
-                      // },
-                      // {
-                      //   style: "display: flex; margin-bottom: 10px",
-                      //   children: [
-                      //     {
-                      //       element: "input",
-                      //       className: "input is-family-monospace",
-                      //       style: "flex: 1;",
-                      //       id: "token-reference",
-                      //       placeholder:
-                      //         "First 8 characters or more of session token"
-                      //     }
-                      //   ]
-                      // },
-                      {
-                        style: "text-align: right",
-                        children: [
-                          {
-                            className: "button is-dark is-outlined",
-                            disabled: true,
-                            id: "compare-button",
-                            children: [
-                              {
-                                element: "span",
-                                className: "icon",
-                                children: [
-                                  {
-                                    element: "i",
-                                    className: "fas fa-balance-scale"
-                                  }
-                                ]
-                              },
-                              { text: "Compare Selected", element: "span" }
-                            ],
-                            onClick: () => resultsUi.compareSessions()
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
+              { id: "manage-sessions" },
               { id: "sessions" }
             ]
           });
@@ -510,7 +401,244 @@
           root.innerHTML = "";
           root.appendChild(resultsView);
 
+          resultsUi.renderManageSessions();
           resultsUi.renderSessions();
+        },
+        renderManageSessions() {
+          const manageSessionsView = UI.getElement("manage-sessions");
+          manageSessionsView.innerHTML = "";
+          const heading = { text: "Manage Sessions", className: "title is-4" };
+          const addCompareSessions = {
+            className: "columns",
+            children: [
+              {
+                className: "column",
+                children: [
+                  { text: "Add Sessions", className: "title is-5" },
+                  {
+                    element: "article",
+                    className: "message is-danger",
+                    id: "find-error",
+                    children: [
+                      {
+                        text:
+                          "Could not find any sessions! Try adding more characters of the token.",
+                        className: "message-body"
+                      }
+                    ],
+                    style: "display: none"
+                  },
+                  {
+                    element: "label",
+                    text: "Session token:"
+                  },
+                  {
+                    style: "display: flex; margin-bottom: 10px;",
+                    children: [
+                      {
+                        element: "input",
+                        inputType: "text",
+                        className: "input is-family-monospace",
+                        id: "token-fragment",
+                        placeholder:
+                          "First 8 characters or more of session token",
+                        onKeyDown: event =>
+                          event.key === "Enter"
+                            ? resultsUi.handleAddSession()
+                            : null
+                      }
+                    ]
+                  },
+                  {
+                    style: "text-align: right",
+                    children: [
+                      {
+                        className: "button is-dark is-outlined",
+                        children: [
+                          {
+                            element: "span",
+                            className: "icon",
+                            children: [
+                              {
+                                element: "i",
+                                className: "fas fa-plus"
+                              }
+                            ]
+                          },
+                          { text: "Add Session", element: "span" }
+                        ],
+                        style: "margin-left: 20px",
+                        onclick: resultsUi.handleAddSession
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                className: "column",
+                children: [
+                  { text: "Compare Sessions", className: "title is-5" },
+                  {
+                    element: "label",
+                    text:
+                      "Compare sessions by selecting them in the list below. " +
+                      "Only sessions with the same set of reference sessions can be compared. " +
+                      "Sessions have to be finished."
+                  },
+                  {
+                    style: "text-align: right",
+                    children: [
+                      {
+                        className: "button is-dark is-outlined",
+                        disabled: true,
+                        id: "compare-button",
+                        children: [
+                          {
+                            element: "span",
+                            className: "icon",
+                            children: [
+                              {
+                                element: "i",
+                                className: "fas fa-balance-scale"
+                              }
+                            ]
+                          },
+                          { text: "Compare Selected", element: "span" }
+                        ],
+                        onClick: () => resultsUi.compareSessions()
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          };
+          const {
+            importSessionFile,
+            importError,
+            importInProgress
+          } = resultsUi.state;
+          const importSessions = {
+            className: "columns",
+            style: "margin-bottom: 20px",
+            children: [
+              {
+                className: "column is-half",
+                children: [
+                  { text: "Import Sessions", className: "title is-5" },
+                  {
+                    element: "article",
+                    className: "message is-danger",
+                    children: [
+                      {
+                        className: "message-body",
+                        text: "Could not import session: " + importError
+                      }
+                    ],
+                    style: importError ? "" : "display: none"
+                  },
+                  {
+                    className: "columns",
+                    children: [
+                      {
+                        style:
+                          "display: flex; margin-bottom: 10px; width: 63.7%; flex: unset",
+                        className: "column",
+                        children: [
+                          {
+                            className: "file has-name",
+                            style: "width: 100%",
+                            children: [
+                              {
+                                element: "label",
+                                className: "file-label",
+                                style: "width: 100%",
+                                children: [
+                                  {
+                                    element: "input",
+                                    className: "file-input",
+                                    type: "file",
+                                    accept: ".zip",
+                                    id: "import-session-file",
+                                    onChange:
+                                      resultsUi.handleImportSessionSelection
+                                  },
+                                  {
+                                    element: "span",
+                                    className: "file-cta",
+                                    children: [
+                                      {
+                                        element: "span",
+                                        className: "file-icon",
+                                        children: [
+                                          {
+                                            element: "i",
+                                            className: "fas fa-upload"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        element: "span",
+                                        className: "file-label",
+                                        text: "Choose ZIP file"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    element: "span",
+                                    className: "file-name",
+                                    style: "width: 100%",
+                                    text: importSessionFile
+                                      ? importSessionFile.name
+                                      : ""
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        style: "text-align: right, padding-left: 0",
+                        className: "column",
+                        children: [
+                          {
+                            className: "button is-dark is-outlined",
+                            disabled: !importSessionFile,
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: importInProgress
+                                      ? "fas fa-spinner fa-pulse"
+                                      : "fas fa-plus"
+                                  }
+                                ]
+                              },
+                              { text: "Import Session", element: "span" }
+                            ],
+                            onclick: resultsUi.handleImportSession
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                className: "column",
+                children: []
+              }
+            ]
+          };
+          const { importResultsEnabled } = resultsUi.state;
+          manageSessionsView.appendChild(UI.createElement(heading));
+          manageSessionsView.appendChild(UI.createElement(addCompareSessions));
+          if (!importResultsEnabled) return;
+          manageSessionsView.appendChild(UI.createElement(importSessions));
         },
         renderSessions() {
           const sessionsView = UI.getElement("sessions");

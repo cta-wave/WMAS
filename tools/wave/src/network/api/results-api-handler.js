@@ -1,7 +1,9 @@
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
-const FileSystem = require("../../utils/file-system");
+const DuplicateError = require("../../data/errors/duplicate-error");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
+const PermissionDeniedError = require("../../data/errors/permission-denied-error");
 
 const { GET, POST } = Route;
 
@@ -93,6 +95,62 @@ class ResultsApiHandler extends ApiHandler {
   //     response.status(500).send();
   //   }
   // }
+
+  async _importResults({ request, response }) {
+    try {
+      const blob = request.body;
+      const token = await this._resultsManager.importResults(blob);
+      this.sendJson({ token }, response);
+    } catch (error) {
+      if (error instanceof DuplicateError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
+      if (error instanceof InvalidDataError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
+      if (error instanceof PermissionDeniedError) {
+        this.sendJson({ error: "Permission denied." }, response, 403);
+        return;
+      }
+      console.error(new Error(`Failed to import results:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _importResultsEnabled({ request, response }) {
+    try {
+      const enabled = await this._resultsManager.isImportEnabled();
+      this.sendJson({ enabled }, response);
+    } catch (error) {
+      console.error(
+        new Error(
+          `Failed to determine status of import feature:\n${error.stack}`
+        )
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResults({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const blob = await this._resultsManager.exportResults(token);
+      const fileName = `${token}.zip`;
+      if (blob) {
+        this.sendFile({ response, fileName, blob });
+      } else {
+        response.status(404).send();
+      }
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download api result json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
 
   async _downloadResultsApiJson({ request, response }) {
     try {
@@ -239,7 +297,12 @@ class ResultsApiHandler extends ApiHandler {
     const url = this.parseUrl(request);
     switch (url.length) {
       case 2:
-        return this._createResult({ request, response });
+        switch (url[1]) {
+          case "import":
+            return this._importResults({ request, response });
+          default:
+            return this._createResult({ request, response });
+        }
     }
     response.status(404).send();
   }
@@ -252,6 +315,8 @@ class ResultsApiHandler extends ApiHandler {
         switch (url[1]) {
           // case "compare":
           //   return this._readResultComparison({ request, response });
+          case "import":
+            return this._importResultsEnabled({ request, response });
           default:
             return this._readResult({ request, response });
         }
@@ -270,6 +335,8 @@ class ResultsApiHandler extends ApiHandler {
             });
           case "reporturl":
             return this._readResultsApiWptMultiReportUri({ request, response });
+          case "export":
+            return this._downloadResults({ request, response });
         }
       case 4: {
         switch (url[3]) {

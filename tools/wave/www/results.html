@@ -65,6 +65,7 @@
                   resultUi.refreshSessionResults(() => {
                     resultUi.renderApiResults();
                   });
+                  resultUi.renderExportView();
                   resultUi.refreshLastCompletedTests(() => {
                     resultUi.renderLastCompletedTests();
                   });
@@ -186,6 +187,10 @@
         },
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
+        },
+        downloadResults() {
+          if (resultUi.state.status.status !== "completed") return;
+          WaveService.downloadResults(token);
         },
         addMalfunctioningTest(testPath) {
           const { malfunctioningTests } = resultUi.state;
@@ -553,7 +558,9 @@
                           className: "button is-small is-rounded",
                           style: "margin-left: 10px",
                           text: showExcluded ? "hide" : "show",
-                          onClick: showExcluded ? resultUi.hideExcluded : resultUi.showExcluded
+                          onClick: showExcluded
+                            ? resultUi.hideExcluded
+                            : resultUi.showExcluded
                         },
                         showExcluded
                           ? {
@@ -689,8 +696,7 @@
                               addLabelVisible
                                 ? [
                                     {
-                                      className:
-                                        "control field is-grouped",
+                                      className: "control field is-grouped",
                                       children: [
                                         {
                                           element: "input",
@@ -1099,6 +1105,8 @@
           apiResults.appendChild(apiResultsView);
         },
         renderExportView() {
+          const { status } = resultUi.state;
+          if (!status) return;
           const exportView = UI.createElement({
             style: "margin-bottom: 20px",
             children: [
@@ -1108,6 +1116,42 @@
                 children: {
                   element: "tbody",
                   children: [
+                    {
+                      element: "tr",
+                      children: [
+                        {
+                          element: "td",
+                          className: "title is-6",
+                          text: "Results"
+                        },
+                        {
+                          element: "td",
+                          className: "article",
+                          text:
+                            "Download results for import into other WMAS Test Suite instances."
+                        },
+                        {
+                          element: "td",
+                          children: {
+                            className:
+                              "button is-dark is-outlined is-small is-fullwidth",
+                            onClick: resultUi.downloadResults,
+                            disabled: status.status !== "completed",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: {
+                                  element: "i",
+                                  className: "fas fa-file-archive"
+                                }
+                              },
+                              { element: "span", text: "Download Zip" }
+                            ]
+                          }
+                        }
+                      ]
+                    },
                     {
                       element: "tr",
                       children: [
