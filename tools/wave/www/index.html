@@ -63,7 +63,13 @@
               Configure a new session on a second device by scanning the
               QR-Code, or click the button:
             </p>
-            <div class="button" style="margin-bottom: 1rem;" id="configure-button">Configure Session</div>
+            <div
+              class="button"
+              style="margin-bottom: 1rem;"
+              id="configure-button"
+            >
+              Configure Session
+            </div>
             <p style="width: 32rem;">
               The tests will start running in this window, as soon as the
               session is started from the configuration view.
@@ -91,7 +97,7 @@
             <div class="control">
               <input
                 id="resume_token"
-                class="input is-family-monospace"
+                class="input is-family-monospace tabbable"
                 type="text"
                 style="max-width: 30em"
               />
@@ -161,8 +167,9 @@
     var resumeToken = document.cookie.split(";").find(function(cookie) {
       return cookie.split("=")[0].replace(/ /g, "") === "resume_token";
     });
+    if (resumeToken) resumeToken = resumeToken.split("=")[1];
     var tokenText = document.getElementById("resume_token");
-    if (resumeToken) tokenText.value = resumeToken.split("=")[1];
+    tokenText.value = resumeToken;
     var unknownTokenError = document.getElementById("unknown_token_error");
     document
       .getElementById("resume")
@@ -217,11 +224,18 @@
 
         WaveService.readSession(token, function(config) {
           var expiaryDateElement = document.getElementById("expiary-date");
-          expiaryDateElement.innerText = new Date(config.expirationDate).toLocaleString();
-        })
+          expiaryDateElement.innerText = new Date(
+            config.expirationDate
+          ).toLocaleString();
+        });
 
         var configurationUrl =
-          "http://" + location.host + "/configuration.html?token=" + token;
+          "http://" +
+          location.host +
+          "/configuration.html?token=" +
+          token +
+          "&resume=" +
+          resumeToken;
         new QRCode(document.getElementById("qr-code"), configurationUrl);
         document.getElementById("configure-button").onclick = function() {
           window.open(configurationUrl, "_blank");
@@ -229,6 +243,12 @@
 
         WaveService.connect(token);
         WaveService.onMessage(function(message) {
+          console.log(message)
+          if (message.type === "resume") {
+            var resumeToken = message.data;
+            location.href = "/next.html?token=" + resumeToken;
+          }
+
           if (message.type !== "status") return;
           if (message.data === "pending") return;
           WaveService.readNextTest(token, function(url) {

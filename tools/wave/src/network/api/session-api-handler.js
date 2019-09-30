@@ -214,6 +214,23 @@ class SessionApiHandler extends ApiHandler {
     }
   }
 
+  async _resumeSession({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      console.log(request.body);
+      const { resume_token } = request.body;
+      await this._sessionManager.resumeSession({
+        token,
+        resumeToken: resume_token
+      });
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to stop session:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
   async _findToken({ response, request }) {
     try {
       const url = this.parseUrl(request);
@@ -265,6 +282,11 @@ class SessionApiHandler extends ApiHandler {
     switch (url.length) {
       case 1:
         return this._createSession({ request, response });
+      case 3:
+        switch (url[2].toLowerCase()) {
+          case "resume":
+            return this._resumeSession({ request, response });
+        }
     }
     response.status(404).send();
   }
@@ -278,7 +300,7 @@ class SessionApiHandler extends ApiHandler {
       case 3:
         switch (url[2].toLowerCase()) {
           case "labels":
-          return this._updateLabels({ request, response });
+            return this._updateLabels({ request, response });
         }
     }
     response.status(404).send();

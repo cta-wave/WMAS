@@ -1,4 +1,5 @@
 const STATUS_EVENT = "status";
+const RESUME_EVENT = "resume";
 const TEST_COMPLETED_EVENT = "test_completed";
 
 class EventDispatcher {
@@ -34,5 +35,6 @@ class EventDispatcher {
 
 EventDispatcher.STATUS_EVENT = STATUS_EVENT;
 EventDispatcher.TEST_COMPLETED_EVENT = TEST_COMPLETED_EVENT;
+EventDispatcher.RESUME_EVENT = RESUME_EVENT;
 
 module.exports = EventDispatcher;
