@@ -70,6 +70,7 @@ class SessionApiHandler extends ApiHandler {
       delete sessionObject.pending_tests;
       delete sessionObject.running_tests;
       delete sessionObject.completed_tests;
+      delete sessionObject.malfunctioning_tests;
       delete sessionObject.test_files_count;
       delete sessionObject.test_files_completed;
       delete sessionObject.date_started;
@@ -95,6 +96,7 @@ class SessionApiHandler extends ApiHandler {
       delete sessionObject.pending_tests;
       delete sessionObject.running_tests;
       delete sessionObject.completed_tests;
+      delete sessionObject.malfunctioning_tests;
       delete sessionObject.tests;
       delete sessionObject.types;
       delete sessionObject.user_agent;

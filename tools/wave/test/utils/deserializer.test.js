@@ -45,7 +45,8 @@ test("Turn a plain javascript object into a session instance.", () => {
     date_started: 654346464,
     date_finished: null,
     is_public: false,
-    reference_tokens: ["reference_token_one", "reference_token_two"]
+    reference_tokens: ["reference_token_one", "reference_token_two"],
+    malfunctioning_tests: ["/apiOne/test/one.html", "/apiOne/test/two.html"]
   };
 
   const session = Deserializer.deserializeSession(object);
@@ -105,6 +106,10 @@ test("Turn a plain javascript object into a session instance.", () => {
     "reference_token_one",
     "reference_token_two"
   ]);
+  expect(session.getMalfunctioningTests()).toStrictEqual([
+    "/apiOne/test/one.html",
+    "/apiOne/test/two.html"
+  ]);
 });
 
 test("Turn multiple plain javascript objects into an array of session instances.", () => {
@@ -153,7 +158,8 @@ test("Turn multiple plain javascript objects into an array of session instances.
       date_started: 654346464,
       date_finished: null,
       is_public: false,
-      reference_tokens: ["reference_token_one", "reference_token_two"]
+      reference_tokens: ["reference_token_one", "reference_token_two"],
+      malfunctioning_tests: ["/apiOne/test/one.html", "/apiOne/test/two.html"]
     });
   }
 
@@ -216,6 +222,10 @@ test("Turn multiple plain javascript objects into an array of session instances.
     expect(session.getReferenceTokens()).toStrictEqual([
       "reference_token_one",
       "reference_token_two"
+    ]);
+    expect(session.getMalfunctioningTests()).toStrictEqual([
+      "/apiOne/test/one.html",
+      "/apiOne/test/two.html"
     ]);
   }
 });

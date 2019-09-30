@@ -6,6 +6,8 @@ const TestLoader = require("../testing/test-loader");
 const Database = require("../database");
 const UserAgentParser = require("../utils/user-agent-parser");
 const EventDispatcher = require("./event-dispatcher");
+const InvalidDataError = require("../data/errors/invalid-data-error");
+const NotFoundError = require("../data/errors/not-found-error");
 
 const DEFAULT_TEST_PATH = "/";
 const DEFAULT_TEST_TYPES = [
@@ -27,7 +29,8 @@ class SessionManager {
     database,
     testTimeout,
     testLoader,
-    eventDispatcher
+    eventDispatcher,
+    sessionManager
   } = {}) {
     this._database = database;
     this._sessions = [];
@@ -35,6 +38,7 @@ class SessionManager {
     this._testLoader = testLoader;
     this._sessionClients = [];
     this._eventDispatcher = eventDispatcher;
+    this._sessionManager = sessionManager;
 
     await this.deleteExpiredSessions();
     await this.setExpirationTimer();
@@ -263,6 +267,15 @@ class SessionManager {
     if (runningTests) {
       session.setRunningTests(runningTests);
     }
+    await this.updateSession(session);
+  }
+
+  async updateMalfunctioningTests(token, tests) {
+    if (!(tests instanceof Array))
+      throw new InvalidDataError("Expecting array of test files!");
+    const session = await this.readSession(token);
+    if (!session) throw new NotFoundError("Session not found: " + token);
+    session.setMalfunctioningTests(tests);
     await this.updateSession(session);
   }
 

@@ -48,20 +48,23 @@ class SessionsDatabase extends Database {
 
     await this._resultsDatabase.loadDatabase(token);
 
+    await this._testsDatabase.loadDatabase(token);
+    const tests = {};
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
       const { pending_tests, running_tests, completed_tests } = sessionObject;
-      await this._testsDatabase.createTests(token, {
-        pending_tests,
-        running_tests,
-        completed_tests
-      });
+      tests.pending_tests = pending_tests;
+      tests.running_tests = running_tests;
+      tests.completed_tests = completed_tests;
     }
+    const { malfunctioning_tests } = sessionObject;
+    tests.malfunctioning_tests = malfunctioning_tests;
+    await this._testsDatabase.createTests(token, tests);
 
     delete sessionObject.completed_tests;
     delete sessionObject.running_tests;
     delete sessionObject.pending_tests;
+    delete sessionObject.malfunctioning_tests;
     await this._db.insert(sessionObject);
   }
 
@@ -78,16 +81,22 @@ class SessionsDatabase extends Database {
     }
     const session = Deserializer.deserializeSession(result[0]);
 
-    const { COMPLETED, ABORTED } = Session;
-    if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
-      const tests = await this._testsDatabase.readTests(token);
-      if (tests) {
+    await this._testsDatabase.loadDatabase(token);
+    const tests = await this._testsDatabase.readTests(token);
+    if (tests) {
+      const { COMPLETED, ABORTED } = Session;
+      if (
+        session.getStatus() !== COMPLETED &&
+        session.getStatus() !== ABORTED
+      ) {
         const { pending_tests, running_tests, completed_tests } = tests;
         if (pending_tests) session.setPendingTests(pending_tests);
         if (completed_tests) session.setCompletedTests(completed_tests);
         if (running_tests) session.setRunningTests(running_tests);
       }
+      const { malfunctioning_tests } = tests;
+      if (malfunctioning_tests)
+        session.setMalfunctioningTests(malfunctioning_tests);
     }
     return session;
   }
@@ -145,22 +154,23 @@ class SessionsDatabase extends Database {
     const sessionObject = Serializer.serializeSession(session);
     await this._resultsDatabase.loadDatabase(token);
 
+    await this._testsDatabase.loadDatabase(token);
+    const tests = {};
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
       const { pending_tests, running_tests, completed_tests } = sessionObject;
-      await this._testsDatabase.updateTests(token, {
-        pending_tests,
-        running_tests,
-        completed_tests
-      });
-    } else {
-      await this._testsDatabase.deleteTests(token);
+      tests.pending_tests = pending_tests;
+      tests.running_tests = running_tests;
+      tests.completed_tests = completed_tests;
     }
+    const { malfunctioning_tests } = sessionObject;
+    tests.malfunctioning_tests = malfunctioning_tests;
+    await this._testsDatabase.updateTests(token, tests);
 
     delete sessionObject.completed_tests;
     delete sessionObject.running_tests;
     delete sessionObject.pending_tests;
+    delete sessionObject.malfunctioning_tests;
     await this._db.update({ token }, sessionObject);
   }
 

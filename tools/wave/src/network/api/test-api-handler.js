@@ -5,11 +5,13 @@ const SessionManager = require("../../testing/session-manager");
 const ResultsManager = require("../../testing/results-manager");
 const TestManager = require("../../testing/test-manager");
 const Serializer = require("../../utils/serializer");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
+const NotFoundError = require("../../data/errors/not-found-error");
 
 const DEFAULT_LAST_COMPLETED_TESTS_COUNT = 5;
 const DEFAULT_LAST_COMPLETED_TESTS_STATUS = ["ALL"];
 
-const { GET } = Route;
+const { GET, PUT } = Route;
 
 class TestApiHandler extends ApiHandler {
   /**
@@ -220,7 +222,56 @@ class TestApiHandler extends ApiHandler {
       });
       this.sendJson(tests, response);
     } catch (error) {
-      console.error(new Error(`Failed to read last completed session tests:\n${error.stack}`));
+      console.error(
+        new Error(
+          `Failed to read last completed session tests:\n${error.stack}`
+        )
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _readSessionMalfunctioningTests({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const session = await this._sessionManager.readSession(token);
+      if (!session) {
+        response.status(404).send();
+        return;
+      }
+      const tests = Serializer.serializeSession(session);
+      const { malfunctioning_tests } = tests;
+      this.sendJson(malfunctioning_tests, response);
+    } catch (error) {
+      console.error(
+        new Error(
+          `Failed to read session malfunctioning tests:\n${error.stack}`
+        )
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _updateSessionMalfunctioningTests({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const tests = request.body;
+      await this._sessionManager.updateMalfunctioningTests(token, tests);
+      response.send();
+    } catch (error) {
+      if (error instanceof InvalidDataError) {
+        this.sendJson({ error: error.message }, response, 400);
+      }
+      if (error instanceof NotFoundError) {
+        this.sendJson({ error: error.message }, response, 404);
+      }
+      console.error(
+        new Error(
+          `Failed to update session malfunctioning tests:\n${error.stack}`
+        )
+      );
       response.status(500).send();
     }
   }
@@ -228,7 +279,8 @@ class TestApiHandler extends ApiHandler {
   getRoutes() {
     const uri = "/api/tests*";
     return [
-      new Route({ method: GET, uri, handler: this._handleGet.bind(this) })
+      new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),
+      new Route({ method: PUT, uri, handler: this._handlePut.bind(this) })
     ];
   }
 
@@ -246,6 +298,24 @@ class TestApiHandler extends ApiHandler {
             return this._nextTest({ request, response });
           case "last_completed":
             return this._lastCompletedTests({ request, response });
+          case "malfunctioning":
+            return this._readSessionMalfunctioningTests({ request, response });
+        }
+    }
+    response.status(404).send();
+  }
+
+  _handlePut(request, response) {
+    console.log(`PUT    ${request.url}`);
+    const url = this.parseUrl(request);
+    switch (url.length) {
+      case 3:
+        switch (url[2]) {
+          case "malfunctioning":
+            return this._updateSessionMalfunctioningTests({
+              request,
+              response
+            });
         }
     }
     response.status(404).send();
