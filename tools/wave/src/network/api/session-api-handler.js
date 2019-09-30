@@ -218,7 +218,6 @@ class SessionApiHandler extends ApiHandler {
     try {
       const url = this.parseUrl(request);
       const token = url[1];
-      console.log(request.body);
       const { resume_token } = request.body;
       await this._sessionManager.resumeSession({
         token,

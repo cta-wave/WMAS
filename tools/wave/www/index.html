@@ -243,7 +243,6 @@
 
         WaveService.connect(token);
         WaveService.onMessage(function(message) {
-          console.log(message)
           if (message.type === "resume") {
             var resumeToken = message.data;
             location.href = "/next.html?token=" + resumeToken;

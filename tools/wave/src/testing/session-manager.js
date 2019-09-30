@@ -245,6 +245,7 @@ class SessionManager {
       type: EventDispatcher.RESUME_EVENT,
       data: resumeToken
     });
+    await this.deleteSession(token);
   }
 
   async completeSession(token) {
