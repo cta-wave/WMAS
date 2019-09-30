@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Session Results - Web Platform Test</title>
-    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
     <link rel="stylesheet" href="css/result.css" />
     <script src="lib/jszip.min.js"></script>
@@ -30,6 +30,8 @@
           details: null,
           results: null,
           referenceSessions: [],
+          lastCompletedTests: [],
+          malfunctioningTests: [],
           addLabelVisible: false
         },
         refreshData: toUpdate => {
@@ -39,6 +41,9 @@
                 resultUi.refreshSessionResults(() => {
                   resultUi.renderApiResults();
                 });
+              });
+              resultUi.refreshLastCompletedTests(() => {
+                resultUi.renderLastCompletedTests();
               });
               break;
             case "status":
@@ -59,6 +64,12 @@
                   resultUi.renderSessionDetails();
                   resultUi.refreshSessionResults(() => {
                     resultUi.renderApiResults();
+                  });
+                  resultUi.refreshLastCompletedTests(() => {
+                    resultUi.renderLastCompletedTests();
+                  });
+                  resultUi.refreshMalfunctioningTests(() => {
+                    resultUi.renderMalfunctioningTests();
                   });
                 });
               });
@@ -116,6 +127,18 @@
             callback(results);
           });
         },
+        refreshLastCompletedTests(callback = () => {}) {
+          WaveService.readLastCompletedTests(token, ["timeout"], tests => {
+            resultUi.state.lastCompletedTests = tests;
+            callback();
+          });
+        },
+        refreshMalfunctioningTests(callback = () => {}) {
+          WaveService.readMalfunctioningTests(token, tests => {
+            resultUi.state.malfunctioningTests = tests;
+            callback();
+          });
+        },
         connectWebSocket() {
           if (!WaveService.isConnected()) {
             WaveService.connect(token);
@@ -163,6 +186,43 @@
         },
         downloadHtmlZip() {
           WaveService.downloadResultsOverview(token);
+        },
+        addMalfunctioningTest(testPath) {
+          const { malfunctioningTests } = resultUi.state;
+          if (malfunctioningTests.indexOf(testPath) !== -1) return;
+          malfunctioningTests.push(testPath);
+          WaveService.updateMalfunctioningTests(
+            token,
+            malfunctioningTests,
+            () => {
+              this.renderMalfunctioningTests();
+            }
+          );
+          resultUi.renderLastCompletedTests();
+        },
+        removeMalfunctioningTest(testPath) {
+          const { malfunctioningTests } = resultUi.state;
+          malfunctioningTests.splice(malfunctioningTests.indexOf(testPath), 1);
+          WaveService.updateMalfunctioningTests(
+            token,
+            malfunctioningTests,
+            () => {
+              this.renderMalfunctioningTests();
+            }
+          );
+          resultUi.renderLastCompletedTests();
+        },
+        isTestOnMalfunctioningList(test) {
+          const { malfunctioningTests } = resultUi.state;
+          return malfunctioningTests.indexOf(test) !== -1;
+        },
+        showExcluded() {
+          resultUi.state.showExcluded = true;
+          resultUi.renderSessionDetails();
+        },
+        hideExcluded() {
+          resultUi.state.showExcluded = false;
+          resultUi.renderSessionDetails();
         },
         addLabel() {
           const label = UI.getElement("session-label-input").value;
@@ -235,15 +295,18 @@
                 ]
               },
               { id: "session-details" },
+              { id: "last-completed-tests" },
               { id: "api-results" },
               { id: "timeout-files" },
-              { id: "export" }
+              { id: "export" },
+              { id: "malfunctioning-tests" }
             ]
           });
           const root = UI.getRoot();
           root.innerHTML = "";
           root.appendChild(resultView);
           resultUi.renderControls();
+          resultUi.renderLastCompletedTests();
           resultUi.renderSessionDetails();
           resultUi.renderApiResults();
           resultUi.renderExportView();
@@ -438,6 +501,7 @@
 
           const { addLabelVisible } = state;
           const { testFilesCount } = status;
+          const { showExcluded } = state;
           const detailsTable = UI.createElement({
             element: "table",
             children: {
@@ -446,7 +510,7 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Token:", style: "width: 175px;" },
+                    { element: "td", text: "Token:", style: "width: 180px;" },
                     {
                       element: "td",
                       text: token,
@@ -464,12 +528,45 @@
                 {
                   element: "tr",
                   children: [
-                    { element: "td", text: "Test Path:" },
+                    { element: "td", text: "Test Paths:" },
                     {
                       element: "td",
                       text: configuration.tests.include
                         .reduce((text, test) => text + test + ", ", "")
                         .slice(0, -2)
+                    }
+                  ]
+                },
+                {
+                  element: "tr",
+                  children: [
+                    { element: "td", text: "Excluded Test Paths:" },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "span",
+                          text: configuration.tests.exclude.length
+                        },
+                        {
+                          element: "span",
+                          className: "button is-small is-rounded",
+                          style: "margin-left: 10px",
+                          text: showExcluded ? "hide" : "show",
+                          onClick: showExcluded ? resultUi.hideExcluded : resultUi.showExcluded
+                        },
+                        showExcluded
+                          ? {
+                              style:
+                                "max-height: 250px; overflow: auto; margin-bottom: 10px",
+                              children: configuration.tests.exclude.map(
+                                test => ({
+                                  text: test
+                                })
+                              )
+                            }
+                          : null
+                      ]
                     }
                   ]
                 },
@@ -693,6 +790,97 @@
           );
           referenceSessionsTarget.appendChild(referenceSessionsList);
         },
+        renderLastCompletedTests() {
+          const lastCompletedTestsView = UI.createElement({
+            style: "margin-bottom: 20px"
+          });
+
+          const heading = UI.createElement({
+            className: "title is-4",
+            children: [
+              { element: "span", text: "Last Timed-Out Test Files" },
+              {
+                element: "span",
+                className: "title is-7",
+                text: " (most recent first)"
+              }
+            ]
+          });
+          lastCompletedTestsView.appendChild(heading);
+
+          const { lastCompletedTests } = resultUi.state;
+          const testsTable = UI.createElement({
+            element: "table",
+            className: "table",
+            children: [
+              {
+                element: "thead",
+                children: [
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Test File" },
+                      // { element: "td", text: "Status" },
+                      { element: "td", text: "Malfunctioning List" }
+                    ]
+                  }
+                ]
+              },
+              {
+                element: "tbody",
+                children: lastCompletedTests.map(({ path, status }) => ({
+                  element: "tr",
+                  children: [
+                    { element: "td", text: path },
+                    // { element: "td", text: status }
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "button",
+                          className: "button is-dark is-outlined is-small",
+                          onClick: () => resultUi.addMalfunctioningTest(path),
+                          title: "Add to malfunctioning tests list.",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                {
+                                  element: "i",
+                                  className: resultUi.isTestOnMalfunctioningList(
+                                    path
+                                  )
+                                    ? "fas fa-check"
+                                    : "fas fa-plus"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }))
+              }
+            ]
+          });
+          if (lastCompletedTests.length > 0) {
+            lastCompletedTestsView.appendChild(testsTable);
+          } else {
+            const noTestsLabel = UI.createElement({
+              text: "- No Timed-Out Tests -",
+              style: "text-align: center"
+            });
+            lastCompletedTestsView.appendChild(noTestsLabel);
+          }
+
+          const lastCompletedTestsElement = UI.getElement(
+            "last-completed-tests"
+          );
+          lastCompletedTestsElement.innerHTML = "";
+          lastCompletedTestsElement.appendChild(lastCompletedTestsView);
+        },
         renderApiResults() {
           const { results, status } = resultUi.state;
 
@@ -912,6 +1100,7 @@
         },
         renderExportView() {
           const exportView = UI.createElement({
+            style: "margin-bottom: 20px",
             children: [
               { className: "title is-4", text: "Export" },
               {
@@ -998,6 +1187,81 @@
           const exportElement = UI.getElement("export");
           exportElement.innerHTML = "";
           exportElement.appendChild(exportView);
+        },
+        renderMalfunctioningTests() {
+          const malfunctioningTestsView = UI.createElement({
+            style: "margin-bottom: 20px"
+          });
+          const heading = UI.createElement({
+            className: "title is-4",
+            text: "Malfunctioning Tests"
+          });
+          malfunctioningTestsView.appendChild(heading);
+
+          const { malfunctioningTests } = resultUi.state;
+          const testsTable = UI.createElement({
+            element: "table",
+            className: "table",
+            children: [
+              {
+                element: "thead",
+                children: [
+                  {
+                    element: "tr",
+                    children: [
+                      { element: "td", text: "Test File" },
+                      { element: "td", text: "" }
+                    ]
+                  }
+                ]
+              },
+              {
+                element: "tbody",
+                children: malfunctioningTests.map(path => ({
+                  element: "tr",
+                  children: [
+                    { element: "td", text: path },
+                    {
+                      element: "td",
+                      children: [
+                        {
+                          element: "button",
+                          className: "button is-dark is-outlined is-small",
+                          onClick: () =>
+                            resultUi.removeMalfunctioningTest(path),
+                          title: "Remove from malfunctioning tests list.",
+                          children: [
+                            {
+                              element: "span",
+                              className: "icon",
+                              children: [
+                                { element: "i", className: "fas fa-trash-alt" }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }))
+              }
+            ]
+          });
+          if (malfunctioningTests.length > 0) {
+            malfunctioningTestsView.appendChild(testsTable);
+          } else {
+            const noTestsLabel = UI.createElement({
+              text: "- No Tests Available -",
+              style: "text-align: center"
+            });
+            malfunctioningTestsView.appendChild(noTestsLabel);
+          }
+
+          const malfunctioningTestsElement = UI.getElement(
+            "malfunctioning-tests"
+          );
+          malfunctioningTestsElement.innerHTML = "";
+          malfunctioningTestsElement.appendChild(malfunctioningTestsView);
         }
       };
     </script>

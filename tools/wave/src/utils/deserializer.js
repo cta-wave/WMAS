@@ -45,6 +45,7 @@ class Deserializer {
     const browser = sessionJson.browser;
     const webhookUrls = sessionJson.webhook_urls;
     const expirationDate = sessionJson.expiration_date;
+    const malfunctioningTests = sessionJson.malfunctioning_tests;
     return new Session(token, {
       tests,
       types,
@@ -63,7 +64,8 @@ class Deserializer {
       referenceTokens,
       browser,
       webhookUrls,
-      expirationDate
+      expirationDate,
+      malfunctioningTests
     });
   }
 }

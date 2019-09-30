@@ -41,7 +41,8 @@ test("Turn a session instance into a plain javascript object.", () => {
     dateFinished: null,
     isPublic: false,
     browser: { name: "Mocking Browser", version: "1.0" },
-    referenceTokens: ["reference_token_one", "reference_token_two"]
+    referenceTokens: ["reference_token_one", "reference_token_two"],
+    malfunctioningTests: ["/apiOne/test/one.html", "/apiOne/test/two.html"]
   });
 
   const object = Serializer.serializeSession(session);
@@ -103,6 +104,10 @@ test("Turn a session instance into a plain javascript object.", () => {
     "reference_token_one",
     "reference_token_two"
   ]);
+  expect(object).toHaveProperty("malfunctioning_tests", [
+    "/apiOne/test/one.html",
+    "/apiOne/test/two.html"
+  ]);
 });
 
 test("Turn multiple session instances into an array of plain javascript objects.", () => {
@@ -149,7 +154,8 @@ test("Turn multiple session instances into an array of plain javascript objects.
         dateFinished: null,
         isPublic: false,
         browser: { name: "Mocking Browser", version: "1.0" },
-        referenceTokens: ["reference_token_one", "reference_token_two"]
+        referenceTokens: ["reference_token_one", "reference_token_two"],
+        malfunctioningTests: ["/apiOne/test/one.html", "/apiOne/test/two.html"]
       })
     );
   }
@@ -217,6 +223,10 @@ test("Turn multiple session instances into an array of plain javascript objects.
     expect(object).toHaveProperty("reference_tokens", [
       "reference_token_one",
       "reference_token_two"
+    ]);
+    expect(object).toHaveProperty("malfunctioning_tests", [
+      "/apiOne/test/one.html",
+      "/apiOne/test/two.html"
     ]);
   }
 });
