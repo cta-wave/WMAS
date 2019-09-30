@@ -17,8 +17,6 @@
         display: flex;
         justify-content: center;
         font-family: "Noto Sans", sans-serif;
-        overflow-y: auto;
-        overflow-x: hidden;
         background-color: white;
         color: #000;
       }
@@ -29,7 +27,7 @@
       }
 
       .content {
-        width: 1000px;
+        width: 1100px;
         padding: 0 10px;
       }
 
@@ -59,7 +57,8 @@
         state: {
           comparison: [],
           recentSessions: null,
-          importResultsEnabled: false
+          importResultsEnabled: false,
+          filterLabels: []
         },
         loadData() {
           const pinnedSessions = WaveService.getPinnedSessions().filter(
@@ -253,7 +252,6 @@
           }
           return resultArray;
         },
-
         compareSessions(reftokens) {
           if (!resultsUi.isComparisonValid()) return;
           const tokens = resultsUi.state.comparison;
@@ -325,7 +323,6 @@
           const tokenFragmentInput = UI.getElement("token-fragment");
           const fragment = tokenFragmentInput.value;
           resultsUi.findSession(fragment, session => {
-            console.log(session);
             if (!session) {
               resultsUi.showAddSessionError();
               return;
@@ -361,6 +358,28 @@
           const file = UI.getElement("import-session-file").files[0];
           resultsUi.state.importSessionFile = file;
           resultsUi.renderManageSessions();
+        },
+        addFilterLabel() {
+          const label = UI.getElement("filter-label-input").value;
+          if (!label) return;
+          const { filterLabels } = resultsUi.state;
+          if (filterLabels.indexOf(label) !== -1) return;
+          filterLabels.push(label);
+          resultsUi.renderSessions();
+          UI.getElement("filter-label-input").focus();
+        },
+        removeFilterLabel(index) {
+          resultsUi.state.filterLabels.splice(index, 1);
+          resultsUi.renderSessions();
+        },
+        showAddFilterLabel() {
+          resultsUi.state.addFilterLabelVisible = true;
+          resultsUi.renderSessions();
+          UI.getElement("filter-label-input").focus();
+        },
+        hideAddFilterLabel() {
+          resultsUi.state.addFilterLabelVisible = false;
+          resultsUi.renderSessions();
         },
         render() {
           const { getRoot, createElement, getElement } = UI;
@@ -627,6 +646,10 @@
           sessionsView.appendChild(
             UI.createElement({ text: "Sessions", className: "title is-4" })
           );
+
+          const sessionFilters = resultsUi.createSessionFilters();
+          sessionsView.appendChild(sessionFilters);
+
           sessionsView.appendChild(UI.createElement({ id: "public-sessions" }));
           sessionsView.appendChild(UI.createElement({ id: "pinned-sessions" }));
           sessionsView.appendChild(UI.createElement({ id: "recent-sessions" }));
@@ -637,26 +660,42 @@
         },
         renderPublicSessions() {
           resultsUi.renderSessionStatus();
-          const { sessions, publicSessions } = resultsUi.state;
+          const { sessions, publicSessions, filterLabels } = resultsUi.state;
           const publicSessionsView = UI.getElement("public-sessions");
           publicSessionsView.innerHTML = "";
           if (!publicSessions || publicSessions.length === 0) return;
-          publicSessionsView.appendChild(
-            UI.createElement({
-              text: "Reference Browsers",
-              className: "title is-5"
-            })
-          );
           const sortedPublicSessions = resultsUi.sortSessionsByColumn(
             sessions,
             publicSessions,
             sortDetail["publicSessions"].sortColumn,
             sortDetail["publicSessions"].ascending
           );
+
+          const filteredPublicSessions = sortedPublicSessions.filter(
+            session =>
+              filterLabels.length === 0 ||
+              filterLabels.reduce(
+                (match, label) =>
+                  match &&
+                  session.labels
+                    .map(label => label.toLowerCase())
+                    .indexOf(label.toLowerCase()) !== -1,
+                true
+              )
+          );
+
+          if (filteredPublicSessions.length === 0) return;
+
+          publicSessionsView.appendChild(
+            UI.createElement({
+              text: "Reference Browsers",
+              className: "title is-5"
+            })
+          );
           publicSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "publicSessions",
-              sortedPublicSessions,
+              filteredPublicSessions,
               { static: true }
             )
           );
@@ -666,23 +705,38 @@
         },
         renderPinnedSessions() {
           resultsUi.renderSessionStatus();
-          const { sessions, pinnedSessions } = resultsUi.state;
+          const { sessions, pinnedSessions, filterLabels } = resultsUi.state;
           const pinnedSessionsView = UI.getElement("pinned-sessions");
           pinnedSessionsView.innerHTML = "";
           if (!pinnedSessions || pinnedSessions.length === 0) return;
-          pinnedSessionsView.appendChild(
-            UI.createElement({ text: "Pinned", className: "title is-5" })
-          );
           const sortedPinnedSessions = resultsUi.sortSessionsByColumn(
             sessions,
             pinnedSessions,
             sortDetail["pinnedSessions"].sortColumn,
             sortDetail["pinnedSessions"].ascending
           );
+          const filteredPinnedSessions = sortedPinnedSessions.filter(
+            session =>
+              filterLabels.length === 0 ||
+              filterLabels.reduce(
+                (match, label) =>
+                  match &&
+                  session.labels
+                    .map(label => label.toLowerCase())
+                    .indexOf(label.toLowerCase()) !== -1,
+                true
+              )
+          );
+
+          if (filteredPinnedSessions.length === 0) return;
+
+          pinnedSessionsView.appendChild(
+            UI.createElement({ text: "Pinned", className: "title is-5" })
+          );
           pinnedSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "pinnedSessions",
-              sortedPinnedSessions,
+              filteredPinnedSessions,
               { pinned: true }
             )
           );
@@ -692,23 +746,44 @@
         },
         renderRecentSessions() {
           resultsUi.renderSessionStatus();
-          const { sessions, recentSessions, pinnedSessions } = resultsUi.state;
+          const {
+            sessions,
+            recentSessions,
+            pinnedSessions,
+            filterLabels
+          } = resultsUi.state;
           const recentSessionsView = UI.getElement("recent-sessions");
           recentSessionsView.innerHTML = "";
           if (!recentSessions || recentSessions.length === 0) return;
-          recentSessionsView.appendChild(
-            UI.createElement({ text: "Recent", className: "title is-5" })
-          );
+
           const sortedRecentSessions = resultsUi.sortSessionsByColumn(
             sessions,
             recentSessions,
             sortDetail["recentSessions"].sortColumn,
             sortDetail["recentSessions"].ascending
           );
+          const filteredRecentSessions = sortedRecentSessions.filter(
+            session =>
+              filterLabels.length === 0 ||
+              filterLabels.reduce(
+                (match, label) =>
+                  match &&
+                  session.labels
+                    .map(label => label.toLowerCase())
+                    .indexOf(label.toLowerCase()) !== -1,
+                true
+              )
+          );
+
+          if (filteredRecentSessions.length === 0) return;
+
+          recentSessionsView.appendChild(
+            UI.createElement({ text: "Recent", className: "title is-5" })
+          );
           recentSessionsView.appendChild(
             resultsUi.createSessionsTable(
               "recentSessions",
-              sortedRecentSessions,
+              filteredRecentSessions,
               { pinned: false }
             )
           );
@@ -762,6 +837,81 @@
             );
             return;
           }
+        },
+        createSessionFilters() {
+          const { filterLabels, addFilterLabelVisible } = resultsUi.state;
+
+          const filters = UI.createElement({
+            className: "field is-grouped",
+            style: "min-height: 2rem",
+            children: [
+              { text: "Filter by labels:", style: "margin-right: 1rem" },
+              {
+                className: "field is-grouped is-grouped-multiline",
+                children: filterLabels
+                  .map((label, index) => ({
+                    className: "control",
+                    children: {
+                      className: "tags has-addons",
+                      children: [
+                        {
+                          element: "span",
+                          className: "tag is-info",
+                          text: label
+                        },
+                        {
+                          element: "a",
+                          className: "tag is-delete",
+                          onClick: () => resultsUi.removeFilterLabel(index)
+                        }
+                      ]
+                    }
+                  }))
+                  .concat(
+                    addFilterLabelVisible
+                      ? [
+                          {
+                            className:
+                              "control field is-grouped",
+                            children: [
+                              {
+                                element: "input",
+                                className: "input is-small control",
+                                style: "width: 10rem",
+                                id: "filter-label-input",
+                                type: "text",
+                                onKeyUp: event =>
+                                  event.keyCode === 13
+                                    ? resultsUi.addFilterLabel()
+                                    : null
+                              },
+                              {
+                                className:
+                                  "button is-dark is-outlined is-small is-rounded control",
+                                text: "save",
+                                onClick: resultsUi.addFilterLabel
+                              },
+                              {
+                                className:
+                                  "button is-dark is-outlined is-small is-rounded control",
+                                text: "cancel",
+                                onClick: resultsUi.hideAddFilterLabel
+                              }
+                            ]
+                          }
+                        ]
+                      : [
+                          {
+                            className: "button is-rounded is-small",
+                            text: "Add",
+                            onClick: resultsUi.showAddFilterLabel
+                          }
+                        ]
+                  )
+              }
+            ]
+          });
+          return filters;
         },
         createSessionsTable(
           tableType,
@@ -859,25 +1009,25 @@
                         }
                       ]
                     },
-                    {
-                      element: "td",
-                      text: "User Agent",
-                      onclick: () =>
-                        resultsUi.sortSessions(tableType, "userAgent"),
-                      style: "cursor: pointer",
-                      children: [
-                        {
-                          element: "i",
-                          className: sortIcon,
-                          style:
-                            "padding-left: 20px; visibility:" +
-                            (sortIcon &&
-                            sortDetail[tableType].sortColumn == "userAgent"
-                              ? "visible;"
-                              : "hidden;")
-                        }
-                      ]
-                    },
+                    // {
+                    //   element: "td",
+                    //   text: "User Agent",
+                    //   onclick: () =>
+                    //     resultsUi.sortSessions(tableType, "userAgent"),
+                    //   style: "cursor: pointer",
+                    //   children: [
+                    //     {
+                    //       element: "i",
+                    //       className: sortIcon,
+                    //       style:
+                    //         "padding-left: 20px; visibility:" +
+                    //         (sortIcon &&
+                    //         sortDetail[tableType].sortColumn == "userAgent"
+                    //           ? "visible;"
+                    //           : "hidden;")
+                    //     }
+                    //   ]
+                    // },
                     {
                       element: "td",
                       text: "Date Started",
@@ -896,6 +1046,11 @@
                               : "hidden;")
                         }
                       ]
+                    },
+                    {
+                      element: "td",
+                      text: "Labels",
+                      style: "cursor: pointer; width: 18rem"
                     },
                     static
                       ? null
@@ -968,16 +1123,28 @@
                         }
                       ]
                     },
+                    // {
+                    //   element: "td",
+                    //   text: `${session.userAgent.substr(0, 25)} ...`,
+                    //   title: session.userAgent
+                    // },
                     {
                       element: "td",
-                      text: `${session.userAgent.substr(0, 25)} ...`,
-                      title: session.userAgent
-                    },
-                    {
-                      element: "td",
+                      style: "vertical-align: middle",
                       text: session.dateStarted
                         ? new Date(session.dateStarted).toLocaleString()
                         : "not started"
+                    },
+                    {
+                      element: "td",
+                      children: {
+                        className: "tags",
+                        children: session.labels.map(label => ({
+                          element: "span",
+                          className: "tag is-info",
+                          text: label
+                        }))
+                      }
                     },
                     static
                       ? null

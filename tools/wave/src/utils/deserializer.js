@@ -27,6 +27,7 @@ class Deserializer {
     }
     const types = sessionJson.types;
     const userAgent = sessionJson.user_agent;
+    const labels = sessionJson.labels;
     let timeouts = sessionJson.timeouts;
     if (sessionJson.test_timeout) {
       timeouts = { automatic: sessionJson.test_timeout, manual: 300000 };
@@ -43,10 +44,12 @@ class Deserializer {
     const referenceTokens = sessionJson.reference_tokens;
     const browser = sessionJson.browser;
     const webhookUrls = sessionJson.webhook_urls;
+    const expirationDate = sessionJson.expiration_date;
     return new Session(token, {
       tests,
       types,
       userAgent,
+      labels,
       timeouts,
       pendingTests,
       runningTests,
@@ -59,7 +62,8 @@ class Deserializer {
       isPublic,
       referenceTokens,
       browser,
-      webhookUrls
+      webhookUrls,
+      expirationDate
     });
   }
 }

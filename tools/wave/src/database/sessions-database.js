@@ -1,13 +1,9 @@
-const path = require("path");
-const DataStore = require("nedb");
-
-const DatabaseUtils = require("../utils/database-utils");
+const Database = require("./database");
 const Deserializer = require("../utils/deserializer");
 const Serializer = require("../utils/serializer");
 const JobQueue = require("../utils/job-queue");
 const Session = require("../data/session");
 
-const { promisifyNedbDataStore } = DatabaseUtils;
 const DEFAULT_FILE_PATH = "./sessions.db";
 const DEFAULT_COMPACTION_INTERVAL = 60000;
 
@@ -15,9 +11,9 @@ const READ_JOB_GROUP = "read";
 const MAX_ACCESS_JOBS = 1;
 const MAX_GROUP_JOBS = 5;
 
-class SessionsDatabase {
-  constructor({ compactionInterval = DEFAULT_COMPACTION_INTERVAL } = {}) {
-    this._compactionInterval = compactionInterval;
+class SessionsDatabase extends Database {
+  constructor() {
+    super();
     this._sessionsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });
@@ -29,16 +25,13 @@ class SessionsDatabase {
   async initialize({
     filePath = DEFAULT_FILE_PATH,
     resultsDatabase,
-    testsDatabase
+    testsDatabase,
+    compactionInterval = DEFAULT_COMPACTION_INTERVAL
   } = {}) {
-    let sessionsDataStore = new DataStore({
-      filename: filePath
+    const sessionsDataStore = this._createDataStore({
+      filePath,
+      compactionInterval
     });
-
-    sessionsDataStore.persistence.setAutocompactionInterval(
-      this._compactionInterval
-    );
-    sessionsDataStore = promisifyNedbDataStore(sessionsDataStore);
     await sessionsDataStore.loadDatabase();
     this._db = sessionsDataStore;
     this._resultsDatabase = resultsDatabase;
@@ -96,7 +89,6 @@ class SessionsDatabase {
         if (running_tests) session.setRunningTests(running_tests);
       }
     }
-
     return session;
   }
 
@@ -111,6 +103,18 @@ class SessionsDatabase {
     if (!result) {
       return [];
     }
+    return Deserializer.deserializeSessions(result);
+  }
+
+  async readExpiringSessions() {
+    return this._queueSessionsAccess(() => this._readExpiringSession(), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readExpiringSession() {
+    const result = await this._db.find({ expiration_date: { $ne: null } });
+    if (!result) return [];
     return Deserializer.deserializeSessions(result);
   }
 

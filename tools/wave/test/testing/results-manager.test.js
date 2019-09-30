@@ -95,7 +95,8 @@ test("createResult() calls resultManager.saveApiResults if the tests api is comp
   });
   const testManager = new TestManager();
   testManager.initialize({
-    sessionManager: { updateTests: async () => {} }
+    sessionManager: { updateTests: async () => {} },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const resultsManager = new ResultsManager();
   resultsManager.initialize({
@@ -125,7 +126,8 @@ test("createResult() calls resultManager.generateReport if the tests api is comp
   });
   const testManager = new TestManager();
   testManager.initialize({
-    sessionManager: { updateTests: async () => {} }
+    sessionManager: { updateTests: async () => {} },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const resultsManager = new ResultsManager();
   resultsManager.initialize({
@@ -155,7 +157,8 @@ test("createResult() calls sessionManager.completeSession() if all apis in sessi
   });
   const testManager = new TestManager();
   testManager.initialize({
-    sessionManager: { updateTests: async () => {} }
+    sessionManager: { updateTests: async () => {} },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const resultsManager = new ResultsManager();
   resultsManager.initialize({
@@ -189,7 +192,8 @@ test("createResult() calls resultManager.createInfoFile() if all apis in session
   });
   const testManager = new TestManager();
   testManager.initialize({
-    sessionManager: { updateTests: async () => {} }
+    sessionManager: { updateTests: async () => {} },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
   const resultsManager = new ResultsManager();
   resultsManager.initialize({

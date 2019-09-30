@@ -19,6 +19,7 @@ class Serializer {
     const tests = session.getTests();
     const types = session.getTypes();
     const user_agent = session.getUserAgent();
+    const labels = session.getLabels();
     const timeouts = session.getTimeouts();
     const test_files_count = session.getTestFilesCount();
     const test_files_completed = session.getTestFilesCompleted();
@@ -32,11 +33,13 @@ class Serializer {
     const is_public = session.isPublic();
     const reference_tokens = session.getReferenceTokens();
     const webhook_urls = session.getWebhookUrls();
+    const expiration_date = session.getExpirationDate();
     return {
       token,
       tests,
       types,
       user_agent,
+      labels,
       timeouts,
       test_files_count,
       test_files_completed,
@@ -49,7 +52,8 @@ class Serializer {
       date_finished,
       is_public,
       reference_tokens,
-      webhook_urls
+      webhook_urls,
+      expiration_date
     };
   }
 }

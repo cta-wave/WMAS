@@ -1,5 +1,7 @@
 const TestManager = require("../../src/testing/test-manager");
 const Session = require("../../src/data/session");
+const EventDispatcher = require("../../src/testing/event-dispatcher");
+const HttpPollingClient = require("../../src/data/http-polling-client");
 
 // NEXT TEST
 
@@ -336,7 +338,8 @@ test("completeTest() removes it from running tests and adds it to completed test
     sessionManager: {
       updateSession: async () => {},
       updateTests: async () => {}
-    }
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
 
   let runningTests = null;
@@ -386,7 +389,7 @@ test("completeTest() removes it from running tests and adds it to completed test
   );
 });
 
-test("completeTest() clears the timeout", async () => {
+test("completeTest() clears the test timeout", async () => {
   const session = createMockingSession({
     token: "test_token",
     timeouts: { automatic: 100 },
@@ -398,7 +401,8 @@ test("completeTest() clears the timeout", async () => {
     sessionManager: {
       updateSession: async () => {},
       updateTests: async () => {}
-    }
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
 
   testManager._onTestTimeout = (token, test) => {
@@ -431,12 +435,51 @@ test("completeTest() calls sessionManager.updateTests()", async () => {
         expect(session.getToken()).toBe("test_token");
         isUpdateTestsCalled = true;
       }
-    }
+    },
+    eventDispatcher: { dispatchEvent: () => {} }
   });
 
   await testManager.nextTest(session);
   await testManager.completeTest({ test: "/apiOne/test/one.html", session });
   expect(isUpdateTestsCalled).toBe(true);
+});
+
+test("completeTest() dispatches 'test completed' event to clients", async () => {
+  let isEventDispatched = false;
+  const session = createMockingSession({
+    pendingTests: {},
+    runningTests: {
+      apiOne: [
+        "/apiOne/test/one.html",
+        "/apiOne/test/two.html",
+        "/apiOne/test/three.html"
+      ]
+    },
+    completedTests: {}
+  });
+  const eventDispatcher = new EventDispatcher();
+  const httpPollingClient = new HttpPollingClient(
+    session.getToken(),
+    message => {
+      isEventDispatched = true;
+      message = JSON.parse(message);
+      expect(message.type).toBe(EventDispatcher.TEST_COMPLETED_EVENT);
+      expect(message.data).toBe("/apiOne/test/one.html");
+    }
+  );
+  eventDispatcher.addSessionClient(httpPollingClient);
+  const testManager = new TestManager();
+  testManager.initialize({
+    sessionManager: {
+      updateTests: async () => {},
+      updateSession: async () => {}
+    },
+    eventDispatcher
+  });
+
+  await testManager.completeTest({ test: "/apiOne/test/one.html", session });
+
+  expect(isEventDispatched).toBe(true);
 });
 
 test("removeTestFromList() removes a test from a list", () => {

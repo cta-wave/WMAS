@@ -122,12 +122,10 @@
 
       WaveService.connect(TOKEN);
       WaveService.onMessage(function(message) {
-        if (message.data !== "status") return;
-        WaveService.readSessionStatus(TOKEN, function(status) {
-          if (status.status !== "running") return;
-          WaveService.readNextTest(TOKEN, function(url) {
-            location.href = url;
-          });
+        if (message.type !== "status") return;
+        if (message.data !== "running") return;
+        WaveService.readNextTest(TOKEN, function(url) {
+          location.href = url;
         });
       });
 

@@ -24,6 +24,9 @@ const UI = {
         case "text":
           element.innerText = value;
           return;
+        case "value":
+          element.value = value;
+          return;
         case "html":
           element.innerHTML = value;
           return;
@@ -35,6 +38,9 @@ const UI = {
           return;
         case "onkeydown":
           element.onkeydown = value.bind(element);
+          return;
+        case "onkeyup":
+          element.onkeyup = value.bind(element);
           return;
         case "type":
           if (elementType === "input") element.setAttribute("type", value);

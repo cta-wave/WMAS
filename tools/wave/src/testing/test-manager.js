@@ -1,6 +1,7 @@
 const Session = require("../data/session");
 const TestLoader = require("../testing/test-loader");
 const ResultsManager = require("../testing/results-manager");
+const EventDispatcher = require("./event-dispatcher");
 
 class TestManager {
   /**
@@ -8,11 +9,17 @@ class TestManager {
    * @param {TestLoader} config.testLoader
    * @param {ResultsManager} config.resultsManager
    */
-  initialize({ testLoader, resultsManager, sessionManager } = {}) {
+  initialize({
+    testLoader,
+    resultsManager,
+    sessionManager,
+    eventDispatcher
+  } = {}) {
     this._timeouts = [];
     this._testLoader = testLoader;
     this._resultsManager = resultsManager;
     this._sessionManager = sessionManager;
+    this._eventDispatcher = eventDispatcher;
   }
 
   /**
@@ -148,6 +155,12 @@ class TestManager {
       runningTests,
       completedTests,
       session
+    });
+
+    this._eventDispatcher.dispatchEvent({
+      token: session.getToken(),
+      type: EventDispatcher.TEST_COMPLETED_EVENT,
+      data: test
     });
   }
 

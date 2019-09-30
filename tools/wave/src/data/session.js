@@ -16,6 +16,7 @@ class Session {
     {
       types = [TestLoader.TEST_HARNESS_TESTS],
       userAgent = null,
+      labels = [],
       tests,
       pendingTests = {},
       runningTests = {},
@@ -29,13 +30,15 @@ class Session {
       isPublic = false,
       referenceTokens = [],
       browser = null,
-      webhookUrls = []
+      webhookUrls = [],
+      expirationDate = null
     } = {}
   ) {
     this._token = token;
     this._tests = tests;
     this._types = types;
     this._userAgent = userAgent;
+    this._labels = labels;
     this._pendingTests = pendingTests;
     this._runningTests = runningTests;
     this._completedTests = completedTests;
@@ -49,6 +52,7 @@ class Session {
     this._referenceTokens = referenceTokens;
     this._browser = browser;
     this._webhookUrls = webhookUrls;
+    this._expirationDate = expirationDate;
   }
 
   isTestComplete(needleTest) {
@@ -90,6 +94,15 @@ class Session {
 
   setUserAgent(userAgent) {
     this._userAgent = userAgent;
+    return this;
+  }
+
+  getLabels() {
+    return this._labels;
+  }
+
+  setLabels(labels) {
+    this._labels = labels;
     return this;
   }
 
@@ -229,6 +242,15 @@ class Session {
 
   setWebhookUrls(webhookUrls) {
     this._webhookUrls = webhookUrls;
+    return this;
+  }
+
+  getExpirationDate() {
+    return this._expirationDate;
+  }
+
+  setExpirationDate(expirationDate) {
+    this._expirationDate = expirationDate;
     return this;
   }
 }
