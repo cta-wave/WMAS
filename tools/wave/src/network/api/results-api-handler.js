@@ -1,11 +1,15 @@
-const EventEmitter = require("events");
-
 const Route = require("../../data/route");
 const ApiHandler = require("./api-handler");
 const ResultsManager = require("../../testing/results-manager");
+const DuplicateError = require("../../data/errors/duplicate-error");
+const InvalidDataError = require("../../data/errors/invalid-data-error");
+const PermissionDeniedError = require("../../data/errors/permission-denied-error");
 
-const COMPARISON_GENERATION_FINISHED = "comparison_generation_finished";
+const { GET, POST } = Route;
 
+/**
+ * @module ResultsApiHandler
+ */
 class ResultsApiHandler extends ApiHandler {
   /**
    * @constructor
@@ -13,275 +17,339 @@ class ResultsApiHandler extends ApiHandler {
    */
   constructor(resultsManager) {
     super();
-    this._routes = this._createRoutes();
     this._resultsManager = resultsManager;
-    this._eventEmitter = new EventEmitter();
-    this._generatingComparisons = [];
   }
 
-  _createRoutes() {
-    return [
-      new Route("/results", this._handleRequest.bind(this)),
-      new Route("/results/*", this._handleRequest.bind(this))
-    ];
+  async _createResult({ request, response }) {
+    try {
+      const requestUrl = this.parseUrl(request);
+      const token = requestUrl[1];
+      const data = request.body;
+      await this._resultsManager.createResult({ token, data });
+      response.send();
+    } catch (error) {
+      console.error(new Error(`Failed to create result:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _readResult({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const { path } = request.query;
+      const results = await this._resultsManager.readResults(token, path);
+      this.sendJson(results, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read result:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _readResultsCompact({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const results = await this._resultsManager.readFlattenedResults(token);
+      this.sendJson(results, response);
+    } catch (error) {
+      console.error(
+        new Error(`Failed to read compact results:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _readResultComparison({ request, response }) {
+    try {
+      let { refTokens, tokens } = this.parseQueryParameters(request);
+      refTokens = refTokens ? refTokens.split(",") : [];
+      const comparison = await this._resultsManager.readResultComparison({
+        tokens,
+        refTokens
+      });
+      this.sendJson(comparison, response);
+    } catch (error) {
+      console.error(new Error(`Failed to read result comparison:\n${error}`));
+      response.status(500).send();
+    }
+  }
+
+  // async _downloadResultApiHtmlReport({ request, response }) {
+  //   try {
+  //     const url = this.parseUrl(request);
+  //     const tokens = url[1].split(",");
+  //     const token = tokens.length === 1 ? tokens[0] : null;
+  //     const api = url[2];
+  //     const { reftokens } = this.parseQueryParameters(request);
+  //     const refTokens = reftokens ? reftokens.split(",") : [];
+  //     const uri = await this._resultsManager.readResultApiHtmlReportPath({
+  //       tokens,
+  //       refTokens,
+  //       token,
+  //       api
+  //     });
+  //     response.redirect(`/results/${uri}`);
+  //   } catch (error) {
+  //     console.error(new Error(`Failed to read html report:\n${error.stack}`));
+  //     response.status(500).send();
+  //   }
+  // }
+
+  async _importResults({ request, response }) {
+    try {
+      const blob = request.body;
+      const token = await this._resultsManager.importResults(blob);
+      this.sendJson({ token }, response);
+    } catch (error) {
+      if (error instanceof DuplicateError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
+      if (error instanceof InvalidDataError) {
+        this.sendJson({ error: error.message }, response, 400);
+        return;
+      }
+      if (error instanceof PermissionDeniedError) {
+        this.sendJson({ error: "Permission denied." }, response, 403);
+        return;
+      }
+      console.error(new Error(`Failed to import results:\n${error.stack}`));
+      response.status(500).send();
+    }
+  }
+
+  async _importResultsEnabled({ request, response }) {
+    try {
+      const enabled = await this._resultsManager.isImportEnabled();
+      this.sendJson({ enabled }, response);
+    } catch (error) {
+      console.error(
+        new Error(
+          `Failed to determine status of import feature:\n${error.stack}`
+        )
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResults({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const blob = await this._resultsManager.exportResults(token);
+      const fileName = `${token}.zip`;
+      if (blob) {
+        this.sendFile({ response, fileName, blob });
+      } else {
+        response.status(404).send();
+      }
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download api result json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsApiJson({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const api = url[2];
+      const blob = await this._resultsManager.exportResultsApiJson({
+        token,
+        api
+      });
+      const filePath = await this._resultsManager.getJsonPath({ token, api });
+      const fileName = `${token.split("-").shift()}-${api}-${filePath
+        .split("/")
+        .pop()}`;
+      if (blob) {
+        this.sendFile({ response, fileName, blob });
+      } else {
+        response.status(404).send();
+      }
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download api result json:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsAllApiJsons({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const blob = await this._resultsManager.exportResultsAllApiJsons(token);
+      const fileName = token.split("-")[0] + "_results_json.zip";
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download all apis result jsons:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsApiWptReport({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const api = url[2];
+      const blob = await this._resultsManager.exportResultsWptReport({
+        token,
+        api
+      });
+      const fileName = token.split("-")[0] + "_results_json.zip";
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download wpt report:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _readResultsApiWptReportUrl({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const api = url[2];
+      const uri = await this._resultsManager.readResultsWptReportUri({
+        token,
+        api
+      });
+      this.sendJson({ uri }, response);
+    } catch (error) {
+      console.error(
+        new Error(`Failed to read wpt report url:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsApiWptMultiReport({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const api = url[1];
+      const { tokens } = this.parseQueryParameters(request);
+      const blob = await this._resultsManager.exportResultsWptMultiReport({
+        tokens,
+        api
+      });
+      const fileName =
+        this._resultsManager.getComparisonIdentifier({ tokens }) + ".zip";
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download wpt multi report:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _readResultsApiWptMultiReportUri({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const api = url[1];
+      const { tokens } = this.parseQueryParameters(request);
+      const uri = await this._resultsManager.readResultsWptMultiReportUri({
+        tokens,
+        api
+      });
+      this.sendJson({ uri }, response);
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download wpt multi report:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
+  }
+
+  async _downloadResultsOverview({ request, response }) {
+    try {
+      const url = this.parseUrl(request);
+      const token = url[1];
+      const blob = await this._resultsManager.exportResultsOverview(token);
+      const fileName = token.split("-")[0] + "_results_html.zip";
+      if (!blob) return response.status(404).send();
+      this.sendZip({ blob, response, fileName });
+    } catch (error) {
+      console.error(
+        new Error(`Failed to download results overview:\n${error.stack}`)
+      );
+      response.status(500).send();
+    }
   }
 
   getRoutes() {
-    return this._routes;
+    const uri = "/api/results*";
+    return [
+      new Route({ method: GET, uri, handler: this._handleGet.bind(this) }),
+      new Route({ method: POST, uri, handler: this._handlePost.bind(this) })
+    ];
   }
 
-  async _handleRequest(request, response, next) {
-    const { method } = request;
+  _handlePost(request, response) {
+    console.log(`POST   ${request.url}`);
     const url = this.parseUrl(request);
-    const test = request.get("test");
-    let { token, tokens, api, reftokens } = this.parseQueryParameters(request);
-    if (!token) {
-      token = request.get("token");
-    }
-    switch (method) {
-      case "POST":
-        response.send();
-        if (!test) return;
-        return this._createResult({ data: request.body, token, test });
-      case "GET":
-        switch (url.length) {
-          case 1: {
-            response.redirect(
-              `/nodejs/next?token=${token}&timeout=null&hostname=${
-                request.query.hostname
-              }&redirect=1`
-            );
-            if (!test) return;
-            let data = { status: 3 }; // NOTRUN
-            try {
-              data = JSON.parse(decodeURI(request.query.data));
-            } catch (error) {
-              console.log("json error, data was:", request.query.data);
-              data = { status: 1 }; // ERROR
-            }
-            return this._createResult({
-              data,
-              token,
-              test
-            });
-          }
-          case 2: {
-            switch (url[1]) {
-              case "html":
-                const reftoken = token;
-                return this._serveHtmlReport({
-                  tokens,
-                  reftoken,
-                  response,
-                  api
-                });
-              default:
-                token = url[1];
-                const results = await this._resultsManager.getFlattenedResults(
-                  token
-                );
-                this.sendJson(results, response);
-                return;
-            }
-          }
-          case 3:
-            token = url[1];
-            switch (url[2]) {
-              case "html":
-                return this._sendZip({
-                  blob: await this._resultsManager.exportResults(token),
-                  response,
-                  token
-                });
-              case "compare":
-                const tokens = url[1].split(",");
-                const refTokens = reftokens ? reftokens.split(",") : [];
-                const hashes = refTokens.filter(token => !token.includes("-"));
-                try {
-                  return this._sendComparison(
-                    tokens,
-                    refTokens,
-                    hashes,
-                    response
-                  );
-                } catch (error) {
-                  console.error(error);
-                  response.send(500);
-                  return;
-                }
-            }
-          case 4: {
-            switch (url[3]) {
-              case "json":
-                return this._sendJsonReport({
-                  response,
-                  token: url[1],
-                  api: url[2]
-                });
-              case "html":
-                return this._serveHtmlReport({
-                  response,
-                  token: url[1],
-                  api: url[2]
-                });
-            }
-          }
+    switch (url.length) {
+      case 2:
+        switch (url[1]) {
+          case "import":
+            return this._importResults({ request, response });
+          default:
+            return this._createResult({ request, response });
         }
+    }
+    response.status(404).send();
+  }
+
+  async _handleGet(request, response, next) {
+    console.log(`GET    ${request.url}`);
+    const url = this.parseUrl(request);
+    switch (url.length) {
+      case 2:
+        switch (url[1]) {
+          // case "compare":
+          //   return this._readResultComparison({ request, response });
+          case "import":
+            return this._importResultsEnabled({ request, response });
+          default:
+            return this._readResult({ request, response });
+        }
+      case 3:
+        switch (url[2]) {
+          case "overview":
+            return this._downloadResultsOverview({ request, response });
+          case "compact":
+            return this._readResultsCompact({ request, response });
+          case "json":
+            return this._downloadResultsAllApiJsons({ request, response });
+          case "report":
+            return this._downloadResultsApiWptMultiReport({
+              request,
+              response
+            });
+          case "reporturl":
+            return this._readResultsApiWptMultiReportUri({ request, response });
+          case "export":
+            return this._downloadResults({ request, response });
+        }
+      case 4: {
+        switch (url[3]) {
+          case "json":
+            return this._downloadResultsApiJson({ request, response });
+          case "report":
+            return this._downloadResultsApiWptReport({ request, response });
+          case "reporturl":
+            return this._readResultsApiWptReportUrl({ request, response });
+        }
+      }
     }
     next();
-  }
-
-  async _sendJsonReport({ token, response, api }) {
-    const filePath = await this._resultsManager.getJsonPath({ token, api });
-    const fileName =
-      token.split("-").shift() + "-" + api + "-" + filePath.split("/").pop();
-    response.set(
-      "Content-Disposition",
-      'attachment;filename="' + fileName + '"'
-    );
-    response.sendFile(filePath);
-  }
-
-  async _serveHtmlReport({ token, tokens, reftoken, response, api }) {
-    const uri = await this._resultsManager.getHtmlPath({
-      tokens,
-      reftoken,
-      token,
-      api
-    });
-    response.redirect("/results/" + uri);
-  }
-
-  async _createResult({ data, token, test }) {
-    const result = this._resultsManager.prepareResult(data);
-    if (test) {
-      result.test = test;
-    } else {
-      test = result.test;
-    }
-    if (test.startsWith("/")) test = test.substr(1);
-    await this._resultsManager.saveResult({ token, test, result });
-  }
-
-  async _sendComparison(tokens, refTokens, hashes, response) {
-    await Promise.all(
-      hashes.map(async hash => {
-        refTokens.splice(refTokens.indexOf(hash), 1);
-        const hashTokens = await this._resultsManager.getTokensFromHash(hash);
-        refTokens = refTokens.concat(hashTokens);
-      })
-    );
-    let comparisonResult = await this._resultsManager.loadComparison(
-      tokens,
-      refTokens
-    );
-
-    if (!comparisonResult) {
-      const comparisonDirectory = this._resultsManager.getComparisonDirectoryName(
-        tokens,
-        refTokens
-      );
-      if (this._generatingComparisons.includes(comparisonDirectory)) {
-        comparisonResult = await new Promise(resolve => {
-          const onComparisonGenerationFinished = finishedDirectory => {
-            if (finishedDirectory === comparisonDirectory) {
-              this._eventEmitter.removeListener(
-                COMPARISON_GENERATION_FINISHED,
-                onComparisonGenerationFinished
-              );
-              resolve(this._resultsManager.loadComparison(tokens, refTokens));
-            }
-          };
-          this._eventEmitter.on(
-            COMPARISON_GENERATION_FINISHED,
-            onComparisonGenerationFinished
-          );
-        });
-      } else {
-        this._generatingComparisons.push(comparisonDirectory);
-        comparisonResult = await this._resultsManager.generateComparisonResults(
-          tokens,
-          refTokens
-        );
-        await this._resultsManager.saveComparison(
-          comparisonResult,
-          tokens,
-          refTokens
-        );
-        this._eventEmitter.emit(
-          COMPARISON_GENERATION_FINISHED,
-          comparisonDirectory
-        );
-      }
-    }
-    this.sendJson(comparisonResult, response);
-  }
-
-  _flattenResults(results) {
-    const flattenedResults = {};
-    for (let api in results) {
-      if (!flattenedResults[api]) {
-        flattenedResults[api] = {
-          pass: 0,
-          fail: 0,
-          timeout: 0,
-          timeoutfiles: [],
-          not_run: 0
-        };
-      }
-      for (let result of results[api]) {
-        if (!result.subtests) {
-          switch (result.status) {
-            case "OK":
-              flattenedResults[api].pass++;
-              break;
-            case "ERROR":
-              flattenedResults[api].fail++;
-              break;
-            case "TIMEOUT":
-              flattenedResults[api].timeout++;
-              break;
-            case "NOTRUN":
-              flattenedResults[api].not_run++;
-              break;
-          }
-          if (results.xstatus === "SERVERTIMEOUT") {
-            flattenedResults[api].timeoutfiles.push(result.test);
-          }
-          continue;
-        }
-        for (let test of result.subtests) {
-          switch (test.status) {
-            case "PASS":
-              flattenedResults[api].pass++;
-              break;
-            case "FAIL":
-              flattenedResults[api].fail++;
-              break;
-            case "TIMEOUT":
-              flattenedResults[api].timeout++;
-              break;
-            case "NOTRUN":
-              flattenedResults[api].not_run++;
-              break;
-          }
-          if (test.xstatus === "SERVERTIMEOUT") {
-            flattenedResults[api].timeoutfiles.push(result.test);
-          }
-        }
-      }
-    }
-    return flattenedResults;
-  }
-
-  async _sendZip({ blob, response, token }) {
-    const fileName = token.split("-")[0] + "_results_html.zip";
-    response.set(
-      "Content-Disposition",
-      'attachment;filename="' + fileName + '"'
-    );
-    response.set("Content-Type", "application/x-compressed");
-    response.send(blob);
   }
 }
 

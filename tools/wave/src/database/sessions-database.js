@@ -1,13 +1,9 @@
-const path = require("path");
-const DataStore = require("nedb");
-
-const DatabaseUtils = require("../utils/database-utils");
+const Database = require("./database");
 const Deserializer = require("../utils/deserializer");
 const Serializer = require("../utils/serializer");
 const JobQueue = require("../utils/job-queue");
 const Session = require("../data/session");
 
-const { promisifyNedbDataStore } = DatabaseUtils;
 const DEFAULT_FILE_PATH = "./sessions.db";
 const DEFAULT_COMPACTION_INTERVAL = 60000;
 
@@ -15,9 +11,9 @@ const READ_JOB_GROUP = "read";
 const MAX_ACCESS_JOBS = 1;
 const MAX_GROUP_JOBS = 5;
 
-class SessionsDatabase {
-  constructor({ compactionInterval = DEFAULT_COMPACTION_INTERVAL } = {}) {
-    this._compactionInterval = compactionInterval;
+class SessionsDatabase extends Database {
+  constructor() {
+    super();
     this._sessionsAccessQueue = new JobQueue(MAX_ACCESS_JOBS, {
       groupLimit: MAX_GROUP_JOBS
     });
@@ -29,16 +25,13 @@ class SessionsDatabase {
   async initialize({
     filePath = DEFAULT_FILE_PATH,
     resultsDatabase,
-    testsDatabase
+    testsDatabase,
+    compactionInterval = DEFAULT_COMPACTION_INTERVAL
   } = {}) {
-    let sessionsDataStore = new DataStore({
-      filename: filePath
+    const sessionsDataStore = this._createDataStore({
+      filePath,
+      compactionInterval
     });
-
-    sessionsDataStore.persistence.setAutocompactionInterval(
-      this._compactionInterval
-    );
-    sessionsDataStore = promisifyNedbDataStore(sessionsDataStore);
     await sessionsDataStore.loadDatabase();
     this._db = sessionsDataStore;
     this._resultsDatabase = resultsDatabase;
@@ -55,20 +48,23 @@ class SessionsDatabase {
 
     await this._resultsDatabase.loadDatabase(token);
 
+    await this._testsDatabase.loadDatabase(token);
+    const tests = {};
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
       const { pending_tests, running_tests, completed_tests } = sessionObject;
-      await this._testsDatabase.createTests(token, {
-        pending_tests,
-        running_tests,
-        completed_tests
-      });
+      tests.pending_tests = pending_tests;
+      tests.running_tests = running_tests;
+      tests.completed_tests = completed_tests;
     }
+    const { malfunctioning_tests } = sessionObject;
+    tests.malfunctioning_tests = malfunctioning_tests;
+    await this._testsDatabase.createTests(token, tests);
 
     delete sessionObject.completed_tests;
     delete sessionObject.running_tests;
     delete sessionObject.pending_tests;
+    delete sessionObject.malfunctioning_tests;
     await this._db.insert(sessionObject);
   }
 
@@ -85,18 +81,23 @@ class SessionsDatabase {
     }
     const session = Deserializer.deserializeSession(result[0]);
 
-    const { COMPLETED, ABORTED } = Session;
-    if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
-      const tests = await this._testsDatabase.readTests(token);
-      if (tests) {
+    await this._testsDatabase.loadDatabase(token);
+    const tests = await this._testsDatabase.readTests(token);
+    if (tests) {
+      const { COMPLETED, ABORTED } = Session;
+      if (
+        session.getStatus() !== COMPLETED &&
+        session.getStatus() !== ABORTED
+      ) {
         const { pending_tests, running_tests, completed_tests } = tests;
         if (pending_tests) session.setPendingTests(pending_tests);
         if (completed_tests) session.setCompletedTests(completed_tests);
         if (running_tests) session.setRunningTests(running_tests);
       }
+      const { malfunctioning_tests } = tests;
+      if (malfunctioning_tests)
+        session.setMalfunctioningTests(malfunctioning_tests);
     }
-
     return session;
   }
 
@@ -111,6 +112,18 @@ class SessionsDatabase {
     if (!result) {
       return [];
     }
+    return Deserializer.deserializeSessions(result);
+  }
+
+  async readExpiringSessions() {
+    return this._queueSessionsAccess(() => this._readExpiringSession(), {
+      group: READ_JOB_GROUP
+    });
+  }
+
+  async _readExpiringSession() {
+    const result = await this._db.find({ expiration_date: { $ne: null } });
+    if (!result) return [];
     return Deserializer.deserializeSessions(result);
   }
 
@@ -141,22 +154,23 @@ class SessionsDatabase {
     const sessionObject = Serializer.serializeSession(session);
     await this._resultsDatabase.loadDatabase(token);
 
+    await this._testsDatabase.loadDatabase(token);
+    const tests = {};
     const { COMPLETED, ABORTED } = Session;
     if (session.getStatus() !== COMPLETED && session.getStatus() !== ABORTED) {
-      await this._testsDatabase.loadDatabase(token);
       const { pending_tests, running_tests, completed_tests } = sessionObject;
-      await this._testsDatabase.updateTests(token, {
-        pending_tests,
-        running_tests,
-        completed_tests
-      });
-    } else {
-      await this._testsDatabase.deleteTests(token);
+      tests.pending_tests = pending_tests;
+      tests.running_tests = running_tests;
+      tests.completed_tests = completed_tests;
     }
+    const { malfunctioning_tests } = sessionObject;
+    tests.malfunctioning_tests = malfunctioning_tests;
+    await this._testsDatabase.updateTests(token, tests);
 
     delete sessionObject.completed_tests;
     delete sessionObject.running_tests;
     delete sessionObject.pending_tests;
+    delete sessionObject.malfunctioning_tests;
     await this._db.update({ token }, sessionObject);
   }
 

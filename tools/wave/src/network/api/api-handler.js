@@ -1,7 +1,8 @@
 class ApiHandler {
-  sendJson(object, response) {
+  sendJson(object, response, status = 200) {
+    const data = JSON.stringify(object, null, 2);
     response.set("Content-Type", "Application/JSON");
-    response.send(JSON.stringify(object, null, 2));
+    response.status(status).send(data);
   }
 
   parseQueryParameters(request) {
@@ -15,7 +16,11 @@ class ApiHandler {
       api,
       reftoken,
       reftokens,
-      resume
+      resume,
+      redirect,
+      data,
+      count,
+      status
     } = request.query;
     token = token || null;
     path = path || null;
@@ -26,7 +31,11 @@ class ApiHandler {
     tokens = tokens ? tokens.split(",") : null;
     reftoken = reftoken || "";
     reftokens = reftokens || "";
-    resume = resume ? resume !== "false" ? true : false : false
+    resume = resume ? (resume !== "false" ? true : false) : false;
+    data = data || "";
+    redirect = redirect || redirect === "";
+    count = count || null;
+    status = status ? status.split(",").map(status => status.trim()) : null;
     return {
       token,
       path,
@@ -36,7 +45,13 @@ class ApiHandler {
       api,
       tokens,
       reftoken,
-      reftokens
+      reftokens,
+      refTokens: reftokens,
+      resume,
+      redirect,
+      data,
+      count,
+      status
     };
   }
 
@@ -45,8 +60,28 @@ class ApiHandler {
     if (url.indexOf("?") !== -1) {
       url = url.split("?")[0];
     }
+    // remove /api prefix
     url = url.split("/");
-    return url.filter(part => part !== "");
+    url = url.filter(part => part !== "");
+    url.shift();
+    return url;
+  }
+
+  sendFile({ response, blob, filePath, fileName }) {
+    response.set(
+      "Content-Disposition",
+      'attachment;filename="' + fileName + '"'
+    );
+    if (blob) {
+      response.send(blob);
+      return;
+    }
+    response.sendFile(filePath);
+  }
+
+  sendZip(options) {
+    options.response.set("Content-Type", "application/x-compressed");
+    this.sendFile(options);
   }
 }
 

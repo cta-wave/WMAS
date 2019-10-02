@@ -2,24 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Test Paused - Web Platform Test Runner</title>
-    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <title>Session Paused - Web Platform Test Runner</title>
+    <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/qrcode.js"></script>
     <script src="lib/keycodes.js"></script>
+    <script src="lib/wave-service.js"></script>
   </head>
   <body>
     <section class="section">
       <div class="container site-header">
-        <img src="res/wavelogo_2016.jpg" alt="WAVE Logo" />
-        <h1 class="title is-spaced">Test Run Paused.</h1>
-        <h2 class="subtitle">Result Page</h2>
+        <img src="res/wavelogo_2016.jpg" alt="WAVE Logo" class="site-logo" />
+        <h1 class="title is-spaced">Session Paused</h1>
       </div>
 
       <div id="content">
         <div id="qr-code"></div>
+        <div id="button-wrapper">
+          <button
+            id="start-button"
+            class="button is-large is-success tabbable"
+          >
+            Continue
+          </button>
+          <button
+            id="results-button"
+            class="button is-large is-light tabbable"
+          >
+            View Result Page
+          </button>
+        </div>
+        <div>(Alternatively to resume the test you can just press Return)</div>
         <div id="details-wrapper">
+          <h3 class="title is-5 is-spaced">Details</h3>
           <div class="detail">
             <div>Token:</div>
             <div id="token"></div>
@@ -29,27 +45,26 @@
             <div id="user-agent"></div>
           </div>
           <div class="detail">
-            <div>Test Path:</div>
-            <div id="test-path"></div>
-          </div>
-          <div class="detail">
             <div>Test Types:</div>
             <div id="test-types"></div>
           </div>
           <div class="detail">
-            <div>Total Tests:</div>
+            <div>Total Test Files:</div>
             <div id="total-tests"></div>
           </div>
           <div class="detail">
-            <div>Test Timeout:</div>
+            <div>Reference Tokens:</div>
+            <div id="reference-tokens"></div>
+          </div>
+          <div class="detail">
+            <div>Test Timeouts:</div>
             <div id="test-timeout"></div>
           </div>
+          <div class="detail">
+            <div>Test Paths:</div>
+            <div id="test-path"></div>
+          </div>
         </div>
-        <div id="button-wrapper">
-          <button id="start-button" class="button tabbable">Continue</button>
-          <button id="results-button" class="button tabbable">View Result Page</button>
-        </div>
-        <div>(Alternatively to start the test you can just press Return)</div>
       </div>
     </section>
 
@@ -62,69 +77,60 @@
       var TOKEN = match ? match[1] : null;
       if (TOKEN)
         document.cookie = `resume_token=${TOKEN}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-        var selectedTabbable = -1;
+      var selectedTabbable = -1;
 
-      function sendRequest(method, uri, data, callback, headers) {
-        var url = PROTOCOL + "://";
-        url += HOSTNAME + ":" + PORT;
-        url += uri + "?" + QUERY;
-        url += "&hostname=" + HOSTNAME;
-
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", function() {
-          callback(xhr.response);
-        });
-        xhr.open(method, url, true);
-        if (headers) {
-          for (var header in headers) {
-            xhr.setRequestHeader(header, headers[header]);
+      function displaySessionConfiguration(configuration) {
+        var userAgent = document.getElementById("user-agent");
+        userAgent.innerText = configuration.userAgent;
+        var testPath = document.getElementById("test-path");
+        for (var path of configuration.tests.include) {
+          testPath.innerText += path + "\n";
+        }
+        var testTypes = document.getElementById("test-types");
+        testTypes.innerText = configuration.types.join(", ");
+        var testTimeout = document.getElementById("test-timeout");
+        for (var timeout in configuration.timeouts) {
+          testTimeout.innerText +=
+            timeout + ": " + configuration.timeouts[timeout] / 1000 + "s\n";
+        }
+        var referenceTokens = document.getElementById("reference-tokens");
+        if (configuration.referenceTokens.length === 0) {
+          referenceTokens.innerText = "none";
+        } else {
+          for (var token of configuration.referenceTokens) {
+            referenceTokens.innerText += token + "\n";
           }
         }
-        xhr.setRequestHeader("Token", TOKEN);
-        xhr.send(data);
       }
 
-      function displaySessionDetails(details) {
-        const userAgent = document.getElementById("user-agent");
-        userAgent.innerText = details.user_agent;
-        const testPath = document.getElementById("test-path");
-        testPath.innerText = details.path;
-        const testTypes = document.getElementById("test-types");
-        testTypes.innerText = details.types.join(", ");
-        const totalTests = document.getElementById("total-tests");
-        const { test_files_count } = details;
-        totalTests.innerText = Object.keys(test_files_count).reduce(
-          (sum, api) => (sum += test_files_count[api]),
-          0
-        );
-        const testTimeout = document.getElementById("test-timeout");
-        testTimeout.innerText = details.test_timeout;
-      }
-
-      function loadNextTest() {
-        sendRequest("GET", "/next", null, function(response) {
-          location.href = response;
-        });
+      function displaySessionStatus(status) {
+        var testTypes = document.getElementById("total-tests");
+        var count = 0;
+        for (var api in status.testFilesCount) {
+          count += status.testFilesCount[api];
+        }
+        testTypes.innerText = count;
       }
 
       function continueTests() {
-        sendRequest("GET", "/sessions/" + TOKEN + "/resume", null, function() {
-          loadNextTest();
+        WaveService.startSession(TOKEN, function() {
+          WaveService.readNextTest(TOKEN, function(url) {
+            location.href = url;
+          });
         });
       }
 
-      function checkStatus() {
-        sendRequest("GET", "/sessions/" + TOKEN, null, function(response) {
-          var session = JSON.parse(response);
-          if (session.hasOwnProperty("status") && session.status !== "paused")
-            loadNextTest();
+      WaveService.connect(TOKEN);
+      WaveService.onMessage(function(message) {
+        if (message.type !== "status") return;
+        if (message.data !== "running") return;
+        WaveService.readNextTest(TOKEN, function(url) {
+          location.href = url;
         });
-      }
-
-      setInterval(checkStatus, 3000);
+      });
 
       var resultsUrl =
-        "http://" + location.host + "/results.html" + location.search;
+        "http://" + location.host + "/overview.html" + location.search;
       new QRCode(document.getElementById("qr-code"), resultsUrl);
 
       var resultsButton = document.getElementById("results-button");
@@ -210,9 +216,8 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/sessions/" + token, null, function(response) {
-        displaySessionDetails(JSON.parse(response));
-      });
+      WaveService.readSession(token, displaySessionConfiguration);
+      WaveService.readSessionStatus(token, displaySessionStatus);
     </script>
   </body>
 </html>

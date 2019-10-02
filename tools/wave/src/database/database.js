@@ -1,5 +1,14 @@
-const DatabaseUtils = {
-  promisifyNedbDataStore: dataStore => {
+const DataStore = require("nedb");
+
+class Database {
+  _createDataStore({ filePath, compactionInterval }) {
+    let dataStore = new DataStore({ filename: filePath });
+    dataStore.persistence.setAutocompactionInterval(compactionInterval);
+    dataStore = this._promisifyNedbDataStore(dataStore);
+    return dataStore;
+  }
+
+  _promisifyNedbDataStore(dataStore) {
     return {
       async loadDatabase() {
         return new Promise(resolve => dataStore.loadDatabase(() => resolve()));
@@ -51,6 +60,6 @@ const DatabaseUtils = {
       }
     };
   }
-};
+}
 
-module.exports = DatabaseUtils;
+module.exports = Database;

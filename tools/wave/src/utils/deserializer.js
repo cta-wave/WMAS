@@ -18,10 +18,20 @@ class Deserializer {
    */
   deserializeSession(sessionJson) {
     const token = sessionJson.token;
-    const path = sessionJson.path;
+    let tests = sessionJson.tests;
+    if (sessionJson.path) {
+      tests = {
+        include: sessionJson.path.split(",").map(path => path.trim()),
+        exclude: []
+      };
+    }
     const types = sessionJson.types;
     const userAgent = sessionJson.user_agent;
-    const testTimeout = sessionJson.test_timeout;
+    const labels = sessionJson.labels;
+    let timeouts = sessionJson.timeouts;
+    if (sessionJson.test_timeout) {
+      timeouts = { automatic: sessionJson.test_timeout, manual: 300000 };
+    }
     const pendingTests = sessionJson.pending_tests;
     const runningTests = sessionJson.running_tests;
     const completedTests = sessionJson.completed_tests;
@@ -32,11 +42,16 @@ class Deserializer {
     const dateFinished = sessionJson.date_finished;
     const isPublic = sessionJson.is_public;
     const referenceTokens = sessionJson.reference_tokens;
+    const browser = sessionJson.browser;
+    const webhookUrls = sessionJson.webhook_urls;
+    const expirationDate = sessionJson.expiration_date;
+    const malfunctioningTests = sessionJson.malfunctioning_tests;
     return new Session(token, {
-      path,
+      tests,
       types,
       userAgent,
-      testTimeout,
+      labels,
+      timeouts,
       pendingTests,
       runningTests,
       completedTests,
@@ -46,7 +61,11 @@ class Deserializer {
       dateStarted,
       dateFinished,
       isPublic,
-      referenceTokens
+      referenceTokens,
+      browser,
+      webhookUrls,
+      expirationDate,
+      malfunctioningTests
     });
   }
 }

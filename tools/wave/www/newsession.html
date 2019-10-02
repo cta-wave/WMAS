@@ -3,60 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <title>New Session - Web Platform Test Runner</title>
-    <link rel="stylesheet" href="css/bulma-0.7.4/bulma.min.css" />
+    <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/main.css" />
     <script src="lib/qrcode.js"></script>
     <script src="lib/keycodes.js"></script>
+    <script src="lib/wave-service.js"></script>
   </head>
   <body>
     <section class="section">
       <div class="container site-header">
         <img src="res/wavelogo_2016.jpg" alt="WAVE Logo" class="site-logo" />
-        <h1 class="title is-spaced">Web Platform Test Runner</h1>
-        <h2 class="subtitle">Result Page</h2>
+        <h1 class="title is-spaced">New Session</h1>
       </div>
 
       <div class="container">
         <div id="content">
+          <div id="qr-code"></div>
+          <br />
           <p>
             Scan QR Code OR visit
-            <span
+            <a
               id="results-page-url"
               style="font-weight: bold; color: #23d160;"
-            ></span>
+              target="_blank"
+            ></a>
             and follow instructions
           </p>
-          <br />
-          <div id="qr-code"></div>
-
-          <div id="details-wrapper">
-            <div class="detail">
-              <div>Token:</div>
-              <div id="token"></div>
-            </div>
-            <div class="detail">
-              <div>User Agent:</div>
-              <div id="user-agent"></div>
-            </div>
-            <div class="detail">
-              <div>Test Path:</div>
-              <div id="test-path"></div>
-            </div>
-            <div class="detail">
-              <div>Test Types:</div>
-              <div id="test-types"></div>
-            </div>
-            <div class="detail">
-              <div>Total Test Files:</div>
-              <div id="total-tests"></div>
-            </div>
-            <div class="detail">
-              <div>Test Timeout:</div>
-              <div id="test-timeout"></div>
-            </div>
-          </div>
-
           <div id="button-wrapper">
             <button
               id="start-button"
@@ -73,6 +46,38 @@
           </div>
 
           <div>(Alternatively to start the test you can just press Return)</div>
+
+          <div id="details-wrapper">
+            <h3 class="title is-5 is-spaced">Details</h3>
+            <div class="detail">
+              <div>Token:</div>
+              <div id="token"></div>
+            </div>
+            <div class="detail">
+              <div>User Agent:</div>
+              <div id="user-agent"></div>
+            </div>
+            <div class="detail">
+              <div>Test Types:</div>
+              <div id="test-types"></div>
+            </div>
+            <div class="detail">
+              <div>Total Test Files:</div>
+              <div id="total-tests"></div>
+            </div>
+            <div class="detail">
+              <div>Reference Tokens:</div>
+              <div id="reference-tokens"></div>
+            </div>
+            <div class="detail">
+              <div>Test Timeouts:</div>
+              <div id="test-timeout"></div>
+            </div>
+            <div class="detail">
+              <div>Test Paths:</div>
+              <div id="test-path"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -97,51 +102,51 @@
             document.getElementById("new-button").style.display = "block";
           }
           document.getElementById("results-page-url").innerHTML =
-            "http://" + location.host + "/results.html";
+            "http://" + location.host + "/overview.html";
+          document.getElementById("results-page-url").href =
+            "http://" + location.host + "/overview.html";
         },
         false
       );
 
-      function sendRequest(method, uri, data, callback, headers) {
-        var url = PROTOCOL + "://";
-        url += HOSTNAME + ":" + PORT;
-        url += uri + "?&token=" + TOKEN;
-        url += "&hostname=" + HOSTNAME;
-
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", function() {
-          callback(xhr.response);
-        });
-        xhr.open(method, url, true);
-        if (headers) {
-          for (var header in headers) {
-            xhr.setRequestHeader(header, headers[header]);
+      function displaySessionConfiguration(configuration) {
+        var userAgent = document.getElementById("user-agent");
+        userAgent.innerText = configuration.userAgent;
+        var testPath = document.getElementById("test-path");
+        for (var path of configuration.tests.include) {
+          testPath.innerText += path + "\n";
+        }
+        var testTypes = document.getElementById("test-types");
+        testTypes.innerText = configuration.types.join(", ");
+        var testTimeout = document.getElementById("test-timeout");
+        for (var timeout in configuration.timeouts) {
+          testTimeout.innerText +=
+            timeout + ": " + configuration.timeouts[timeout] / 1000 + "s\n";
+        }
+        var referenceTokens = document.getElementById("reference-tokens");
+        if (configuration.referenceTokens.length === 0) {
+          referenceTokens.innerText = "none";
+        } else {
+          for (var token of configuration.referenceTokens) {
+            referenceTokens.innerText += token + "\n";
           }
         }
-        xhr.setRequestHeader("Token", TOKEN);
-        xhr.send(data);
       }
 
-      function displaySessionDetails(details) {
-        const userAgent = document.getElementById("user-agent");
-        userAgent.innerText = details.user_agent;
-        const testPath = document.getElementById("test-path");
-        testPath.innerText = details.path;
-        const testTypes = document.getElementById("test-types");
-        testTypes.innerText = details.types.join(", ");
-        const { test_files_count } = details;
-        const totalTests = document.getElementById("total-tests");
-        totalTests.innerText = Object.keys(test_files_count).reduce(
-          (sum, api) => (sum += test_files_count[api]),
-          0
-        );
-        const testTimeout = document.getElementById("test-timeout");
-        testTimeout.innerText = details.test_timeout;
+      function displaySessionStatus(status) {
+        var testTypes = document.getElementById("total-tests");
+        var count = 0;
+        for (var api in status.testFilesCount) {
+          count += status.testFilesCount[api];
+        }
+        testTypes.innerText = count;
       }
 
       function startTests() {
-        sendRequest("GET", "/next", null, function(response) {
-          location.href = response;
+        WaveService.startSession(token, function() {
+          WaveService.readNextTest(token, function(url) {
+            location.href = url;
+          });
         });
       }
 
@@ -232,9 +237,8 @@
       var tokenView = document.getElementById("token");
       tokenView.innerText = token;
 
-      sendRequest("GET", "/sessions/" + token, null, function(response) {
-        displaySessionDetails(JSON.parse(response));
-      });
+      WaveService.readSession(token, displaySessionConfiguration);
+      WaveService.readSessionStatus(token, displaySessionStatus);
 
       if (window.localStorage) {
         var storage = window.localStorage;

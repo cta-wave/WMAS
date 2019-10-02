@@ -1,5 +1,3 @@
-const path = require("path");
-
 const FileSystem = require("../utils/file-system");
 const UserAgentParser = require("../utils/user-agent-parser");
 
@@ -7,25 +5,20 @@ const UserAgentParser = require("../utils/user-agent-parser");
 const TEST_HARNESS_TESTS = "testharness";
 const REF_TESTS = "reftest";
 const MANUAL_TESTS = "manual";
+const AUTOMATIC_TESTS = "automatic";
 
 class TestLoader {
-  constructor({
-    resultsDirectoryPath,
-    excludeListFilePath,
-    includeListFilePath
-  }) {
-    this._resultsDirectoryPath = resultsDirectoryPath;
+  /**
+   * @param {Object} config
+   */
+  initialize({ resultsManager, excludeListFilePath, includeListFilePath }) {
+    this._resultsManager = resultsManager;
     this._includeListFilePath = includeListFilePath;
     this._excludeListFilePath = excludeListFilePath;
     this._tests = {};
-    this._tests[TEST_HARNESS_TESTS] = [];
+    this._tests[AUTOMATIC_TESTS] = [];
     this._tests[REF_TESTS] = [];
     this._tests[MANUAL_TESTS] = [];
-  }
-
-  _getFilePath({ userAgent, api, token }) {
-    const apiDirectory = path.join(this._resultsDirectoryPath, token, api);
-    return path.join(apiDirectory, this._getFileName(userAgent));
   }
 
   _getFileName(userAgent) {
@@ -38,29 +31,11 @@ class TestLoader {
 
   async loadTests(manifestPath) {
     const manifest = JSON.parse(await FileSystem.readFile(manifestPath));
-    let tests = manifest.items;
-    let includeList = [];
-    if (await FileSystem.exists(this._includeListFilePath)) {
-      includeList = (await FileSystem.readFile(this._includeListFilePath))
-        .split(/\r\n|\n\r|\r|\n/)
-        .map(line =>
-          line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
-        )
-        .map(line => line.replace(/ /g, ""))
-        .filter(line => !!line);
-    }
-    let excludeList = [];
-    if (await FileSystem.exists(this._excludeListFilePath)) {
-      excludeList = (await FileSystem.readFile(this._excludeListFilePath))
-        .split(/\r\n|\n\r|\r|\n/)
-        .map(line =>
-          line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
-        )
-        .map(line => line.replace(/ /g, ""))
-        .filter(line => !!line);
-    }
+    const tests = manifest.items;
+    const includeList = await this._loadTestList(this._includeListFilePath);
+    const excludeList = await this._loadTestList(this._excludeListFilePath);
     if (tests.hasOwnProperty(TEST_HARNESS_TESTS)) {
-      this._tests[TEST_HARNESS_TESTS] = this._loadTests({
+      this._tests[AUTOMATIC_TESTS] = this._loadTests({
         tests: tests[TEST_HARNESS_TESTS],
         excludeList
       });
@@ -80,7 +55,6 @@ class TestLoader {
     const loadedTests = {};
     for (let test in tests) {
       let testPath = tests[test][0][0];
-      if (testPath.startsWith("/")) testPath = testPath.substr(1);
       if (this._isValidTest({ testPath, includeList, excludeList })) {
         const apiName = this._getApiName(testPath);
         if (!loadedTests[apiName]) loadedTests[apiName] = [];
@@ -110,93 +84,47 @@ class TestLoader {
   }
 
   _getApiName(testPath) {
-    return testPath.split("/")[0];
+    return testPath.split("/").filter(part => !!part)[0];
   }
 
-  async _getRefResults({ token, userAgent, api }) {
-    const readApiResults = async ({ userAgent, token, api }) => {
-      try {
-        const file = await FileSystem.readFile(
-          this._getFilePath({ token, userAgent, api })
-        );
-        return JSON.parse(file).results;
-      } catch (e) {
-        console.error("warn: could not read json result file:", e);
-        return [];
-      }
-    };
-
-    if (!api || api === "/") {
-      const apis = await FileSystem.readDirectory(
-        path.join(this._resultsDirectoryPath, token)
-      );
-      const results = await Promise.all(
-        apis.map(async api => readApiResults({ userAgent, token, api }))
-      );
-      return results.reduce(
-        (accumulator, current) => accumulator.concat(current),
-        []
-      );
+  async _loadTestList(listFilePath) {
+    let testList = [];
+    if (await FileSystem.exists(listFilePath)) {
+      testList = (await FileSystem.readFile(listFilePath))
+        .split(/\r\n|\n\r|\r|\n/)
+        .map(line =>
+          line.indexOf("#") === -1 ? line : line.substr(0, line.indexOf("#"))
+        )
+        .map(line => line.replace(/ /g, ""))
+        .filter(line => !!line);
     }
-    return await readApiResults({ userAgent, token, api });
+    return testList;
   }
 
-  async getTests({ types, path, refSessions }) {
+  async getTests({
+    types = [AUTOMATIC_TESTS, MANUAL_TESTS],
+    includeList,
+    excludeList,
+    referenceTokens
+  } = {}) {
     let tests = {};
 
-    let paths = path.split(/, ?/);
-    await Promise.all(
-      paths.map(async path => {
-        let regex = null;
-        if (path.startsWith("/")) {
-          path = path.substr(1);
-          regex = new RegExp("^" + path, "i");
-        } else {
-          regex = new RegExp(path, "i");
-        }
-
-        for (let type of types) {
-          let refResults = await Promise.all(
-            refSessions.map(async session => {
-              return await this._getRefResults({
-                userAgent: session.getUserAgent(),
-                token: session.getToken(),
-                api: path
-              });
-            })
-          );
-
-          // console.log(refResults)
-          // web-platform.test:8050/?path=/2dcontext,/css,/content-security-policy,/dom,/ecmascript,/encrypted-media,/fetch,/fullscreen,/html,/IndexedDB,/media-source,/notifications,/uievents,/WebCryptoAPI,/webaudio,/webmessaging,/websockets,/webstorage,/workers,/xhr&reftoken=01d11810-7938-11e8-8749-a6ac1d216fc7,a831a820-7855-11e8-9ce0-d6175576bb4b,c0cdb6c0-7b99-11e8-939a-90ffd3c0ec6f,ce4aec10-7855-11e8-b81b-6714c602f007
-          for (let api in this._tests[type]) {
-            for (let testPath of this._tests[type][api]) {
-              if (!regex.test(testPath)) continue;
-              if (!tests[api]) tests[api] = [];
-
-              // filter out test files that didn't pass in the reference results
-              if (
-                refResults.some(refResult => {
-                  let refTest = refResult.find(
-                    result => result.test === "/" + testPath
-                  );
-                  if (!refTest) return false;
-                  let hasSubFailed = true; // assuming sub test failed
-                  if (refTest.subtests.length) {
-                    hasSubFailed = refTest.subtests.some(
-                      sub => !(sub.status === "PASS")
-                    ); // until its proven wrong
-                  }
-                  return hasSubFailed;
-                })
-              )
-                continue;
-
-              tests[api].push(testPath);
-            }
-          }
-        }
-      })
+    const referenceResults = await this._resultsManager.readCommonPassedTests(
+      referenceTokens
     );
+
+    for (let type of types) {
+      for (let api in this._tests[type]) {
+        for (let testPath of this._tests[type][api]) {
+          if (!this._isValidTest({ testPath, includeList, excludeList }))
+            continue;
+          if (referenceResults && !referenceResults[api].includes(testPath))
+            continue;
+          if (!tests[api]) tests[api] = [];
+          tests[api].push(testPath);
+        }
+      }
+    }
 
     for (let api in tests) {
       tests[api] = tests[api].sort((testA, testB) =>
@@ -211,5 +139,6 @@ class TestLoader {
 TestLoader.TEST_HARNESS_TESTS = TEST_HARNESS_TESTS;
 TestLoader.REF_TESTS = REF_TESTS;
 TestLoader.MANUAL_TESTS = MANUAL_TESTS;
+TestLoader.AUTOMATIC_TESTS = AUTOMATIC_TESTS;
 
 module.exports = TestLoader;
