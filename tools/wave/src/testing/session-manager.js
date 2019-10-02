@@ -237,6 +237,17 @@ class SessionManager {
     });
   }
 
+  async resumeSession({ token, resumeToken }) {
+    const session = await this.readSession(token);
+    if (session.getStatus() !== Session.PENDING) return;
+    this._eventDispatcher.dispatchEvent({
+      token,
+      type: EventDispatcher.RESUME_EVENT,
+      data: resumeToken
+    });
+    await this.deleteSession(token);
+  }
+
   async completeSession(token) {
     const session = await this.readSession(token);
     if (

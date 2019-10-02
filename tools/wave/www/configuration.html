@@ -81,7 +81,7 @@
           token,
           function(status) {
             if (status.status !== "pending") {
-              configurationUi.openResultsPage();
+              configurationUi.openResultsPage(token);
               return;
             }
 
@@ -221,7 +221,7 @@
           WaveService.updateSession(token, configuration, function() {
             WaveService.updateLabels(token, configuration.labels, function() {
               WaveService.startSession(token, function() {
-                configurationUi.openResultsPage();
+                configurationUi.openResultsPage(token);
               });
             });
           });
@@ -238,7 +238,7 @@
           configurationUi.state.expired = true;
           configurationUi.renderSessionConfiguration();
         },
-        openResultsPage: function() {
+        openResultsPage: function(token) {
           location.href = "/results.html?token=" + token;
         },
         handleAddExludedTestsRaw: function() {
@@ -357,6 +357,18 @@
           configuration.labels.splice(index, 1);
           configurationUi.renderSessionConfiguration();
         },
+        resumeSession: function() {
+          var resumeToken = UI.getElement("resume-token").value;
+          if (!resumeToken) return;
+
+          WaveService.resumeSession(
+            configurationUi.state.configuration.token,
+            resumeToken,
+            function() {
+              configurationUi.openResultsPage(resumeToken);
+            }
+          );
+        },
         render: function() {
           const configurationView = UI.createElement({
             className: "content",
@@ -383,19 +395,22 @@
                   { id: "controls" }
                 ]
               },
-              { id: "session-configuration" }
+              { id: "session-configuration" },
+              { id: "resume-view" }
             ]
           });
           const root = UI.getRoot();
           root.innerHTML = "";
           root.appendChild(configurationView);
           configurationUi.renderSessionConfiguration();
+          configurationUi.renderResumeView();
         },
         renderSessionConfiguration: function() {
           var configuration = configurationUi.state.configuration;
           var sessionConfigurationView = UI.createElement();
           var sessionConfiguration = UI.getElement("session-configuration");
           sessionConfiguration.innerHTML = "";
+          sessionConfiguration.style["margin-bottom"] = "20px";
 
           if (configurationUi.state.expired) {
             var expiredIndicator = UI.createElement({
@@ -684,10 +699,12 @@
             ]
           });
           sessionConfiguration.appendChild(buttonList);
+
           configurationUi.renderExcludedTests();
         },
         renderExcludedTests: function() {
           var excludedTestsView = UI.getElement("excluded-tests-view");
+          if (!excludedTestsView) return;
           excludedTestsView.innerHTML = "";
 
           var errorMessage = configurationUi.state.excludedTestError;
@@ -820,6 +837,75 @@
           });
           tableWrapper.appendChild(excludedTestsTable);
           excludedTestsView.appendChild(tableWrapper);
+        },
+        renderResumeView: function() {
+          var query = utils.parseQuery(location.search);
+          console.log(query)
+          var resumeToken = query.resume;
+          if (!resumeToken) resumeToken = "";
+
+          var renderResumeElement = UI.getElement("resume-view");
+          renderResumeElement.innerHTML = "";
+
+          var heading = UI.createElement({
+            element: "h2",
+            className: "title is-5",
+            text: "Resume session"
+          });
+          renderResumeElement.appendChild(heading);
+
+          var resumeControls = UI.createElement({
+            className: "columns",
+            children: [
+              {
+                className: "column",
+                children: {
+                  className: "field",
+                  children: [
+                    {
+                      element: "label",
+                      className: "label",
+                      text: "Token (first 8 characters or more)"
+                    },
+                    {
+                      className: "control",
+                      children: {
+                        element: "input",
+                        id: "resume-token",
+                        className: "input is-family-monospace tabbable",
+                        type: "text",
+                        style: "max-width: 30em",
+                        value: resumeToken
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                className: "column",
+                style:
+                  "display: flex; align-items: flex-end; justify-content: flex-end",
+                children: {
+                  className: "button",
+                  onClick: function() {
+                    configurationUi.resumeSession();
+                  },
+                  children: [
+                    {
+                      element: "span",
+                      className: "icon",
+                      children: { element: "i", className: "fas fa-redo-alt" }
+                    },
+                    {
+                      element: "span",
+                      text: "Resume"
+                    }
+                  ]
+                }
+              }
+            ]
+          });
+          renderResumeElement.appendChild(resumeControls);
         },
         createExcludedTestsTable: function() {
           var excludedTests = configurationUi.state.configuration.tests.exclude;

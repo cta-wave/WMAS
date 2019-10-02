@@ -234,6 +234,21 @@ var WaveService = {
       onError
     );
   },
+  resumeSession: function(token, resumeToken, onSuccess, onError) {
+    var data = JSON.stringify({ resume_token: resumeToken });
+    sendRequest(
+      "POST",
+      "/api/sessions/" + token + "/resume",
+      { "Content-Type": "application/json" },
+      data,
+      function() {
+        if (onSuccess) onSuccess();
+      },
+      function(response) {
+        if (onError) onError(response);
+      }
+    );
+  },
   deleteSession: function(token, onSuccess, onError) {
     sendRequest(
       "DELETE",
