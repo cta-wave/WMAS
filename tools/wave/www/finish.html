@@ -76,7 +76,8 @@
         var userAgent = document.getElementById("user-agent");
         userAgent.innerText = configuration.userAgent;
         var testPath = document.getElementById("test-path");
-        for (var path of configuration.tests.include) {
+        for (var i = 0; i < configuration.tests.include.length; i++) {
+          var path = configuration.tests.include[i];
           testPath.innerText += path + "\n";
         }
         var testTypes = document.getElementById("test-types");
@@ -90,7 +91,8 @@
         if (configuration.referenceTokens.length === 0) {
           referenceTokens.innerText = "none";
         } else {
-          for (var token of configuration.referenceTokens) {
+          for (var i = 0; i < configuration.referenceTokens.length; i++) {
+            var token = configuration.referenceTokens[i];
             referenceTokens.innerText += token + "\n";
           }
         }

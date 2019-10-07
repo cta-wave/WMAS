@@ -164,10 +164,15 @@
     }
 
     // Resume
-    var resumeToken = document.cookie.split(";").find(function(cookie) {
-      return cookie.split("=")[0].replace(/ /g, "") === "resume_token";
-    });
-    if (resumeToken) resumeToken = resumeToken.split("=")[1];
+    var resumeToken = "";
+    var cookies = document.cookie.split(";");
+    for (var i; i < cookies.length; i++) {
+      var cookie = cookies[i];
+      if (cookie.split("=")[0].replace(/ /g, "") === "resume_token") {
+        resumeToken = cookie.split("=")[1];
+        break;
+      }
+    }
     if (!resumeToken) resumeToken = "";
     var tokenText = document.getElementById("resume_token");
     tokenText.value = resumeToken;
@@ -218,7 +223,7 @@
 
     var lifeTime = 30 * 60 * 1000; // 30min
     WaveService.createSession(
-      { expirationDate: Date.now() + lifeTime },
+      { expirationDate: new Date().getTime() + lifeTime },
       function(token) {
         var sessionTokenElement = document.getElementById("session-token");
         sessionTokenElement.innerText = token;

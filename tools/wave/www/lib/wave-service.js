@@ -83,7 +83,8 @@ var WaveService = {
     var requestsLeft = tokens.length;
     if (requestsLeft === 0) onSuccess([]);
     var configurations = [];
-    for (var token of tokens) {
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
       WaveService.readSession(
         token,
         function(configuration) {
@@ -125,7 +126,8 @@ var WaveService = {
     var requestsLeft = tokens.length;
     if (requestsLeft === 0) onSuccess([]);
     var statuses = [];
-    for (var token of tokens) {
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
       WaveService.readSessionStatus(
         token,
         function(status) {
@@ -279,7 +281,8 @@ var WaveService = {
   readLastCompletedTests: function(token, resultTypes, onSuccess, onError) {
     var status = "";
     if (resultTypes) {
-      for (var type of resultTypes) {
+      for (var i = 0; i < resultTypes.length; i++) {
+        var type = resultTypes[i];
         status += type + ",";
       }
     }
@@ -292,7 +295,8 @@ var WaveService = {
         var tests = JSON.parse(response);
         var parsedTests = [];
         for (var status in tests) {
-          for (var path of tests[status]) {
+          for (var i = 0; i < tests[status].length; i++) {
+            var path = tests[status][i];
             parsedTests.push({ path: path, status: status });
           }
         }
@@ -381,7 +385,8 @@ var WaveService = {
     var comparison = {};
     var fetchComplete = function(results) {
       comparison.total = {};
-      for (var result of results) {
+      for (var i = 0; i < results.length; i++) {
+        var result = results[i];
         var token = result.token;
         comparison[token] = {};
         for (var api in result) {
@@ -401,7 +406,8 @@ var WaveService = {
     var requestsLeft = tokens.length;
     if (requestsLeft === 0) onSuccess([]);
     var results = [];
-    for (var token of tokens) {
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
       (function(token) {
         WaveService.readResultsCompact(
           token,
@@ -510,7 +516,8 @@ var WaveService = {
     WaveService.setState(state);
   },
   addRecentSessions: function(tokens) {
-    for (var token of tokens) {
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
       WaveService.addRecentSession(token);
     }
   },

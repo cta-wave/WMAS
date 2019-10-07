@@ -39,7 +39,9 @@
 
       var parsedQuery = {};
 
-      for (var part of QUERY.split("&")) {
+      var parts = QUERY.split("&");
+      for (var i = 0; i < parts.length; i++) {
+        var part = parts[i];
         var key = part.split("=")[0];
         var value = part.split("=")[1];
         parsedQuery[key] = value;

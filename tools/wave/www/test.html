@@ -94,14 +94,18 @@
 
       var parsedQuery = {};
 
-      for (var part of QUERY.split("&")) {
+      var parts = QUERY.split("&");
+      for (var i = 0; i < parts.length; i++) {
+        var part = parts[i];
         var key = part.split("=")[0];
         var value = part.split("=")[1];
         parsedQuery[key] = value;
       }
 
       var includedTests = [];
-      for (var path of parsedQuery["path"].split(",")) {
+      var paths = parsedQuery["path"].split(",");
+      for (var i = 0; i < paths.length; i++) {
+        var path = paths[i];
         includedTests.push(path.trim());
       }
 
@@ -112,26 +116,34 @@
 
       var referenceTokens = [];
       if (parsedQuery["reftoken"]) {
-        for (var path of parsedQuery["reftoken"].split(",")) {
+        var paths = parsedQuery["reftoken"].split(",");
+        for (var i = 0; i < paths.length; i++) {
+          var path = paths[i];
           referenceTokens.push(path.trim());
         }
       }
 
       var testPath = document.getElementById("test-path");
-      for (var path of includedTests) {
+      var paths = includedTests;
+      for (var i = 0; i < paths.length; i++) {
+        var path = paths[i];
         testPath.innerText += path + "\n";
       }
       var referenceTokensElement = document.getElementById("reference-tokens");
       if (referenceTokens.length === 0) {
         referenceTokensElement.innerText = "none";
       } else {
-        for (var token of referenceTokens) {
+        for (var i = 0; i < referenceTokens.length; i++) {
+          var token = referenceTokens[i];
           referenceTokensElement.innerText += token + "\n";
         }
       }
       log("Please wait ...");
       WaveService.createSession(
-        { tests: { include: includedTests, exclude: excludedTests }, referenceTokens: referenceTokens },
+        {
+          tests: { include: includedTests, exclude: excludedTests },
+          referenceTokens: referenceTokens
+        },
         function(token) {
           log("Session created successfully! Token: " + token);
           log("Redirecting ...");
