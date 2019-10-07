@@ -94,20 +94,16 @@
         document.cookie = `resume_token=${TOKEN}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       var selectedTabbable = -1;
 
-      document.addEventListener(
-        "DOMContentLoaded",
-        function() {
-          if (RESUME) {
-            document.getElementById("start-button").innerHTML = "Resume";
-            document.getElementById("new-button").style.display = "block";
-          }
-          document.getElementById("results-page-url").innerHTML =
-            "http://" + location.host + "/overview.html";
-          document.getElementById("results-page-url").href =
-            "http://" + location.host + "/overview.html";
-        },
-        false
-      );
+      document.onload = function() {
+        if (RESUME) {
+          document.getElementById("start-button").innerHTML = "Resume";
+          document.getElementById("new-button").style.display = "block";
+        }
+        document.getElementById("results-page-url").innerHTML =
+          "http://" + location.host + "/overview.html";
+        document.getElementById("results-page-url").href =
+          "http://" + location.host + "/overview.html";
+      };
 
       function displaySessionConfiguration(configuration) {
         var userAgent = document.getElementById("user-agent");

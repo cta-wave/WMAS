@@ -89,12 +89,12 @@
 
       function sendRequest(method, uri, headers, data, onSuccess, onError) {
         var xhr = new XMLHttpRequest();
-        xhr.addEventListener("load", function() {
+        xhr.onload = function() {
           onSuccess(xhr.response);
-        });
-        xhr.addEventListener("error", function() {
+        };
+        xhr.onerror = function() {
           if (onError) onError();
-        });
+        };
         xhr.open(method, WaveService.uriPrefix + uri, true);
         for (var header in headers) {
           xhr.setRequestHeader(header, headers[header]);

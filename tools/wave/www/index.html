@@ -179,7 +179,7 @@
     var unknownTokenError = document.getElementById("unknown_token_error");
     document
       .getElementById("resume")
-      .addEventListener("submit", function(event) {
+      .onsubmit = function(event) {
         event.preventDefault();
         unknownTokenError.style.display = "none";
         var fragment = tokenText.value;
@@ -194,7 +194,7 @@
             unknownTokenError.style.display = "block";
           }
         );
-      });
+      };
 
     document.onkeydown = function(event) {
       event = event || window.event;

@@ -1,15 +1,15 @@
 function sendRequest(method, uri, headers, data, onSuccess, onError) {
   var xhr = new XMLHttpRequest();
-  xhr.addEventListener("load", function() {
+  xhr.onload = function() {
     if (xhr.status === 200) {
       onSuccess(xhr.response);
     } else {
       if (onError) onError(xhr.status, xhr.response);
     }
-  });
-  xhr.addEventListener("error", function() {
+  };
+  xhr.onerror = function() {
     if (onError) onError();
-  });
+  };
   xhr.open(method, WaveService.uriPrefix + uri, true);
   for (var header in headers) {
     xhr.setRequestHeader(header, headers[header]);
@@ -595,7 +595,7 @@ var WaveService = {
       WaveService.socket.state = OPEN;
       WaveService.socket.onStateChange(OPEN);
       WaveService.socket.onOpen();
-      webSocket.send(JSON.stringify({ token }));
+      webSocket.send(JSON.stringify({ token: token }));
     };
     WaveService.socket.send = function(message) {
       webSocket.send(message);
