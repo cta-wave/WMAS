@@ -131,7 +131,6 @@ class TestLoader {
         testA.toLowerCase() > testB.toLowerCase() ? 1 : -1
       );
     }
-
     return tests;
   }
 }

@@ -15,7 +15,8 @@ const DEFAULT_TEST_TYPES = [
   TestLoader.MANUAL_TESTS
 ];
 const DEFAULT_AUTOMATIC_TIMEOUT = 60000;
-const DEFAULT_MANUAL_TIMEOUT = 5 * 60000;
+// const DEFAULT_MANUAL_TIMEOUT = 5 * 60000;
+const DEFAULT_MANUAL_TIMEOUT = 500;
 
 /**
  * @module SessionManager

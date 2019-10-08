@@ -31,19 +31,60 @@ class TestManager {
     let runningTests = session.getRunningTests();
     const token = session.getToken();
 
+    const test = this._getNextTestFromList(pendingTests);
+
+    pendingTests = this.removeTestFromList(pendingTests, test);
+    runningTests = this.addTestToList(runningTests, test);
+
+    const testTimeout = this.getTestTimeout({ test, session });
+    this._timeouts.push({
+      test,
+      timeout: setTimeout(() => this._onTestTimeout(token, test), testTimeout)
+    });
+
+    session.setPendingTests(pendingTests);
+    session.setRunningTests(runningTests);
+    await this._sessionManager.updateSession(session);
+    return test;
+  }
+
+  _sortTestsByExecution(tests) {
+    const sortedTests = {};
+
+    while (Object.keys(tests).length > 0) {
+      const test = this._getNextTestFromList(tests);
+      const api = test.split("/").filter(part => !!part)[0];
+
+      if (!sortedTests[api]) sortedTests[api] = [];
+
+      tests[api].splice(tests[api].indexOf(test), 1);
+      sortedTests[api].push(test);
+
+      if (tests[api].length === 0) delete tests[api];
+    }
+
+    return sortedTests;
+  }
+
+  _getNextTestFromList(tests) {
     let test;
     let api;
     let hasHttp = true;
     let hasManual = true;
     let currentApi = 0;
     let currentTest = 0;
-    const apis = Object.keys(pendingTests).sort((testA, testB) =>
-      testA.toLowerCase() > testB.toLowerCase() ? 1 : -1
+    const apis = Object.keys(tests).sort((apiA, apiB) =>
+      apiA.toLowerCase() > apiB.toLowerCase() ? 1 : -1
+    );
+    apis.forEach(api =>
+      tests[api].sort((testA, testB) =>
+        testA.toLowerCase() > testB.toLowerCase() ? 1 : -1
+      )
     );
     while (!test) {
       api = apis[currentApi];
       if (!api) return null;
-      test = pendingTests[api][currentTest];
+      test = tests[api][currentTest];
 
       if (!test) {
         currentApi++;
@@ -96,19 +137,6 @@ class TestManager {
       currentTest++;
       test = null;
     }
-
-    pendingTests = this.removeTestFromList(pendingTests, test);
-    runningTests = this.addTestToList(runningTests, test);
-
-    const testTimeout = this.getTestTimeout({ test, session });
-    this._timeouts.push({
-      test,
-      timeout: setTimeout(() => this._onTestTimeout(token, test), testTimeout)
-    });
-
-    session.setPendingTests(pendingTests);
-    session.setRunningTests(runningTests);
-    await this._sessionManager.updateSession(session);
     return test;
   }
 
@@ -192,26 +220,31 @@ class TestManager {
 
   async readLastCompletedTests({ token, count }) {
     const results = await this._resultsManager.readResults(token);
-    const apis = Object.keys(results).sort((apiA, apiB) =>
-      apiA.toLowerCase() > apiB.toLowerCase() ? -1 : 1
-    );
+
+    const resultsTests = {};
+    for (let api in results) {
+      resultsTests[api] = [];
+      for (let result of results[api]) {
+        resultsTests[api].push(result.test);
+      }
+    }
+    const sortedResultsTests = this._sortTestsByExecution(resultsTests);
+
     const tests = { pass: [], fail: [], timeout: [] };
     const isPassComplete = () => tests.pass.length === count;
     const isFailComplete = () => tests.fail.length === count;
     const isTimeoutComplete = () => tests.timeout.length === count;
     const isAllComplete = () =>
       isPassComplete() && isFailComplete() && isTimeoutComplete();
-    for (let api of apis) {
-      const apiResults = results[api].sort((resultA, resultB) =>
-        resultA.test > resultB.test ? -1 : 1
-      );
-      for (let result of apiResults) {
+    for (let api in sortedResultsTests) {
+      for (let test of sortedResultsTests[api]) {
+        const result = results[api].find(result => result.test === test);
         switch (result.status) {
           case "ERROR":
-            if (!isFailComplete()) tests.fail.push(result.test);
+            if (!isFailComplete()) tests.fail.unshift(result.test);
             continue;
           case "TIMEOUT":
-            if (!isTimeoutComplete()) tests.timeout.push(result.test);
+            if (!isTimeoutComplete()) tests.timeout.unshift(result.test);
             continue;
         }
         let pass = true;
@@ -221,8 +254,8 @@ class TestManager {
             break;
           }
         }
-        if (pass && !isPassComplete()) tests.pass.push(result.test);
-        if (!pass && !isFailComplete()) tests.fail.push(result.test);
+        if (pass && !isPassComplete()) tests.pass.unshift(result.test);
+        if (!pass && !isFailComplete()) tests.fail.unshift(result.test);
         if (isAllComplete()) return tests;
       }
     }
