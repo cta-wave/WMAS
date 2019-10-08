@@ -45,10 +45,6 @@ body {
   margin-left: 15px;
 }
 
-#new-button {
-  display: none;
-}
-
 #token,
 #test-path {
   font-family: monospace;

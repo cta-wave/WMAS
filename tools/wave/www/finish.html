@@ -21,10 +21,10 @@
         <div id="content">
           <div id="qr-code"></div>
           <div id="button-wrapper">
-            <button
-              id="results-button"
-              class="button is-success is-large tabbable"
-            >
+            <div id="new-button" class="button is-success is-large tabbable">
+              Create New Session
+            </div>
+            <button id="results-button" class="button is-large tabbable">
               View Result Page
             </button>
           </div>
@@ -127,6 +127,11 @@
       var resultsButton = document.getElementById("results-button");
       resultsButton.onclick = function() {
         window.open(resultsUrl, "_blank");
+      };
+
+      var newButton = document.getElementById("new-button");
+      newButton.onclick = function() {
+        location.href = "/";
       };
 
       function removeClass(element, className) {

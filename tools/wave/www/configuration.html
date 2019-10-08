@@ -5,7 +5,6 @@
     <title>Session Configuration - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
-    <link rel="stylesheet" href="css/result.css" />
     <script src="lib/jszip.min.js"></script>
     <script src="lib/utils.js"></script>
     <script src="lib/wave-service.js"></script>
@@ -371,33 +370,37 @@
         },
         render: function() {
           const configurationView = UI.createElement({
-            className: "content",
-            style: "margin-bottom: 40px;",
-            children: [
-              {
-                className: "header",
-                children: [
-                  {
-                    children: [
-                      {
-                        element: "img",
-                        src: "res/wavelogo_2016.jpg",
-                        className: "site-logo"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                id: "header",
-                children: [
-                  { className: "title", text: "Session Configuration" },
-                  { id: "controls" }
-                ]
-              },
-              { id: "session-configuration" },
-              { id: "resume-view" }
-            ]
+            element: "section",
+            className: "section",
+            children: {
+              className: "container",
+              style: "margin-bottom: 40px;",
+              children: [
+                {
+                  className: "header",
+                  children: [
+                    {
+                      children: [
+                        {
+                          element: "img",
+                          src: "res/wavelogo_2016.jpg",
+                          className: "site-logo"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  id: "header",
+                  children: [
+                    { className: "title", text: "Session Configuration" },
+                    { id: "controls" }
+                  ]
+                },
+                { id: "session-configuration" },
+                { id: "resume-view" }
+              ]
+            }
           });
           const root = UI.getRoot();
           root.innerHTML = "";
@@ -840,7 +843,7 @@
         },
         renderResumeView: function() {
           var query = utils.parseQuery(location.search);
-          console.log(query)
+          console.log(query);
           var resumeToken = query.resume;
           if (!resumeToken) resumeToken = "";
 
