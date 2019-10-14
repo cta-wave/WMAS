@@ -49,21 +49,43 @@ class TestManager {
   }
 
   _sortTestsByExecution(tests) {
-    const sortedTests = {};
+    let sortedTests = [];
 
-    while (Object.keys(tests).length > 0) {
-      const test = this._getNextTestFromList(tests);
-      const api = test.split("/").filter(part => !!part)[0];
-
-      if (!sortedTests[api]) sortedTests[api] = [];
-
-      tests[api].splice(tests[api].indexOf(test), 1);
-      sortedTests[api].push(test);
-
-      if (tests[api].length === 0) delete tests[api];
+    for (let api in tests) {
+      for (let test of tests[api]) {
+        sortedTests.push(test);
+      }
     }
 
+    sortedTests = sortedTests.sort((testA, testB) => {
+      const microTestList = {};
+      const apiA = testA.split("/").filter(part => !!part)[0];
+      const apiB = testB.split("/").filter(part => !!part)[0];
+      if (apiA === apiB) {
+        microTestList[apiA] = [testA, testB];
+      } else {
+        microTestList[apiA] = [testA];
+        microTestList[apiB] = [testB];
+      }
+      const nextTest = this._getNextTestFromList(microTestList);
+      if (nextTest === testA) return -1;
+      if (nextTest === testB) return 1;
+    });
     return sortedTests;
+
+    // while (Object.keys(tests).length > 0) {
+    //   const test = this._getNextTestFromList(tests);
+    //   const api = test.split("/").filter(part => !!part)[0];
+
+    //   if (!sortedTests[api]) sortedTests[api] = [];
+
+    //   tests[api].splice(tests[api].indexOf(test), 1);
+    //   sortedTests[api].push(test);
+
+    //   if (tests[api].length === 0) delete tests[api];
+    // }
+
+    // return sortedTests;
   }
 
   _getNextTestFromList(tests) {
@@ -78,7 +100,7 @@ class TestManager {
     );
     apis.forEach(api =>
       tests[api].sort((testA, testB) =>
-        testA.toLowerCase() > testB.toLowerCase() ? 1 : -1
+        testA.toLowerCase().replace(/\//g, "") > testB.toLowerCase().replace(/\//g, "") ? 1 : -1
       )
     );
     while (!test) {
@@ -236,28 +258,27 @@ class TestManager {
     const isTimeoutComplete = () => tests.timeout.length === count;
     const isAllComplete = () =>
       isPassComplete() && isFailComplete() && isTimeoutComplete();
-    for (let api in sortedResultsTests) {
-      for (let test of sortedResultsTests[api]) {
-        const result = results[api].find(result => result.test === test);
-        switch (result.status) {
-          case "ERROR":
-            if (!isFailComplete()) tests.fail.unshift(result.test);
-            continue;
-          case "TIMEOUT":
-            if (!isTimeoutComplete()) tests.timeout.unshift(result.test);
-            continue;
-        }
-        let pass = true;
-        for (let test of result.subtests) {
-          if (test.status !== "PASS") {
-            pass = false;
-            break;
-          }
-        }
-        if (pass && !isPassComplete()) tests.pass.unshift(result.test);
-        if (!pass && !isFailComplete()) tests.fail.unshift(result.test);
-        if (isAllComplete()) return tests;
+    for (let test of sortedResultsTests.reverse()) {
+      const api = test.split("/").filter(part => !!part)[0];
+      const result = results[api].find(result => result.test === test);
+      switch (result.status) {
+        case "ERROR":
+          if (!isFailComplete()) tests.fail.push(result.test);
+          continue;
+        case "TIMEOUT":
+          if (!isTimeoutComplete()) tests.timeout.push(result.test);
+          continue;
       }
+      let pass = true;
+      for (let test of result.subtests) {
+        if (test.status !== "PASS") {
+          pass = false;
+          break;
+        }
+      }
+      if (pass && !isPassComplete()) tests.pass.push(result.test);
+      if (!pass && !isFailComplete()) tests.fail.push(result.test);
+      if (isAllComplete()) return tests;
     }
     return tests;
   }
