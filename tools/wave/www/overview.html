@@ -659,8 +659,12 @@
         renderPublicSessions() {
           resultsUi.renderSessionStatus();
           const { sessions, publicSessions, filterLabels } = resultsUi.state;
+
+          UI.saveScrollPosition("public-sessions-overflow");
+
           const publicSessionsView = UI.getElement("public-sessions");
           publicSessionsView.innerHTML = "";
+
           if (!publicSessions || publicSessions.length === 0) return;
           const sortedPublicSessions = resultsUi.sortSessionsByColumn(
             sessions,
@@ -693,6 +697,7 @@
 
           const sessionsTable = UI.createElement({
             style: "overflow-x: auto",
+            id: "public-sessions-overflow",
             children: resultsUi.createSessionsTable(
               "publicSessions",
               filteredPublicSessions,
@@ -704,10 +709,14 @@
           publicSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
+
+          UI.loadScrollPosition("public-sessions-overflow")
         },
         renderPinnedSessions() {
           resultsUi.renderSessionStatus();
           const { sessions, pinnedSessions, filterLabels } = resultsUi.state;
+
+          UI.saveScrollPosition("pinned-sessions-overflow");
           const pinnedSessionsView = UI.getElement("pinned-sessions");
           pinnedSessionsView.innerHTML = "";
           if (!pinnedSessions || pinnedSessions.length === 0) return;
@@ -738,6 +747,7 @@
 
           const sessionsTable = UI.createElement({
             style: "overflow-x: auto",
+            id: "pinned-sessions-overflow",
             children: resultsUi.createSessionsTable(
               "pinnedSessions",
               filteredPinnedSessions,
@@ -749,6 +759,7 @@
           pinnedSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
+          UI.loadScrollPosition("pinned-sessions-overflow");
         },
         renderRecentSessions() {
           resultsUi.renderSessionStatus();
@@ -758,6 +769,7 @@
             pinnedSessions,
             filterLabels
           } = resultsUi.state;
+          UI.saveScrollPosition("recent-sessions-overflow");
           const recentSessionsView = UI.getElement("recent-sessions");
           recentSessionsView.innerHTML = "";
           if (!recentSessions || recentSessions.length === 0) return;
@@ -789,6 +801,7 @@
 
           const sessionsTable = UI.createElement({
             style: "overflow-x: auto",
+            id: "recent-sessions-overflow",
             children: resultsUi.createSessionsTable(
               "recentSessions",
               filteredRecentSessions,
@@ -800,6 +813,7 @@
           recentSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
+          UI.loadScrollPosition("recent-sessions-overflow");
         },
         renderSessionStatus() {
           const {
@@ -815,7 +829,7 @@
                 className: "level",
                 children: {
                   element: "span",
-                  className: "level-item icon",
+                  className: "level-item",
                   children: [
                     {
                       element: "i",
@@ -1098,7 +1112,8 @@
                         {
                           element: "input",
                           className: "checkbox",
-                          style: "width: 18px; height: 18px; margin-top: 0.55em",
+                          style:
+                            "width: 18px; height: 18px; margin-top: 0.55em",
                           type: "checkbox",
                           disabled: !resultsUi.isSessionValidForComparison(
                             session

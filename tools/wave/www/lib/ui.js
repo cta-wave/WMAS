@@ -77,5 +77,21 @@ const UI = {
   },
   getRoot: () => {
     return document.getElementsByTagName("body")[0];
+  },
+  scrollPositions: {},
+  saveScrollPosition: elementId => {
+    let scrollElement = UI.getElement(elementId);
+    if (!scrollElement) return;
+    UI.scrollPositions[elementId] = {
+      scrollLeft: scrollElement.scrollLeft,
+      scrollRight: scrollElement.scrollRight
+    };
+  },
+  loadScrollPosition: elementId => {
+    let scrollElement = UI.getElement(elementId);
+    if (!scrollElement) return;
+    if (!UI.scrollPositions[elementId]) return;
+    scrollElement.scrollLeft = UI.scrollPositions[elementId].scrollLeft;
+    scrollElement.scrollRight = UI.scrollPositions[elementId].scrollRight;
   }
 };

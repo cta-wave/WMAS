@@ -1043,7 +1043,8 @@
             lastCompletedTestsView.appendChild(
               UI.createElement({
                 className: "container",
-                style: "overflow-x: auto",
+                style: "overflow-x: auto;",
+                id: "last-completed-overflow",
                 children: testsTable
               })
             );
@@ -1055,11 +1056,15 @@
             lastCompletedTestsView.appendChild(noTestsLabel);
           }
 
+          UI.saveScrollPosition("last-completed-overflow");
+
           const lastCompletedTestsElement = UI.getElement(
             "last-completed-tests"
           );
           lastCompletedTestsElement.innerHTML = "";
           lastCompletedTestsElement.appendChild(lastCompletedTestsView);
+
+          UI.loadScrollPosition("last-completed-overflow");
         },
         renderApiResults() {
           const { results, status } = resultUi.state;
@@ -1100,7 +1105,7 @@
             return;
           }
 
-          const width = status.status === "running" ? "130px" : "auto";
+          const width = status.status === "running" ? "7.5em" : "auto";
           const header = UI.createElement({
             element: "thead",
             children: [
@@ -1108,22 +1113,22 @@
                 element: "tr",
                 children: [
                   { element: "th", text: "API" },
-                  { element: "th", text: "Pass", style: `width: ${width}` },
-                  { element: "th", text: "Fail", style: `width: ${width}` },
+                  { element: "th", text: "Pass", style: `min-width: ${width}` },
+                  { element: "th", text: "Fail", style: `min-width: ${width}` },
                   {
                     element: "th",
                     text: "Timeout",
-                    style: `width: ${width}`
+                    style: `min-width: ${width}`
                   },
                   {
                     element: "th",
                     text: "Not Run",
-                    style: `width: ${width}`
+                    style: `min-width: ${width}`
                   },
                   {
                     element: "th",
                     text: "Test Files Run",
-                    style: `width: ${width}`
+                    style: `min-width: ${width}`
                   },
                   { element: "th", text: "Export" }
                 ]
@@ -1161,30 +1166,43 @@
                 { element: "td", text: api },
                 {
                   element: "td",
-                  style: "color: hsl(141, 71%, 38%)",
-                  text: `${pass} (${utils.percent(pass, complete)}%)`
+                  children: {
+                    style: `color: hsl(141, 71%, 38%); overflow: visible; white-space: nowrap; width: ${width}`,
+                    text: `${pass} (${utils.percent(pass, complete)}%)`
+                  }
                 },
                 {
                   element: "td",
-                  className: "has-text-danger",
-                  text: `${fail} (${utils.percent(fail, complete)}%)`
+                  children: {
+                    className: "has-text-danger",
+                    style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                    text: `${fail} (${utils.percent(fail, complete)}%)`
+                  }
                 },
                 {
                   element: "td",
-                  style: "color: hsl(48, 100%, 40%)",
-                  text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                  children: {
+                    style: `color: hsl(48, 100%, 40%); overflow: visible; white-space: nowrap; width: ${width}`,
+                    text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                  }
                 },
                 {
                   element: "td",
-                  className: "has-text-info",
-                  text: `${notRun} (${utils.percent(notRun, complete)}%)`
+                  children: {
+                    className: "has-text-info",
+                    style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                    text: `${notRun} (${utils.percent(notRun, complete)}%)`
+                  }
                 },
                 {
                   element: "td",
-                  text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
-                    testFilesCompleted,
-                    testFilesCount
-                  )}%)`
+                  children: {
+                    style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                    text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
+                      testFilesCompleted,
+                      testFilesCount
+                    )}%)`
+                  }
                 },
                 {
                   element: "td",
@@ -1252,30 +1270,43 @@
                   { element: "th", text: "Total" },
                   {
                     element: "th",
-                    style: "color: hsl(141, 71%, 38%)",
-                    text: `${pass} (${utils.percent(pass, complete)}%)`
+                    children: {
+                      style: `color: hsl(141, 71%, 38%); overflow: visible; white-space: nowrap; width: ${width}`,
+                      text: `${pass} (${utils.percent(pass, complete)}%)`
+                    }
                   },
                   {
                     element: "th",
-                    className: "has-text-danger",
-                    text: `${fail} (${utils.percent(fail, complete)}%)`
+                    children: {
+                      style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                      className: "has-text-danger",
+                      text: `${fail} (${utils.percent(fail, complete)}%)`
+                    }
                   },
                   {
                     element: "th",
-                    style: "color: hsl(48, 100%, 40%)",
-                    text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                    children: {
+                      style: `color: hsl(48, 100%, 40%); overflow: visible; white-space: nowrap; width: ${width}`,
+                      text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                    }
                   },
                   {
                     element: "th",
-                    className: "has-text-info",
-                    text: `${not_run} (${utils.percent(not_run, complete)}%)`
+                    children: {
+                      style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                      className: "has-text-info",
+                      text: `${not_run} (${utils.percent(not_run, complete)}%)`
+                    }
                   },
                   {
                     element: "th",
-                    text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
-                      testFilesCompleted,
-                      testFilesCount
-                    )}%)`
+                    children: {
+                      style: `overflow: visible; white-space: nowrap; width: ${width}`,
+                      text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
+                        testFilesCompleted,
+                        testFilesCount
+                      )}%)`
+                    }
                   },
                   { element: "th" }
                 ]
@@ -1286,20 +1317,25 @@
           const resultsTable = UI.createElement({
             className: "container",
             style: "overflow-x: auto",
+            id: "results-overflow",
             children: {
               element: "table",
               className: "table",
               id: "results-table",
               style:
-                "min-width: 100%; border-radius: 3px; border: 2px solid hsl(0, 0%, 86%);",
+                "width: 100%; min-width: 30em; border-radius: 3px; border: 2px solid hsl(0, 0%, 86%);",
               children: [header, { element: "tbody", children: rows }, footer]
             }
           });
           apiResultsView.appendChild(resultsTable);
 
+          UI.saveScrollPosition("results-overflow");
+
           const apiResults = UI.getElement("api-results");
           apiResults.innerHTML = "";
           apiResults.appendChild(apiResultsView);
+
+          UI.loadScrollPosition("results-overflow");
         },
         renderExportView() {
           const { status } = resultUi.state;
@@ -1385,17 +1421,17 @@
                       children: {
                         className:
                           "button is-dark is-outlined is-small is-fullwidth",
-                        onClick: resultUi.downloadHtmlZip,
+                        onclick: resultUi.downloadFinishedApiJsons,
                         children: [
                           {
                             element: "span",
                             className: "icon",
                             children: {
                               element: "i",
-                              className: "fas fa-code"
+                              className: "fas fa-file-archive"
                             }
                           },
-                          { element: "span", text: "Download HTML" }
+                          { element: "span", text: "Download Zip" }
                         ]
                       }
                     }
@@ -1432,17 +1468,17 @@
                       children: {
                         className:
                           "button is-dark is-outlined is-small is-fullwidth",
-                        onclick: resultUi.downloadFinishedApiJsons,
+                        onClick: resultUi.downloadHtmlZip,
                         children: [
                           {
                             element: "span",
                             className: "icon",
                             children: {
                               element: "i",
-                              className: "fas fa-file-archive"
+                              className: "fas fa-code"
                             }
                           },
-                          { element: "span", text: "Download Zip" }
+                          { element: "span", text: "Download HTML" }
                         ]
                       }
                     }
@@ -1516,6 +1552,7 @@
               UI.createElement({
                 className: "container",
                 style: "overflow-x: auto",
+                id: "malfunctioning-overflow",
                 children: testsTable
               })
             );
@@ -1527,11 +1564,15 @@
             malfunctioningTestsView.appendChild(noTestsLabel);
           }
 
+          UI.saveScrollPosition("malfunctioning-overflow");
+
           const malfunctioningTestsElement = UI.getElement(
             "malfunctioning-tests"
           );
           malfunctioningTestsElement.innerHTML = "";
           malfunctioningTestsElement.appendChild(malfunctioningTestsView);
+
+          UI.loadScrollPosition("malfunctioning-overflow");
         }
       };
     </script>
