@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Session Configuration - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
@@ -9,6 +10,12 @@
     <script src="lib/utils.js"></script>
     <script src="lib/wave-service.js"></script>
     <script src="lib/ui.js"></script>
+    <style>
+      .site-logo {
+        max-width: 300px;
+        margin: 0 0 30px -15px;
+      }
+    </style>
   </head>
   <body>
     <script>
@@ -75,6 +82,7 @@
       window.onload = function() {
         const query = utils.parseQuery(location.search);
         token = query.token;
+        if (token) WaveService.addRecentSession(token);
         configurationUi.render();
         WaveService.readSessionStatus(
           token,
@@ -106,6 +114,7 @@
             configurationUi.state.expired = true;
             configurationUi.renderSessionConfiguration();
             configurationUi.renderExcludedTests();
+            configurationUi.renderResumeView();
           }
         );
       };
@@ -372,35 +381,30 @@
           const configurationView = UI.createElement({
             element: "section",
             className: "section",
-            children: {
-              className: "container",
-              style: "margin-bottom: 40px;",
-              children: [
-                {
-                  className: "header",
-                  children: [
-                    {
-                      children: [
-                        {
-                          element: "img",
-                          src: "res/wavelogo_2016.jpg",
-                          className: "site-logo"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  id: "header",
-                  children: [
-                    { className: "title", text: "Session Configuration" },
-                    { id: "controls" }
-                  ]
-                },
-                { id: "session-configuration" },
-                { id: "resume-view" }
-              ]
-            }
+            children: [
+              {
+                className: "container",
+                style: "margin-bottom: 2em",
+                children: [
+                  {
+                    element: "img",
+                    src: "res/wavelogo_2016.jpg",
+                    className: "site-logo"
+                  },
+                  { className: "title", text: "Session Configuration" }
+                ]
+              },
+              {
+                id: "session-configuration",
+                className: "container",
+                style: "margin-bottom: 2em"
+              },
+              {
+                id: "resume-view",
+                className: "container",
+                style: "margin-bottom: 2em"
+              }
+            ]
           });
           const root = UI.getRoot();
           root.innerHTML = "";
@@ -410,21 +414,20 @@
         },
         renderSessionConfiguration: function() {
           var configuration = configurationUi.state.configuration;
-          var sessionConfigurationView = UI.createElement();
+          var sessionConfigurationView = UI.createElement({});
           var sessionConfiguration = UI.getElement("session-configuration");
           sessionConfiguration.innerHTML = "";
-          sessionConfiguration.style["margin-bottom"] = "20px";
 
           if (configurationUi.state.expired) {
             var expiredIndicator = UI.createElement({
               className: "level",
               children: {
                 element: "span",
-                className: "level-item icon",
+                className: "level-item",
                 children: [
                   {
-                    style: "margin-left: 0.4em;",
-                    text: "Session expired. Please create a new one."
+                    text:
+                      "The specified session does not exist or is already expired."
                   }
                 ]
               }
@@ -439,7 +442,7 @@
               className: "level",
               children: {
                 element: "span",
-                className: "level-item icon",
+                className: "level-item",
                 children: [
                   {
                     element: "i",
@@ -459,193 +462,235 @@
 
           var addLabelVisible = configurationUi.state.addLabelVisible;
 
-          var configurationTable = UI.createElement({
-            element: "table",
-            className: "table",
+          var tokenField = UI.createElement({
+            className: "field is-horizontal",
             children: [
               {
-                element: "tbody",
-                children: [
-                  {
-                    element: "tr",
-                    children: [
-                      { element: "td", text: "Token" },
-                      { element: "td", text: configuration.token }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      { element: "td", text: "Expires" },
-                      {
-                        element: "td",
-                        text: new Date(
-                          configuration.expirationDate
-                        ).toLocaleString()
-                      }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      { element: "td", text: "Labels" },
-                      {
-                        element: "td",
-                        children: {
-                          className: "field is-grouped is-grouped-multiline",
-                          style: "min-height: 1.5rem",
-                          children: configuration.labels
-                            .map((label, index) => ({
-                              className: "control",
-                              children: {
-                                className: "tags has-addons",
-                                children: [
-                                  {
-                                    element: "span",
-                                    className: "tag is-info",
-                                    text: label
-                                  },
-                                  {
-                                    element: "a",
-                                    className: "tag is-delete",
-                                    onClick: () =>
-                                      configurationUi.removeLabel(index)
-                                  }
-                                ]
-                              }
-                            }))
-                            .concat(
-                              addLabelVisible
-                                ? [
-                                    {
-                                      className: "control field is-grouped",
-                                      children: [
-                                        {
-                                          element: "input",
-                                          className: "input is-small control",
-                                          style: "width: 10rem",
-                                          id: "session-label-input",
-                                          type: "text",
-                                          onKeyUp: event =>
-                                            event.keyCode === 13
-                                              ? configurationUi.addLabel()
-                                              : null
-                                        },
-                                        {
-                                          className:
-                                            "button is-dark is-outlined is-small is-rounded control",
-                                          text: "save",
-                                          onClick: configurationUi.addLabel
-                                        },
-                                        {
-                                          className:
-                                            "button is-dark is-outlined is-small is-rounded control",
-                                          text: "cancel",
-                                          onClick: configurationUi.hideAddLabel
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                : [
-                                    {
-                                      className: "button is-rounded is-small",
-                                      text: "Add",
-                                      onClick: configurationUi.showAddLabel
-                                    }
-                                  ]
-                            )
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      {
-                        element: "td",
-                        children: [
-                          { element: "span", text: "APIs" },
-                          configurationUi.createSelectDeselectButtons(
-                            configurationUi.selectAllTests,
-                            configurationUi.deselectAllTests
-                          )
-                        ]
-                      },
-                      {
-                        element: "td",
-                        class: "field-controls",
-                        children: [
-                          configurationUi.isTestListValid()
-                            ? null
-                            : configurationUi.createErrorMessage(
-                                "Select at least one API"
-                              )
-                        ].concat(configurationUi.createApiList(apis))
-                      }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      { element: "td", text: "Excluded Tests" },
-                      {
-                        element: "td",
-                        id: "excluded-tests-view"
-                      }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      {
-                        element: "td",
-                        style: "min-width: 8em",
-                        children: [
-                          { element: "span", text: "Test Types" },
-                          configurationUi.createSelectDeselectButtons(
-                            configurationUi.selectAllTestTypes,
-                            configurationUi.deselectAllTestTypes
-                          )
-                        ]
-                      },
-                      {
-                        element: "td",
-                        children: [
-                          configurationUi.isTestTypeListValid()
-                            ? null
-                            : configurationUi.createErrorMessage(
-                                "Select at least one test type"
-                              )
-                        ].concat(configurationUi.createTestTypeList(types))
-                      }
-                    ]
-                  },
-                  {
-                    element: "tr",
-                    children: [
-                      {
-                        element: "td",
-                        children: [
-                          { element: "span", text: "Reference Sessions" },
-                          configurationUi.createSelectDeselectButtons(
-                            configurationUi.selectAllRefSessions,
-                            configurationUi.deselectAllRefSessions
-                          )
-                        ]
-                      },
-                      {
-                        element: "td",
-                        children: configurationUi.createRefSessionsList(
-                          referenceSessions
-                        )
-                      }
-                    ]
+                className: "field-label",
+                children: { className: "label", text: "Token" }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    text: configuration.token
                   }
-                ]
+                }
               }
             ]
           });
-          sessionConfiguration.appendChild(configurationTable);
+          sessionConfiguration.appendChild(tokenField);
+
+          expirationField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: { className: "label", text: "Expires" }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    text: new Date(
+                      configuration.expirationDate
+                    ).toLocaleString()
+                  }
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(expirationField);
+
+          var labelsField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: { className: "label", text: "Labels" }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field is-grouped is-grouped-multiline",
+                  children: configuration.labels
+                    .map((label, index) => ({
+                      className: "control",
+                      children: {
+                        className: "tags has-addons",
+                        children: [
+                          {
+                            element: "span",
+                            className: "tag is-info",
+                            text: label
+                          },
+                          {
+                            element: "a",
+                            className: "tag is-delete",
+                            onClick: () => configurationUi.removeLabel(index)
+                          }
+                        ]
+                      }
+                    }))
+                    .concat(
+                      addLabelVisible
+                        ? [
+                            {
+                              className: "control field is-grouped",
+                              children: [
+                                {
+                                  element: "input",
+                                  className: "input is-small control",
+                                  style: "width: 10rem",
+                                  id: "session-label-input",
+                                  type: "text",
+                                  onKeyUp: event =>
+                                    event.keyCode === 13
+                                      ? configurationUi.addLabel()
+                                      : null
+                                },
+                                {
+                                  className:
+                                    "button is-dark is-outlined is-small is-rounded control",
+                                  text: "save",
+                                  onClick: configurationUi.addLabel
+                                },
+                                {
+                                  className:
+                                    "button is-dark is-outlined is-small is-rounded control",
+                                  text: "cancel",
+                                  onClick: configurationUi.hideAddLabel
+                                }
+                              ]
+                            }
+                          ]
+                        : [
+                            {
+                              className: "button is-rounded is-small",
+                              text: "Add",
+                              onClick: configurationUi.showAddLabel
+                            }
+                          ]
+                    )
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(labelsField);
+
+          var apisField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: [
+                  { className: "label", text: "APIs" },
+                  configurationUi.createSelectDeselectButtons(
+                    configurationUi.selectAllTests,
+                    configurationUi.deselectAllTests
+                  )
+                ]
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    children: [
+                      configurationUi.isTestListValid()
+                        ? null
+                        : configurationUi.createErrorMessage(
+                            "Select at least one API"
+                          )
+                    ].concat(configurationUi.createApiList(apis))
+                  }
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(apisField);
+
+          var excludeField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: { className: "label", text: "Excluded Tests" }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    children: { id: "excluded-tests-view" }
+                  }
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(excludeField);
+
+          var typesField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: { className: "label", text: "Test Types" }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    children: [
+                      configurationUi.isTestTypeListValid()
+                        ? null
+                        : configurationUi.createErrorMessage(
+                            "Select at least one test type"
+                          )
+                    ].concat(configurationUi.createTestTypeList(types))
+                  }
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(typesField);
+
+          var referencesField = UI.createElement({
+            className: "field is-horizontal",
+            children: [
+              {
+                className: "field-label",
+                children: [
+                  { className: "label", text: "Reference Browsers" },
+                  configurationUi.createSelectDeselectButtons(
+                    configurationUi.selectAllRefSessions,
+                    configurationUi.deselectAllRefSessions
+                  )
+                ]
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "field",
+                  children: {
+                    className: "control",
+                    children: configurationUi.createRefSessionsList(
+                      referenceSessions
+                    )
+                  }
+                }
+              }
+            ]
+          });
+          sessionConfiguration.appendChild(referencesField);
 
           var buttonList = UI.createElement({
             className: "level level-right",
@@ -781,50 +826,47 @@
             activeExcludeInput === "excluded"
           ) {
             var malfuncInput = UI.createElement({
-              style: "margin-bottom: 20px",
+              style: "margin-bottom: 1em",
               children: [
                 {
                   className: "is-size-7",
-                  style: "margin-bottom: 20px",
+                  style: "margin-bottom: 1em",
                   text:
                     activeExcludeInput === "malfunc"
                       ? "Add malfunctioning tests from past sessions by providing at least the first eight characters of the session's token."
                       : "Add excluded tests from past sessions by providing at least the first eight characters of the session's token."
                 },
                 {
-                  className: "field is-grouped is-grouped-centered",
+                  className: "field is-horizontal",
                   children: [
                     {
-                      element: "p",
-                      className: "control",
-                      style: "padding-top: 0.3rem",
-                      text: "Session Token"
+                      className: "field-label",
+                      children: { className: "label", text: "Session Token" }
                     },
                     {
-                      element: "p",
-                      className: "control",
+                      className: "field-body",
                       children: {
-                        children: {
-                          id: "excluded-tests-text",
-                          className: "input",
-                          element: "input",
-                          type: "text"
-                        }
-                      }
-                    },
-                    {
-                      element: "p",
-                      className: "control",
-                      children: {
-                        className: "button",
-                        text: "Add",
-                        onClick: function() {
-                          if (activeExcludeInput === "malfunc") {
-                            configurationUi.handleAddExludedTestsMalfunctioning();
-                          } else {
-                            configurationUi.handleAddExludedTestsExcluded();
+                        className: "field is-grouped is-multiline",
+                        children: [
+                          {
+                            id: "excluded-tests-text",
+                            className: "input",
+                            element: "input",
+                            type: "text"
+                          },
+                          {
+                            className: "button",
+                            style: "margin-left: 1em",
+                            text: "Add",
+                            onClick: function() {
+                              if (activeExcludeInput === "malfunc") {
+                                configurationUi.handleAddExludedTestsMalfunctioning();
+                              } else {
+                                configurationUi.handleAddExludedTestsExcluded();
+                              }
+                            }
                           }
-                        }
+                        ]
                       }
                     }
                   ]
@@ -843,12 +885,12 @@
         },
         renderResumeView: function() {
           var query = utils.parseQuery(location.search);
-          console.log(query);
           var resumeToken = query.resume;
           if (!resumeToken) resumeToken = "";
 
           var renderResumeElement = UI.getElement("resume-view");
           renderResumeElement.innerHTML = "";
+          if (configurationUi.state.expired) return;
 
           var heading = UI.createElement({
             element: "h2",
@@ -912,44 +954,42 @@
         },
         createExcludedTestsTable: function() {
           var excludedTests = configurationUi.state.configuration.tests.exclude;
+          if (excludedTests.length === 0) {
+            return UI.createElement({
+              style: "text-align: center",
+              text: "- No Excluded Tests -"
+            });
+          }
           var table = UI.createElement({
             element: "table",
             className: "table",
-            children: (function() {
-              if (excludedTests.length === 0) {
-                return {
-                  style: "text-align: center",
-                  text: "- No Excluded Tests -"
-                };
-              } else {
-                return excludedTests.map(function(test) {
-                  return {
-                    element: "tr",
-                    children: [
-                      { element: "td", style: "width: 100%;", text: test },
-                      {
-                        element: "td",
+            style: "width: 100%",
+            children: excludedTests.map(function(test) {
+              return {
+                element: "tr",
+                children: [
+                  { element: "td", style: "width: 100%;", text: test },
+                  {
+                    element: "td",
+                    children: {
+                      element: "button",
+                      className: "button is-small",
+                      onClick: function() {
+                        configurationUi.handleRemoveExcludedTest(test);
+                      },
+                      children: {
+                        element: "span",
+                        className: "icon",
                         children: {
-                          element: "button",
-                          className: "button is-small",
-                          onClick: function() {
-                            configurationUi.handleRemoveExcludedTest(test);
-                          },
-                          children: {
-                            element: "span",
-                            className: "icon",
-                            children: {
-                              element: "i",
-                              className: "fas fa-trash-alt"
-                            }
-                          }
+                          element: "i",
+                          className: "fas fa-trash-alt"
                         }
                       }
-                    ]
-                  };
-                });
-              }
-            })()
+                    }
+                  }
+                ]
+              };
+            })
           });
           return table;
         },

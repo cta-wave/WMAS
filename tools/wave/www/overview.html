@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Overview - Web Platform Test</title>
     <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome-5.7.2.min.css" />
@@ -9,26 +10,9 @@
     <script src="lib/wave-service.js"></script>
     <script src="lib/ui.js"></script>
     <style>
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        font-family: "Noto Sans", sans-serif;
-        background-color: white;
-        color: #000;
-      }
-
       .site-logo {
         max-width: 300px;
-        margin: 50px 0 30px -15px;
-      }
-
-      .content {
-        width: 1100px;
-        padding: 0 10px;
+        margin: 0 0 30px -15px;
       }
 
       .disabled-row {
@@ -231,14 +215,18 @@
           var resultArray = recentSessions
             .map(token => sessions[token])
             .sort(function(sessionA, sessionB) {
-              const columnA =
-                column == "browser"
-                  ? sessionA[column].name + sessionA[column].version
-                  : sessionA[column];
-              const columnB =
-                column == "browser"
-                  ? sessionB[column].name + sessionA[column].version
-                  : sessionB[column];
+              let columnA = sessionA[column];
+              if (column === "browser")
+                columnA = sessionA[column].name + sessionA[column].version;
+              if (column === "dateStarted" && !columnA) {
+                columnA = Date.now();
+              }
+              let columnB = sessionB[column];
+              if (column === "browser")
+                columnB = sessionB[column].name + sessionA[column].version;
+              if (column === "dateStarted" && !columnB) {
+                columnB = Date.now();
+              }
               if (columnA < columnB) {
                 return -1;
               }
@@ -384,16 +372,26 @@
         render() {
           const { getRoot, createElement, getElement } = UI;
           const resultsView = UI.createElement({
-            className: "content",
+            className: "section",
             children: [
               {
-                element: "img",
-                src: "res/wavelogo_2016.jpg",
-                className: "site-logo"
+                className: "container",
+                style: "margin-bottom: 2em",
+                children: [
+                  {
+                    element: "img",
+                    src: "res/wavelogo_2016.jpg",
+                    className: "site-logo"
+                  },
+                  { text: "Results Overview", className: "title" }
+                ]
               },
-              { text: "Results", className: "title" },
-              { id: "manage-sessions" },
-              { id: "sessions" }
+              {
+                id: "manage-sessions",
+                className: "container",
+                style: "margin-bottom: 2em"
+              },
+              { id: "sessions", className: "container" }
             ]
           });
 
@@ -429,46 +427,60 @@
                     style: "display: none"
                   },
                   {
-                    element: "label",
-                    text: "Session token:"
-                  },
-                  {
-                    style: "display: flex; margin-bottom: 10px;",
+                    className: "field",
                     children: [
                       {
-                        element: "input",
-                        inputType: "text",
-                        className: "input is-family-monospace",
-                        id: "token-fragment",
-                        placeholder:
-                          "First 8 characters or more of session token",
-                        onKeyDown: event =>
-                          event.key === "Enter"
-                            ? resultsUi.handleAddSession()
-                            : null
-                      }
-                    ]
-                  },
-                  {
-                    style: "text-align: right",
-                    children: [
+                        className: "label has-text-weight-normal",
+                        text: "Session token:"
+                      },
                       {
-                        className: "button is-dark is-outlined",
-                        children: [
-                          {
-                            element: "span",
-                            className: "icon",
+                        className: "field-body",
+                        children: {
+                          className: "field",
+                          children: {
+                            className: "control",
+                            children: {
+                              style: "display: flex; margin-bottom: 10px;",
+                              children: [
+                                {
+                                  element: "input",
+                                  inputType: "text",
+                                  className: "input is-family-monospace",
+                                  id: "token-fragment",
+                                  placeholder:
+                                    "First 8 characters or more of session token",
+                                  onKeyDown: event =>
+                                    event.key === "Enter"
+                                      ? resultsUi.handleAddSession()
+                                      : null
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        className: "field is-grouped is-grouped-right",
+                        children: {
+                          className: "control",
+                          children: {
+                            className: "button is-dark is-outlined",
                             children: [
                               {
-                                element: "i",
-                                className: "fas fa-plus"
-                              }
-                            ]
-                          },
-                          { text: "Add Session", element: "span" }
-                        ],
-                        style: "margin-left: 20px",
-                        onclick: resultsUi.handleAddSession
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-plus"
+                                  }
+                                ]
+                              },
+                              { text: "Add Session", element: "span" }
+                            ],
+                            onclick: resultsUi.handleAddSession
+                          }
+                        }
                       }
                     ]
                   }
@@ -520,7 +532,7 @@
           } = resultsUi.state;
           const importSessions = {
             className: "columns",
-            style: "margin-bottom: 20px",
+            style: "margin-bottom: 2em",
             children: [
               {
                 className: "column is-half",
@@ -538,93 +550,79 @@
                     style: importError ? "" : "display: none"
                   },
                   {
-                    className: "columns",
+                    className: "field file has-name",
                     children: [
                       {
-                        style:
-                          "display: flex; margin-bottom: 10px; width: 63.7%; flex: unset",
-                        className: "column",
+                        element: "label",
+                        className: "file-label",
+                        style: "width: 100%",
                         children: [
                           {
-                            className: "file has-name",
-                            style: "width: 100%",
-                            children: [
-                              {
-                                element: "label",
-                                className: "file-label",
-                                style: "width: 100%",
-                                children: [
-                                  {
-                                    element: "input",
-                                    className: "file-input",
-                                    type: "file",
-                                    accept: ".zip",
-                                    id: "import-session-file",
-                                    onChange:
-                                      resultsUi.handleImportSessionSelection
-                                  },
-                                  {
-                                    element: "span",
-                                    className: "file-cta",
-                                    children: [
-                                      {
-                                        element: "span",
-                                        className: "file-icon",
-                                        children: [
-                                          {
-                                            element: "i",
-                                            className: "fas fa-upload"
-                                          }
-                                        ]
-                                      },
-                                      {
-                                        element: "span",
-                                        className: "file-label",
-                                        text: "Choose ZIP file"
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    element: "span",
-                                    className: "file-name",
-                                    style: "width: 100%",
-                                    text: importSessionFile
-                                      ? importSessionFile.name
-                                      : ""
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        style: "text-align: right, padding-left: 0",
-                        className: "column",
-                        children: [
+                            element: "input",
+                            className: "file-input",
+                            type: "file",
+                            accept: ".zip",
+                            id: "import-session-file",
+                            onChange: resultsUi.handleImportSessionSelection
+                          },
                           {
-                            className: "button is-dark is-outlined",
-                            disabled: !importSessionFile,
+                            element: "span",
+                            className: "file-cta",
                             children: [
                               {
                                 element: "span",
-                                className: "icon",
+                                className: "file-icon",
                                 children: [
                                   {
                                     element: "i",
-                                    className: importInProgress
-                                      ? "fas fa-spinner fa-pulse"
-                                      : "fas fa-plus"
+                                    className: "fas fa-upload"
                                   }
                                 ]
                               },
-                              { text: "Import Session", element: "span" }
-                            ],
-                            onclick: resultsUi.handleImportSession
+                              {
+                                element: "span",
+                                className: "file-label",
+                                text: "Choose ZIP file"
+                              }
+                            ]
+                          },
+                          {
+                            element: "span",
+                            className: "file-name",
+                            style: "width: 100%; max-width: unset",
+                            text: importSessionFile
+                              ? importSessionFile.name
+                              : ""
                           }
                         ]
                       }
                     ]
+                  },
+                  {
+                    className: "field is-grouped is-grouped-right",
+                    children: {
+                      className: "control",
+                      children: {
+                        className: "button is-dark is-outlined",
+                        disabled: !importSessionFile,
+                        children: [
+                          {
+                            element: "span",
+                            className: "icon",
+                            children: [
+                              {
+                                element: "i",
+                                className: importInProgress
+                                  ? "fas fa-spinner fa-pulse"
+                                  : "fas fa-plus"
+                              }
+                            ]
+                          },
+                          { text: "Import Session", element: "span" }
+                        ],
+                        onclick: resultsUi.handleImportSession
+                      }
+                    }
                   }
                 ]
               },
@@ -692,13 +690,17 @@
               className: "title is-5"
             })
           );
-          publicSessionsView.appendChild(
-            resultsUi.createSessionsTable(
+
+          const sessionsTable = UI.createElement({
+            style: "overflow-x: auto",
+            children: resultsUi.createSessionsTable(
               "publicSessions",
               filteredPublicSessions,
               { static: true }
             )
-          );
+          });
+          publicSessionsView.appendChild(sessionsTable);
+
           publicSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
@@ -733,13 +735,17 @@
           pinnedSessionsView.appendChild(
             UI.createElement({ text: "Pinned", className: "title is-5" })
           );
-          pinnedSessionsView.appendChild(
-            resultsUi.createSessionsTable(
+
+          const sessionsTable = UI.createElement({
+            style: "overflow-x: auto",
+            children: resultsUi.createSessionsTable(
               "pinnedSessions",
               filteredPinnedSessions,
               { pinned: true }
             )
-          );
+          });
+          pinnedSessionsView.appendChild(sessionsTable);
+
           pinnedSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
@@ -780,13 +786,17 @@
           recentSessionsView.appendChild(
             UI.createElement({ text: "Recent", className: "title is-5" })
           );
-          recentSessionsView.appendChild(
-            resultsUi.createSessionsTable(
+
+          const sessionsTable = UI.createElement({
+            style: "overflow-x: auto",
+            children: resultsUi.createSessionsTable(
               "recentSessions",
               filteredRecentSessions,
               { pinned: false }
             )
-          );
+          });
+          recentSessionsView.appendChild(sessionsTable);
+
           recentSessionsView.appendChild(
             UI.createElement({ style: "content: ''; margin-bottom: 40px" })
           );
@@ -842,72 +852,84 @@
           const { filterLabels, addFilterLabelVisible } = resultsUi.state;
 
           const filters = UI.createElement({
-            className: "field is-grouped",
-            style: "min-height: 2rem",
+            className: "field is-horizontal",
+            style: "margin-bottom: 2em",
             children: [
-              { text: "Filter by labels:", style: "margin-right: 1rem" },
               {
-                className: "field is-grouped is-grouped-multiline",
-                children: filterLabels
-                  .map((label, index) => ({
-                    className: "control",
-                    children: {
-                      className: "tags has-addons",
-                      children: [
-                        {
-                          element: "span",
-                          className: "tag is-info",
-                          text: label
-                        },
-                        {
-                          element: "a",
-                          className: "tag is-delete",
-                          onClick: () => resultsUi.removeFilterLabel(index)
+                className: "field-label",
+                style: "flex: unset",
+                children: {
+                  className: "label has-text-weight-normal",
+                  text: "Filter by labels:"
+                }
+              },
+              {
+                className: "field-body",
+                children: {
+                  className: "control",
+                  children: {
+                    className: "field is-grouped is-grouped-multiline",
+                    children: filterLabels
+                      .map((label, index) => ({
+                        className: "control",
+                        children: {
+                          className: "tags has-addons",
+                          children: [
+                            {
+                              element: "span",
+                              className: "tag is-info",
+                              text: label
+                            },
+                            {
+                              element: "a",
+                              className: "tag is-delete",
+                              onClick: () => resultsUi.removeFilterLabel(index)
+                            }
+                          ]
                         }
-                      ]
-                    }
-                  }))
-                  .concat(
-                    addFilterLabelVisible
-                      ? [
-                          {
-                            className:
-                              "control field is-grouped",
-                            children: [
+                      }))
+                      .concat(
+                        addFilterLabelVisible
+                          ? [
                               {
-                                element: "input",
-                                className: "input is-small control",
-                                style: "width: 10rem",
-                                id: "filter-label-input",
-                                type: "text",
-                                onKeyUp: event =>
-                                  event.keyCode === 13
-                                    ? resultsUi.addFilterLabel()
-                                    : null
-                              },
-                              {
-                                className:
-                                  "button is-dark is-outlined is-small is-rounded control",
-                                text: "save",
-                                onClick: resultsUi.addFilterLabel
-                              },
-                              {
-                                className:
-                                  "button is-dark is-outlined is-small is-rounded control",
-                                text: "cancel",
-                                onClick: resultsUi.hideAddFilterLabel
+                                className: "control field is-grouped",
+                                children: [
+                                  {
+                                    element: "input",
+                                    className: "input is-small control",
+                                    style: "width: 10rem",
+                                    id: "filter-label-input",
+                                    type: "text",
+                                    onKeyUp: event =>
+                                      event.keyCode === 13
+                                        ? resultsUi.addFilterLabel()
+                                        : null
+                                  },
+                                  {
+                                    className:
+                                      "button is-dark is-outlined is-small is-rounded control",
+                                    text: "save",
+                                    onClick: resultsUi.addFilterLabel
+                                  },
+                                  {
+                                    className:
+                                      "button is-dark is-outlined is-small is-rounded control",
+                                    text: "cancel",
+                                    onClick: resultsUi.hideAddFilterLabel
+                                  }
+                                ]
                               }
                             ]
-                          }
-                        ]
-                      : [
-                          {
-                            className: "button is-rounded is-small",
-                            text: "Add",
-                            onClick: resultsUi.showAddFilterLabel
-                          }
-                        ]
-                  )
+                          : [
+                              {
+                                className: "button is-rounded is-small",
+                                text: "Add",
+                                onClick: resultsUi.showAddFilterLabel
+                              }
+                            ]
+                      )
+                  }
+                }
               }
             ]
           });
@@ -949,15 +971,17 @@
                   children: [
                     {
                       element: "td",
-                      style: "text-decoration: underline dotted",
+                      style: "text-decoration: underline dotted;",
                       text: "Cp",
+                      className: "is-narrow",
                       title: "Select for comparison"
                     },
                     {
                       element: "td",
                       text: "Token",
+                      className: "is-narrow",
                       onclick: () => resultsUi.sortSessions(tableType, "token"),
-                      style: "cursor: pointer",
+                      style: "cursor: pointer;",
                       children: [
                         {
                           element: "i",
@@ -976,7 +1000,8 @@
                       text: "Browser",
                       onclick: () =>
                         resultsUi.sortSessions(tableType, "browser"),
-                      style: "cursor: pointer",
+                      style: "cursor: pointer;",
+                      className: "is-narrow",
                       children: [
                         {
                           element: "i",
@@ -996,6 +1021,7 @@
                       onclick: () =>
                         resultsUi.sortSessions(tableType, "status"),
                       style: "cursor: pointer",
+                      className: "is-narrow",
                       children: [
                         {
                           element: "i",
@@ -1033,7 +1059,8 @@
                       text: "Date Started",
                       onclick: () =>
                         resultsUi.sortSessions(tableType, "dateStarted"),
-                      style: "cursor: pointer",
+                      style: "cursor: pointer;",
+                      className: "is-narrow",
                       children: [
                         {
                           element: "i",
@@ -1058,11 +1085,16 @@
                           element: "td",
                           text: "RefS",
                           title: "Reference Sessions",
-                          style: "text-decoration: underline dotted"
+                          style: "text-decoration: underline dotted;"
                         },
                     static
                       ? null
-                      : { element: "td", colspan: 2, text: "Options" }
+                      : {
+                          element: "td",
+                          colspan: 2,
+                          text: "Options",
+                          className: "is-narrow"
+                        }
                   ]
                 }
               },
@@ -1110,7 +1142,7 @@
                     },
                     {
                       element: "td",
-                      style: "vertical-align: middle",
+                      style: "vertical-align: middle; white-space: nowrap",
                       text: session.browser.name + " " + session.browser.version
                     },
                     {
@@ -1130,7 +1162,7 @@
                     // },
                     {
                       element: "td",
-                      style: "vertical-align: middle",
+                      style: "vertical-align: middle; white-space: nowrap",
                       text: session.dateStarted
                         ? new Date(session.dateStarted).toLocaleString()
                         : "not started"
@@ -1154,6 +1186,7 @@
                             .map(token => token.split("-").shift())
                             .sort((tokenA, tokenB) => tokenA - tokenB)
                             .join("\n"),
+                          style: "white-space:nowrap",
                           children: (() => {
                             const tokens = session.referenceTokens.slice();
                             let overflow = 0;

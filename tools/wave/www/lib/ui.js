@@ -1,6 +1,6 @@
 const UI = {
   createElement: config => {
-    if (!config) return document.createElement("div");
+    if (!config) return;
     const elementType = config.element || "div";
     const element = document.createElement(elementType);
 
@@ -47,15 +47,19 @@ const UI = {
           return;
         case "children":
           if (value instanceof Array) {
-            value.forEach(child =>
-              element.appendChild(
-                child instanceof Element ? child : UI.createElement(child)
-              )
-            );
+            value.forEach(child => {
+              const childElement =
+                child instanceof Element ? child : UI.createElement(child);
+              if (!childElement) return;
+              element.appendChild(childElement);
+            });
           } else {
-            element.appendChild(
-              value instanceof Element ? value : UI.createElement(value)
-            );
+            const child = value;
+            const childElement =
+              child instanceof Element ? child : UI.createElement(child);
+            if (!childElement) return;
+            element.appendChild(childElement);
+            element.appendChild(childElement);
           }
           return;
         case "disabled":

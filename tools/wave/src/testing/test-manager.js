@@ -72,20 +72,6 @@ class TestManager {
       if (nextTest === testB) return 1;
     });
     return sortedTests;
-
-    // while (Object.keys(tests).length > 0) {
-    //   const test = this._getNextTestFromList(tests);
-    //   const api = test.split("/").filter(part => !!part)[0];
-
-    //   if (!sortedTests[api]) sortedTests[api] = [];
-
-    //   tests[api].splice(tests[api].indexOf(test), 1);
-    //   sortedTests[api].push(test);
-
-    //   if (tests[api].length === 0) delete tests[api];
-    // }
-
-    // return sortedTests;
   }
 
   _getNextTestFromList(tests) {
