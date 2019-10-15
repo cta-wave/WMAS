@@ -1035,25 +1035,6 @@
                         }
                       ]
                     },
-                    // {
-                    //   element: "td",
-                    //   text: "User Agent",
-                    //   onclick: () =>
-                    //     resultsUi.sortSessions(tableType, "userAgent"),
-                    //   style: "cursor: pointer",
-                    //   children: [
-                    //     {
-                    //       element: "i",
-                    //       className: sortIcon,
-                    //       style:
-                    //         "padding-left: 20px; visibility:" +
-                    //         (sortIcon &&
-                    //         sortDetail[tableType].sortColumn == "userAgent"
-                    //           ? "visible;"
-                    //           : "hidden;")
-                    //     }
-                    //   ]
-                    // },
                     {
                       element: "td",
                       text: "Date Started",
@@ -1085,7 +1066,8 @@
                           element: "td",
                           text: "RefS",
                           title: "Reference Sessions",
-                          style: "text-decoration: underline dotted;"
+                          style: "text-decoration: underline dotted;",
+                          className: "is-narrow"
                         },
                     static
                       ? null
@@ -1111,13 +1093,12 @@
                     {
                       element: "td",
                       onclick: event => event.stopPropagation(),
-                      style: "text-align: center;",
+                      style: "vertical-align: middle;",
                       children: [
                         {
                           element: "input",
                           className: "checkbox",
-                          style:
-                            "width: 18px; height: 18px; vertical-align: middle;",
+                          style: "width: 18px; height: 18px; margin-top: 0.55em",
                           type: "checkbox",
                           disabled: !resultsUi.isSessionValidForComparison(
                             session
@@ -1155,11 +1136,6 @@
                         }
                       ]
                     },
-                    // {
-                    //   element: "td",
-                    //   text: `${session.userAgent.substr(0, 25)} ...`,
-                    //   title: session.userAgent
-                    // },
                     {
                       element: "td",
                       style: "vertical-align: middle; white-space: nowrap",
@@ -1170,11 +1146,15 @@
                     {
                       element: "td",
                       children: {
-                        className: "tags",
+                        className: "tags field is-grouped isgrouped-multiline",
+                        style: "min-width: 10em",
                         children: session.labels.map(label => ({
-                          element: "span",
-                          className: "tag is-info",
-                          text: label
+                          className: "control",
+                          children: {
+                            element: "span",
+                            className: "tag is-info",
+                            text: label
+                          }
                         }))
                       }
                     },
