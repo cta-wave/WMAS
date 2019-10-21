@@ -136,6 +136,7 @@
           });
         },
         refreshLastCompletedTests(callback = () => {}) {
+          if (resultUi.state.configuration.isPublic) return;
           WaveService.readLastCompletedTests(token, ["timeout"], tests => {
             resultUi.state.lastCompletedTests = tests;
             callback();
@@ -207,7 +208,7 @@
             token,
             malfunctioningTests,
             () => {
-              this.renderMalfunctioningTests();
+              resultUi.renderMalfunctioningTests();
             }
           );
           resultUi.renderLastCompletedTests();
@@ -219,7 +220,7 @@
             token,
             malfunctioningTests,
             () => {
-              this.renderMalfunctioningTests();
+              resultUi.renderMalfunctioningTests();
             }
           );
           resultUi.renderLastCompletedTests();
@@ -360,7 +361,6 @@
           root.innerHTML = "";
           root.appendChild(resultView);
           resultUi.renderControls();
-          resultUi.renderLastCompletedTests();
           resultUi.renderSessionDetails();
           resultUi.renderApiResults();
           resultUi.renderExportView();
@@ -368,7 +368,8 @@
         renderControls() {
           const { state } = resultUi;
           if (!state.status) return;
-          const { status, is_public } = state.status;
+          const { status } = state.status;
+          const { isPublic } = state.configuration;
           const controlsView = UI.createElement({
             className: "field is-grouped is-grouped-multiline"
           });
@@ -433,7 +434,7 @@
             });
             controlsView.appendChild(stopButton);
           }
-          if (!is_public) {
+          if (!isPublic) {
             const deleteButton = UI.createElement({
               id: "delete-button",
               className: "control button is-dark is-outlined",
@@ -866,7 +867,9 @@
                       }
                     }))
                     .concat(
-                      addLabelVisible
+                      resultUi.state.configuration.isPublic
+                        ? []
+                        : addLabelVisible
                         ? [
                             {
                               className: "control field is-grouped",
@@ -966,6 +969,7 @@
           field.style["display"] = "flex";
         },
         renderLastCompletedTests() {
+          if (resultUi.state.configuration.isPublic) return;
           const lastCompletedTestsView = UI.createElement({});
 
           const heading = UI.createElement({
@@ -1084,7 +1088,7 @@
               className: "level",
               children: {
                 element: "span",
-                className: "level-item icon",
+                className: "level-item",
                 children: [
                   {
                     element: "i",
@@ -1523,24 +1527,27 @@
                     { element: "td", text: path },
                     {
                       element: "td",
-                      children: [
-                        {
-                          element: "button",
-                          className: "button is-dark is-outlined is-small",
-                          onClick: () =>
-                            resultUi.removeMalfunctioningTest(path),
-                          title: "Remove from malfunctioning tests list.",
-                          children: [
-                            {
-                              element: "span",
-                              className: "icon",
-                              children: [
-                                { element: "i", className: "fas fa-trash-alt" }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
+                      children: resultUi.state.configuration.isPublic
+                        ? null
+                        : {
+                            element: "button",
+                            className: "button is-dark is-outlined is-small",
+                            onClick: () =>
+                              resultUi.removeMalfunctioningTest(path),
+                            title: "Remove from malfunctioning tests list.",
+                            children: [
+                              {
+                                element: "span",
+                                className: "icon",
+                                children: [
+                                  {
+                                    element: "i",
+                                    className: "fas fa-trash-alt"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
                     }
                   ]
                 }))

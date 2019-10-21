@@ -175,10 +175,13 @@ class SessionManager {
       return;
     }
     const session = await this.readSession(token);
+    if (session.isPublic()) return;
     session.setLabels(labels);
     await this._database.updateSession(session);
   }
   async deleteSession(token) {
+    const session = await this.readSession(token);
+    if (session.isPublic()) return;
     this._sessions.splice(
       this._sessions.findIndex(session => session.getToken() === token),
       1
@@ -285,6 +288,7 @@ class SessionManager {
     if (!(tests instanceof Array))
       throw new InvalidDataError("Expecting array of test files!");
     const session = await this.readSession(token);
+    if (session.isPublic()) return;
     if (!session) throw new NotFoundError("Session not found: " + token);
     session.setMalfunctioningTests(tests);
     await this.updateSession(session);

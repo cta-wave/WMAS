@@ -245,6 +245,7 @@
         handleExpiration: function() {
           configurationUi.state.expired = true;
           configurationUi.renderSessionConfiguration();
+          configurationUi.renderResumeView();
         },
         openResultsPage: function(token) {
           location.href = "/results.html?token=" + token;
