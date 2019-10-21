@@ -5,7 +5,10 @@ Tests can be added to the list of malfunctioning using the web interface or the 
 
 ## Contents
 
-## 1. Using the web interface
+1. [Using the web interface](#using-webinterface)
+2. [Using the REST API](#using-rest-api)
+
+## 1. Using the web interface <a name="using-webinterface"></a>
 
 In the results view of the session for which to add malfunctioning tests, there is a section called "Last Timed-Out Test Files".
 
@@ -21,6 +24,6 @@ In the section "Malfunctioning Tests" you can see a list of test that have been 
 [last_timed_out]: ../res/results_page_last_timed_out.jpg "Last Timed-Out Test Files"
 [malfunctioning_list]: ../res/results_page_malfunctioning_list.jpg "Malfunctioning Tests"
 
-## 2. Using the REST API
+## 2. Using the REST API <a name="using-rest-api"></a>
 
 You can read the tests tagged as malfunctioning for a given session using the [read malfunctioning](../rest-api/tests-api/read-malfunctioning.md) method of the [tests API](../rest-api/README.md#tests-api). To update the list, use the [update malfunctioning](../rest-api/tests-api/update-malfunctioning.md) method.
