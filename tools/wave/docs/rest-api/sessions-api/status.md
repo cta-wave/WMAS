@@ -1,4 +1,4 @@
-# `status` - [Results API](../index.md#results-api)
+# `status` - [Results API](../README.md#results-api)
 
 The `status` method of the results API returns information about a sessions current status and progress.
 

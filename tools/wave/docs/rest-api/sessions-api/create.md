@@ -1,4 +1,4 @@
-# `create` - [Sessions API](../index.md#sessions-api)
+# `create` - [Sessions API](../README.md#sessions-api)
 
 The `create` method of the sessions API creates a new session. If provided with an configuration it creates a session accordingly. If no configuration is provided it uses default values. It returns the session token of the newly created session, which is the unique identifier of sessions. While a session has the status `PENDING` it is possible to modify the configuration using the [`update`](./update.md) method of the sessions API. As it is required to create the session from the device under test, this is really helpful, since it allows to configure the session using a second device.
 

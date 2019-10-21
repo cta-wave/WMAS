@@ -1,4 +1,4 @@
-# `create` - [Results API](../index.md#results-api)
+# `create` - [Results API](../README.md#results-api)
 
 The `create` method of the results API creates a test result for a given test of a test session.
 

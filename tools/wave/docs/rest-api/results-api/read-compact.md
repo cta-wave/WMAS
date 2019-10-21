@@ -1,4 +1,4 @@
-# `read compact` - [Results API](../index.md#results-api)
+# `read compact` - [Results API](../README.md#results-api)
 
 The `read compact` method of the results API returns the number of passed, failed, timed out and not run tests per API of a session.
 

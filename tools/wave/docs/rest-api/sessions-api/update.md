@@ -1,4 +1,4 @@
-# `update` - [Sessions API](../index.md#sessions-api)
+# `update` - [Sessions API](../README.md#sessions-api)
 
 The `update` method of the sessions API makes it possible to modify a sessions configuration while its status is `PENDING`. This can be used to configure the session on a second device, rather than on the device under test.
 

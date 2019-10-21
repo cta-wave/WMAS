@@ -1,4 +1,4 @@
-# `read public` - [Sessions API](../index.md#sessions-api)
+# `read public` - [Sessions API](../README.md#sessions-api)
 
 The `read public` method of the sessions API fetches a list of all sessions that are publicly available. It is not possible to delete those sessions using the user interface or the REST API. Currently there is no way to change is-public-state of a session using the API.
 

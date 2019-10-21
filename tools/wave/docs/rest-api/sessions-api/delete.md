@@ -1,4 +1,4 @@
-# `delete` - [Sessions API](../index.md#sessions-api)
+# `delete` - [Sessions API](../README.md#sessions-api)
 
 The `delete` method of the sessions API is used to delete a session and single results associated with it. However artifacts like generated reports or JSON files containing results of a whole API remain, therefore urls to those resources are still working.
 

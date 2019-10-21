@@ -1,4 +1,4 @@
-# `labels` - [Sessions API](../index.md#sessions-api)
+# `labels` - [Sessions API](../README.md#sessions-api)
 
 The `labels` methods of the sessions API allow for better organization of sessions.
 

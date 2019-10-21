@@ -1,4 +1,4 @@
-# `read last completed` - [Tests API](../index.md#tests-api)
+# `read last completed` - [Tests API](../README.md#tests-api)
 
 The `read last completed` method of the tests API returns a list of test files, which most recently finished and have a result. The files are grouped by the status their respective result had.
 

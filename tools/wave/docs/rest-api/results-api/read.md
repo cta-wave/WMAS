@@ -1,4 +1,4 @@
-# `read` - [Results API](../index.md#results-api)
+# `read` - [Results API](../README.md#results-api)
 
 The `read` method of the results API returns all available results of a session, grouped by API. It is possible to filter the results to return by test directory or file.
 

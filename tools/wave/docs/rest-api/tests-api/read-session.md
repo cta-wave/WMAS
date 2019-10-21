@@ -1,4 +1,4 @@
-# `read session` - [Tests API](../index.md#tests-api)
+# `read session` - [Tests API](../README.md#tests-api)
 
 The `read session` method of the tests API fetches all tests contained in a test session grouped by their status.
 

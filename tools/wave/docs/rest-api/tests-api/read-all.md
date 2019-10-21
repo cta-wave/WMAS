@@ -1,4 +1,4 @@
-# `read all` - [Tests API](../index.md#tests-api)
+# `read all` - [Tests API](../README.md#tests-api)
 
 The `read all` method of the tests API fetches all tests available to include into a test session.
 

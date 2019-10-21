@@ -1,4 +1,4 @@
-# REST API
+# REST API - [WAVE Test Suite](../README.md)
 
 The REST API allows the WAVE server to be integrated into other systems.
 
@@ -18,18 +18,20 @@ The REST API allows the WAVE server to be integrated into other systems.
 | [`stop`](./sessions-api/control.md#stop)       | Stops a test session.                                |
 | [`pause`](./sessions-api/control.md#pause)     | Pauses a test session.                               |
 | [`find`](./sessions-api/find.md)               | Finds a session token by providing a token fragment. |
-| [`labels`](./sessions-api/labels.md)             | Attach labels to sessions for organization purposes. |
+| [`labels`](./sessions-api/labels.md)           | Attach labels to sessions for organization purposes. |
 
 ## Tests API <a name="tests-api"></a>
 
 ### Methods
 
-| Name                                                        | Description                                  |
-| ----------------------------------------------------------- | -------------------------------------------- |
-| [`read all`](./tests-api/read-all.md)                       | Reads all tests available.                   |
-| [`read session`](./tests-api/read-session.md)               | Reads all tests that are part of a session.  |
-| [`read next`](./tests-api/read-next.md)                     | Reads the next test to run in a session.     |
-| [`read last completed`](./tests-api/read-last-completed.md) | Reads the last completed tests of a session. |
+| Name                                                            | Description                                            |
+| --------------------------------------------------------------- | ------------------------------------------------------ |
+| [`read all`](./tests-api/read-all.md)                           | Reads all tests available.                             |
+| [`read session`](./tests-api/read-session.md)                   | Reads all tests that are part of a session.            |
+| [`read next`](./tests-api/read-next.md)                         | Reads the next test to run in a session.               |
+| [`read last completed`](./tests-api/read-last-completed.md)     | Reads the last completed tests of a session.           |
+| [`read malfunctioning`](./tests-api/read-malfunctioning.md)     | Reads the list of malfunctioning tests of a session.   |
+| [`update malfunctioning`](./tests-api/update-malfunctioning.md) | Updates the list of malfunctioning tests of a session. |
 
 ## Results API <a name="results-api"></a>
 
