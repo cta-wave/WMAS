@@ -28,7 +28,7 @@ However, if an error occured, the server responds the error message:
 }
 ```
 
-## 2. `import enabled` <a name="enabled"></a>
+## 2. `import enabled`
 
 To check whether or not the import features is enabled, the `import enabled` method returns the state as JSON.
 

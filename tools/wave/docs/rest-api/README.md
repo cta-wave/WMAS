@@ -37,18 +37,18 @@ The REST API allows the WAVE server to be integrated into other systems.
 
 ### Methods
 
-| Name                                                                       | Description                                                                     |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [`create`](./results-api/create.md)                                        | Create a new test result for a test in a session.                               |
-| [`read`](./results-api/read.md)                                            | Read all test results of a session.                                             |
-| [`read compact`](./results-api/read-compact.md)                            | Read the number of passed, failed, timed out and not run tests of a session.    |
-| [`import`](./results-api/import.md)                                        | Import session results.                                                         |
-| [`import enabled`](./results-api/import.md#enabled)                        | Check whether or not the import feature is enabled.                             |
-| [`download`](./results-api/download.md#download)                           | Download all session results to import into other WMATS instance.               |
-| [`download api`](./results-api/download.md#download-api)                   | Download all results of an API.                                                 |
-| [`download all apis`](./results-api/download.md#download-all-apis)         | Download all results of all APIs.                                               |
-| [`download report`](./results-api/download.md#download-report)             | Download the WPT report of an API of a session.                                 |
-| [`download multi report`](./results-api/download.md#download-multi-report) | Download the WPT report of an API of multiple sessions.                         |
-| [`download overview`](./results-api/download.md#download-overview)         | Download an overview of results of all APIs of a session.                       |
-| [`view report`](./results-api/view.md)                                     | Read an url to a hosted version of a WPT report for an API of a session.        |
-| [`view multi report`](./results-api/view.md)                               | Read an url to a hosted version of a WPT report for an API of multiple session. |
+| Name                                                                         | Description                                                                     |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [`create`](./results-api/create.md)                                          | Create a new test result for a test in a session.                               |
+| [`read`](./results-api/read.md)                                              | Read all test results of a session.                                             |
+| [`read compact`](./results-api/read-compact.md)                              | Read the number of passed, failed, timed out and not run tests of a session.    |
+| [`import`](./results-api/import.md)                                          | Import session results.                                                         |
+| [`import enabled`](./results-api/import.md#2-import-enabled)                 | Check whether or not the import feature is enabled.                             |
+| [`download`](./results-api/download.md#1-download)                           | Download all session results to import into other WMATS instance.               |
+| [`download api`](./results-api/download.md#2-download-api)                   | Download all results of an API.                                                 |
+| [`download all apis`](./results-api/download.md#3-download-all-apis)         | Download all results of all APIs.                                               |
+| [`download report`](./results-api/download.md#4-download-report)             | Download the WPT report of an API of a session.                                 |
+| [`download multi report`](./results-api/download.md#5-download-multi-report) | Download the WPT report of an API of multiple sessions.                         |
+| [`download overview`](./results-api/download.md#6-download-overview)         | Download an overview of results of all APIs of a session.                       |
+| [`view report`](./results-api/view.md#1-view-report)                         | Read an url to a hosted version of a WPT report for an API of a session.        |
+| [`view multi report`](./results-api/view.md#2-view-multi-report)             | Read an url to a hosted version of a WPT report for an API of multiple session. |
