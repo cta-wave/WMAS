@@ -56,6 +56,8 @@ class TestLoader {
         if (this._tests[AUTOMATIC_TESTS][api].length === 0)
           delete this._tests[AUTOMATIC_TESTS][api];
 
+        if (!this._isValidTest({ testPath: test, includeList })) continue;
+
         if (!this._tests[MANUAL_TESTS][api])
           this._tests[MANUAL_TESTS][api] = [];
         this._tests[MANUAL_TESTS][api].push(test);
