@@ -3,7 +3,6 @@ const UserAgentParser = require("../utils/user-agent-parser");
 
 // test types
 const TEST_HARNESS_TESTS = "testharness";
-const REF_TESTS = "reftest";
 const MANUAL_TESTS = "manual";
 const AUTOMATIC_TESTS = "automatic";
 
@@ -17,7 +16,6 @@ class TestLoader {
     this._excludeListFilePath = excludeListFilePath;
     this._tests = {};
     this._tests[AUTOMATIC_TESTS] = [];
-    this._tests[REF_TESTS] = [];
     this._tests[MANUAL_TESTS] = [];
   }
 
@@ -40,14 +38,28 @@ class TestLoader {
         excludeList
       });
     }
-    // if (tests.hasOwnProperty(REF_TESTS)) {
-    //   this._tests[REF_TESTS] = this._loadTests(tests[REF_TESTS]);
-    // }
     if (tests.hasOwnProperty(MANUAL_TESTS)) {
       this._tests[MANUAL_TESTS] = this._loadTests({
         tests: tests[MANUAL_TESTS],
         includeList
       });
+    }
+
+    for (let api in this._tests[AUTOMATIC_TESTS]) {
+      for (let i = 0; i < this._tests[AUTOMATIC_TESTS][api].length; i++) {
+        const test = this._tests[AUTOMATIC_TESTS][api][i];
+        if (test.indexOf("manual") === -1) continue;
+        i -= 1;
+        const index = this._tests[AUTOMATIC_TESTS][api].indexOf(test);
+        this._tests[AUTOMATIC_TESTS][api].splice(index, 1);
+
+        if (this._tests[AUTOMATIC_TESTS][api].length === 0)
+          delete this._tests[AUTOMATIC_TESTS][api];
+
+        if (!this._tests[MANUAL_TESTS][api])
+          this._tests[MANUAL_TESTS][api] = [];
+        this._tests[MANUAL_TESTS][api].push(test);
+      }
     }
   }
 
@@ -121,6 +133,13 @@ class TestLoader {
           if (referenceResults && !referenceResults[api].includes(testPath))
             continue;
           if (!tests[api]) tests[api] = [];
+          if (
+            testPath ===
+            "/html/semantics/scripting-1/the-script-element/module/dynamic-import/no-active-script-manual-module.html"
+          ) {
+            console.log("FOUND");
+            console.log(type);
+          }
           tests[api].push(testPath);
         }
       }
@@ -136,7 +155,6 @@ class TestLoader {
 }
 
 TestLoader.TEST_HARNESS_TESTS = TEST_HARNESS_TESTS;
-TestLoader.REF_TESTS = REF_TESTS;
 TestLoader.MANUAL_TESTS = MANUAL_TESTS;
 TestLoader.AUTOMATIC_TESTS = AUTOMATIC_TESTS;
 
