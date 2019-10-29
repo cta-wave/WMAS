@@ -1,7 +1,12 @@
 #!/bin/bash
 
 if [ "$1" == "init" ]; then
-cd ./tools/wave && npm install
+  cd ./tools/wave &&\
+  python -m venv venv &&\
+  source venv/bin/activate &&\
+  pip install -r requirements.txt
 else
-node ./tools/wave/wave-cli.js $@
+  cd ./tools/wave &&\
+  source venv/bin/activate &&\
+  python wave-cli.py $@
 fi
