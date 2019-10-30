@@ -2,6 +2,7 @@ import sys
 import os
 import urllib.request
 import zipfile
+from wave_server import WaveServer
 
 START = "start"
 DOWNLOAD_REFERENCE_BROWSERS = "download-reference-browsers"
@@ -56,10 +57,17 @@ def get_run_parameters():
     next(iterator)
     for argument in iterator:
         if (argument.lower() == "--config"):
-            parameters["configuration_file_path"] = next(iterator)
+            path = next(iterator)
+            if not path.startswith("/"):
+                path = os.path.join(os.getcwd(), path)
+            parameters["configuration_file_path"] = path
             continue
 
         raise Exception("Unknown option {}".format(argument))
+
+    if "configuration_file_path" not in parameters:
+        parameters["configuration_file_path"] = os.path.join(
+            os.getcwd(), "config.json")
 
     return parameters
 
@@ -109,7 +117,8 @@ def download_reference_browsers():
 
 
 def start(configuration_file_path):
-    print("START")
+    wave_server = WaveServer()
+    wave_server.initialize(configuration_file_path=configuration_file_path)
 
 
 main()
