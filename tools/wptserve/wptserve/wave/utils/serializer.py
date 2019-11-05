@@ -1,0 +1,23 @@
+def serialize_session(session):
+    return {
+        "token": session.token,
+        "types": session.types,
+        "user_agent": session.user_agent,
+        "labels": session.labels,
+        "timeouts": session.timeouts,
+        "test_files_count": session.test_files_count,
+        "test_files_completed": session.test_files_completed,
+        "tests": session.tests,
+        "pending_tests": session.pending_tests,
+        "running_tests": session.running_tests,
+        "completed_tests": session.completed_tests,
+        "status": session.status,
+        "browser": session.browser,
+        "date_started": session.date_started,
+        "date_finished": session.date_finished,
+        "is_public": session.is_public,
+        "reference_tokens": session.reference_tokens,
+        "webhook_urls": session.webhook_urls,
+        "expiration_date": session.expiration_date,
+        "malfunctioning_tests": session.malfunctioning_tests
+    }
