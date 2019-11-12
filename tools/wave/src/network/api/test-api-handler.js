@@ -129,6 +129,7 @@ class TestApiHandler extends ApiHandler {
           token
         });
         this.sendJson({ next_test: url }, response);
+        this._sessionManager.completeSession(token);
         return;
       }
 

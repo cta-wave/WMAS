@@ -32,6 +32,7 @@ class TestManager {
     const token = session.getToken();
 
     const test = this._getNextTestFromList(pendingTests);
+    if (!test) return null;
 
     pendingTests = this.removeTestFromList(pendingTests, test);
     runningTests = this.addTestToList(runningTests, test);
