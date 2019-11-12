@@ -1,33 +1,33 @@
+from .sessions_database import SessionsDatabase
+from .tests_database import TestsDatabase
+from .results_database import ResultsDatabase
+
 class Database:
     def __init__(self):
-        self._sessions = []
+        sessions_database = SessionsDatabase()
+        tests_database = TestsDatabase()
+        results_database = ResultsDatabase()
 
-    def create_session(self, session):
-        self._sessions.append(session)
+        sessions_database.initialize(
+            tests_database=tests_database, 
+            results_database=results_database
+        )
+        self.create_session = sessions_database.create_session
+        self.read_session = sessions_database.read_session
+        self.read_sessions = sessions_database.read_sessions
+        self.read_expiring_sessions = sessions_database.read_expiring_sessions
+        self.read_public_sessions = sessions_database.read_public_sessions
+        self.update_session = sessions_database.update_session
+        self.delete_session = sessions_database.delete_session
+        self.find_tokens = sessions_database.find_tokens
 
-    def read_session(self, token):
-        for session in self._sessions:
-            if session.token == token:
-                return session
+        tests_database.initialize()
+        self.create_tests = tests_database.create_tests
+        self.read_tests = tests_database.read_tests
+        self.update_tests = tests_database.update_tests
+        self.delete_tests = tests_database.delete_tests
 
-    def read_expiring_sessions(self):
-        sessions = []
-
-        for session in self._sessions:
-            if session.expiration_date is not None:
-                sessions.append(session)
-        return sessions
-
-    def update_session(self, session):
-        remove_session = None
-        for db_session in self._sessions:
-            if db_session.token == session.token:
-                remove_session = db_session
-        if remove_session is not None:
-            self._sessions.remove(remove_session)
-        self._sessions.append(session)
-    
-    def delete_session(self, token):
-        for session in self._sessions:
-            if session.token == token:
-                self._sessions.remove(session)
+        results_database.initialize()
+        self.create_result = results_database.create_result
+        self.read_results = results_database.read_results
+        self.delete_results = results_database.delete_results

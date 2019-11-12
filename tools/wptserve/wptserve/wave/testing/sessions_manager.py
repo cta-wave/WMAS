@@ -4,9 +4,10 @@ import time
 from threading import Timer
 
 from .test_loader import AUTOMATIC, MANUAL
-from ..data.session import Session, PENDING, PAUSED, RUNNING
+from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED
 from ..utils.user_agent_parser import parse_user_agent
-from .event_dispatcher import STATUS_EVENT
+from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
+from ..data.exceptions.not_found_exception import NotFoundException
 
 DEFAULT_TEST_TYPES = [AUTOMATIC, MANUAL]
 DEFAULT_TEST_PATHS = ["/"]
@@ -86,10 +87,15 @@ class SessionsManager:
                 self._push_to_cache(session)
         return session
 
+    def update_session(self, session):
+        self._push_to_cache(session)
+        self._database.update_session(session)
+
     def update_session_configuration(
         self, token, tests, types, timeouts, reference_tokens, webhook_urls
     ):
         session = self.read_session(token)
+        if session is None: raise NotFoundException("Could not find session")
         if session.status != PENDING:
             return
 
@@ -219,9 +225,54 @@ class SessionsManager:
             session.expiration_date = None
 
         session.status = RUNNING
-        self._database.update_session(session)
+        self.update_session(session)
 
         self._event_dispatcher.dispatch_event(
+            token,
+            event_type=STATUS_EVENT,
+            data=session.status
+        )
+
+    def pause_session(self, token):
+        session = self.read_session(token)
+        if session.status != RUNNING: return
+        session.status = PAUSED
+        self.update_session(session)
+        self._event_dispatcher.dispatch_event(
+            token, 
+            event_type=STATUS_EVENT, 
+            data=session.status
+        )
+
+    def stop_session(self, token):
+        session = self.read_session(token)
+        if session.status == ABORTED or session.status == COMPLETED: return
+        session.status = ABORTED
+        session.date_finished = time.time() * 1000
+        self.update_session(session)
+        self._event_dispatcher.dispatch_event(
+            token,
+            event_type=STATUS_EVENT,
+            data=session.status
+        )
+
+    def resume_session(self, token, resume_token):
+        session = self.read_session(token)
+        if session.status != PENDING: return
+        self._event_dispatcher.dispatch_event(
+            token,
+            event_type=RESUME_EVENT,
+            data=resume_token
+        )
+        self.delete_session(token)
+
+    def complete_session(self, token):
+        session = self.read_session(token)
+        if session.status == COMPLETED or session.status == ABORTED: return
+        session.status = COMPLETED
+        session.date_finished = time.time() * 1000
+        self.update_session(session)
+        self._event_dispatcher(
             token,
             event_type=STATUS_EVENT,
             data=session.status

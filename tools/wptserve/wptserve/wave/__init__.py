@@ -44,7 +44,11 @@ class WaveServer:
         results_manager.initialize(
             results_directory_path=configuration["results_directory_path"])
 
-        tests_manager.initialize(test_loader)
+        tests_manager.initialize(
+            test_loader, 
+            results_manager=results_manager, 
+            sessions_manager=sessions_manager
+        )
 
         # Load Tests
         exclude_list_file_path = os.path.abspath("./excluded.json")
