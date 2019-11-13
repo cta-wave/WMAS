@@ -55,7 +55,9 @@ class SessionsManager:
 
         browser = parse_user_agent(user_agent)
 
-        test_files_count = self._tests_manager.calculate_test_files_count(pending_tests)
+        test_files_count = self._tests_manager.calculate_test_files_count(
+            pending_tests
+        )
 
         session = Session(
             token=token,
@@ -65,6 +67,8 @@ class SessionsManager:
             types=types,
             timeouts=timeouts,
             pending_tests=pending_tests,
+            running_tests={},
+            completed_tests={},
             test_files_count=test_files_count,
             test_files_completed={},
             status=PENDING,
@@ -73,6 +77,7 @@ class SessionsManager:
             labels=labels,
             expiration_date=expiration_date
         )
+        
         self._database.create_session(session)
         self._push_to_cache(session)
         if expiration_date is not None:
@@ -150,8 +155,8 @@ class SessionsManager:
 
     def delete_session(self, token):
         session = self.read_session(token)
-        if session.is_public:
-            return
+        if session is None: return
+        if session.is_public: return
 
         session = self._read_from_cache(token)
         self._sessions.remove(session)
@@ -178,8 +183,7 @@ class SessionsManager:
 
     def _set_expiration_timer(self):
         expiring_sessions = self._database.read_expiring_sessions()
-        if len(expiring_sessions) == 0:
-            return
+        if len(expiring_sessions) == 0: return
 
         next_session = expiring_sessions[0]
 
@@ -191,8 +195,7 @@ class SessionsManager:
             self._expiration_timeout.cancel()
 
         timeout = next_session.expiration_date / 1000.0 - int(time.time())
-        if timeout < 0:
-            timeout = 0
+        if timeout < 0: timeout = 0
 
         def handle_timeout(self):
             self._delete_expired_sessions()

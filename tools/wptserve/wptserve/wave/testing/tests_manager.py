@@ -30,10 +30,8 @@ class TestsManager:
         running_tests = self.add_test_to_list(running_tests, test)
 
         test_timeout = self.get_test_timeout(test, session) / 1000.0
-        print(test_timeout)
 
         def handler(self, token, test):
-            print("TIMEOUT")
             self._on_test_timeout(token, test)
 
         timer = Timer(test_timeout, handler, [self, token, test])
@@ -134,7 +132,6 @@ class TestsManager:
 
     def get_test_timeout(self, test, session):
         timeouts = session.timeouts
-        print(timeouts)
         test_timeout = None
         
         for path in list(timeouts.keys()):

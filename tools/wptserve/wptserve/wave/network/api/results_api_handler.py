@@ -41,7 +41,6 @@ class ResultsApiHandler(ApiHandler):
                 data = json.loads(body)
 
             results = self._results_manager.read_results(token)
-            print(results)
 
             self.send_json(response=response, data=results)
 

@@ -23,7 +23,6 @@ class ResultsManager:
     def create_result(self, token, data):
         result = self.prepare_result(data)
         test = result["test"]
-        print(test)
 
         session = self._sessions_manager.read_session(token)
 
@@ -33,14 +32,14 @@ class ResultsManager:
         self._tests_manager.complete_test(test, session)
         self._database.create_result(token, result)
 
-        api = next((p for p in test.split("/") if p is not None), None)
+        api = next((p for p in test.split("/") if p is not ""), None)
         if not self._sessions_manager.is_api_complete(api, session): return
         self.save_api_results(token, api)
         self.generate_report(token, api)
 
         test_files_count = session.test_files_count
         apis = list(test_files_count.keys())
-        if next((a for a in apis if self._sessions_manager.is_api_complete(a, session)), None) is not None: return
+        if not next((a for a in apis if self._sessions_manager.is_api_complete(a, session)), True): return
         self._sessions_manager.complete_session(token)
         self.create_info_file(session)
 

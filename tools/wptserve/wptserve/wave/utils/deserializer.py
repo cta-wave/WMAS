@@ -8,6 +8,8 @@ def deserialize_sessions(session_dicts):
     return sessions
 
 def deserialize_session(session_dict):
+    token = ""
+    if "token" in session_dict: token = session_dict["token"]
     tests = {}
     if "tests" in session_dict: tests = session_dict["tests"]
     types = []
@@ -48,6 +50,7 @@ def deserialize_session(session_dict):
     if "malfunctioning_tests" in session_dict: malfunctioning_tests = session_dict["malfunctioning_tests"]
 
     return Session(
+        token=token,
         tests=tests,
         types=types,
         user_agent=user_agent,

@@ -54,7 +54,7 @@ class SessionsDatabase:
         return session
 
     def read_sessions(self):
-        return self._sessions
+        return deserialize_sessions(self._sessions)
 
     def read_expiring_sessions(self):
         expiring_sessions = []

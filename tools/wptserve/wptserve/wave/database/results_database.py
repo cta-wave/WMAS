@@ -3,8 +3,6 @@ class ResultsDatabase:
         self._results = {}
 
     def create_result(self, token, result):
-        print(token)
-        print(result)
         if token not in self._results: self._results[token] = []
         self._results[token].append(result)
 
