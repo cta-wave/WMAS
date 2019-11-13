@@ -16,12 +16,13 @@ DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
 class SessionsManager:
-    def initialize(self, test_loader, database, event_dispatcher):
+    def initialize(self, test_loader, database, event_dispatcher, tests_manager):
         self._test_loader = test_loader
         self._database = database
         self._sessions = []
         self._expiration_timeout = None
         self._event_dispatcher = event_dispatcher
+        self._tests_manager = tests_manager
 
     def create_session(
         self,
@@ -54,6 +55,8 @@ class SessionsManager:
 
         browser = parse_user_agent(user_agent)
 
+        test_files_count = self._tests_manager.calculate_test_files_count(pending_tests)
+
         session = Session(
             token=token,
             tests=tests,
@@ -62,7 +65,7 @@ class SessionsManager:
             types=types,
             timeouts=timeouts,
             pending_tests=pending_tests,
-            test_files_count=self._calculate_test_files_count(pending_tests),
+            test_files_count=test_files_count,
             test_files_completed={},
             status=PENDING,
             reference_tokens=reference_tokens,
@@ -116,7 +119,7 @@ class SessionsManager:
             )
             session.pending_tests = pending_tests
             session.tests = tests
-            session.test_files_count = self._calculate_test_files_count(
+            session.test_files_count = self._tests_manager.calculate_test_files_count(
                 pending_tests)
         if types is not None:
             session.types = types
@@ -172,12 +175,6 @@ class SessionsManager:
             if cached_session.token == token:
                 return cached_session
         return None
-
-    def _calculate_test_files_count(self, tests):
-        count = {}
-        for api in tests:
-            count[api] = len(tests[api])
-        return count
 
     def _set_expiration_timer(self):
         expiring_sessions = self._database.read_expiring_sessions()
@@ -272,8 +269,25 @@ class SessionsManager:
         session.status = COMPLETED
         session.date_finished = time.time() * 1000
         self.update_session(session)
-        self._event_dispatcher(
+        self._event_dispatcher.dispatch_event(
             token,
             event_type=STATUS_EVENT,
             data=session.status
         )
+
+    def test_in_session(self, test, session):
+        return self._test_list_contains_test(test, session.pending_tests) \
+            or self._test_list_contains_test(test, session.running_tests) \
+            or self._test_list_contains_test(test, session.completed_tests)
+
+    def is_test_complete(self, test, session):
+        return self._test_list_contains_test(test, session.completed_tests)
+
+    def _test_list_contains_test(self, test, test_list):
+        for api in list(test_list.keys()):
+            if test in test_list[api]:
+                return True
+        return False
+
+    def is_api_complete(self, api, session):
+        return api not in session.pending_tests and api not in session.running_tests

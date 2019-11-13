@@ -1,5 +1,12 @@
 from ..data.session import Session, UNKNOWN
 
+def deserialize_sessions(session_dicts):
+    sessions = []
+    for session_dict in session_dicts:
+        session = deserialize_session(session_dict)
+        sessions.append(session)
+    return sessions
+
 def deserialize_session(session_dict):
     tests = {}
     if "tests" in session_dict: tests = session_dict["tests"]

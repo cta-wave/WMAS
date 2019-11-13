@@ -4,12 +4,23 @@ import traceback
 
 from .api_handler import ApiHandler
 from ...utils.serializer import serialize_session
+from ...data.session import PAUSED, COMPLETED, ABORTED, PENDING, RUNNING
 
 
 class TestsApiHandler(ApiHandler):
-    def __init__(self, tests_manager, session_manager):
+    def __init__(
+        self, 
+        wpt_port, 
+        wpt_ssl_port, 
+        tests_manager, 
+        sessions_manager,
+        hostname
+    ):
         self._tests_manager = tests_manager
-        self._session_manager = session_manager
+        self._sessions_manager = sessions_manager
+        self._wpt_port = wpt_port
+        self._wpt_ssl_port = wpt_ssl_port
+        self._hostname = hostname
 
     def read_tests(self, response):
         tests = self._tests_manager.read_tests()
@@ -18,7 +29,7 @@ class TestsApiHandler(ApiHandler):
     def read_session_tests(self, request, response):
         uri_parts = self.parse_uri(request)
         token = uri_parts[3]
-        session = self._session_manager.read_session(token)
+        session = self._sessions_manager.read_session(token)
 
         if session is None:
             response.status = 404
@@ -38,15 +49,61 @@ class TestsApiHandler(ApiHandler):
         try:
             uri_parts = self.parse_uri(request)
             token = uri_parts[3]
+            hostname = self._hostname
 
-            session = self._session_manager.read_session(token)
+            session = self._sessions_manager.read_session(token)
             if session is None:
                 response.status = 404
                 return
 
+            if session.status == PAUSED:
+                url = self._generate_wave_url(
+                    hostname=hostname,
+                    uri="/pause.html",
+                    token=token
+                )
+                self.send_json({"next_test": url}, response)
+                return
+            if session.status == COMPLETED or session.status == ABORTED:
+                url = self._generate_wave_url(
+                    hostname=hostname,
+                    uri="/finish.html",
+                    token=token
+                )
+                self.send_json({"next_test": url}, response)
+                return
+            if session.status == PENDING:
+                url = self._generate_wave_url(
+                    hostname=hostname,
+                    uri="/newsession.html",
+                    token=token
+                )
+                self.send_json({"next_test": url}, response)
+                return
+            
             test = self._tests_manager.next_test(session)
+
+            if test is None:
+                if session.status == RUNNING: return
+                url = self._generate_wave_url(
+                    hostname=hostname,
+                    uri="/finish.html",
+                    token=token
+                )
+                self.send_json({"next_test": url}, response)
+                self._sessions_manager.complete_session(token)
+                return
+
+            test_timeout = self._tests_manager.get_test_timeout(test=test, session=session)
+            url = self._generate_test_url(
+                test=test,
+                token=token,
+                test_timeout=test_timeout,
+                hostname=hostname
+            )
+
             self.send_json({
-                "next_test": test
+                "next_test": url
             }, response)
         except Exception as e:
             info = sys.exc_info()
@@ -80,3 +137,33 @@ class TestsApiHandler(ApiHandler):
                     return
 
         response.status = 404
+
+    def _generate_wave_url(self, hostname, uri, token):
+        return self._generate_url(
+            hostname=hostname,
+            uri=uri,
+            port=self._wpt_port,
+            query="?token=" + token
+        )
+
+    def _generate_test_url(self, hostname, test, token, test_timeout):
+        protocol = "http"
+        port = self._wpt_port
+
+        if "https" in test:
+            protocol = "https"
+            port = self._wpt_ssl_port
+
+        query = "?token={}&timeout={}".format(token, test_timeout)
+
+        return self._generate_url(
+            protocol=protocol,
+            hostname=hostname,
+            port=port,
+            uri=test,
+            query=query
+        )
+
+    def _generate_url(self, hostname, port=80, uri="/", query="", protocol="http"):
+        if not uri.startswith("/"): uri = "/" + uri
+        return "{}://{}:{}{}{}".format(protocol, hostname, port, uri, query)

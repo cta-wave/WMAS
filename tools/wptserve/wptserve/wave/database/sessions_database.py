@@ -2,7 +2,7 @@ import re
 
 from ..data.session import COMPLETED, ABORTED
 from ..utils.serializer import serialize_session
-from ..utils.deserializer import deserialize_session
+from ..utils.deserializer import deserialize_session, deserialize_sessions
 
 class SessionsDatabase:
     def initialize(self, results_database, tests_database):
@@ -59,8 +59,9 @@ class SessionsDatabase:
     def read_expiring_sessions(self):
         expiring_sessions = []
         for session in self._sessions:
-            if session.expiration_date == None: continue
+            if session["expiration_date"] == None: continue
             expiring_sessions.append(session)
+        expiring_sessions = deserialize_sessions(expiring_sessions)
         return expiring_sessions
 
     def read_public_sessions(self):

@@ -1,11 +1,21 @@
 import re
 from threading import Timer
 
+from .event_dispatcher import TEST_COMPLETED_EVENT
+
 class TestsManager:
-    def initialize(self, test_loader, sessions_manager, results_manager):
+    def initialize(
+        self, 
+        test_loader, 
+        sessions_manager, 
+        results_manager, 
+        event_dispatcher
+    ):
         self._test_loader = test_loader
         self._sessions_manager = sessions_manager
         self._results_manager = results_manager
+        self._event_dispatcher = event_dispatcher
+
         self._timeouts = []
 
     def next_test(self, session):
@@ -14,7 +24,7 @@ class TestsManager:
         token = session.token
 
         test = self._get_next_test_from_list(pending_tests)
-        print(test)
+        if test is None: return None
 
         pending_tests = self.remove_test_from_list(pending_tests, test)
         running_tests = self.add_test_to_list(running_tests, test)
@@ -159,3 +169,55 @@ class TestsManager:
 
     def read_tests(self):
         return self._test_loader.get_tests()
+
+    def complete_test(self, test, session):
+        running_tests = session.running_tests
+        completed_tests = session.completed_tests
+
+        running_tests = self.remove_test_from_list(running_tests, test)
+        completed_tests = self.add_test_to_list(completed_tests, test)
+        session.running_tests = running_tests
+        session.completed_tests = completed_tests
+
+        timeout = next((t for t in self._timeouts if t["test"] == test), None)
+        timeout["timeout"].cancel()
+        self._timeouts.remove(timeout)
+
+        self.update_tests(
+            running_tests=running_tests, 
+            completed_tests=completed_tests, 
+            session=session
+        )
+
+        self._event_dispatcher.dispatch_event(
+            token=session.token,
+            event_type=TEST_COMPLETED_EVENT,
+            data=test
+        )
+
+    def update_tests(
+        self, 
+        pending_tests=None, 
+        running_tests=None, 
+        completed_tests=None, 
+        session=None
+    ):
+        if completed_tests is not None:
+            test_files_completed = self.calculate_test_files_count(completed_tests)
+            session.test_files_completed = test_files_completed
+            session.completed_tests = completed_tests
+
+        if pending_tests is not None:
+            session.pending_tests = pending_tests
+
+        if running_tests is not None:
+            session.running_tests = running_tests
+
+        self._sessions_manager.update_session(session)
+
+
+    def calculate_test_files_count(self, tests):
+        count = {}
+        for api in tests:
+            count[api] = len(tests[api])
+        return count

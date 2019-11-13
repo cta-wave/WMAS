@@ -3,10 +3,12 @@ class HttpHandler:
         self, 
         static_handler=None, 
         sessions_api_handler=None,
-        tests_api_handler=None):
+        tests_api_handler=None,
+        results_api_handler=None):
         self.static_handler = static_handler
         self.sessions_api_handler = sessions_api_handler
         self.tests_api_handler = tests_api_handler
+        self.results_api_handler = results_api_handler
 
     def handle_request(self, request, response):
         is_api_call = False
@@ -44,6 +46,9 @@ class HttpHandler:
             return
         if api_name == "tests":
             self.tests_api_handler.handle_request(request, response)
+            return
+        if api_name == "results":
+            self.results_api_handler.handle_request(request, response)
             return
 
     def handle_static_file(self, request, response):

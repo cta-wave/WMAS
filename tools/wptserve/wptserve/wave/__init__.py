@@ -5,6 +5,7 @@ from . import configuration_loader
 from .network.http_handler import HttpHandler
 from .network.api.sessions_api_handler import SessionsApiHandler
 from .network.api.tests_api_handler import TestsApiHandler
+from .network.api.results_api_handler import ResultsApiHandler
 from .network.static_handler import StaticHandler
 
 from .testing.sessions_manager import SessionsManager
@@ -38,16 +39,22 @@ class WaveServer:
         sessions_manager.initialize(
             test_loader=test_loader,
             database=database,
-            event_dispatcher=event_dispatcher
+            event_dispatcher=event_dispatcher,
+            tests_manager=tests_manager
         )
 
         results_manager.initialize(
-            results_directory_path=configuration["results_directory_path"])
+            results_directory_path=configuration["results_directory_path"],
+            sessions_manager=sessions_manager,
+            tests_manager=tests_manager,
+            database=database
+        )
 
         tests_manager.initialize(
             test_loader, 
             results_manager=results_manager, 
-            sessions_manager=sessions_manager
+            sessions_manager=sessions_manager,
+            event_dispatcher=event_dispatcher
         )
 
         # Load Tests
@@ -65,11 +72,20 @@ class WaveServer:
         static_handler = StaticHandler()
         sessions_api_handler = SessionsApiHandler(
             sessions_manager=sessions_manager, results_manager=results_manager)
-        tests_api_handler = TestsApiHandler(tests_manager, sessions_manager)
+        tests_api_handler = TestsApiHandler(
+            tests_manager=tests_manager, 
+            sessions_manager=sessions_manager,
+            wpt_port=configuration["wpt_port"],
+            wpt_ssl_port=configuration["wpt_ssl_port"],
+            hostname=configuration["hostname"]
+        )
+        results_api_handler = ResultsApiHandler(results_manager)
 
         # Initialize HTTP server
         http_handler = HttpHandler(
             static_handler=static_handler,
             sessions_api_handler=sessions_api_handler,
-            tests_api_handler=tests_api_handler)
+            tests_api_handler=tests_api_handler,
+            results_api_handler=results_api_handler
+        )
         self.handle_request = http_handler.handle_request
