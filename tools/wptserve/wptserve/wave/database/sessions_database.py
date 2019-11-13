@@ -110,6 +110,6 @@ class SessionsDatabase:
         tokens = []
         pattern = re.compile("^" + fragment)
         for session in self._sessions:
-            if pattern.match(session.token) is not None:
-                tokens.append(session.token)
+            if pattern.match(session["token"]) is not None:
+                tokens.append(session["token"])
         return tokens

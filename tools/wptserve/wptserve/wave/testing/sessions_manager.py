@@ -95,6 +95,10 @@ class SessionsManager:
                 self._push_to_cache(session)
         return session
 
+    def read_public_sessions(self):
+        session_tokens = self._database.read_public_sessions()
+        return session_tokens
+
     def update_session(self, session):
         self._push_to_cache(session)
         self._database.update_session(session)
@@ -294,3 +298,9 @@ class SessionsManager:
 
     def is_api_complete(self, api, session):
         return api not in session.pending_tests and api not in session.running_tests
+
+    def find_token(self, fragment):
+        if len(fragment) < 8: return None
+        tokens = self._database.find_tokens(fragment)
+        if len(tokens) != 1: return None
+        return tokens[0]

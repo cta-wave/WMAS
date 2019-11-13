@@ -7,6 +7,7 @@ from .api_handler import ApiHandler
 from ...utils.serializer import serialize_session
 from ...data.exceptions.not_found_exception import NotFoundException
 
+TOKEN_LENGTH = 36
 
 class SessionsApiHandler(ApiHandler):
     def __init__(self, sessions_manager, results_manager):
@@ -115,6 +116,17 @@ class SessionsApiHandler(ApiHandler):
             info = sys.exc_info()
             traceback.print_tb(info[2])
             print("Failed to read session status: " + info[0].__name__ + ": " + info[1].args[0])
+            response.status = 500
+
+    def read_public_sessions(self, request, response):
+        try:
+            session_tokens = self._sessions_manager.read_public_sessions()
+
+            self.send_json(session_tokens, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print("Failed to read session: " + info[0].__name__ + ": " + info[1].args[0])
             response.status = 500
 
     def update_session_configuration(self, request, response):
@@ -232,6 +244,23 @@ class SessionsApiHandler(ApiHandler):
             print("Failed to pause session: " + info[0].__name__ + ": " + info[1].args[0])
             response.status = 500
 
+    def find_session(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            fragment = uri_parts[3]
+
+            token = self._sessions_manager.find_token(fragment)
+            if token is None:
+                response.status = 404
+                return
+
+            self.send_json({"token": token}, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print("Failed to pause session: " + info[0].__name__ + ": " + info[1].args[0])
+            response.status = 500
+
     def handle_request(self, request, response):
         method = request.method
         uri_parts = self.parse_uri(request)
@@ -244,8 +273,15 @@ class SessionsApiHandler(ApiHandler):
                 return
 
         # /api/sessions/<token>
-        if len(uri_parts) == 1:         
+        if len(uri_parts) == 1:
+            function = uri_parts[0]     
             if method == "GET":
+                if function == "public":
+                    self.read_public_sessions(request, response)
+                    return
+                if len(function) != TOKEN_LENGTH:
+                    self.find_session(request, response)
+                    return
                 self.read_session(request, response)
                 return
             if method == "PUT":
