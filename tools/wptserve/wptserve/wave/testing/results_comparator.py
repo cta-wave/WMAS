@@ -1,4 +1,4 @@
-class ResultsComparator:
+class ResultsComparator(object):
     def __init__(self, results_manager):
         self._results_manager = results_manager
 
@@ -21,12 +21,12 @@ class ResultsComparator:
 
                 for api_result in result[api]:
                     passed = True
-                    for subtest in api_result["subtests"]:
-                        if subtest["status"] == "PASS": continue
+                    for subtest in api_result[u"subtests"]:
+                        if subtest[u"status"] == u"PASS": continue
                         passed = False
                         break
 
-                    test = api_result["test"]
+                    test = api_result[u"test"]
 
                     if passed:
                         if test in failed_tests[api]: continue

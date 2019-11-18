@@ -1,9 +1,11 @@
+from __future__ import division
+from __future__ import absolute_import
 import re
 from threading import Timer
 
 from .event_dispatcher import TEST_COMPLETED_EVENT
 
-class TestsManager:
+class TestsManager(object):
     def initialize(
         self, 
         test_loader, 
@@ -36,8 +38,8 @@ class TestsManager:
 
         timer = Timer(test_timeout, handler, [self, token, test])
         self._timeouts.append({
-            "test": test,
-            "timeout": timer
+            u"test": test,
+            u"timeout": timer
         })
 
         session.pending_tests = pending_tests
@@ -59,7 +61,7 @@ class TestsManager:
         apis.sort(key=lambda api: api.lower())
 
         for api in apis:
-            tests[api].sort(key=lambda api: api.replace("/", "").lower())
+            tests[api].sort(key=lambda api: api.replace(u"/", u"").lower())
 
         while test is None:
             if len(api) <= current_api: return None
@@ -89,15 +91,15 @@ class TestsManager:
                 continue
             test = tests[api][current_test]
 
-            if "manual" in test and "https" not in test: return test
+            if u"manual" in test and u"https" not in test: return test
 
-            if "manual" in test and "https" in test:
+            if u"manual" in test and u"https" in test:
                 if not has_http: return test
 
-            if "manual" not in test and "https" not in test:
+            if u"manual" not in test and u"https" not in test:
                 if not has_manual: return test
 
-            if "manual" not in test and "https" in test:
+            if u"manual" not in test and u"https" in test:
                 if not has_manual and not has_http: return test
 
             current_test = current_test + 1
@@ -107,8 +109,8 @@ class TestsManager:
 
     def remove_test_from_list(self, test_list, test):
         api = None
-        for part in test.split("/"):
-            if part is None or part == "": continue
+        for part in test.split(u"/"):
+            if part is None or part == u"": continue
             api = part
             break
         if api not in test_list: return test_list
@@ -121,8 +123,8 @@ class TestsManager:
 
     def add_test_to_list(self, test_list, test):
         api = None
-        for part in test.split("/"):
-            if part is None or part == "": continue
+        for part in test.split(u"/"):
+            if part is None or part == u"": continue
             api = part
             break
         if api in test_list and test in test_list[api]: return test_list
@@ -135,28 +137,28 @@ class TestsManager:
         test_timeout = None
         
         for path in list(timeouts.keys()):
-            pattern = re.compile("^" + path.replace(".", ""))
-            if pattern.match(test.replace(".", "")) is not None:
+            pattern = re.compile(u"^" + path.replace(u".", u""))
+            if pattern.match(test.replace(u".", u"")) is not None:
                 test_timeout = timeouts[path]
                 break
 
         if test_timeout is None:
-            if "manual" in test:
-                test_timeout = timeouts["manual"]
+            if u"manual" in test:
+                test_timeout = timeouts[u"manual"]
             else:
-                test_timeout = timeouts["automatic"]
+                test_timeout = timeouts[u"automatic"]
 
         return test_timeout
 
     def _on_test_timeout(self, token, test):
         data = {
-            "test": test,
-            "status": "TIMEOUT",
-            "message": None,
-            "subtests": [
+            u"test": test,
+            u"status": u"TIMEOUT",
+            u"message": None,
+            u"subtests": [
                 {
-                    "status": "TIMEOUT",
-                    "xstatus": "SERVERTIMEOUT"
+                    u"status": u"TIMEOUT",
+                    u"xstatus": u"SERVERTIMEOUT"
                 }
             ]
         }
@@ -176,8 +178,8 @@ class TestsManager:
         session.running_tests = running_tests
         session.completed_tests = completed_tests
 
-        timeout = next((t for t in self._timeouts if t["test"] == test), None)
-        timeout["timeout"].cancel()
+        timeout = next((t for t in self._timeouts if t[u"test"] == test), None)
+        timeout[u"timeout"].cancel()
         self._timeouts.remove(timeout)
 
         self.update_tests(

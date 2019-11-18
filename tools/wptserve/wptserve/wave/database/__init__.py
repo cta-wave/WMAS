@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 from .sessions_database import SessionsDatabase
 from .tests_database import TestsDatabase
 from .results_database import ResultsDatabase
 
-class Database:
+class Database(object):
     def __init__(self):
         sessions_database = SessionsDatabase()
         tests_database = TestsDatabase()

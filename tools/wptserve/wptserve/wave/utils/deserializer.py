@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from ..data.session import Session, UNKNOWN
 
 def deserialize_sessions(session_dicts):
@@ -8,46 +9,46 @@ def deserialize_sessions(session_dicts):
     return sessions
 
 def deserialize_session(session_dict):
-    token = ""
-    if "token" in session_dict: token = session_dict["token"]
+    token = u""
+    if u"token" in session_dict: token = session_dict[u"token"]
     tests = {}
-    if "tests" in session_dict: tests = session_dict["tests"]
+    if u"tests" in session_dict: tests = session_dict[u"tests"]
     types = []
-    if "types" in session_dict: types = session_dict["types"]
-    user_agent = ""
-    if "user_agent" in session_dict: user_agent = session_dict["user_agent"]
+    if u"types" in session_dict: types = session_dict[u"types"]
+    user_agent = u""
+    if u"user_agent" in session_dict: user_agent = session_dict[u"user_agent"]
     labels = []
-    if "labels" in session_dict: labels = session_dict["labels"]
+    if u"labels" in session_dict: labels = session_dict[u"labels"]
     timeouts = {}
-    if "timeouts" in session_dict: timeouts = session_dict["timeouts"]
+    if u"timeouts" in session_dict: timeouts = session_dict[u"timeouts"]
     pending_tests = {}
-    if "pending_tests" in session_dict: pending_tests = session_dict["pending_tests"]
+    if u"pending_tests" in session_dict: pending_tests = session_dict[u"pending_tests"]
     completed_tests = {}
-    if "completed_tests" in session_dict: completed_tests = session_dict["completed_tests"]
+    if u"completed_tests" in session_dict: completed_tests = session_dict[u"completed_tests"]
     running_tests = {}
-    if "running_tests" in session_dict: running_tests = session_dict["running_tests"]
+    if u"running_tests" in session_dict: running_tests = session_dict[u"running_tests"]
     status = UNKNOWN
-    if "status" in session_dict: status = session_dict["status"]
+    if u"status" in session_dict: status = session_dict[u"status"]
     test_files_count = None
-    if "test_files_count" in session_dict: test_files_count = session_dict["test_files_count"]
+    if u"test_files_count" in session_dict: test_files_count = session_dict[u"test_files_count"]
     test_files_completed = None
-    if "test_files_completed" in session_dict: test_files_completed = session_dict["test_files_completed"]
+    if u"test_files_completed" in session_dict: test_files_completed = session_dict[u"test_files_completed"]
     date_started = None
-    if "date_started" in session_dict: date_started = session_dict["date_started"]
+    if u"date_started" in session_dict: date_started = session_dict[u"date_started"]
     date_finished = None
-    if "date_finished" in session_dict: date_finished = session_dict["date_finished"]
+    if u"date_finished" in session_dict: date_finished = session_dict[u"date_finished"]
     is_public = False
-    if "is_public" in session_dict: is_public = session_dict["is_public"]
+    if u"is_public" in session_dict: is_public = session_dict[u"is_public"]
     reference_tokens = []
-    if "reference_tokens" in session_dict: reference_tokens = session_dict["reference_tokens"]
+    if u"reference_tokens" in session_dict: reference_tokens = session_dict[u"reference_tokens"]
     browser = None
-    if "browser" in session_dict: browser = session_dict["browser"]
+    if u"browser" in session_dict: browser = session_dict[u"browser"]
     webhook_urls = []
-    if "webhook_urls" in session_dict: webhook_urls = session_dict["webhook_urls"]
+    if u"webhook_urls" in session_dict: webhook_urls = session_dict[u"webhook_urls"]
     expiration_date = None
-    if "expiration_date" in session_dict: expiration_date = session_dict["expiration_date"]
+    if u"expiration_date" in session_dict: expiration_date = session_dict[u"expiration_date"]
     malfunctioning_tests = []
-    if "malfunctioning_tests" in session_dict: malfunctioning_tests = session_dict["malfunctioning_tests"]
+    if u"malfunctioning_tests" in session_dict: malfunctioning_tests = session_dict[u"malfunctioning_tests"]
 
     return Session(
         token=token,

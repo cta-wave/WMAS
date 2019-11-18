@@ -17,14 +17,14 @@ from .testing.event_dispatcher import EventDispatcher
 from .database import Database
 
 
-class WaveServer:
-    def initialize(self, configuration_file_path=".", application_directory_path=""):
-        sys.stdout.write("Loading configuration ...")
+class WaveServer(object):
+    def initialize(self, configuration_file_path=u".", application_directory_path=u""):
+        sys.stdout.write(u"Loading configuration ...")
         sys.stdout.flush()
 
         configuration = configuration_loader.load(configuration_file_path)
 
-        print(" done.")
+        print u" done."
 
         # Initialize Database
         database = Database()
@@ -44,7 +44,7 @@ class WaveServer:
         )
 
         results_manager.initialize(
-            results_directory_path=configuration["results_directory_path"],
+            results_directory_path=configuration[u"results_directory_path"],
             sessions_manager=sessions_manager,
             tests_manager=tests_manager,
             database=database
@@ -58,9 +58,9 @@ class WaveServer:
         )
 
         # Load Tests
-        exclude_list_file_path = os.path.abspath("./excluded.json")
-        include_list_file_path = os.path.abspath("./included.json")
-        manifest_file_path = os.path.abspath("./MANIFEST.json")
+        exclude_list_file_path = os.path.abspath(u"./excluded.json")
+        include_list_file_path = os.path.abspath(u"./included.json")
+        manifest_file_path = os.path.abspath(u"./MANIFEST.json")
         test_loader.initialize(
             exclude_list_file_path,
             include_list_file_path,
@@ -75,9 +75,9 @@ class WaveServer:
         tests_api_handler = TestsApiHandler(
             tests_manager=tests_manager, 
             sessions_manager=sessions_manager,
-            wpt_port=configuration["wpt_port"],
-            wpt_ssl_port=configuration["wpt_ssl_port"],
-            hostname=configuration["hostname"]
+            wpt_port=configuration[u"wpt_port"],
+            wpt_ssl_port=configuration[u"wpt_ssl_port"],
+            hostname=configuration[u"hostname"]
         )
         results_api_handler = ResultsApiHandler(results_manager)
 

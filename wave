@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$1" == "init" ]; then
-  python -m venv venv &&\
+  virtualenv --python=$(which python) venv &&\
   source venv/bin/activate &&\
   pip install -r requirements.txt
 elif [ "$1" == "start" ]; then

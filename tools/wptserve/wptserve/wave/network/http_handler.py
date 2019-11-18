@@ -1,10 +1,11 @@
-class HttpHandler:
+class HttpHandler(object):
     def __init__(
         self, 
         static_handler=None, 
         sessions_api_handler=None,
         tests_api_handler=None,
-        results_api_handler=None):
+        results_api_handler=None
+    ):
         self.static_handler = static_handler
         self.sessions_api_handler = sessions_api_handler
         self.tests_api_handler = tests_api_handler
@@ -13,12 +14,12 @@ class HttpHandler:
     def handle_request(self, request, response):
         is_api_call = False
 
-        for index, part in enumerate(request.request_path.split("/")):
+        for index, part in enumerate(request.request_path.split(u"/")):
             if index > 2:
                 break
-            if part == "" or part == None or index != 2:
+            if part == u"" or part == None or index != 2:
                 continue
-            if part != "api":
+            if part != u"api":
                 continue
 
             is_api_call = True
@@ -31,23 +32,23 @@ class HttpHandler:
     def handle_api(self, request, response):
         api_name = None
 
-        for index, part in enumerate(request.request_path.split("/")):
+        for index, part in enumerate(request.request_path.split(u"/")):
             if index > 3:
                 break
-            if part == "" or part == None or index != 3:
+            if part == u"" or part == None or index != 3:
                 continue
             api_name = part
 
         if api_name is None:
             return
         
-        if api_name == "sessions":
+        if api_name == u"sessions":
             self.sessions_api_handler.handle_request(request, response)
             return
-        if api_name == "tests":
+        if api_name == u"tests":
             self.tests_api_handler.handle_request(request, response)
             return
-        if api_name == "results":
+        if api_name == u"results":
             self.results_api_handler.handle_request(request, response)
             return
 

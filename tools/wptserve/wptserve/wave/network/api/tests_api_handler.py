@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import sys
 import traceback
@@ -37,10 +38,10 @@ class TestsApiHandler(ApiHandler):
         
         data = serialize_session(session)
         tests = {
-            "token": token,
-            "pending_tests": data["pending_tests"],
-            "running_tests": data["running_tests"],
-            "completed_tests": data["completed_tests"]
+            u"token": token,
+            u"pending_tests": data[u"pending_tests"],
+            u"running_tests": data[u"running_tests"],
+            u"completed_tests": data[u"completed_tests"]
         }
         self.send_json(tests, response)
 
@@ -59,26 +60,26 @@ class TestsApiHandler(ApiHandler):
             if session.status == PAUSED:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri="/pause.html",
+                    uri=u"/pause.html",
                     token=token
                 )
-                self.send_json({"next_test": url}, response)
+                self.send_json({u"next_test": url}, response)
                 return
             if session.status == COMPLETED or session.status == ABORTED:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri="/finish.html",
+                    uri=u"/finish.html",
                     token=token
                 )
-                self.send_json({"next_test": url}, response)
+                self.send_json({u"next_test": url}, response)
                 return
             if session.status == PENDING:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri="/newsession.html",
+                    uri=u"/newsession.html",
                     token=token
                 )
-                self.send_json({"next_test": url}, response)
+                self.send_json({u"next_test": url}, response)
                 return
             
             test = self._tests_manager.next_test(session)
@@ -87,10 +88,10 @@ class TestsApiHandler(ApiHandler):
                 if session.status == RUNNING: return
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri="/finish.html",
+                    uri=u"/finish.html",
                     token=token
                 )
-                self.send_json({"next_test": url}, response)
+                self.send_json({u"next_test": url}, response)
                 self._sessions_manager.complete_session(token)
                 return
 
@@ -103,12 +104,12 @@ class TestsApiHandler(ApiHandler):
             )
 
             self.send_json({
-                "next_test": url
+                u"next_test": url
             }, response)
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print("Failed to read next test: " + info[0].__name__ + ": " + info[1].args[0])
+            print u"Failed to read next test: u" + info[0].__name__ + u": u" + info[1].args[0]
             response.status = 500
 
     def handle_request(self, request, response):
@@ -118,21 +119,21 @@ class TestsApiHandler(ApiHandler):
 
         # /api/tests
         if len(uri_parts) == 0:         
-            if method == "GET":
+            if method == u"GET":
                 self.read_tests(response)
                 return
 
         # /api/tests/<token>
         if len(uri_parts) == 1:         
-            if method == "GET":
+            if method == u"GET":
                 self.read_session_tests(request, response)
                 return
 
         # /api/tests/<token>/<function>
         if len(uri_parts) == 2:
             function = uri_parts[1]
-            if method == "GET":
-                if function == "next":
+            if method == u"GET":
+                if function == u"next":
                     self.read_next_test(request, response)
                     return
 
@@ -143,18 +144,18 @@ class TestsApiHandler(ApiHandler):
             hostname=hostname,
             uri=uri,
             port=self._wpt_port,
-            query="?token=" + token
+            query=u"?token=u" + token
         )
 
     def _generate_test_url(self, hostname, test, token, test_timeout):
-        protocol = "http"
+        protocol = u"http"
         port = self._wpt_port
 
-        if "https" in test:
-            protocol = "https"
+        if u"https" in test:
+            protocol = u"https"
             port = self._wpt_ssl_port
 
-        query = "?token={}&timeout={}".format(token, test_timeout)
+        query = u"?token={}&timeout={}".format(token, test_timeout)
 
         return self._generate_url(
             protocol=protocol,
@@ -164,6 +165,6 @@ class TestsApiHandler(ApiHandler):
             query=query
         )
 
-    def _generate_url(self, hostname, port=80, uri="/", query="", protocol="http"):
-        if not uri.startswith("/"): uri = "/" + uri
-        return "{}://{}:{}{}{}".format(protocol, hostname, port, uri, query)
+    def _generate_url(self, hostname, port=80, uri=u"/", query=u"", protocol=u"http"):
+        if not uri.startswith(u"/"): uri = u"/" + uri
+        return u"{}://{}:{}{}{}".format(protocol, hostname, port, uri, query)

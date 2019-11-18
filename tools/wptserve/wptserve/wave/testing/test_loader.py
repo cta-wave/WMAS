@@ -1,12 +1,13 @@
+from __future__ import absolute_import
 import json
 import os
 import re
 
-AUTOMATIC = "automatic"
-MANUAL = "manual"
+AUTOMATIC = u"automatic"
+MANUAL = u"manual"
 
 
-class TestLoader:
+class TestLoader(object):
     def initialize(
         self,
         exclude_list_file_path,
@@ -21,30 +22,30 @@ class TestLoader:
         self._tests[MANUAL] = {}
 
     def load_tests(self, manifest_file_path):
-        print("LOAD TESTS")
+        print(u"LOAD TESTS")
         manifest_file_handle = open(manifest_file_path)
         manifest_file = manifest_file_handle.read()
         manifest = json.loads(manifest_file)
-        tests = manifest["items"]
+        tests = manifest[u"items"]
 
         include_list = self._load_test_list(self._include_list_file_path)
         exclude_list = self._load_test_list(self._exclude_list_file_path)
 
-        if "testharness" in tests:
+        if u"testharness" in tests:
             self._tests[AUTOMATIC] = self._load_tests(
-                tests=tests["testharness"],
+                tests=tests[u"testharness"],
                 exclude_list=exclude_list
             )
 
-        if "manual" in tests:
+        if u"manual" in tests:
             self._tests[MANUAL] = self._load_tests(
-                tests=tests["manual"],
+                tests=tests[u"manual"],
                 include_list=include_list
             )
 
         for api in self._tests[AUTOMATIC]:
             for test_path in self._tests[AUTOMATIC][api][:]:
-                if "manual" not in test_path:
+                if u"manual" not in test_path:
                     continue
                 self._tests[AUTOMATIC][api].remove(test_path)
 
@@ -67,8 +68,8 @@ class TestLoader:
         return loaded_tests
 
     def _parse_api_name(self, test_path):
-        for part in test_path.split("/"):
-            if part == "":
+        for part in test_path.split(u"/"):
+            if part == u"":
                 continue
             return part
 
@@ -78,7 +79,7 @@ class TestLoader:
         if include_list is not None and len(include_list) > 0:
             is_valid = False
             for include_test in include_list:
-                pattern = re.compile("^" + include_test)
+                pattern = re.compile(u"^" + include_test)
                 if pattern.match(test_path) is not None:
                     is_valid = True
                     break
@@ -89,7 +90,7 @@ class TestLoader:
         if exclude_list is not None and len(exclude_list) > 0:
             is_valid = True
             for exclude_test in exclude_list:
-                pattern = re.compile("^" + exclude_test)
+                pattern = re.compile(u"^" + exclude_test)
                 if pattern.match(test_path) is not None:
                     is_valid = False
                     break
@@ -105,9 +106,9 @@ class TestLoader:
         file_content = file_handle.read()
 
         for line in file_content.split():
-            line = line.replace(" ", "")
-            line = re.sub(r"^#", "", line)
-            if line == "":
+            line = line.replace(u" u", u"")
+            line = re.sub(r"^#", u"", line)
+            if line == u"":
                 continue
             tests.append(line)
 

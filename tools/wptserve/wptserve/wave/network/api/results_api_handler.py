@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import sys
 import traceback
@@ -18,8 +19,8 @@ class ResultsApiHandler(ApiHandler):
             token = uri_parts[3]
 
             data = None
-            body = request.body.decode("utf-8")
-            if body != "":
+            body = request.body.decode(u"utf-8")
+            if body != u"":
                 data = json.loads(body)
 
             self._results_manager.create_result(token, data)
@@ -27,7 +28,7 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print("Failed to create result: " + info[0].__name__ + ": " + info[1].args[0])
+            print u"Failed to create result: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
     def read_results(self, request, response):
@@ -36,8 +37,8 @@ class ResultsApiHandler(ApiHandler):
             token = uri_parts[3]
 
             data = None
-            body = request.body.decode("utf-8")
-            if body != "":
+            body = request.body.decode(u"utf-8")
+            if body != u"":
                 data = json.loads(body)
 
             results = self._results_manager.read_results(token)
@@ -47,7 +48,7 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print("Failed to create result: " + info[0].__name__ + ": " + info[1].args[0])
+            print u"Failed to create result: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
     def handle_request(self, request, response):
@@ -57,11 +58,11 @@ class ResultsApiHandler(ApiHandler):
 
         # /api/results/<token>
         if len(uri_parts) == 1:         
-            if method == "POST":
+            if method == u"POST":
                 self.create_result(request, response)
                 return
 
-            if method == "GET":
+            if method == u"GET":
                 self.read_results(request, response)
                 return
 

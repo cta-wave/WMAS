@@ -1,4 +1,4 @@
-class ResultsDatabase:
+class ResultsDatabase(object):
     def initialize(self):
         self._results = {}
 

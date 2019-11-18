@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import shutil
 import re
@@ -5,7 +6,7 @@ import re
 from .results_comparator import ResultsComparator
 
 
-class ResultsManager:
+class ResultsManager(object):
     def initialize(
         self, 
         results_directory_path,
@@ -22,7 +23,7 @@ class ResultsManager:
 
     def create_result(self, token, data):
         result = self.prepare_result(data)
-        test = result["test"]
+        test = result[u"test"]
 
         session = self._sessions_manager.read_session(token)
 
@@ -32,7 +33,7 @@ class ResultsManager:
         self._tests_manager.complete_test(test, session)
         self._database.create_result(token, result)
 
-        api = next((p for p in test.split("/") if p is not ""), None)
+        api = next((p for p in test.split(u"/") if p is not u""), None)
         if not self._sessions_manager.is_api_complete(api, session): return
         self.save_api_results(token, api)
         self.generate_report(token, api)
@@ -46,17 +47,17 @@ class ResultsManager:
     def read_results(self, token, filter_path=None):
         filter_api = None
         if filter_path is not None:
-            filter_api = next((p for p in filter_path.split("/") if p is not None), None)
+            filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
         results = self._database.read_results(token)
 
         results_per_api = {}
 
         for result in results:
-            api = next((p for p in result["test"].split("/") if p is not ""), None)
+            api = next((p for p in result[u"test"].split(u"/") if p is not u""), None)
             if filter_api is not None and api.lower() != filter_api.lower(): continue
             if filter_path is not None:
-                pattern = re.compile("^" + filter_path.replace(".", ""))
-                if pattern.match(result["test"].replace(".", "")) is None: continue
+                pattern = re.compile(u"^" + filter_path.replace(u".", u""))
+                if pattern.match(result[u"test"].replace(u".", u"")) is None: continue
             if api not in results_per_api: results_per_api[api] = []
             results_per_api[api].append(result)
 
@@ -70,44 +71,44 @@ class ResultsManager:
 
     def prepare_result(self, result):
         harness_status_map = {
-            0: "OK",
-            1: "ERROR",
-            2: "TIMEOUT",
-            3: "NOTRUN",
-            "OK": "OK",
-            "ERROR": "ERROR",
-            "TIMEOUT": "TIMEOUT",
-            "NOTRUN": "NOTRUN"
+            0: u"OK",
+            1: u"ERROR",
+            2: u"TIMEOUT",
+            3: u"NOTRUN",
+            u"OK": u"OK",
+            u"ERROR": u"ERROR",
+            u"TIMEOUT": u"TIMEOUT",
+            u"NOTRUN": u"NOTRUN"
         }
 
         subtest_status_map = {
-            0: "PASS",
-            1: "FAIL",
-            2: "TIMEOUT",
-            3: "NOTRUN",
-            "PASS": "PASS",
-            "FAIL": "FAIL",
-            "TIMEOUT": "TIMEOUT",
-            "NOTRUN": "NOTRUN"
+            0: u"PASS",
+            1: u"FAIL",
+            2: u"TIMEOUT",
+            3: u"NOTRUN",
+            u"PASS": u"PASS",
+            u"FAIL": u"FAIL",
+            u"TIMEOUT": u"TIMEOUT",
+            u"NOTRUN": u"NOTRUN"
         }
 
-        if "tests" in result:
-            for test in results["tests"]:
-                test["status"] = subtest_status_map[test["status"]]
-                if "stack" in test: del test["stack"]
-            result["subtests"] = result["tests"]
-            del result["tests"]
+        if u"tests" in result:
+            for test in results[u"tests"]:
+                test[u"status"] = subtest_status_map[test[u"status"]]
+                if u"stack" in test: del test[u"stack"]
+            result[u"subtests"] = result[u"tests"]
+            del result[u"tests"]
 
-        if "stack" in result: del result["stack"]
-        result["status"] = harness_status_map[result["status"]]
+        if u"stack" in result: del result[u"stack"]
+        result[u"status"] = harness_status_map[result[u"status"]]
 
         return result
 
     def save_api_results(self, token, api):
-        print("TODO: IMPLEMENT save_api_results")
+        print u"TODO: IMPLEMENT save_api_results"
     
     def generate_report(self, token, api):
-        print("TODO: IMPLEMENT generate_report")
+        print u"TODO: IMPLEMENT generate_report"
 
     def create_info_file(self, session):
-        print("TODO: IMPLEMENT create_info_file")
+        print u"TODO: IMPLEMENT create_info_file"

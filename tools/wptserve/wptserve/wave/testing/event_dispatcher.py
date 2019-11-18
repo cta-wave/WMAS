@@ -1,9 +1,9 @@
-STATUS_EVENT = "status"
-RESUME_EVENT = "resume"
-TEST_COMPLETED_EVENT = "test_completed"
+STATUS_EVENT = u"status"
+RESUME_EVENT = u"resume"
+TEST_COMPLETED_EVENT = u"test_completed"
 
 
-class EventDispatcher:
+class EventDispatcher(object):
     def __init__(self):
         self._clients = {}
 
@@ -31,8 +31,8 @@ class EventDispatcher:
         if token not in self._clients:
             return
         event = {
-            "type": event_type,
-            "data": data
+            u"type": event_type,
+            u"data": data
         }
 
         for client in self._clients[token]:

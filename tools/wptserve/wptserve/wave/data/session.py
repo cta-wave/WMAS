@@ -1,19 +1,20 @@
+from __future__ import absolute_import
 from ..testing.test_loader import AUTOMATIC, MANUAL
 
-PAUSED = "paused"
-RUNNING = "running"
-COMPLETED = "completed"
-ABORTED = "aborted"
-PENDING = "pending"
-UNKNOWN = "unknown"
+PAUSED = u"paused"
+RUNNING = u"running"
+COMPLETED = u"completed"
+ABORTED = u"aborted"
+PENDING = u"pending"
+UNKNOWN = u"unknown"
 
 
-class Session:
+class Session(object):
     def __init__(
             self,
-            token="",
+            token=u"",
             types=[MANUAL],
-            user_agent="",
+            user_agent=u"",
             labels=[],
             tests={},
             pending_tests={},

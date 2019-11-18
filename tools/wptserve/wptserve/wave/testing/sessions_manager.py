@@ -1,3 +1,5 @@
+from __future__ import division
+from __future__ import absolute_import
 import uuid
 import time
 
@@ -10,12 +12,12 @@ from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
 
 DEFAULT_TEST_TYPES = [AUTOMATIC, MANUAL]
-DEFAULT_TEST_PATHS = ["/"]
+DEFAULT_TEST_PATHS = [u"/"]
 DEFAULT_TEST_AUTOMATIC_TIMEOUT = 60000
 DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
-class SessionsManager:
+class SessionsManager(object):
     def initialize(self, test_loader, database, event_dispatcher, tests_manager):
         self._test_loader = test_loader
         self._database = database
@@ -31,26 +33,26 @@ class SessionsManager:
         timeouts={},
         reference_tokens=[],
         webhook_urls=[],
-        user_agent="",
+        user_agent=u"",
         labels=[],
         expiration_date=None
     ):
-        if "include" not in tests:
-            tests["include"] = DEFAULT_TEST_PATHS
-        if "exclude" not in tests:
-            tests["exclude"] = []
-        if "automatic" not in timeouts:
-            timeouts["automatic"] = DEFAULT_TEST_AUTOMATIC_TIMEOUT
-        if "manual" not in timeouts:
-            timeouts["manual"] = DEFAULT_TEST_MANUAL_TIMEOUT
+        if u"include" not in tests:
+            tests[u"include"] = DEFAULT_TEST_PATHS
+        if u"exclude" not in tests:
+            tests[u"exclude"] = []
+        if u"automatic" not in timeouts:
+            timeouts[u"automatic"] = DEFAULT_TEST_AUTOMATIC_TIMEOUT
+        if u"manual" not in timeouts:
+            timeouts[u"manual"] = DEFAULT_TEST_MANUAL_TIMEOUT
         if types is None:
             types = DEFAULT_TEST_TYPES
 
-        token = str(uuid.uuid1())
+        token = unicode(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
             types,
-            include_list=tests["include"],
-            exclude_list=tests["exclude"],
+            include_list=tests[u"include"],
+            exclude_list=tests[u"exclude"],
             reference_tokens=reference_tokens)
 
         browser = parse_user_agent(user_agent)
@@ -107,22 +109,22 @@ class SessionsManager:
         self, token, tests, types, timeouts, reference_tokens, webhook_urls
     ):
         session = self.read_session(token)
-        if session is None: raise NotFoundException("Could not find session")
+        if session is None: raise NotFoundException(u"Could not find session")
         if session.status != PENDING:
             return
 
         if tests is not None:
-            if "include" not in tests:
-                tests["include"] = session.tests["include"]
-            if "exclude" not in tests:
-                tests["exclude"] = session.tests["exclude"]
+            if u"include" not in tests:
+                tests[u"include"] = session.tests[u"include"]
+            if u"exclude" not in tests:
+                tests[u"exclude"] = session.tests[u"exclude"]
             if reference_tokens is None:
                 reference_tokens = session.reference_tokens
             if types is None:
                 types = session.types
             pending_tests = self._test_loader.get_tests(
-                include_list=tests["include"],
-                exclude_list=tests["exclude"],
+                include_list=tests[u"include"],
+                exclude_list=tests[u"exclude"],
                 reference_tokens=reference_tokens,
                 types=types
             )
