@@ -33,14 +33,22 @@ class ResultsManager(object):
         self._tests_manager.complete_test(test, session)
         self._database.create_result(token, result)
 
-        api = next((p for p in test.split(u"/") if p is not u""), None)
+        api = ""
+        for part in test.split(u"/"):
+            if part is not u"":
+                api = part
+                break
         if not self._sessions_manager.is_api_complete(api, session): return
         self.save_api_results(token, api)
         self.generate_report(token, api)
 
         test_files_count = session.test_files_count
         apis = list(test_files_count.keys())
-        if not next((a for a in apis if self._sessions_manager.is_api_complete(a, session)), True): return
+        all_apis_complete = True
+        for api in apis:
+            if not self._sessions_manager.is_api_complete(api, session):
+                all_apis_complete = False
+        if not all_apis_complete: return
         self._sessions_manager.complete_session(token)
         self.create_info_file(session)
 
@@ -63,6 +71,48 @@ class ResultsManager(object):
 
         return results_per_api
 
+    def read_flattened_results(self, token):
+        results = self.read_results(token)
+        flattened_results = {}
+
+        for api in results:
+            if api not in flattened_results:
+                flattened_results[api] = {
+                    u"pass": 0,
+                    u"fail": 0,
+                    u"timeout": 0,
+                    u"not_run": 0
+                }
+
+            for result in results[api]:
+                if u"subtests" not in result:
+                    if result[u"status"] == u"OK":
+                        flattened_results[api][u"pass"] += 1
+                        continue
+                    if result[u"status"] == u"ERROR":
+                        flattened_results[api][u"fail"] += 1
+                        continue
+                    if result[u"status"] == u"TIMEOUT":
+                        flattened_results[api][u"timeout"] += 1
+                        continue
+                    if result[u"status"] == u"NOTRUN":
+                        flattened_results[api][u"not_run"] += 1
+                        continue
+                for test in result[u"subtests"]:
+                    if test[u"status"] == u"PASS":
+                        flattened_results[api][u"pass"] += 1
+                        continue
+                    if test[u"status"] == u"FAIL":
+                        flattened_results[api][u"fail"] += 1
+                        continue
+                    if test[u"status"] == u"TIMEOUT":
+                        flattened_results[api][u"timeout"] += 1
+                        continue
+                    if test[u"status"] == u"NOTRUN":
+                        flattened_results[api][u"not_run"] += 1
+                        continue
+
+        return flattened_results
 
     def delete_results(self, token):
         results_directory = os.path.join(self._results_directory_path, token)

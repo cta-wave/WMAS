@@ -36,11 +36,6 @@ class ResultsApiHandler(ApiHandler):
             uri_parts = self.parse_uri(request)
             token = uri_parts[3]
 
-            data = None
-            body = request.body.decode(u"utf-8")
-            if body != u"":
-                data = json.loads(body)
-
             results = self._results_manager.read_results(token)
 
             self.send_json(response=response, data=results)
@@ -48,7 +43,22 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to create result: " + info[0].__name__ + u": " + info[1].args[0]
+            print u"Failed to read results: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
+    def read_results_compact(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+
+            results = self._results_manager.read_flattened_results(token)
+
+            self.send_json(response=response, data=results)
+
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read compact results: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
     def handle_request(self, request, response):
@@ -65,5 +75,13 @@ class ResultsApiHandler(ApiHandler):
             if method == u"GET":
                 self.read_results(request, response)
                 return
+
+        # /api/results/<token>/<function>
+        if len(uri_parts) == 2:  
+            function = uri_parts[1]
+            if method == u"GET":
+                if function == u"compact":
+                    self.read_results_compact(request, response)
+                    return
 
         response.status = 404
