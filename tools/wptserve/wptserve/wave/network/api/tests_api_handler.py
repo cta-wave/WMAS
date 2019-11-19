@@ -7,6 +7,8 @@ from .api_handler import ApiHandler
 from ...utils.serializer import serialize_session
 from ...data.session import PAUSED, COMPLETED, ABORTED, PENDING, RUNNING
 
+DEFAULT_LAST_COMPLETED_TESTS_COUNT = 5
+DEFAULT_LAST_COMPLETED_TESTS_STATUS = [u"ALL"]
 
 class TestsApiHandler(ApiHandler):
     def __init__(
@@ -112,6 +114,48 @@ class TestsApiHandler(ApiHandler):
             print u"Failed to read next test: u" + info[0].__name__ + u": u" + info[1].args[0]
             response.status = 500
 
+    def read_last_completed(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            query = self.parse_query_parameters(request)
+            count = None
+            if u"count" in query: 
+                count = query[u"count"]
+            else:
+                count = DEFAULT_LAST_COMPLETED_TESTS_COUNT
+
+            status = None
+            if u"status" in query:
+                status = query[u"status"]
+            else:
+                status = DEFAULT_LAST_COMPLETED_TESTS_STATUS
+
+            completed_tests = self._tests_manager.read_last_completed_tests(token, count)
+            tests = {}
+            for one_status in status:
+                one_status = one_status.lower()
+                if one_status == u"pass":
+                    tests[u"pass"] = completed_tests[u"pass"]
+                    continue
+                if one_status == u"fail":
+                    tests[u"fail"] = completed_tests[u"fail"]
+                    continue
+                if one_status == u"timeout":
+                    tests[u"timeout"] = completed_tests[u"timeout"]
+                    continue
+                if one_status == u"all":
+                    tests[u"pass"] = completed_tests[u"pass"]
+                    tests[u"fail"] = completed_tests[u"fail"]
+                    tests[u"timeout"] = completed_tests[u"timeout"]
+                    break
+            self.send_json(data=tests, response=response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read next test: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
     def handle_request(self, request, response):
         method = request.method
         uri_parts = self.parse_uri(request)
@@ -135,6 +179,9 @@ class TestsApiHandler(ApiHandler):
             if method == u"GET":
                 if function == u"next":
                     self.read_next_test(request, response)
+                    return
+                if function == u"last_completed":
+                    self.read_last_completed(request, response)
                     return
 
         response.status = 404

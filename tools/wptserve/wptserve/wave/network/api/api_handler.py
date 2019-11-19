@@ -16,3 +16,25 @@ class ApiHandler(object):
                 continue
             uri_parts.append(part)
         return uri_parts
+
+    def parse_query_parameters(self, request):
+        if u"?" not in request.request_path: return {}
+        query = request.request_path.split(u"?")[1]
+        if query == u"": return {}
+        key_value_pairs = []
+        if u"&" in query:
+            key_value_pairs = query.split(u"&")
+        else:
+            key_value_pairs.append(query)
+
+        parsed_parameters = {}
+        for key_value_pair in key_value_pairs:
+            if u"=" not in key_value_pair:
+                parsed_parameters[key_value_pair] = True
+                continue
+            key, value = key_value_pair.split(u"=")
+            parsed_parameters[key] = value
+
+        return parsed_parameters
+
+

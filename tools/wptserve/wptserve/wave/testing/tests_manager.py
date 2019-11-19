@@ -49,6 +49,84 @@ class TestsManager(object):
         timer.start()
         return test
 
+    def read_last_completed_tests(self, token, count):
+        results = self._results_manager.read_results(token)
+
+        results_tests = {}
+        for api in list(results.keys()):
+            results_tests[api] = []
+            for result in results[api]:
+                results_tests[api].append(result[u"test"])
+            
+        sorted_results_tests = self._sort_tests_by_execution(results_tests)
+        sorted_results_tests.reverse()
+
+        tests = {u"pass": [], u"fail": [], u"timeout": []}
+        
+        for test in sorted_results_tests:
+            api = None
+            for part in test.split(u"/"):
+                if part != u"":
+                    api = part
+                    break
+
+            result = None
+            for potential_result in results[api]:
+                if potential_result[u"test"] == test:
+                    result = potential_result
+                    break
+
+            if result[u"status"] == u"ERROR":
+                if len(tests[u"fail"]) < count:
+                    tests[u"fail"].append(result[u"test"])
+            elif result[u"status"] == u"TIMEOUT":
+                if len(tests[u"timeout"]) < count:
+                    tests[u"timeout"].append(result[u"test"])
+            passes = True
+            for test in result[u"subtests"]:
+                if test[u"status"] != u"PASS":
+                    passes = False
+                    break
+
+            if passes and len(tests[u"pass"]) < count:
+                tests[u"pass"].append(result[u"test"])
+            if not passes and len(tests[u"fail"]) < count:
+                tests[u"fail"].append(result[u"test"])
+            if len(tests[u"pass"]) == count and len(tests[u"fail"]) == count and len(tests[u"timeout"]) == count:
+                return tests
+        return tests
+
+    def _sort_tests_by_execution(self, tests):
+        sorted_tests = []
+
+        for api in list(tests.keys()):
+            for test in tests[api]:
+                sorted_tests.append(test)
+
+        def compare(tests_manager, test_a, test_b):
+            micro_test_list = {}
+            api_a = u""
+            for part in test_a.split(u"/"):
+                if part != u"":
+                    api_a = part
+                    break
+            api_b = u""
+            for part in test_b.split(u"/"):
+                if part != u"":
+                    api_b = part
+                    break
+            if api_a == api_b:
+                micro_test_list[api_a] = [test_a, test_b]
+            else:
+                micro_test_list[api_a] = [test_a]
+                micro_test_list[api_b] = [test_b]
+            next_test = tests_manager._get_next_test_from_list(micro_test_list)
+            if next_test == test_a: return -1
+            return 1
+
+        sorted_tests.sort(cmp=lambda test_a, test_b: compare(self, test_a, test_b))
+        return sorted_tests
+
     def _get_next_test_from_list(self, tests):
         test = None
         api = None
