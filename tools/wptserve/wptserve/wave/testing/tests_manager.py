@@ -57,6 +57,8 @@ class TestsManager(object):
         current_api = 0
         current_test = 0
 
+        print tests
+
         apis = list(tests.keys())
         apis.sort(key=lambda api: api.lower())
 
@@ -64,7 +66,7 @@ class TestsManager(object):
             tests[api].sort(key=lambda api: api.replace(u"/", u"").lower())
 
         while test is None:
-            if len(api) <= current_api: return None
+            if len(apis) <= current_api: return None
             api = apis[current_api]
 
             if len(tests[api]) <= current_test:

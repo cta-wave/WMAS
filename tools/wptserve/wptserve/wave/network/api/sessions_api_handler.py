@@ -127,7 +127,7 @@ class SessionsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read session: u" + info[0].__name__ + u": u" + info[1].args[0]
+            print u"Failed to read public session: u" + info[0].__name__ + u": u" + info[1].args[0]
             response.status = 500
 
     def update_session_configuration(self, request, response):
