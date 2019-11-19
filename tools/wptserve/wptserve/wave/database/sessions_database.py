@@ -68,7 +68,7 @@ class SessionsDatabase(object):
     def read_public_sessions(self):
         public_sessions = []
         for session in self._sessions:
-            if not session.is_public: continue
+            if not session[u"is_public"]: continue
             public_sessions.append(session)
         return public_sessions
 
