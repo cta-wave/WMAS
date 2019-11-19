@@ -892,56 +892,6 @@
 							"response": []
 						},
 						{
-							"name": "Read Session Configuration",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"id": "f6b545d7-6252-4609-b873-73be94532d87",
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"var jsonData = pm.response.json();",
-											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
-											"",
-											"pm.test(\"JSON structure contains expiration date\", function () {",
-											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
-											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
-											"});",
-											"",
-											"var expirationDate = pm.globals.get(\"expiration_date\");",
-											"",
-											"pm.test(\"Expiration date is as specified\", function () {",
-											"    pm.expect(jsonData.expiration_date).to.equal(expirationDate);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
-									"protocol": "{{protocol}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}",
-									"path": [
-										"wave",
-										"api",
-										"sessions",
-										"{{session_token}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Read Expired Session",
 							"event": [
 								{
@@ -963,7 +913,11 @@
 										"exec": [
 											"var expirationDate = pm.globals.get(\"expiration_date\");",
 											"",
-											"setTimeout(function () {}, expirationDate - Date.now());"
+											"var timeout = expirationDate - Date.now() + 1000",
+											"",
+											"console.log(timeout)",
+											"",
+											"setTimeout(function () {}, timeout);"
 										],
 										"type": "text/javascript"
 									}
@@ -1575,7 +1529,12 @@
 									"",
 									"pm.globals.set(\"automatic_timeout\", automaticTimeout);",
 									"pm.globals.set(\"manual_timeout\", manualTimeout);",
-									"pm.globals.set(\"special_timeout\", specialTimeout);"
+									"pm.globals.set(\"special_timeout\", specialTimeout);",
+									"",
+									"const availableTests = pm.globals.get(\"available_tests\");",
+									"const test1 = availableTests[Object.keys(availableTests)[0]][0];",
+									"",
+									"pm.globals.set(\"single_test_1\", test1);"
 								],
 								"type": "text/javascript"
 							}
@@ -1593,7 +1552,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": 1000\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
+							"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    },\n    \"types\": [\n        \"automatic\"\n    ]\n}"
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
@@ -1739,6 +1698,53 @@
 								"tests",
 								"{{session_token}}",
 								"next"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Result",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "91dd9303-8cae-4aa7-ab22-a1892270e313",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"results",
+								"{{session_token}}"
 							]
 						}
 					},
