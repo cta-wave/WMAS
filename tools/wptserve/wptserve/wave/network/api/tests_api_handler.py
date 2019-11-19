@@ -85,7 +85,7 @@ class TestsApiHandler(ApiHandler):
             test = self._tests_manager.next_test(session)
 
             if test is None:
-                if session.status == RUNNING: return
+                if session.status != RUNNING: return
                 url = self._generate_wave_url(
                     hostname=hostname,
                     uri=u"/finish.html",
