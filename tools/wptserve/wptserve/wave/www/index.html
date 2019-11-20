@@ -242,7 +242,7 @@
           window.open(configurationUrl, "_blank");
         };
 
-        WaveService.connect(token);
+        WaveService.connectHttpPolling(token);
         WaveService.onMessage(function(message) {
           if (message.type === "resume") {
             var resumeToken = message.data;

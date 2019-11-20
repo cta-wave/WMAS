@@ -150,7 +150,7 @@
         },
         connectWebSocket() {
           if (!WaveService.isConnected()) {
-            WaveService.connect(token);
+            WaveService.connectHttpPolling(token);
             WaveService.onMessage(message => {
               resultUi.refreshData(message.type);
             });

@@ -71,7 +71,10 @@ class WaveServer(object):
         # Initialize HTTP handlers
         static_handler = StaticHandler()
         sessions_api_handler = SessionsApiHandler(
-            sessions_manager=sessions_manager, results_manager=results_manager)
+            sessions_manager=sessions_manager, 
+            results_manager=results_manager,
+            event_dispatcher=event_dispatcher
+        )
         tests_api_handler = TestsApiHandler(
             tests_manager=tests_manager, 
             sessions_manager=sessions_manager,

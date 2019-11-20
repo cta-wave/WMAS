@@ -1,3 +1,4 @@
+
 STATUS_EVENT = u"status"
 RESUME_EVENT = u"resume"
 TEST_COMPLETED_EVENT = u"test_completed"
@@ -7,13 +8,13 @@ class EventDispatcher(object):
     def __init__(self):
         self._clients = {}
 
-    def add_session_client(client):
+    def add_session_client(self, client):
         token = client.session_token
         if token not in self._clients:
             self._clients[token] = []
         self._clients[token].append(client)
 
-    def remove_session_client(client_to_delete):
+    def remove_session_client(self, client_to_delete):
         if client_to_delete is None:
             return
         token = client_to_delete.session_token
@@ -36,4 +37,4 @@ class EventDispatcher(object):
         }
 
         for client in self._clients[token]:
-            client.send_message(JSON.dumps(event))
+            client.send_message(event)
