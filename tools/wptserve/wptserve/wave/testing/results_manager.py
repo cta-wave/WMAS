@@ -143,7 +143,7 @@ class ResultsManager(object):
         }
 
         if u"tests" in result:
-            for test in results[u"tests"]:
+            for test in result[u"tests"]:
                 test[u"status"] = subtest_status_map[test[u"status"]]
                 if u"stack" in test: del test[u"stack"]
             result[u"subtests"] = result[u"tests"]
