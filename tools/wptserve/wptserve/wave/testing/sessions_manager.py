@@ -25,7 +25,6 @@ class SessionsManager(object):
         self._expiration_timeout = None
         self._event_dispatcher = event_dispatcher
         self._tests_manager = tests_manager
-
     def create_session(
         self,
         tests={},

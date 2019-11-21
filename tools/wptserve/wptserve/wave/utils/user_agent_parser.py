@@ -21,3 +21,21 @@ def parse_user_agent(user_agent_string):
         u"name": name,
         u"version": version
     }
+
+def abbreviate_browser_name(name):
+    short_names = {
+        u"Chrome": u"Ch",
+        u"Chrome Mobile WebView": u"Ch",
+        u"Chromium": u"Cm",
+        u"WebKit": u"Wk",
+        u"Safari": u"Sf",
+        u"Firefox": u"FF",
+        u"IE": u"IE",
+        u"Edge": u"Ed",
+        u"Opera": u"Op"
+    }
+
+    if name in short_names:
+        return short_names[name]
+    else:
+        return u"Xx"

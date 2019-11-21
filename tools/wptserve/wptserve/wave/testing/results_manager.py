@@ -2,8 +2,10 @@ from __future__ import absolute_import
 import os
 import shutil
 import re
+import json
 
 from .results_comparator import ResultsComparator
+from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 
 
 class ResultsManager(object):
@@ -154,8 +156,39 @@ class ResultsManager(object):
 
         return result
 
+    def get_json_path(self, token, api):
+        session = self._sessions_manager.read_session(token)
+        api_directory = os.path.join(self._results_directory_path, token, api)
+        
+        browser = parse_user_agent(session.user_agent)
+        abbreviation = abbreviate_browser_name(browser[u"name"])
+        version = browser[u"version"]
+        if u"." in version:
+            version = version.split(u".")[0]
+        version = version.zfill(2)
+        file_name = abbreviation + version + ".json"
+
+        return os.path.join(api_directory, file_name)
+
     def save_api_results(self, token, api):
-        print u"TODO: IMPLEMENT save_api_results"
+        results = self.read_results(token)
+        api_results = { "results": results[api] }
+        session = self._sessions_manager.read_session(token)
+
+        self._ensure_results_directory_existence(api, token, session)
+
+        file_path = self.get_json_path(token, api)
+
+        file = open(file_path, "w+")
+        file.write(json.dumps(api_results, indent=4, separators=(',', ': ')))
+        file.close()
+
+    def _ensure_results_directory_existence(self, api, token, session):
+        directory = os.path.join(self._results_directory_path, token, api)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        self.create_info_file(session)
     
     def generate_report(self, token, api):
         print u"TODO: IMPLEMENT generate_report"

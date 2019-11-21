@@ -22,7 +22,6 @@ class TestLoader(object):
         self._tests[MANUAL] = {}
 
     def load_tests(self, manifest_file_path):
-        print(u"LOAD TESTS")
         manifest_file_handle = open(manifest_file_path)
         manifest_file = manifest_file_handle.read()
         manifest = json.loads(manifest_file)

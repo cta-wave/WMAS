@@ -135,8 +135,6 @@ class TestsManager(object):
         current_api = 0
         current_test = 0
 
-        print tests
-
         apis = list(tests.keys())
         apis.sort(key=lambda api: api.lower())
 

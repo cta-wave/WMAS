@@ -8,7 +8,6 @@ class StaticHandler(object):
     def __init__(self):
         self.static_dir = os.path.join(
             os.getcwd(), u"tools/wptserve/wptserve/wave/www")
-        print self.static_dir
 
     def handle_request(self, request, response):
         file_path = u"."
