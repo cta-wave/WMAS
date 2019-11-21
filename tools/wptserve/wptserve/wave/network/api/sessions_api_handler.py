@@ -248,6 +248,24 @@ class SessionsApiHandler(ApiHandler):
             print u"Failed to stop session: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
+    def resume_session(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+
+            resume_token = None
+            body = request.body.decode(u"utf-8")
+            if body != u"":
+                resume_token = json.loads(body)[u"resume_token"]
+
+            self._sessions_manager.resume_session(token, resume_token)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to stop session: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
+
     def find_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
@@ -333,6 +351,9 @@ class SessionsApiHandler(ApiHandler):
                     return
                 if function == u"stop":
                     self.stop_session(request, response)
+                    return
+                if function == u"resume":
+                    self.resume_session(request, response)
                     return
             if method == u"PUT":
                 if function == u"labels":
