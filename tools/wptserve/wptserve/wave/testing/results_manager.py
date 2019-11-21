@@ -6,6 +6,7 @@ import json
 
 from .results_comparator import ResultsComparator
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
+from ..utils.serializer import serialize_session
 
 
 class ResultsManager(object):
@@ -194,4 +195,18 @@ class ResultsManager(object):
         print u"TODO: IMPLEMENT generate_report"
 
     def create_info_file(self, session):
-        print u"TODO: IMPLEMENT create_info_file"
+        token = session.token
+        info_file_path = os.path.join(
+            self._results_directory_path,
+            token,
+            "info.json"
+        )
+        info = serialize_session(session)
+        del info[u"running_tests"]
+        del info[u"pending_tests"]
+        del info[u"completed_tests"]
+
+        file_content = json.dumps(info, indent=2)
+        file = open(info_file_path, "w+")
+        file.write(file_content)
+        file.close()
