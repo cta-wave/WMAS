@@ -167,6 +167,11 @@ class SessionsManager(object):
         self._sessions.remove(session)
         self._database.delete_session(session.token)
 
+    def add_session(self, session):
+        if session is None: return
+        self._database.create_session(session)
+        self._push_to_cache(session)
+
     def _push_to_cache(self, session):
         duplicate_session = None
 
