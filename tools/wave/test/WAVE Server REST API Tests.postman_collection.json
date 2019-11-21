@@ -7519,6 +7519,327 @@
 				}
 			],
 			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Malfunctioning List",
+			"item": [
+				{
+					"name": "Create Session \\w Configuration Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+									"",
+									"pm.test(\"Responds with token in JSON format\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"token\");",
+									"    pm.expect(jsonData.token).to.match(tokenRegex);",
+									"});",
+									"",
+									"",
+									"const response = pm.response.json();",
+									"const token = response.token;",
+									"pm.globals.set(\"session_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6e5b17e0-0c3b-48ed-835d-906bee5dad19",
+								"exec": [
+									"var automaticTimeout = 120000;",
+									"var manualTimeout = 1000000;",
+									"var specialTimeout = 2000;",
+									"",
+									"pm.globals.set(\"automatic_timeout\", automaticTimeout);",
+									"pm.globals.set(\"manual_timeout\", manualTimeout);",
+									"pm.globals.set(\"special_timeout\", specialTimeout);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"sessions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Session Malfunctioning Empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Return empty array\", function() {",
+									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
+									"    pm.expect(jsonData).to.have.length(0)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"tests",
+								"{{session_token}}",
+								"malfunctioning"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Session Malfunctioning Insert Two",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n\t\"/test/file/one.html\",\n\t\"/test/file/two.html\"\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"tests",
+								"{{session_token}}",
+								"malfunctioning"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Session Malfunctioning Two Tests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Return array with two tests\", function() {",
+									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
+									"    pm.expect(jsonData).to.have.length(2)",
+									"    pm.expect(jsonData).to.include(\"/test/file/one.html\")",
+									"    pm.expect(jsonData).to.include(\"/test/file/two.html\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"tests",
+								"{{session_token}}",
+								"malfunctioning"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Session Malfunctioning Empty Array",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"tests",
+								"{{session_token}}",
+								"malfunctioning"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Session Malfunctioning Empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f6b545d7-6252-4609-b873-73be94532d87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Return empty array\", function() {",
+									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
+									"    pm.expect(jsonData).to.have.length(0)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"wave",
+								"api",
+								"tests",
+								"{{session_token}}",
+								"malfunctioning"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"protocolProfileBehavior": {}

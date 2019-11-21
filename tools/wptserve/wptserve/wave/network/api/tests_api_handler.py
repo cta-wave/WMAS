@@ -153,7 +153,38 @@ class TestsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read next test: " + info[0].__name__ + u": " + info[1].args[0]
+            print u"Failed to read last completed tests: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
+    def read_malfunctioning(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            
+            malfunctioning_tests = self._tests_manager.read_malfunctioning_tests(token)
+
+            self.send_json(data=malfunctioning_tests, response=response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read malfunctioning tests: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
+    def update_malfunctioning(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+
+            data = None
+            body = request.body.decode(u"utf-8")
+            if body != u"":
+                data = json.loads(body)
+            
+            self._tests_manager.update_malfunctioning_tests(token, data)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read malfunctioning tests: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
     def handle_request(self, request, response):
@@ -183,6 +214,14 @@ class TestsApiHandler(ApiHandler):
                 if function == u"last_completed":
                     self.read_last_completed(request, response)
                     return
+                if function == u"malfunctioning":
+                    self.read_malfunctioning(request, response)
+                    return
+            if method == u"PUT":
+                if function == u"malfunctioning":
+                    self.update_malfunctioning(request, response)
+                    return
+
 
         response.status = 404
 

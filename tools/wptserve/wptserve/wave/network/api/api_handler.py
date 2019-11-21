@@ -11,7 +11,10 @@ class ApiHandler(object):
 
     def parse_uri(self, request):
         uri_parts = []
-        for part in request.request_path.split(u"/"):
+        request_path = request.request_path
+        if u"?" in request_path:
+            request_path = request_path.split(u"?")[0]
+        for part in request_path.split(u"/"):
             if part == u"":
                 continue
             uri_parts.append(part)

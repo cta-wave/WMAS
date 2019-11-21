@@ -5,6 +5,8 @@ from threading import Timer
 
 from .event_dispatcher import TEST_COMPLETED_EVENT
 
+from ..data.exceptions.not_found_exception import NotFoundException
+
 class TestsManager(object):
     def initialize(
         self, 
@@ -298,3 +300,22 @@ class TestsManager(object):
         for api in tests:
             count[api] = len(tests[api])
         return count
+
+
+    def read_malfunctioning_tests(self, token):
+        session = self._sessions_manager.read_session(token)
+        return session.malfunctioning_tests
+
+    def update_malfunctioning_tests(self, token, tests):
+        if token is None: return
+        if tests is None: return
+
+        session = self._sessions_manager.read_session(token)
+        if session is None: raise NotFoundException("Could not find session using token: " + token)
+        if session.is_public: return
+        session.malfunctioning_tests = tests
+        self._sessions_manager.update_session(session)
+
+
+
+        
