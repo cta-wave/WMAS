@@ -62,7 +62,7 @@ class TestsApiHandler(ApiHandler):
             if session.status == PAUSED:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri=u"/pause.html",
+                    uri=u"/wave/pause.html",
                     token=token
                 )
                 self.send_json({u"next_test": url}, response)
@@ -70,7 +70,7 @@ class TestsApiHandler(ApiHandler):
             if session.status == COMPLETED or session.status == ABORTED:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri=u"/finish.html",
+                    uri=u"/wave/finish.html",
                     token=token
                 )
                 self.send_json({u"next_test": url}, response)
@@ -78,7 +78,7 @@ class TestsApiHandler(ApiHandler):
             if session.status == PENDING:
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri=u"/newsession.html",
+                    uri=u"/wave/newsession.html",
                     token=token
                 )
                 self.send_json({u"next_test": url}, response)
@@ -90,7 +90,7 @@ class TestsApiHandler(ApiHandler):
                 if session.status != RUNNING: return
                 url = self._generate_wave_url(
                     hostname=hostname,
-                    uri=u"/finish.html",
+                    uri=u"/wave/finish.html",
                     token=token
                 )
                 self.send_json({u"next_test": url}, response)
@@ -111,7 +111,7 @@ class TestsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read next test: u" + info[0].__name__ + u": u" + info[1].args[0]
+            print u"Failed to read next test: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
 
     def read_last_completed(self, request, response):
@@ -191,7 +191,7 @@ class TestsApiHandler(ApiHandler):
             hostname=hostname,
             uri=uri,
             port=self._wpt_port,
-            query=u"?token=u" + token
+            query=u"?token=" + token
         )
 
     def _generate_test_url(self, hostname, test, token, test_timeout):
