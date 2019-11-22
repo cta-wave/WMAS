@@ -25,3 +25,41 @@ scratch
 .vscode/
 .DS_Store
 *.rej
+
+# igonre pycache
+__pycache__
+
+# ignore SETUP_LOG
+setup_log_Py27.txt
+
+# ignore stored session db
+data/
+
+# IGNORE ALL API FOLDERS
+2dcontext/
+FileAPI/
+IndexedDB/
+WebCryptoAPI/
+content-security-policy/
+css/
+dom/
+ecmascript/
+encrypted-media/
+fetch/
+fullscreen/
+html/
+media-source/
+notifications/
+page-visibility/
+service-workers/
+uievents/
+venv/
+wave-extra/
+webaudio/
+webgl/
+webmessaging/
+websockets/
+webstorage/
+workers/
+xhr/
+

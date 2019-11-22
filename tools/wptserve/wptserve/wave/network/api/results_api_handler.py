@@ -16,7 +16,8 @@ class ResultsApiHandler(ApiHandler):
     def create_result(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = session.token.encode('ascii', 'ignore')
 
             data = None
             body = request.body.decode(u"utf-8")
@@ -34,7 +35,8 @@ class ResultsApiHandler(ApiHandler):
     def read_results(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = session.token.encode('ascii', 'ignore')
 
             data = None
             body = request.body.decode(u"utf-8")

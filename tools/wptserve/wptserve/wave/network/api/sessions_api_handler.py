@@ -55,6 +55,9 @@ class SessionsApiHandler(ApiHandler):
                 expiration_date
             )
 
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = session.token.encode('ascii', 'ignore')
+            session.token = token
             self.send_json({u"token": session.token}, response)
         except Exception as e:
             info = sys.exc_info()
@@ -65,7 +68,8 @@ class SessionsApiHandler(ApiHandler):
     def read_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = uri_parts[3].encode('ascii', 'ignore')
 
             session = self._sessions_manager.read_session(token)
             if session is None:
@@ -94,7 +98,8 @@ class SessionsApiHandler(ApiHandler):
     def read_session_status(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = uri_parts[3].encode('ascii', 'ignore')
 
             session = self._sessions_manager.read_session(token)
             data = serialize_session(session)
@@ -133,7 +138,8 @@ class SessionsApiHandler(ApiHandler):
     def update_session_configuration(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = uri_parts[3].encode('ascii', 'ignore')
 
             config = {}
             body = request.body.decode(u"utf-8")
@@ -176,7 +182,8 @@ class SessionsApiHandler(ApiHandler):
     def update_labels(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = uri_parts[3].encode('ascii', 'ignore')
             body = request.body.decode(u"utf-8")
             labels = None
             if body != u"":
@@ -194,7 +201,9 @@ class SessionsApiHandler(ApiHandler):
     def delete_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = uri_parts[3].encode('ascii', 'ignore')
 
             session = self._sessions_manager.read_session(token)
             if session is None:
@@ -224,7 +233,8 @@ class SessionsApiHandler(ApiHandler):
     def pause_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = session.token.encode('ascii', 'ignore')
 
             self._sessions_manager.pause_session(token)
         except Exception as e:
@@ -236,7 +246,8 @@ class SessionsApiHandler(ApiHandler):
     def stop_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            # convert unicode to ascii to get a str type, ignore special chars
+            token = session.token.encode('ascii', 'ignore')
 
             self._sessions_manager.stop_session(token)
         except Exception as e:

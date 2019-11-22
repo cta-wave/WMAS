@@ -14,7 +14,7 @@ from .testing.tests_manager import TestsManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
-from .database import Database
+from .database.database import Database
 
 
 class WaveServer(object):
@@ -28,6 +28,7 @@ class WaveServer(object):
 
         # Initialize Database
         database = Database()
+        # database.save_caches() # default 10 sec interval
 
         # Initialize Managers
         event_dispatcher = EventDispatcher()
