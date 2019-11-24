@@ -29,8 +29,7 @@ class TestsApiHandler(ApiHandler):
 
     def read_session_tests(self, request, response):
         uri_parts = self.parse_uri(request)
-        # convert unicode to ascii to get a str type, ignore special chars
-        token = session.token.encode('ascii', 'ignore')
+        token = uri_parts[3]
         session = self._sessions_manager.read_session(token)
 
         if session is None:
@@ -50,8 +49,8 @@ class TestsApiHandler(ApiHandler):
     def read_next_test(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            # convert unicode to ascii to get a str type, ignore special chars
-            token = session.token.encode('ascii', 'ignore')
+            token = uri_parts[3]
+
             hostname = self._hostname
 
             session = self._sessions_manager.read_session(token)

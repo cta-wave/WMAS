@@ -10,8 +10,8 @@ from ..data.session import COMPLETED, ABORTED
 from ..utils.serializer import serialize_session
 from ..utils.deserializer import deserialize_session, deserialize_sessions
 
-DB_ROOT_PATH = 'exports/'
-DB_FILE_NAME = 'cachedump-sessions.json'
+DB_ROOT_PATH = 'exports'
+DB_FILE_NAME = 'db-sessions.json'
 
 class SessionsDatabase(object):
     def initialize(self, results_database, tests_database):
@@ -20,14 +20,28 @@ class SessionsDatabase(object):
         
         script_path = os.path.realpath(__file__)
         target_dir = os.path.join(os.path.dirname(script_path), DB_ROOT_PATH)
+
+        # check target_dir existence
         if not os.path.isdir(target_dir):
             try:
                 os.mkdir(target_dir)
             except OSError as oerr:
                 print("{} >> already exists ".format(target_dir), oerr)
-        self._db_path = DB_ROOT_PATH + DB_FILE_NAME
-        self.abs_db_path = os.path.join(os.path.realpath(__file__), self._db_path)
-        self._sessions_db = TinyDB(self._db_path)
+
+        self._db_path = os.path.join('.', DB_ROOT_PATH, DB_FILE_NAME)
+        abs_db_dir = os.path.dirname(os.path.realpath(__file__))
+        self.abs_db_path = os.path.join(abs_db_dir, self._db_path)
+
+        # check DB_FILE_NAME existence
+        if not os.path.isfile(self.abs_db_path):
+            try:
+                f = open(self.abs_db_path, "w")
+                f.write("{}")
+                f.close()
+            except OSError as oerr:
+                print("{} >> already exists ".format(self.abs_db_path), oerr)
+
+        self._sessions_db = TinyDB(self.abs_db_path)
         self.Session = Query();
 
 
@@ -74,7 +88,7 @@ class SessionsDatabase(object):
         return session
 
     def read_sessions(self):
-        with open(self._db_path) as json_file:
+        with open(self.abs_db_path) as json_file:
             return deserialize_sessions(json.load(json_file))
 
     # TODO:FIXME:
