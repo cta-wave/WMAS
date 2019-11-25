@@ -25,3 +25,35 @@ scratch
 .vscode/
 .DS_Store
 *.rej
+
+# ignore API test case folders
+2dcontext/
+FileAPI/
+IndexedDB/
+WebCryptoAPI/
+content-security-policy/
+css/
+dom/
+ecmascript/
+encrypted-media/
+fetch/
+fullscreen/
+html/
+media-source/
+notifications/
+page-visibility/
+service-workers/
+setup_log_Py27.txt
+uievents/
+wave-extra/
+webaudio/
+webgl/
+webmessaging/
+websockets/
+webstorage/
+workers/
+xhr/
+
+# ignore local setup
+setup_log_Py27.txt
+venv/
