@@ -68,6 +68,7 @@ class SessionsApiHandler(ApiHandler):
     def read_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
+            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
 
             session = self._sessions_manager.read_session(token)
@@ -97,6 +98,7 @@ class SessionsApiHandler(ApiHandler):
     def read_session_status(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
+            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
 
             session = self._sessions_manager.read_session(token)
@@ -136,6 +138,7 @@ class SessionsApiHandler(ApiHandler):
     def update_session_configuration(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
+            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
 
             config = {}
@@ -179,6 +182,7 @@ class SessionsApiHandler(ApiHandler):
     def update_labels(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
+            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
             body = request.body.decode(u"utf-8")
             labels = None
@@ -197,6 +201,8 @@ class SessionsApiHandler(ApiHandler):
     def delete_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
+
+            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
 
             session = self._sessions_manager.read_session(token)

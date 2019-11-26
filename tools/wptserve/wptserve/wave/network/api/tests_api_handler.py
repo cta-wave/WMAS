@@ -52,6 +52,7 @@ class TestsApiHandler(ApiHandler):
         try:
             uri_parts = self.parse_uri(request)
             token = uri_parts[3]
+
             hostname = self._hostname
 
             session = self._sessions_manager.read_session(token)

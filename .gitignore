@@ -26,7 +26,16 @@ scratch
 .DS_Store
 *.rej
 
-# ignore API test case folders
+# igonre pycache
+__pycache__
+
+# ignore SETUP_LOG
+setup_log_Py27.txt
+
+# ignore persisted db files
+tools/wptserve/wptserve/wave/database/exports/
+
+# IGNORE ALL API FOLDERS
 2dcontext/
 FileAPI/
 IndexedDB/
@@ -43,7 +52,6 @@ media-source/
 notifications/
 page-visibility/
 service-workers/
-setup_log_Py27.txt
 uievents/
 wave-extra/
 webaudio/

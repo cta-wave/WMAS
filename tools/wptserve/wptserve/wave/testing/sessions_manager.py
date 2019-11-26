@@ -163,9 +163,15 @@ class SessionsManager(object):
         if session is None: return
         if session.is_public: return
 
-        session = self._read_from_cache(token)
-        self._sessions.remove(session)
-        self._database.delete_session(session.token)
+        try:
+            session = self._read_from_cache(token)
+            self._sessions.remove(session)
+        except ValueError as err:
+            print("[delete_session] Sessions {} not in cache".format(token))
+        except AttributeError as err:
+            print("[delete_session] Sessions {} not in cache".format(token))
+        finally:
+            self._database.delete_session(token)
 
     def add_session(self, session):
         if session is None: return
