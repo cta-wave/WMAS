@@ -97,7 +97,8 @@ class SessionsManager(object):
         return session
 
     def read_public_sessions(self):
-        session_tokens = self._database.read_public_sessions()
+        public_sessions = self._database.read_public_sessions()
+        session_tokens = map(lambda x: x.token, public_sessions)
         return session_tokens
 
     def update_session(self, session):

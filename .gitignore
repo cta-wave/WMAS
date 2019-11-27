@@ -33,7 +33,7 @@ __pycache__
 setup_log_Py27.txt
 
 # ignore persisted db files
-tools/wptserve/wptserve/wave/database/exports/
+**/wave/database/exports/
 
 # IGNORE ALL API FOLDERS
 2dcontext/
