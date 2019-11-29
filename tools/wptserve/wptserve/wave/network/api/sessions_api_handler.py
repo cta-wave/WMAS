@@ -201,8 +201,6 @@ class SessionsApiHandler(ApiHandler):
     def delete_session(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-
-            # convert unicode to ascii to get a str type, ignore special chars
             token = uri_parts[3]
 
             session = self._sessions_manager.read_session(token)
@@ -276,13 +274,12 @@ class SessionsApiHandler(ApiHandler):
         try:
             uri_parts = self.parse_uri(request)
             fragment = uri_parts[3]
-
-            token = self._sessions_manager.find_token(fragment)
-            if token is None:
+            session = self._sessions_manager.find_token(fragment)
+            if session is None:
                 response.status = 404
                 return
 
-            self.send_json({u"token": token}, response)
+            self.send_json(session, response)
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])

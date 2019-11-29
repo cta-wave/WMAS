@@ -162,17 +162,11 @@ class SessionsManager(object):
     def delete_session(self, token):
         session = self.read_session(token)
         if session is None: return
-        if session.is_public: return
-
-        try:
-            session = self._read_from_cache(token)
+        if session.is_public is True: return
+        session = self._read_from_cache(token)
+        if session != None:
             self._sessions.remove(session)
-        except ValueError as err:
-            print("[delete_session] Sessions {} not in cache".format(token))
-        except AttributeError as err:
-            print("[delete_session] Sessions {} not in cache".format(token))
-        finally:
-            self._database.delete_session(token)
+        return self._database.delete_session(token)
 
     def add_session(self, session):
         if session is None: return
@@ -203,7 +197,6 @@ class SessionsManager(object):
         if len(expiring_sessions) == 0: return
 
         next_session = expiring_sessions[0]
-
         for session in expiring_sessions:
             if next_session.expiration_date > session.expiration_date:
                 next_session = session
@@ -231,6 +224,7 @@ class SessionsManager(object):
 
     def start_session(self, token):
         session = self.read_session(token)
+        
         if session is None:
             return
 

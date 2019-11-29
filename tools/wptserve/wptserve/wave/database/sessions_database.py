@@ -69,7 +69,9 @@ class SessionsDatabase(object):
 
     def read_session(self, token):
         session_dict = None
-        session_dict = self._sessions_db.search(
+        # use: self._sessions_db.search(condition) to get multiple results
+        # self._sessions_db.get(condition) return the first entity matches
+        session_dict = self._sessions_db.get(
             self.Session.token == token
         )
 
@@ -137,10 +139,10 @@ class SessionsDatabase(object):
         tokens = self._sessions_db.search(
             self.Session.token.matches(u"^"+fragment)
         )
-        pattern = re.compile(u"^" + fragment)
-        # loop through all session where token is not None / exists
-        for key in self._sessions_db.search(~(self.Session.token == None)):
-            if pattern.match(key) is not None:
-                tokens.append(keys)
+        # pattern = re.compile(u"^" + fragment)
+        # # loop through all session where token is not None / exists
+        # for key in self._sessions_db.search(~(self.Session.token == None)):
+        #     if pattern.match(key) is not None:
+        #         tokens.append(keys)
         return tokens
 
