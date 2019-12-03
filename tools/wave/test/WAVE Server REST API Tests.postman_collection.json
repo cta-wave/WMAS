@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7901c300-0e7a-4009-9af0-c2f47fa5b9f6",
+		"_postman_id": "e4fe247d-179c-4cb2-8395-61c272cdfef5",
 		"name": "WAVE Server REST API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -854,7 +854,7 @@
 									"script": {
 										"id": "40bfea04-ec49-4c29-8f01-6a367372083e",
 										"exec": [
-											"var expirationDate = Date.now() + 3000;",
+											"var expirationDate = Date.now() + 100;",
 											"pm.globals.set(\"expiration_date\", expirationDate);"
 										],
 										"type": "text/javascript"
@@ -892,6 +892,56 @@
 							"response": []
 						},
 						{
+							"name": "Read Session Configuration",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f6b545d7-6252-4609-b873-73be94532d87",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
+											"",
+											"pm.test(\"JSON structure contains expiration date\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"expiration_date\");",
+											"    pm.expect(jsonData.expiration_date).to.satisfy(value => !value || typeof value === \"number\");",
+											"});",
+											"",
+											"var expirationDate = pm.globals.get(\"expiration_date\");",
+											"",
+											"pm.test(\"Expiration date is as specified\", function () {",
+											"    pm.expect(jsonData.expiration_date).to.equal(expirationDate);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"wave",
+										"api",
+										"sessions",
+										"{{session_token}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Read Expired Session",
 							"event": [
 								{
@@ -913,11 +963,7 @@
 										"exec": [
 											"var expirationDate = pm.globals.get(\"expiration_date\");",
 											"",
-											"var timeout = expirationDate - Date.now() + 1000",
-											"",
-											"console.log(timeout)",
-											"",
-											"setTimeout(function () {}, timeout);"
+											"setTimeout(function () {}, expirationDate - Date.now());"
 										],
 										"type": "text/javascript"
 									}
@@ -1006,6 +1052,7 @@
 										"id": "40bfea04-ec49-4c29-8f01-6a367372083e",
 										"exec": [
 											"var expirationDate = Date.now() + 10000;",
+											"console.log(\"expiration_date\", expirationDate)",
 											"pm.globals.set(\"expiration_date\", expirationDate);"
 										],
 										"type": "text/javascript"
@@ -1018,13 +1065,18 @@
 									{
 										"key": "Content-Type",
 										"name": "Content-Type",
-										"type": "text",
-										"value": "application/json"
+										"value": "application/json",
+										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}"
+									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
@@ -1529,12 +1581,7 @@
 									"",
 									"pm.globals.set(\"automatic_timeout\", automaticTimeout);",
 									"pm.globals.set(\"manual_timeout\", manualTimeout);",
-									"pm.globals.set(\"special_timeout\", specialTimeout);",
-									"",
-									"const availableTests = pm.globals.get(\"available_tests\");",
-									"const test1 = availableTests[Object.keys(availableTests)[0]][0];",
-									"",
-									"pm.globals.set(\"single_test_1\", test1);"
+									"pm.globals.set(\"special_timeout\", specialTimeout);"
 								],
 								"type": "text/javascript"
 							}
@@ -1552,7 +1599,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    },\n    \"types\": [\n        \"automatic\"\n    ]\n}"
+							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": 1000\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
@@ -1587,7 +1634,7 @@
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/newsession.html\");",
+									"    pm.expect(test).to.equal(\"/wave/newsession.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1698,53 +1745,6 @@
 								"tests",
 								"{{session_token}}",
 								"next"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Result",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "91dd9303-8cae-4aa7-ab22-a1892270e313",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"results",
-								"{{session_token}}"
 							]
 						}
 					},
@@ -1970,7 +1970,7 @@
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/pause.html\");",
+									"    pm.expect(test).to.equal(\"/wave/pause.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2052,7 +2052,7 @@
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/finish.html\");",
+									"    pm.expect(test).to.equal(\"/wave/finish.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3732,6 +3732,7 @@
 									"script": {
 										"id": "b39fe619-0b3e-4db5-9fdc-f94503326471",
 										"exec": [
+											"if (pm.response.status !== 200) return;",
 											"const response = pm.response.json();",
 											"const nextTest = response.next_test;",
 											"pm.globals.set(\"current_test_url\", nextTest);",
@@ -5498,6 +5499,7 @@
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});",
+											"if (pm.response.status !== 200) return;",
 											"",
 											"var jsonData = pm.response.json();",
 											"    ",
@@ -5553,6 +5555,7 @@
 											"pm.test(\"Status code is 200\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});",
+											"if (pm.response.status !== 200) return;",
 											"",
 											"var jsonData = pm.response.json();",
 											"",
@@ -5870,13 +5873,10 @@
 											"})",
 											"",
 											"pm.test(\"Two total test files, one completed\", function () {",
-											"    pm.expect(Object.keys(jsonData.test_files_count)).to.have.lengthOf(2);",
+											"    pm.expect(Object.keys(jsonData.test_files_count)).to.have.lengthOf(1);",
 											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(1);",
 											"    var api = Object.keys(jsonData.test_files_count)[0];",
-											"    pm.expect(jsonData.test_files_count[api]).to.equal(1);",
-											"    api = Object.keys(jsonData.test_files_count)[1];",
-											"    pm.expect(jsonData.test_files_count[api]).to.equal(1);",
-											"    api = Object.keys(jsonData.test_files_completed)[0];",
+											"    pm.expect(jsonData.test_files_count[api]).to.equal(2);",
 											"    pm.expect(jsonData.test_files_completed[api]).to.equal(1);",
 											"})"
 										],
@@ -6327,14 +6327,11 @@
 											"})",
 											"",
 											"pm.test(\"Two total test files, two completed\", function () {",
-											"    pm.expect(Object.keys(jsonData.test_files_count)).to.have.lengthOf(2);",
-											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(2);",
+											"    pm.expect(Object.keys(jsonData.test_files_count)).to.have.lengthOf(1);",
+											"    pm.expect(Object.keys(jsonData.test_files_completed)).to.have.lengthOf(1);",
 											"    var api = Object.keys(jsonData.test_files_count)[0];",
-											"    pm.expect(jsonData.test_files_count[api]).to.equal(1);",
-											"    pm.expect(jsonData.test_files_completed[api]).to.equal(1);",
-											"    api = Object.keys(jsonData.test_files_count)[1];",
-											"    pm.expect(jsonData.test_files_count[api]).to.equal(1);",
-											"    pm.expect(jsonData.test_files_completed[api]).to.equal(1);",
+											"    pm.expect(jsonData.test_files_count[api]).to.equal(2);",
+											"    pm.expect(jsonData.test_files_completed[api]).to.equal(2);",
 											"})",
 											"",
 											"pm.test(\"Finish date is set\", function () {",
@@ -6394,27 +6391,14 @@
 											"const test1 = pm.globals.get(\"single_test_1\");",
 											"const test2 = pm.globals.get(\"single_test_2\");",
 											"",
-											"var test1Api = test1.split(\"/\").find(part => !!part);",
-											"var test2Api = test1.split(\"/\").find(part => !!part);",
-											"",
 											"pm.test(\"One test is pending, one test is completed\", function () {",
 											"    pm.expect(Object.keys(jsonData.pending_tests)).to.have.lengthOf(0);",
 											"    pm.expect(Object.keys(jsonData.running_tests)).to.have.lengthOf(0);",
-											"    pm.expect(Object.keys(jsonData.completed_tests)).to.have.lengthOf(2);",
-											"    api = Object.keys(jsonData.completed_tests)[1];",
-											"    pm.expect(jsonData.completed_tests[api]).to.have.lengthOf(1);",
-											"    if (api === test1Api) {",
-											"        pm.expect(jsonData.completed_tests[api]).to.include(test1);",
-											"    } else {",
-											"        pm.expect(jsonData.completed_tests[api]).to.include(test2);",
-											"    }",
+											"    pm.expect(Object.keys(jsonData.completed_tests)).to.have.lengthOf(1);",
 											"    api = Object.keys(jsonData.completed_tests)[0];",
-											"    pm.expect(jsonData.completed_tests[api]).to.have.lengthOf(1);",
-											"    if (api === test1Api) {",
-											"        pm.expect(jsonData.completed_tests[api]).to.include(test1);",
-											"    } else {",
-											"        pm.expect(jsonData.completed_tests[api]).to.include(test2);",
-											"    }",
+											"    pm.expect(jsonData.completed_tests[api]).to.have.lengthOf(2);",
+											"    pm.expect(jsonData.completed_tests[api]).to.include(test1);",
+											"    pm.expect(jsonData.completed_tests[api]).to.include(test2);",
 											"})"
 										],
 										"type": "text/javascript"
@@ -6634,32 +6618,11 @@
 											"    }",
 											"})",
 											"",
-											"const test1 = pm.globals.get(\"single_test_1\");",
-											"const test2 = pm.globals.get(\"single_test_2\");",
-											"",
-											"var test1Api = test1.split(\"/\").find(part => !!part);",
-											"var test2Api = test1.split(\"/\").find(part => !!part);",
-											"",
 											"pm.test(\"Responds with one test failed\", function () {",
-											"    pm.expect(Object.keys(jsonData)).to.have.lengthOf(2);",
+											"    pm.expect(Object.keys(jsonData)).to.have.lengthOf(1);",
 											"    var api = Object.keys(jsonData)[0];",
-											"    if (api === test1Api) {",
-											"        pm.expect(jsonData[api].pass).to.equal(0);",
-											"        pm.expect(jsonData[api].fail).to.equal(1);",
-											"    } else {",
-											"        pm.expect(jsonData[api].pass).to.equal(1);",
-											"        pm.expect(jsonData[api].fail).to.equal(0);",
-											"    }",
-											"    pm.expect(jsonData[api].timeout).to.equal(0);",
-											"    pm.expect(jsonData[api].not_run).to.equal(0);",
-											"    api = Object.keys(jsonData)[1];",
-											"    if (api === test1Api) {",
-											"        pm.expect(jsonData[api].pass).to.equal(0);",
-											"        pm.expect(jsonData[api].fail).to.equal(1);",
-											"    } else {",
-											"        pm.expect(jsonData[api].pass).to.equal(1);",
-											"        pm.expect(jsonData[api].fail).to.equal(0);",
-											"    }",
+											"    pm.expect(jsonData[api].pass).to.equal(1);",
+											"    pm.expect(jsonData[api].fail).to.equal(1);",
 											"    pm.expect(jsonData[api].timeout).to.equal(0);",
 											"    pm.expect(jsonData[api].not_run).to.equal(0);",
 											"});"
@@ -6873,7 +6836,7 @@
 										}
 									],
 									"request": {
-										"method": "POST",
+										"method": "GET",
 										"header": [],
 										"url": {
 											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
@@ -7516,327 +7479,6 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
-				}
-			],
-			"protocolProfileBehavior": {}
-		},
-		{
-			"name": "Malfunctioning List",
-			"item": [
-				{
-					"name": "Create Session \\w Configuration Copy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "6d3b6823-a70c-4dda-8424-4cacdedf2c8c",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"const tokenRegex = new RegExp(\"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$\");",
-									"",
-									"pm.test(\"Responds with token in JSON format\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property(\"token\");",
-									"    pm.expect(jsonData.token).to.match(tokenRegex);",
-									"});",
-									"",
-									"",
-									"const response = pm.response.json();",
-									"const token = response.token;",
-									"pm.globals.set(\"session_token\", token);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "6e5b17e0-0c3b-48ed-835d-906bee5dad19",
-								"exec": [
-									"var automaticTimeout = 120000;",
-									"var manualTimeout = 1000000;",
-									"var specialTimeout = 2000;",
-									"",
-									"pm.globals.set(\"automatic_timeout\", automaticTimeout);",
-									"pm.globals.set(\"manual_timeout\", manualTimeout);",
-									"pm.globals.set(\"special_timeout\", specialTimeout);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"sessions"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Read Session Malfunctioning Empty",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "f6b545d7-6252-4609-b873-73be94532d87",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(\"Return empty array\", function() {",
-									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
-									"    pm.expect(jsonData).to.have.length(0)",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"tests",
-								"{{session_token}}",
-								"malfunctioning"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Session Malfunctioning Insert Two",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "f6b545d7-6252-4609-b873-73be94532d87",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "[\n\t\"/test/file/one.html\",\n\t\"/test/file/two.html\"\n]",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"tests",
-								"{{session_token}}",
-								"malfunctioning"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Read Session Malfunctioning Two Tests",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "f6b545d7-6252-4609-b873-73be94532d87",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(\"Return array with two tests\", function() {",
-									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
-									"    pm.expect(jsonData).to.have.length(2)",
-									"    pm.expect(jsonData).to.include(\"/test/file/one.html\")",
-									"    pm.expect(jsonData).to.include(\"/test/file/two.html\")",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"tests",
-								"{{session_token}}",
-								"malfunctioning"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Session Malfunctioning Empty Array",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "f6b545d7-6252-4609-b873-73be94532d87",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "[]",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"tests",
-								"{{session_token}}",
-								"malfunctioning"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Read Session Malfunctioning Empty",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "f6b545d7-6252-4609-b873-73be94532d87",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"var jsonData = pm.response.json();",
-									"",
-									"pm.test(\"Return empty array\", function() {",
-									"    pm.expect(jsonData).to.be.an.instanceof(Array)",
-									"    pm.expect(jsonData).to.have.length(0)",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"wave",
-								"api",
-								"tests",
-								"{{session_token}}",
-								"malfunctioning"
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
