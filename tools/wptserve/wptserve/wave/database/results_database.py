@@ -38,8 +38,8 @@ class ResultsDatabase(object):
         return self._results_db.insert({"token": token, "result": result})
 
     def read_results(self, token):
-        return self._results_db.search(self.Result.token == token)
-        
+        elements = self._results_db.search(self.Result.token == token)
+        return map(lambda x: x[u"result"], elements) 
 
     def delete_results(self, token):
         return self._results_db.remove(self.Result.token == token)
