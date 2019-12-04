@@ -4,7 +4,6 @@ import shutil
 import re
 import json
 
-from .results_comparator import ResultsComparator
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
 
@@ -21,8 +20,6 @@ class ResultsManager(object):
         self._sessions_manager = sessions_manager
         self._tests_manager = tests_manager
         self._database = database
-        self._results_comparator = ResultsComparator(results_manager=self)
-        self.read_common_passed_tests = self._results_comparator.read_common_passed_tests
 
     def create_result(self, token, data):
         result = self.prepare_result(data)
@@ -116,6 +113,42 @@ class ResultsManager(object):
                         continue
 
         return flattened_results
+
+    def read_common_passed_tests(self, tokens=[]):
+        if tokens is None or len(tokens) == 0: return None
+
+        session_results = []
+
+        for token in tokens:
+            session_result = self._results_manager.read_results(token)
+            session_results.append(session_result)
+
+        passed_tests = {}
+        failed_tests = {}
+
+        for result in session_results:
+            for api in result:
+                if api not in passed_tests: passed_tests[api] = []
+                if api not in failed_tests: failed_tests[api] = []
+
+                for api_result in result[api]:
+                    passed = True
+                    for subtest in api_result[u"subtests"]:
+                        if subtest[u"status"] == u"PASS": continue
+                        passed = False
+                        break
+
+                    test = api_result[u"test"]
+
+                    if passed:
+                        if test in failed_tests[api]: continue
+                        if test in passed_tests[api]: continue
+                        passed_tests[api].append(test)
+                    else:
+                        if test in passed_tests[api]:
+                            passed_tests.remove(test)
+                        if test in failed_tests[api]: continue
+                        failed_tests[api].append(test)
 
     def delete_results(self, token):
         results_directory = os.path.join(self._results_directory_path, token)
