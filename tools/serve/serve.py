@@ -314,7 +314,7 @@ class RoutesBuilder(object):
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
                           ("*", "{spec}/tools/*", handlers.ErrorHandler(404)),
                           ("*", "/serve.py", handlers.ErrorHandler(404)),
-                          ("*", "/results/*", handlers.ErrorHandler(404))]
+                          ("*", "/results/", handlers.ErrorHandler(404))]
 
         self.extra = []
 
