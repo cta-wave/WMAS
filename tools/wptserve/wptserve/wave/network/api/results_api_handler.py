@@ -28,7 +28,7 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to create result: " + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to create result: " + info[0].__name__ + u": " + unicode(info[1].args[0]))
             response.status = 500
 
     def read_results(self, request, response):

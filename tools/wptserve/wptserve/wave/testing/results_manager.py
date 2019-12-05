@@ -3,9 +3,12 @@ import os
 import shutil
 import re
 import json
+import hashlib
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
+from .wpt_report import generate_report, generate_multi_report
+
 
 
 class ResultsManager(object):
@@ -225,7 +228,59 @@ class ResultsManager(object):
         self.create_info_file(session)
     
     def generate_report(self, token, api):
-        print u"TODO: IMPLEMENT generate_report"
+        file_path = self.get_json_path(token, api)
+        dir_path = os.path.dirname(file_path)
+        generate_report(
+                input_json_directory_path=dir_path,
+                output_html_directory_path=dir_path,
+                spec_name=api
+        )
+
+    def generate_multi_report(self, tokens, api):
+        comparison_directory_name = self.get_comparison_identifier(tokens)
+
+        api_directory_path = os.path.join(
+                self._results_directory_path,
+                comparison_directory_name,
+                api
+        )
+
+        if os.path.isdir(api_directory_path): return None
+
+        os.mkdir(api_directory_path)
+
+        result_json_files = []
+        for token in token:
+            result_json_files.append({
+                "token": token,
+                "path": self.get_json_path(token, api)
+            })
+        for file in result_json_files:
+            if not os.path.isfile(file["path"]):
+                return None
+        generate_multi_report(
+                output_html_directory_path=api_directory_path,
+                spec_name=api,
+                result_json_files=result_json_files
+        )
+
+
+    def get_comparison_identifier(self, tokens, ref_tokens = []):
+        comparison_directory = u"comparison"
+        short_token_concat = ""
+        tokens.sort()
+        for token in tokens:
+            short_token = token.split("-")[0]
+            comparison_directory += "-" + short_token
+        hash = hashlib.sha1()
+        ref_tokens.sort()
+        for token in ref_tokens:
+            hash.update(token)
+        for token in tokens:
+            hash.update(token)
+        hash = hash.hexdigest()
+        comparison_directory += hash[0:8]
+        return comparison_directory
 
     def create_info_file(self, session):
         token = session.token
