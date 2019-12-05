@@ -827,7 +827,8 @@ def get_parser():
     return parser
 
 
-def run(**kwargs):
+def run(venv, **kwargs):
+    venv.start()    
     with build_config(os.path.join(repo_root, "config.json"),
                       **kwargs) as config:
         global logger

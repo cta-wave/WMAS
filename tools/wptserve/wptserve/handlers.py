@@ -14,7 +14,7 @@ from .request import Authentication
 from .response import MultipartContent
 from .utils import HTTPException
 
-from .wave import WaveServer
+from .wave.wave_server import WaveServer
 
 __all__ = ["file_handler", "python_script_handler",
            "FunctionHandler", "handler", "json_handler",
