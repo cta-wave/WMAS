@@ -39,15 +39,15 @@ def generate_multi_report(
     for file in result_json_files:
         if not os.path.isfile(file[u"path"]): continue;
         file_name = ntpath.basename(file[u"path"])
-        copyfile(file[u"file"], os.path.join(
+        copyfile(file[u"path"], os.path.join(
             output_html_directory_path,
             file[u"token"] + "-" + file_name
         ))
     
     generate_report(
-            input_json_directory_path,
-            output_html_directory_path,
-            spec_name,
-            True,
-            reference_dir
+            input_json_directory_path=output_html_directory_path,
+            output_html_directory_path=output_html_directory_path,
+            spec_name=spec_name,
+            is_multi=True,
+            reference_dir=reference_dir
         )

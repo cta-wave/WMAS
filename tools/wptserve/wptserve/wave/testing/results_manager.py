@@ -158,6 +158,21 @@ class ResultsManager(object):
         if not os.path.isdir(api_directory): return None
         return "/results/{}/{}/all.html".format(token, api)
 
+    def read_results_wpt_multi_report_uri(self, tokens, api):
+        comparison_directory_name = self.get_comparison_identifier(tokens)
+
+        relative_api_directory_path = os.path.join(comparison_directory_name, api)
+
+        api_directory_path = os.path.join(
+                self._results_directory_path, 
+                relative_api_directory_path
+        )
+
+        if not os.path.isdir(api_directory_path):
+            self.generate_multi_report(tokens, api)
+
+        return "/results/{}/all.html".format(relative_api_directory_path)
+
     def delete_results(self, token):
         results_directory = os.path.join(self._results_directory_path, token)
         if not os.path.isdir(results_directory): return
@@ -252,10 +267,10 @@ class ResultsManager(object):
 
         if os.path.isdir(api_directory_path): return None
 
-        os.mkdir(api_directory_path)
+        os.makedirs(api_directory_path)
 
         result_json_files = []
-        for token in token:
+        for token in tokens:
             result_json_files.append({
                 "token": token,
                 "path": self.get_json_path(token, api)

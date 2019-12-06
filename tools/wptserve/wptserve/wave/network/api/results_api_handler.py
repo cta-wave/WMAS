@@ -72,7 +72,24 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read compact results: " + info[0].__name__ + u": " + info[1].args[0]
+            print u"Failed to read results report url: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
+
+    def read_results_api_wpt_multi_report_uri(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            api = uri_parts[3]
+            query = self.parse_query_parameters(request)
+            tokens = query["tokens"].split(",")
+            uri = self._results_manager.read_results_wpt_multi_report_uri(
+                    tokens,
+                    api
+            )
+            self.send_json({"uri": uri}, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read results multi report url: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
     def handle_request(self, request, response):
@@ -97,6 +114,8 @@ class ResultsApiHandler(ApiHandler):
                 if function == u"compact":
                     self.read_results_compact(request, response)
                     return
+                if function == u"reporturl":
+                    return self.read_results_api_wpt_multi_report_uri(request, response)
 
         # /api/results/<token>/<api>/<function>
         if len(uri_parts) == 3:  
