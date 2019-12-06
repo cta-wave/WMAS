@@ -13,9 +13,10 @@ def generate_report(
     ):
     try:
         command = [
+            "cd tools/wptserve/wptserve/wave &&",
             "npx wptreport",
-            "--input", input_json_directory_path,
-            "--output", output_html_directory_path,
+            "--input", "../../../../" + input_json_directory_path,
+            "--output", "../../../../" + output_html_directory_path,
             "--spec", spec_name,
             "--sort true",
             "--failures true",
