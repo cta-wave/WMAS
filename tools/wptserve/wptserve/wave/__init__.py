@@ -48,7 +48,9 @@ class WaveServer(object):
             results_directory_path=configuration[u"results_directory_path"],
             sessions_manager=sessions_manager,
             tests_manager=tests_manager,
-            database=database
+            database=database,
+            import_enabled=configuration["import_enabled"],
+            reports_enabled=False
         )
 
         tests_manager.initialize(
