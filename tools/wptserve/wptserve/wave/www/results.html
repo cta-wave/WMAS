@@ -180,7 +180,6 @@
         },
         downloadApiResultJson(api) {
           const { results } = resultUi.state;
-          if (!results[api].isDone) return;
           WaveService.downloadApiResult(token, api);
         },
         openHtmlReport(api) {
@@ -1217,7 +1216,6 @@
                         className: "control",
                         children: {
                           className: "button is-dark is-outlined is-small",
-                          disabled: !isDone,
                           onclick: () => resultUi.downloadApiResultJson(api),
                           text: "json",
                           title: `Download results of ${api} API as JSON file.`

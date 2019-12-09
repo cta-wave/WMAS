@@ -321,14 +321,42 @@ class ResultsManager(object):
         file.write(file_content)
         file.close()
 
+    def export_results_api_json(self, token, api):
+        results = self.read_results(token)
+        if api in results:
+            return json.dumps({ "results": results[api] }, indent=4)
+
+        file_path = self.get_json_path(token, api)
+        if not os.path.isfile(file_path): return None
+        file = open(file_path, "r")
+        blob = file.read()
+        file.close()
+        return blob
+
     def export_results_all_api_jsons(self, token):
+        session = self._sessions_manager.read_session(token)
         results_directory = os.path.join(self._results_directory_path, token)
         results = self.read_results(token)
 
         zip_file_name = unicode(time.time()) + ".zip"
         zip = zipfile.ZipFile(zip_file_name, "w")
         for api, result in results.iteritems():
-            zip.writestr(api + ".json", json.dumps(result, indent=4), zipfile.ZIP_DEFLATED)
+            zip.writestr(
+                    api + ".json",
+                    json.dumps({ "results": result }, indent=4),
+                    zipfile.ZIP_DEFLATED
+            )
+        
+        results_directory = os.path.join(self._results_directory_path, token)
+        if os.path.isdir(results_directory):
+            persisted_apis = os.listdir(results_directory)
+
+            for api in persisted_apis:
+                if api in results: continue
+                blob = self.export_results_api_json(token, api)
+                if blob is None: continue
+                zip.writestr(api + ".json", blob, zipfile.ZIP_DEFLATED)
+
         zip.close()
 
         file = open(zip_file_name, "r")
