@@ -128,6 +128,23 @@ class ResultsApiHandler(ApiHandler):
             print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
+    def download_results(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            blob = self._results_manager.export_results(token)
+            if blob is None:
+                response.status = 404
+                return
+            file_name = token + ".zip"
+            self.send_zip(blob, file_name, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
+            response.status = 500
+        
+
     def handle_request(self, request, response):
         method = request.method
         uri_parts = self.parse_uri(request)
@@ -154,6 +171,9 @@ class ResultsApiHandler(ApiHandler):
                     return self.read_results_api_wpt_multi_report_uri(request, response)
                 if function == u"json":
                     self.download_results_all_api_jsons(request, response)
+                    return
+                if function == u"export":
+                    self.download_results(request, response)
                     return
 
         # /api/results/<token>/<api>/<function>
