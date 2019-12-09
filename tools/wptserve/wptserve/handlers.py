@@ -14,8 +14,6 @@ from .request import Authentication
 from .response import MultipartContent
 from .utils import HTTPException
 
-from .wave.wave_server import WaveServer
-
 __all__ = ["file_handler", "python_script_handler",
            "FunctionHandler", "handler", "json_handler",
            "as_is_handler", "ErrorHandler", "BasicAuthHandler", "WaveHandler"]
@@ -466,13 +464,3 @@ class StaticHandler(StringHandler):
             data = f.read() % format_args
 
         return super(StaticHandler, self).__init__(data, content_type, **headers)
-
-
-wave_server = WaveServer()
-wave_server.initialize(
-    configuration_file_path=os.path.abspath("./config.json"))
-
-
-class WaveHandler(object):
-    def __call__(self, request, response):
-        wave_server.handle_request(request, response)

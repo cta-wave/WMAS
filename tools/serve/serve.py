@@ -30,7 +30,6 @@ from wptserve.handlers import filesystem_path, wrap_pipeline
 from wptserve.utils import get_port, HTTPException, http2_compatible
 from mod_pywebsocket import standalone as pywebsocket
 
-
 def replace_end(s, old, new):
     """
     Given a string `s` that ends with `old`, replace that occurrence of `old`
@@ -303,12 +302,12 @@ rewrites = [("GET", "/resources/WebIDLParser.js", "/resources/webidl2/lib/webidl
 
 class RoutesBuilder(object):
     def __init__(self):
-        wave_handler = handlers.WaveHandler()
         with build_config(os.path.join(repo_root, "config.json")) as config:
-            self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
-                                    ("POST", "/tools/runner/update_manifest.py",
-                                        handlers.python_script_handler),
-                                    ("*", "/wave*", wave_handler)]
+            self.forbidden_override = [
+                ("GET", "/tools/runner/*",
+                handlers.file_handler),
+                ("POST", "/tools/runner/update_manifest.py",
+                handlers.python_script_handler)]
 
         self.forbidden = [("*", "/_certs/*", handlers.ErrorHandler(404)),
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
@@ -368,8 +367,7 @@ class RoutesBuilder(object):
         url_base = file_url[0:file_url.rfind("/") + 1]
         self.mountpoint_routes[file_url] = [("GET", file_url, handlers.FileHandler(base_path=base_path, url_base=url_base))]
 
-
-def build_routes(aliases):
+def build_routes(aliases, wave_cfg=None):
     builder = RoutesBuilder()
     for alias in aliases:
         url = alias["url-path"]
@@ -381,6 +379,20 @@ def build_routes(aliases):
             builder.add_mount_point(url, directory)
         else:
             builder.add_file_mount_point(url, directory)
+
+    # Add Wave specific Handler
+    if wave_cfg is not None and wave_cfg.get("is_wave") is True:
+        from wptserve.wave.wave_server import WaveServer
+        wave_server = WaveServer()
+        wave_server.initialize(
+            configuration_file_path=os.path.abspath("./config.json"))
+
+        class WaveHandler(object):
+            def __call__(self, request, response):
+                wave_server.handle_request(request, response)
+
+        wave_handler = WaveHandler()
+        builder.add_handler("*", "/wave*", wave_handler)
     return builder.get_routes()
 
 
@@ -435,7 +447,7 @@ class ServerProc(object):
         return self.proc.is_alive()
 
 
-def check_subdomains(config):
+def check_subdomains(config, wave_cfg):
     paths = config.paths
     bind_address = config.bind_address
     aliases = config.aliases
@@ -445,7 +457,7 @@ def check_subdomains(config):
     logger.debug("Going to use port %d to check subdomains" % port)
 
     wrapper = ServerProc()
-    wrapper.start(start_http_server, host, port, paths, build_routes(aliases),
+    wrapper.start(start_http_server, host, port, paths, build_routes(aliases, wave_cfg),
                   bind_address, config)
 
     connected = False
@@ -692,7 +704,6 @@ def iter_procs(servers):
         for port, server in servers:
             yield server.proc
 
-
 def build_config(override_path=None, **kwargs):
     rv = ConfigBuilder()
 
@@ -723,6 +734,23 @@ def build_config(override_path=None, **kwargs):
         if not os.path.exists(value):
             raise ValueError("%s path %s does not exist" % (title, value))
         setattr(rv, key, value)
+
+    # Add Wave arguments to config
+    if kwargs.get("report") or kwargs.get("is_wave"):
+        print("")
+        print("build_config: is_wave: {} report: {}".format(
+            kwargs.get("is_wave"),
+            kwargs.get("report")
+        ))
+        if not kwargs.get("is_wave"):
+            err_msg = (
+                "Argument --report can only be used with command "
+                "serve-wave, e.g. \"./wpt serve-wave --report\""
+            )
+            raise Exception(err_msg)
+        else:
+            setattr(rv, "is_wave", kwargs.get("is_wave"))
+            setattr(rv, "report", kwargs.get("report"))
 
     return rv
 
@@ -824,11 +852,19 @@ def get_parser():
     parser.add_argument("--h2", action="store_true", dest="h2",
                         help="Flag for enabling the HTTP/2.0 server")
     parser.set_defaults(h2=False)
+    parser.add_argument("--report", action="store_true", dest="report",
+                        help="Flag for enabling the WPTReporting server")
+    parser.set_defaults(report=False)
+    parser.set_defaults(is_wave=False)
     return parser
 
 
-def run(venv, **kwargs):
-    venv.start()    
+def run(**kwargs):
+
+    print("")
+    print(kwargs)
+    print("")
+
     with build_config(os.path.join(repo_root, "config.json"),
                       **kwargs) as config:
         global logger
@@ -836,6 +872,13 @@ def run(venv, **kwargs):
         set_logger(logger)
 
         bind_address = config["bind_address"]
+
+        wave_cfg = None
+        if kwargs.get("is_wave") is True:
+            wave_cfg = {
+                "is_wave": kwargs.get("is_wave"),
+                "report": kwargs.get("report")
+            }
 
         if kwargs.get("alias_file"):
             with open(kwargs["alias_file"], 'r') as alias_file:
@@ -847,7 +890,7 @@ def run(venv, **kwargs):
                     })
 
         if config["check_subdomains"]:
-            check_subdomains(config)
+            check_subdomains(config, wave_cfg)
 
         stash_address = None
         if bind_address:
@@ -855,7 +898,7 @@ def run(venv, **kwargs):
             logger.debug("Going to use port %d for stash" % stash_address[1])
 
         with stash.StashServer(stash_address, authkey=str(uuid.uuid4())):
-            servers = start(config, build_routes(config["aliases"]), **kwargs)
+            servers = start(config, build_routes(config["aliases"], wave_cfg), **kwargs)
 
             try:
                 while all(item.is_alive() for item in iter_procs(servers)):
@@ -870,6 +913,15 @@ def run(venv, **kwargs):
                     logger.info("Status of %s:\t%s" % (item.name, "running" if item.is_alive() else "not running"))
             except KeyboardInterrupt:
                 logger.info("Shutting down")
+
+# Set command is_wave and start venv wit necessary dependencies
+def run_wave(venv=None, **kwargs):
+    kwargs['is_wave'] = True
+    if venv is not None:
+        venv.start()
+    else:
+        raise Exception("Missing virtualenv for serve-wave.")
+    run(**kwargs)
 
 
 def main():

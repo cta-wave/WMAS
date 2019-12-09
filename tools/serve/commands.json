@@ -8,11 +8,11 @@
   },
   "serve-wave": {
     "path": "serve.py",
-    "script": "run",
+    "script": "run_wave",
     "parser": "get_parser",
     "help": "Run wptserve server for WAVE",
     "virtualenv": true,
-    "install": ["requests", "ua-parser", "tinydb"],
+    "install": ["ua-parser", "tinydb"],
     "requirements": ["../wptserve/wptserve/wave/requirements.txt"]
   }
 }
