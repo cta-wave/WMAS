@@ -42,6 +42,10 @@
           addLabelVisible: false
         },
         refreshData: toUpdate => {
+          WaveService.readResultsConfig(function(config) {
+                  resultUi.state.reportsEnabled = config.reportsEnabled;
+                  resultUi.renderApiResults();
+          });
           switch (toUpdate) {
             case "test_completed":
               resultUi.refreshSessionStatus(() => {
@@ -1223,6 +1227,7 @@
                           title: `Download results of ${api} API as JSON file.`
                         }
                       },
+                      resultUi.state.reportsEnabled ?
                       {
                         className: "control",
                         children: {
@@ -1232,7 +1237,7 @@
                           text: "report",
                           title: `Show results of ${api} API in WPT Report format.`
                         }
-                      }
+                      } : null
                     ]
                   }
                 }

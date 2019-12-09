@@ -128,8 +128,9 @@
               })
             );
           });
-          WaveService.isImportResultsEnabled(function(enabled) {
-            resultsUi.state.importResultsEnabled = enabled;
+          WaveService.readResultsConfig(function(config) {
+            resultsUi.state.importResultsEnabled = config.importEnabled;
+            resultsUi.state.reportsEnabled = config.reportsEnabled;
             resultsUi.renderManageSessions();
           });
         },
