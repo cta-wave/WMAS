@@ -245,7 +245,7 @@
           const tokens = resultsUi.state.comparison;
           if (!tokens || tokens.length === 0) return;
           const refQuery = reftokens ? `&reftokens=${reftokens}` : "";
-          location.href = `/comparison.html?tokens=${tokens.join(
+          location.href = `/wave/comparison.html?tokens=${tokens.join(
             ","
           )}${refQuery}`;
         },
