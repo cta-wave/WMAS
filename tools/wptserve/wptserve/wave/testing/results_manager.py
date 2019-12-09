@@ -4,6 +4,8 @@ import shutil
 import re
 import json
 import hashlib
+import zipfile
+import time
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
@@ -318,3 +320,21 @@ class ResultsManager(object):
         file = open(info_file_path, "w+")
         file.write(file_content)
         file.close()
+
+    def export_results_all_api_jsons(self, token):
+        results_directory = os.path.join(self._results_directory_path, token)
+        results = self.read_results(token)
+
+        zip_file_name = unicode(time.time()) + ".zip"
+        zip = zipfile.ZipFile(zip_file_name, "w")
+        for api, result in results.iteritems():
+            zip.writestr(api + ".json", json.dumps(result, indent=4), zipfile.ZIP_DEFLATED)
+        zip.close()
+
+        file = open(zip_file_name, "r")
+        blob = file.read()
+        file.close()
+        os.remove(zip_file_name)
+
+        return blob
+

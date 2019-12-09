@@ -92,6 +92,19 @@ class ResultsApiHandler(ApiHandler):
             print u"Failed to read results multi report url: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
+    def download_results_all_api_jsons(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            blob = self._results_manager.export_results_all_api_jsons(token)
+            file_name = token.split("-")[0] + "_results_json.zip"
+            self.send_zip(blob, file_name, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
+            response.status = 500
+
     def handle_request(self, request, response):
         method = request.method
         uri_parts = self.parse_uri(request)
@@ -116,6 +129,9 @@ class ResultsApiHandler(ApiHandler):
                     return
                 if function == u"reporturl":
                     return self.read_results_api_wpt_multi_report_uri(request, response)
+                if function == u"json":
+                    self.download_results_all_api_jsons(request, response)
+                    return
 
         # /api/results/<token>/<api>/<function>
         if len(uri_parts) == 3:  

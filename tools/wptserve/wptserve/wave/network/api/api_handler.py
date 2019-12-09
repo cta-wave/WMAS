@@ -9,6 +9,18 @@ class ApiHandler(object):
         response.headers = [(u"Content-Type", u"application/json")]
         response.status = status
 
+    def send_file(self, blob, file_name, response):
+        if not isinstance(response.headers, list):
+            response.headers = []
+        response.headers.append(
+            ("Content-Disposition", "attachment;filename=" + file_name)
+        )
+        response.content = blob
+
+    def send_zip(self, data, file_name, response):
+        response.headers = [("Content-Type", "application/x-compressed")]
+        self.send_file(data, file_name, response)
+
     def parse_uri(self, request):
         uri_parts = []
         request_path = request.request_path
