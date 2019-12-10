@@ -4,13 +4,15 @@ import shutil
 import re
 import json
 import hashlib
+import zipfile
+import time
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
 from ..utils.deserializer import deserialize_session
 from ..data.exceptions.permission_denied_exception import PermissionDeniedException
 from .wpt_report import generate_report, generate_multi_report
-
+from ..data.session import COMPLETED
 
 
 class ResultsManager(object):
@@ -324,6 +326,75 @@ class ResultsManager(object):
         file = open(info_file_path, "w+")
         file.write(file_content)
         file.close()
+
+    def export_results_api_json(self, token, api):
+        results = self.read_results(token)
+        if api in results:
+            return json.dumps({ "results": results[api] }, indent=4)
+
+        file_path = self.get_json_path(token, api)
+        if not os.path.isfile(file_path): return None
+        file = open(file_path, "r")
+        blob = file.read()
+        file.close()
+        return blob
+
+    def export_results_all_api_jsons(self, token):
+        session = self._sessions_manager.read_session(token)
+        results_directory = os.path.join(self._results_directory_path, token)
+        results = self.read_results(token)
+
+        zip_file_name = unicode(time.time()) + ".zip"
+        zip = zipfile.ZipFile(zip_file_name, "w")
+        for api, result in results.iteritems():
+            zip.writestr(
+                    api + ".json",
+                    json.dumps({ "results": result }, indent=4),
+                    zipfile.ZIP_DEFLATED
+            )
+        
+        results_directory = os.path.join(self._results_directory_path, token)
+        if os.path.isdir(results_directory):
+            persisted_apis = os.listdir(results_directory)
+
+            for api in persisted_apis:
+                if api in results: continue
+                blob = self.export_results_api_json(token, api)
+                if blob is None: continue
+                zip.writestr(api + ".json", blob, zipfile.ZIP_DEFLATED)
+
+        zip.close()
+
+        file = open(zip_file_name, "r")
+        blob = file.read()
+        file.close()
+        os.remove(zip_file_name)
+
+        return blob
+
+    def export_results(self, token):
+        if token is None: return
+        session = self._sessions_manager.read_session(token)
+        if session.status != COMPLETED: return None
+
+        session_results_directory = os.path.join(self._results_directory_path, token)
+        if not os.path.isdir(session_results_directory): return None
+
+        zip_file_name = unicode(time.time()) + ".zip"
+        zip = zipfile.ZipFile(zip_file_name, "w")
+        for root, dirs, files in os.walk(session_results_directory):
+            for file in files:
+                file_name = os.path.join(root.split(token)[1], file)
+                file_path = os.path.join(root, file)
+                zip.write(file_path, file_name, zipfile.ZIP_DEFLATED)
+        zip.close()
+
+        file = open(zip_file_name, "r")
+        blob = file.read()
+        file.close()
+        os.remove(zip_file_name)
+
+        return blob
 
     def is_import_enabled(self):
         return self._import_enabled
