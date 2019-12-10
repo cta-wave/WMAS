@@ -16,6 +16,7 @@ from ..data.exceptions.duplicate_exception import DuplicateException
 from .wpt_report import generate_report, generate_multi_report
 from ..data.session import COMPLETED
 
+WAVE_SRC_DIR = "./tools/wptserve/wptserve/wave"
 
 class ResultsManager(object):
     def initialize(
@@ -395,6 +396,40 @@ class ResultsManager(object):
         blob = file.read()
         file.close()
         os.remove(zip_file_name)
+
+        return blob
+
+    def export_results_overview(self, token):
+        session = self._sessions_manager.read_session(token)
+        if session is None: raise NotFoundException("Could not find session {}".format(token))
+
+        tmp_file_name = unicode(time.time()) + ".zip"
+        zip = zipfile.ZipFile(tmp_file_name, "w")
+
+        flattened_results = self.read_flattened_results(token)
+        results_script = "const results = " + json.dumps(flattened_results, indent=4)
+        zip.writestr("results.json.js", results_script)
+
+        session_dict = serialize_session(session)
+        del session_dict["running_tests"]
+        del session_dict["completed_tests"]
+        del session_dict["pending_tests"]
+        details_script = "const details = " + json.dumps(session_dict, indent=4)
+        zip.writestr("details.json.js", details_script)
+
+        for root, dirs, files in os.walk(os.path.join(WAVE_SRC_DIR, "export")):
+            for file in files:
+                file_name = os.path.join(root.split("export")[1], file)
+                file_path = os.path.join(root, file)
+                zip.write(file_path, file_name, zipfile.ZIP_DEFLATED)
+
+        zip.close()
+
+        file = open(tmp_file_name, "r")
+        blob = file.read()
+        file.close()
+
+        self.remove_tmp_files()
 
         return blob
 

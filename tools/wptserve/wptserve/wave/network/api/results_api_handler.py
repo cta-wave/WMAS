@@ -128,7 +128,7 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print u"Failed to download api json: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
     def download_results_all_api_jsons(self, request, response):
@@ -157,8 +157,25 @@ class ResultsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print u"Failed to export results: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
+
+    def download_results_overview(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            blob = self._results_manager.export_results_overview(token)
+            if blob is None:
+                response.status = 404
+                return
+            file_name = token.split("-")[0] + "_results_html.zip"
+            self.send_zip(blob, file_name, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to download results overview:" + info[0].__name__ + u": " + unicode(info[1].args[0])
+            response.status = 500
+        
         
     def import_results(self, request, response):
         try:
@@ -217,6 +234,9 @@ class ResultsApiHandler(ApiHandler):
                     return
                 if function == u"export":
                     self.download_results(request, response)
+                    return
+                if function == "overview":
+                    self.download_results_overview(request, response)
                     return
 
         # /api/results/<token>/<api>/<function>
