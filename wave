@@ -7,4 +7,6 @@ if [ "$1" == "init" ]; then
 elif [ "$1" == "start" ]; then
   source ./venv/bin/activate &&\
   python ./wpt serve
+else
+  python ./tools/wptserve/wptserve/wave/wave-cli.py $@
 fi

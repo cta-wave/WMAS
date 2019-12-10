@@ -2,7 +2,6 @@ import sys
 import os
 import urllib2
 import zipfile
-from wave_server import WaveServer
 
 START = "start"
 DOWNLOAD_REFERENCE_BROWSERS = "download-reference-browsers"
@@ -37,8 +36,6 @@ def main():
 
     if (parameters["operation"] == DOWNLOAD_REFERENCE_BROWSERS):
         download_reference_browsers()
-    if (parameters["operation"] == START):
-        start(configuration_file_path)
 
 
 def get_run_parameters():
@@ -86,7 +83,7 @@ def printt(text):
 
 
 def download_reference_browsers():
-    result_directory = os.path.abspath("../../results")
+    result_directory = os.path.abspath("./results")
 
     if not os.path.isdir(result_directory):
         os.mkdir(result_directory)
@@ -104,9 +101,7 @@ def download_reference_browsers():
         printt("Extracting {} results ...".format(browser["name"]))
         zip_file = zipfile.ZipFile(os.path.join(
             result_directory, browser["zip"]))
-        for member in zip_file.namelist():
-            zip_file.extract(member, path=os.path.join(
-                result_directory, member))
+        zip_file.extractall(result_directory)
         print(" done.")
 
     print("Cleaning ...")
@@ -114,11 +109,5 @@ def download_reference_browsers():
         browser = REFERENCE_BROWSERS[id]
         os.remove(os.path.join(
             result_directory, browser["zip"]))
-
-
-def start(configuration_file_path):
-    wave_server = WaveServer()
-    wave_server.initialize(configuration_file_path=configuration_file_path)
-
 
 main()
