@@ -333,7 +333,7 @@
             WaveService.importResults(
               data,
               function(token) {
-                location.href = "/results.html?token=" + token;
+                location.href = "results.html?token=" + token;
               },
               function(error) {
                 resultsUi.state.importError = error;

@@ -7,6 +7,8 @@ from .api_handler import ApiHandler
 
 from ...utils.serializer import serialize_session
 from ...data.exceptions.not_found_exception import NotFoundException
+from ...data.exceptions.duplicate_exception import DuplicateException
+from ...data.exceptions.invalid_data_exception import InvalidDataException
 
 
 class ResultsApiHandler(ApiHandler):
@@ -129,7 +131,6 @@ class ResultsApiHandler(ApiHandler):
             print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
-
     def download_results_all_api_jsons(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
@@ -159,6 +160,26 @@ class ResultsApiHandler(ApiHandler):
             print u"Failed to download all api jsons: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
         
+    def import_results(self, request, response):
+        try:
+            blob = request.body
+            token = self._results_manager.import_results(blob)
+            self.send_json({"token": token}, response)
+        except DuplicateException as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            self.send_json({"error": unicode(info[1].args[0])}, response, 400)
+            return
+        except InvalidDataException as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            self.send_json({"error": unicode(info[1].args[0])}, response, 400)
+            return
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to import results: " + info[0].__name__ + u": " + unicode(info[1].args[0])
+            response.status = 500
 
     def handle_request(self, request, response):
         method = request.method
@@ -168,6 +189,9 @@ class ResultsApiHandler(ApiHandler):
         # /api/results/<token>
         if len(uri_parts) == 1:         
             if method == u"POST":
+                if uri_parts[0] == "import":
+                    self.import_results(request, response)
+                    return
                 self.create_result(request, response)
                 return
 

@@ -11,6 +11,8 @@ from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
 from ..utils.deserializer import deserialize_session
 from ..data.exceptions.permission_denied_exception import PermissionDeniedException
+from ..data.exceptions.invalid_data_exception import InvalidDataException
+from ..data.exceptions.duplicate_exception import DuplicateException
 from .wpt_report import generate_report, generate_multi_report
 from ..data.session import COMPLETED
 
@@ -457,4 +459,29 @@ class ResultsManager(object):
 
     def import_results(self, blob):
         if not self.is_import_enabled: raise PermissionDeniedError()
-        
+        tmp_file_name = "{}.zip".format(unicode(time.time()))
+        file = open(tmp_file_name, "w")
+        file.write(blob)
+        file.close()
+        zip = zipfile.ZipFile(tmp_file_name)
+        if "info.json" not in zip.namelist(): raise InvalidDataException("Invalid session ZIP!")
+        zipped_info = zip.open("info.json")
+        info = zipped_info.read()
+        zipped_info.close()
+        parsed_info = json.loads(info)
+        token = parsed_info["token"]
+        session = self._sessions_manager.read_session(token)
+        if session is not None: raise DuplicateException("Session already exists!")
+        destination_path = os.path.join(self._results_directory_path, token)
+        os.makedirs(destination_path)
+        zip.extractall(destination_path)
+        self.remove_tmp_files()
+        self.load_results()
+        return token
+
+    def remove_tmp_files(self):
+        files = os.listdir(".")
+
+        for file in files:
+            if re.match(r"\d{10}\.\d{2}\.zip", file) is None: continue
+            os.remove(file)
