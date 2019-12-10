@@ -7,6 +7,8 @@ import hashlib
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
+from ..utils.deserializer import deserialize_session
+from ..data.exceptions.permission_denied_exception import PermissionDeniedException
 from .wpt_report import generate_report, generate_multi_report
 
 
@@ -329,3 +331,59 @@ class ResultsManager(object):
     def are_reports_enabled(self):
         return self._reports_enabled
 
+    def load_results(self):
+        if not os.path.isdir(self._results_directory_path): return
+
+        tokens = os.listdir(self._results_directory_path)
+
+        print("Looking for results to import ...")
+        for token in tokens:
+            result_directory_path = os.path.join(self._results_directory_path, token)
+            if os.path.isfile(result_directory_path): continue
+            if self._sessions_manager.read_session(token) is not None: continue
+
+            info_file_path = os.path.join(result_directory_path, "info.json")
+            session = self.load_session_from_info_file(info_file_path)
+            if session is None: continue
+            browser = session.browser
+            print("Loading {} {} results ...".format(browser["name"], browser["version"]))
+
+            results = self.load_result(result_directory_path)
+
+            self._sessions_manager.add_session(session)
+            for result in results:
+                self._database.create_result(token, result)
+
+    def load_result(self, result_directory_path):
+        all_results = []
+
+        apis = os.listdir(result_directory_path)
+
+        for api in apis:
+            api_path = os.path.join(result_directory_path, api)
+            if not os.path.isdir(api_path): continue
+            files = os.listdir(api_path)
+            results_file_path = ""
+            for file in files:
+                if re.match(r"\w\w\d{1,3}\.json", file) is None: continue
+                results_file_path = os.path.join(api_path, file)
+                break
+            file = open(results_file_path, "r")
+            data = file.read()
+            file.close()
+            parsed_data = json.loads(data)
+            all_results = all_results + parsed_data["results"]
+        return all_results
+
+    def load_session_from_info_file(self, info_file_path):
+        if not os.path.isfile(info_file_path): return None
+
+        info_file = open(info_file_path, "r")
+        data = info_file.read()
+        info_file.close()
+        info = json.loads(unicode(data))
+        return deserialize_session(info)
+
+    def import_results(self, blob):
+        if not self.is_import_enabled: raise PermissionDeniedError()
+        

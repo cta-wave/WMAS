@@ -60,6 +60,9 @@ class WaveServer(object):
             event_dispatcher=event_dispatcher
         )
 
+        # Load Results
+        results_manager.load_results()
+
         # Load Tests
         exclude_list_file_path = os.path.abspath(u"./excluded.json")
         include_list_file_path = os.path.abspath(u"./included.json")
