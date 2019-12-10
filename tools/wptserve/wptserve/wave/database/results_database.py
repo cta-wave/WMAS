@@ -31,7 +31,7 @@ class ResultsDatabase(object):
             except OSError as oerr:
                 print("{} >> already exists ".format(self.abs_db_path), oerr)
 
-        self._results_db = TinyDB(self.abs_db_path)
+        self._results_db = TinyDB(self.abs_db_path).table('results', cache_size=None)
         self.Result = Query();
 
     def create_result(self, token, result):

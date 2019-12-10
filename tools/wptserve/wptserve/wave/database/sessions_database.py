@@ -41,7 +41,7 @@ class SessionsDatabase(object):
             except OSError as oerr:
                 print("{} >> already exists ".format(self.abs_db_path), oerr)
 
-        self._sessions_db = TinyDB(self.abs_db_path)
+        self._sessions_db = TinyDB(self.abs_db_path).table('session', cache_size=None)
         self.Session = Query();
 
 

@@ -32,7 +32,7 @@ class TestsDatabase(object):
             except OSError as oerr:
                 print("{} >> already exists ".format(target_dir), oerr)
 
-        self._tests_db = TinyDB(self.abs_db_path)
+        self._tests_db = TinyDB(self.abs_db_path).table('tests', cache_size=None)
         self.Test = Query();
 
     def create_tests(self, token, tests):
