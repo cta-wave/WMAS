@@ -18,6 +18,10 @@ import uuid
 from collections import defaultdict, OrderedDict
 from multiprocessing import Process, Event
 
+import re
+import functools
+from subprocess import Popen, PIPE, STDOUT
+
 from localpaths import repo_root
 from six.moves import reload_module
 
@@ -780,8 +784,7 @@ class ConfigBuilder(config.ConfigBuilder):
             "http": [8000, "auto"],
             "https": [8443],
             "ws": ["auto"],
-            "wss": ["auto"],
-            "wave": [8050]
+            "wss": ["auto"]
         },
         "check_subdomains": True,
         "db_compaction_interval": 3600000,
@@ -860,11 +863,6 @@ def get_parser():
 
 
 def run(**kwargs):
-
-    print("")
-    print(kwargs)
-    print("")
-
     with build_config(os.path.join(repo_root, "config.json"),
                       **kwargs) as config:
         global logger
@@ -879,6 +877,9 @@ def run(**kwargs):
                 "is_wave": kwargs.get("is_wave"),
                 "report": kwargs.get("report")
             }
+            # add wave ports to config
+            config["ports"]["wave"] = [8050]
+
 
         if kwargs.get("alias_file"):
             with open(kwargs["alias_file"], 'r') as alias_file:
@@ -921,8 +922,53 @@ def run_wave(venv=None, **kwargs):
         venv.start()
     else:
         raise Exception("Missing virtualenv for serve-wave.")
+
+    if kwargs['report'] is True:
+        cmd = "node --version"
+        if not is_tool_installed(cmd, "v"):
+            raise Exception("NodeJS is not installed!")
+
+        cmd = "node ./wptreport --version"
+        if not is_tool_installed(cmd, "wptreport"):
+            print("WPTReport tool is not installed ")
+            print("Installing WPTReport tool .....")
+            install_wptreport()
+            if not is_tool_installed(cmd, "wptreport"):
+                raise Exception("[Error] During WPTReport installation")
+            else:
+                print("> WPTReport tool was successfully installed!")
+        else:
+            print("WPTReport tool is already installed")
+
     run(**kwargs)
 
+def is_semver(prefix, line):
+    idx = len(prefix)
+    # slice the prefix, because is not valid semantic versioning
+    line = line[idx:] if line.find(prefix, 0, idx) != -1 else line
+    line = line.strip()
+    # semantic versioning, see: https://semver.org/
+    # regex: https://regex101.com/r/vkijKf/1/
+    regex = re.match(('^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
+            '(?:-('
+            '(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)'
+            '(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))'
+            '*))'
+            '?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'), line)
+    return regex
+
+def is_tool_installed(cmd, prefix_semver):
+    report_p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)  
+    for line in report_p.stdout:
+        if line and not line.isspace():
+            if not is_semver(prefix_semver, line):
+                return False
+            else:
+                return True
+
+def install_wptreport():
+    cmd = "git clone https://github.com/darobin/wptreport.git && cd wptreport && npm install"
+    clone_p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
 def main():
     kwargs = vars(get_parser().parse_args())
