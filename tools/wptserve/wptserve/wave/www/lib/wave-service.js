@@ -459,15 +459,18 @@ var WaveService = {
       }
     );
   },
-  isImportResultsEnabled: function(onSuccess, onError) {
+  readResultsConfig: function(onSuccess, onError) {
     sendRequest(
       "GET",
-      "api/results/import",
+      "api/results/config",
       null,
       null,
       function(response) {
-        var enabled = JSON.parse(response).enabled;
-        onSuccess(enabled);
+        var config = JSON.parse(response);
+        onSuccess({
+	      	importEnabled: config.import_enabled,
+	      	reportsEnabled: config.reports_enabled
+	      });
       },
       onError
     );

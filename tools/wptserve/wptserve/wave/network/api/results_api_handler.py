@@ -60,6 +60,21 @@ class ResultsApiHandler(ApiHandler):
             traceback.print_tb(info[2])
             print u"Failed to read compact results: " + info[0].__name__ + u": " + info[1].args[0]
             response.status = 500
+
+    def read_results_config(self, request, response):
+        try:
+            import_enabled = self._results_manager.is_import_enabled()
+            reports_enabled = self._results_manager.are_reports_enabled()
+
+            self.send_json({
+                "import_enabled": import_enabled,
+                "reports_enabled": reports_enabled
+            }, response)
+        except Exception as e:
+            info = sys.exc_info()
+            traceback.print_tb(info[2])
+            print u"Failed to read results configuration: " + info[0].__name__ + u": " + info[1].args[0]
+            response.status = 500
     
     def read_results_api_wpt_report_url(self, request, response):
         try:
@@ -157,8 +172,12 @@ class ResultsApiHandler(ApiHandler):
                 return
 
             if method == u"GET":
-                self.read_results(request, response)
-                return
+                if uri_parts[0] == u"config":
+                    self.read_results_config(request, response)
+                    return
+                else:
+                    self.read_results(request, response)
+                    return
 
         # /api/results/<token>/<function>
         if len(uri_parts) == 2:  
