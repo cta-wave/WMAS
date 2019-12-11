@@ -10,7 +10,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   xhr.onerror = function() {
     if (onError) onError();
   };
-  xhr.open(method, WaveService.uriPrefix + uri, true);
+  xhr.open(method, "https://" + location.hostname + ":" + HTTPS_PORT + WaveService.uriPrefix + uri, true);
   for (var header in headers) {
     xhr.setRequestHeader(header, headers[header]);
   }
@@ -18,11 +18,14 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   return xhr;
 }
 
+var WEB_ROOT = "{{WEB_ROOT}}"
+var HTTP_PORT = "{{HTTP_PORT}}"
+var HTTPS_PORT = "{{HTTPS_PORT}}"
 var OPEN = "open";
 var CLOSED = "closed";
 
 var WaveService = {
-  uriPrefix: "/wave/",
+  uriPrefix: WEB_ROOT,
   socket: {
     state: CLOSED,
     onMessage: function() {},

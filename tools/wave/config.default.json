@@ -38,5 +38,6 @@
     "automatic": 60000,
     "manual": 300000
   },
-  "enable_results_import": false
+  "enable_results_import": false,
+  "web_root": "/wave"
 }

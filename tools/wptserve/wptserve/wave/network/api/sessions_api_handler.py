@@ -102,6 +102,9 @@ class SessionsApiHandler(ApiHandler):
             token = uri_parts[3]
 
             session = self._sessions_manager.read_session(token)
+            if session is None:
+                response.status = 404
+                return
             data = serialize_session(session)
 
             del data[u"tests"]

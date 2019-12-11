@@ -5,9 +5,12 @@ from io import open
 
 
 class StaticHandler(object):
-    def __init__(self):
+    def __init__(self, web_root, http_port, https_port):
         self.static_dir = os.path.join(
             os.getcwd(), u"tools/wptserve/wptserve/wave/www")
+        self._web_root = web_root
+        self._http_port = http_port
+        self._https_port = https_port
 
     def handle_request(self, request, response):
         file_path = u"."
@@ -40,6 +43,12 @@ class StaticHandler(object):
         data = None
         with open(file_path, u"rb") as file:
             data = file.read()
+
+        if file_path.split("/")[-1] == "wave-service.js":
+            data = unicode(data)
+            data = data.replace("{{WEB_ROOT}}", unicode(self._web_root))
+            data = data.replace("{{HTTP_PORT}}", unicode(self._http_port))
+            data = data.replace("{{HTTPS_PORT}}", unicode(self._https_port))
 
         response.content = data
         response.headers = headers

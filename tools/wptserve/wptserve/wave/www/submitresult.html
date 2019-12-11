@@ -31,7 +31,7 @@
       var HOSTNAME = location.hostname;
       var PORT = location.port;
       var PROTOCOL = location.protocol.replace(/:/, "");
-      var QUERY = decodeURIComponent(location.search.replace(/\?/, ""));
+      var QUERY = (location.search.replace(/\?/, ""));
       var match = QUERY.match(/token=([^&]+)/);
       var TOKEN = match ? match[1] : null;
       QUERY += /[\?&]path=/.test(location.search) ? "" : "&resume=1";
@@ -48,59 +48,17 @@
       }
 
       var resultData;
-      if (parsedQuery["result"]) {
-        resultData = JSON.parse(decodeURIComponent(parsedQuery["result"]));
+      var rawResult = parsedQuery.result;
+      if (rawResult) {
+	console.log(decodeURIComponent(rawResult));
+        resultData = JSON.parse(decodeURIComponent(rawResult));
       }
 
-      createResult(TOKEN, resultData, function() {
-        readNextTest(TOKEN, function(url) {
+      WaveService.createResult(TOKEN, resultData, function() {
+        WaveService.readNextTest(TOKEN, function(url) {
           location.href = url;
         });
       });
-
-      function createResult(token, result, onSuccess, onError) {
-        sendRequest(
-          "POST",
-          "/nodejs/api/results/" + token,
-          { "Content-Type": "application/json" },
-          JSON.stringify(result),
-          function() {
-            onSuccess();
-          },
-          function(statusText, response) {
-            onError(statusText, response);
-          }
-        );
-      }
-
-      function readNextTest(token, onSuccess, onError) {
-        sendRequest(
-          "GET",
-          "/nodejs/api/tests/" + token + "/next",
-          null,
-          null,
-          function(response) {
-            var jsonObject = JSON.parse(response);
-            onSuccess(jsonObject.next_test);
-          },
-          onError
-        );
-      }
-
-      function sendRequest(method, uri, headers, data, onSuccess, onError) {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function() {
-          onSuccess(xhr.response);
-        };
-        xhr.onerror = function() {
-          if (onError) onError();
-        };
-        xhr.open(method, WaveService.uriPrefix + uri, true);
-        for (var header in headers) {
-          xhr.setRequestHeader(header, headers[header]);
-        }
-        xhr.send(data);
-      }
     </script>
   </body>
 </html>

@@ -42,8 +42,12 @@ var __WAVE__PORT = location.port;
 var __WAVE__PROTOCOL = location.protocol.replace(/:/, "");
 var __WAVE__QUERY = location.search;
 if (!__WAVE__QUERY) __WAVE__QUERY = "?";
-var match = __WAVE__QUERY.match(/timeout=(\d+)/);
+var match = __WAVE__QUERY.match(/https_port=(\d+)/);
+var __HTTPS_PORT = parseInt(match && match[1] ? match[1] : 443);
+match = __WAVE__QUERY.match(/timeout=(\d+)/);
 var __WAVE__TIMEOUT = parseInt(match && match[1] ? match[1] : 65000);
+match = __WAVE__QUERY.match(/web_root=(\d+)/);
+var __WAVE__WEB_ROOT = match && match[1] ? match[1] : "/wave/";
 match = __WAVE__QUERY.match(/token=([^&]+)/);
 var __WAVE__TOKEN = match ? match[1] : null;
 console.log("TOKEN", __WAVE__TOKEN);
@@ -153,7 +157,7 @@ function loadNext() {
 function readNextTest(token, onSuccess, onError) {
   sendRequest(
     "GET",
-    "/api/tests/" + token + "/next",
+    "api/tests/" + token + "/next",
     null,
     null,
     function(response) {
@@ -165,13 +169,13 @@ function readNextTest(token, onSuccess, onError) {
 }
 
 function readNextAlt(token) {
-  location.href = getWaveUrl("/wave/next.html?token=" + token);
+  location.href = getWaveUrl("next.html?token=" + token);
 }
 
 function createResult(token, result, onSuccess, onError) {
   sendRequest(
     "POST",
-    "/api/results/" + token,
+    "api/results/" + token,
     { "Content-Type": "application/json" },
     JSON.stringify(result),
     function() {
@@ -182,12 +186,9 @@ function createResult(token, result, onSuccess, onError) {
 }
 
 function createResultAlt(token, result) {
-  location.href = getWaveUrl(
-    "/wave/submitresult.html?token=" +
-      token +
-      "&result=" +
-      encodeURIComponent(JSON.stringify(result))
-  );
+  location.href = __WAVE__WEB_ROOT + "submitresult.html" +
+      "?token=" + token +
+      "&result=" + encodeURIComponent(JSON.stringify(result));
 }
 
 function sendRequest(method, uri, headers, data, onSuccess, onError) {
@@ -210,11 +211,10 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
 }
 
 function getWaveUrl(uri) {
-  var url = __WAVE__PROTOCOL + "://";
-  url += __WAVE__HOSTNAME + ":" + __WAVE__PORT;
-  url += "/wave" + uri;
-  // url += "/wave" + uri + __WAVE__QUERY;
-  // url += "&hostname=" + __WAVE__HOSTNAME;
+  var url = "https://";
+  url += __WAVE__HOSTNAME + ":" + __HTTPS_PORT;
+  url += __WAVE__WEB_ROOT + uri;
+  console.log(url)
   return url;
 }
 
