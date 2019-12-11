@@ -26,10 +26,6 @@ class WaveServer(object):
 
         print u" done."
 
-        # Initialize Database
-        database = Database()
-        # database.save_caches() # default 10 sec interval
-
         # Initialize Managers
         event_dispatcher = EventDispatcher()
         sessions_manager = SessionsManager()
@@ -39,16 +35,15 @@ class WaveServer(object):
 
         sessions_manager.initialize(
             test_loader=test_loader,
-            database=database,
             event_dispatcher=event_dispatcher,
-            tests_manager=tests_manager
+            tests_manager=tests_manager,
+            results_directory=configuration[u"results_directory_path"]
         )
 
         results_manager.initialize(
             results_directory_path=configuration[u"results_directory_path"],
             sessions_manager=sessions_manager,
             tests_manager=tests_manager,
-            database=database,
             import_enabled=configuration["import_enabled"],
             reports_enabled=False
         )
@@ -59,9 +54,6 @@ class WaveServer(object):
             sessions_manager=sessions_manager,
             event_dispatcher=event_dispatcher
         )
-
-        # Load Results
-        results_manager.load_results()
 
         # Load Tests
         exclude_list_file_path = os.path.abspath(u"./excluded.json")

@@ -6,6 +6,7 @@ from threading import Timer
 from .event_dispatcher import TEST_COMPLETED_EVENT
 
 from ..data.exceptions.not_found_exception import NotFoundException
+from ..data.session import API_COMPLETE, API_NOT_STARTED, HTTP_RUNNING, HTTPS_RUNNING
 
 class TestsManager(object):
     def initialize(
@@ -282,8 +283,6 @@ class TestsManager(object):
         session=None
     ):
         if completed_tests is not None:
-            test_files_completed = self.calculate_test_files_count(completed_tests)
-            session.test_files_completed = test_files_completed
             session.completed_tests = completed_tests
 
         if pending_tests is not None:
@@ -316,6 +315,15 @@ class TestsManager(object):
         session.malfunctioning_tests = tests
         self._sessions_manager.update_session(session)
 
-
+    def get_test_status(self, token, api):
+        session = self._sessions_manager.read_session(token)
+        if self._sessions_manager.is_api_complete(api, session):
+            return API_COMPLETE
+        if len(session.pending_tests[api]) == session.test_state[api]["total"]:
+            return API_NOT_STARTED
+        for test in session.pending_tests[api]:
+            if "https" not in test:
+                return HTTP_RUNNING
+        return HTTPS_RUNNING
 
         

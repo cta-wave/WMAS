@@ -29,10 +29,8 @@ def deserialize_session(session_dict):
     if u"running_tests" in session_dict: running_tests = session_dict[u"running_tests"]
     status = UNKNOWN
     if u"status" in session_dict: status = session_dict[u"status"]
-    test_files_count = None
-    if u"test_files_count" in session_dict: test_files_count = session_dict[u"test_files_count"]
-    test_files_completed = None
-    if u"test_files_completed" in session_dict: test_files_completed = session_dict[u"test_files_completed"]
+    test_state = None
+    if u"test_state" in session_dict: test_state = session_dict[u"test_state"]
     date_started = None
     if u"date_started" in session_dict: date_started = session_dict[u"date_started"]
     date_finished = None
@@ -61,8 +59,7 @@ def deserialize_session(session_dict):
         running_tests=running_tests,
         completed_tests=completed_tests,
         status=status,
-        test_files_count=test_files_count,
-        test_files_completed=test_files_completed,
+        test_state=test_state,
         date_started=date_started,
         date_finished=date_finished,
         is_public=is_public,

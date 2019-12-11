@@ -2,14 +2,16 @@ from __future__ import division
 from __future__ import absolute_import
 import uuid
 import time
+import os
 
 from threading import Timer
 
 from .test_loader import AUTOMATIC, MANUAL
-from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED
+from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED, API_NOT_STARTED, API_COMPLETE, HTTP_RUNNING, HTTPS_RUNNING
 from ..utils.user_agent_parser import parse_user_agent
 from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
+from ..utils.deserializer import deserialize_session
 
 DEFAULT_TEST_TYPES = [AUTOMATIC, MANUAL]
 DEFAULT_TEST_PATHS = [u"/"]
@@ -18,13 +20,14 @@ DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
 class SessionsManager(object):
-    def initialize(self, test_loader, database, event_dispatcher, tests_manager):
+    def initialize(self, test_loader, event_dispatcher, tests_manager, results_directory):
         self._test_loader = test_loader
-        self._database = database
-        self._sessions = []
+        self._sessions = {}
         self._expiration_timeout = None
         self._event_dispatcher = event_dispatcher
         self._tests_manager = tests_manager
+        self._results_directory = results_directory
+
     def create_session(
         self,
         tests={},
@@ -60,6 +63,18 @@ class SessionsManager(object):
             pending_tests
         )
 
+        test_state = {}
+        for api in test_files_count:
+            test_state[api] = {
+                    "pass": 0,
+                    "fail": 0,
+                    "timeout": 0,
+                    "not_run": 0,
+                    "total": test_files_count[api],
+                    "complete": 0,
+                    "status": API_NOT_STARTED
+            }
+
         session = Session(
             token=token,
             tests=tests,
@@ -70,8 +85,7 @@ class SessionsManager(object):
             pending_tests=pending_tests,
             running_tests={},
             completed_tests={},
-            test_files_count=test_files_count,
-            test_files_completed={},
+            test_state=test_state,
             status=PENDING,
             reference_tokens=reference_tokens,
             webhook_urls=webhook_urls,
@@ -79,7 +93,6 @@ class SessionsManager(object):
             expiration_date=expiration_date
         )
         
-        self._database.create_session(session)
         self._push_to_cache(session)
         if expiration_date is not None:
             self._set_expiration_timer()
@@ -87,11 +100,10 @@ class SessionsManager(object):
         return session
 
     def read_session(self, token):
-        if token is None:
-            return None
+        if token is None: return None
         session = self._read_from_cache(token)
         if session is None:
-            session = self._database.read_session(token)
+            session = self.load_session(token)
             if session is not None:
                 self._push_to_cache(session)
         return session
@@ -103,7 +115,6 @@ class SessionsManager(object):
 
     def update_session(self, session):
         self._push_to_cache(session)
-        self._database.update_session(session)
 
     def update_session_configuration(
         self, token, tests, types, timeouts, reference_tokens, webhook_urls
@@ -130,8 +141,21 @@ class SessionsManager(object):
             )
             session.pending_tests = pending_tests
             session.tests = tests
-            session.test_files_count = self._tests_manager.calculate_test_files_count(
+            test_files_count = self._tests_manager.calculate_test_files_count(
                 pending_tests)
+            test_state = {}
+            for api in test_files_count:
+                test_state[api] = {
+                        "pass": 0,
+                        "fail": 0,
+                        "timeout": 0,
+                        "not_run": 0,
+                        "total": test_files_count[api],
+                        "complete": 0,
+                        "status": API_NOT_STARTED
+                }
+            session.test_state = test_state
+            
         if types is not None:
             session.types = types
         if timeouts is not None:
@@ -145,7 +169,6 @@ class SessionsManager(object):
         if webhook_urls is not None:
             session.webhook_urls = webhook_urls
 
-        self._database.update_session(session)
         self._push_to_cache(session)
         return session
 
@@ -157,43 +180,66 @@ class SessionsManager(object):
             return
         session.labels = labels
         self._push_to_cache(session)
-        self._database.update_session(session)
 
     def delete_session(self, token):
         session = self.read_session(token)
         if session is None: return
         if session.is_public is True: return
-        session = self._read_from_cache(token)
-        if session != None:
-            self._sessions.remove(session)
-        return self._database.delete_session(token)
+        del self._sessions[token]
 
     def add_session(self, session):
         if session is None: return
         self._database.create_session(session)
         self._push_to_cache(session)
 
+    def load_session(self, token):
+        result_directory = os.path.join(self._results_directory, token)
+        if not os.path.isdir(result_directory): return None
+        info_file = os.path.join(result_directory, "info.json")
+        if not os.path.isfile(info_file): return None
+
+        file = open(info_file, "w")
+        info_data = file.read()
+        file.close()
+        parsed_info_data = json.loads(info_data)
+
+        session = deserialize_session(parsed_info_data)
+
+        if session.status == COMPLETE or session.status == ABORTED:
+            self._push_to_cache(session)
+            return session
+
+        pending_tests = self._test_loader.get_tests(
+            session.types,
+            include_list=session.tests[u"include"],
+            exclude_list=session.tests[u"exclude"],
+            reference_tokens=session.reference_tokens
+        )
+
+        apis = list(pending_tests.keys())
+        for api in apis:
+            status = session.test_state[api]["status"]
+            if status == API_COMPLETE:
+                del pending_tests[api]
+                continue
+            if status == HTTPS_RUNNING:
+                pending_tests[api] = [t for t in pending_tests[api] if "https" in t]
+            if status == HTTP_RUNNING:
+                session.test_state["status"] = API_NOT_STARTED
+
+        session.pending_tests = pending_tests
+        self._push_to_cache(session)
+        return session
+        
     def _push_to_cache(self, session):
-        duplicate_session = None
-
-        for cached_session in self._sessions:
-            if cached_session.token == session.token:
-                duplicate_session = cached_session
-                break
-
-        if duplicate_session is not None:
-            self._sessions.remove(duplicate_session)
-
-        self._sessions.append(session)
+        self._sessions[session.token] = session
 
     def _read_from_cache(self, token):
-        for cached_session in self._sessions:
-            if cached_session.token == token:
-                return cached_session
-        return None
+        if token not in self._sessions: return None
+        return self._sessions[token]
 
     def _set_expiration_timer(self):
-        expiring_sessions = self._database.read_expiring_sessions()
+        expiring_sessions = self._read_expiring_sessions()
         if len(expiring_sessions) == 0: return
 
         next_session = expiring_sessions[0]
@@ -221,6 +267,14 @@ class SessionsManager(object):
         for session in expiring_sessions:
             if session.expiration_date / 1000.0 < now:
                 self.delete_session(session.token)
+
+    def _read_expiring_sessions(self):
+        expiring_sessions = []
+        for token in self._sessions:
+            session = self._sessions[token]
+            if session.expiration_date is None: continue
+            expiring_sessions.append(session)
+        return expiring_sessions
 
     def start_session(self, token):
         session = self.read_session(token)

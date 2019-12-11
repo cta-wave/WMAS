@@ -14,7 +14,7 @@ from ..data.exceptions.permission_denied_exception import PermissionDeniedExcept
 from ..data.exceptions.invalid_data_exception import InvalidDataException
 from ..data.exceptions.duplicate_exception import DuplicateException
 from .wpt_report import generate_report, generate_multi_report
-from ..data.session import COMPLETED
+from ..data.session import COMPLETED, HTTP_RUNNING, HTTPS_RUNNING, API_COMPLETE, API_NOT_STARTED
 
 WAVE_SRC_DIR = "./tools/wptserve/wptserve/wave"
 
@@ -24,16 +24,15 @@ class ResultsManager(object):
         results_directory_path,
         sessions_manager,
         tests_manager,
-        database,
         import_enabled,
         reports_enabled
     ):
         self._results_directory_path = results_directory_path
         self._sessions_manager = sessions_manager
         self._tests_manager = tests_manager
-        self._database = database
         self._import_enabled = import_enabled
         self._reports_enabled = reports_enabled
+        self._results = {}
 
     def create_result(self, token, data):
         result = self.prepare_result(data)
@@ -45,14 +44,12 @@ class ResultsManager(object):
         if not self._sessions_manager.test_in_session(test, session): return
         if self._sessions_manager.is_test_complete(test, session): return
         self._tests_manager.complete_test(test, session)
-        self._database.create_result(token, result)
+        self._push_to_cache(token, result)
+        self._update_test_state(result, session)
 
-        api = ""
-        for part in test.split(u"/"):
-            if part is not u"":
-                api = part
-                break
-        if not self._sessions_manager.is_api_complete(api, session): return
+        api = next((p for p in test.split(u"/") if p is not u""), None)
+        if session.test_state[api]["status"] == HTTP_RUNNING: return
+        if session.test_state[api]["status"] == HTTPS_RUNNING: return
         self.save_api_results(token, api)
         self.generate_report(token, api)
 
@@ -70,7 +67,7 @@ class ResultsManager(object):
         filter_api = None
         if filter_path is not None:
             filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
-        results = self._database.read_results(token)
+        results = self._read_from_cache(token)
 
         results_per_api = {}
 
@@ -86,47 +83,36 @@ class ResultsManager(object):
         return results_per_api
 
     def read_flattened_results(self, token):
-        results = self.read_results(token)
-        flattened_results = {}
+        session = self._sessions_manager.read_session(token)
+        return session.test_state
 
-        for api in results:
-            if api not in flattened_results:
-                flattened_results[api] = {
-                    u"pass": 0,
-                    u"fail": 0,
-                    u"timeout": 0,
-                    u"not_run": 0
-                }
+    def _update_test_state(self, result, session):
+        api = next((p for p in result["test"].split("/") if p is not u""), None)
+        if u"subtests" not in result:
+            if result[u"status"] == u"OK":
+                session.test_state[api][u"pass"] += 1
+            elif result[u"status"] == u"ERROR":
+                session.test_state[api][u"fail"] += 1
+            elif result[u"status"] == u"TIMEOUT":
+                session.test_state[api][u"timeout"] += 1
+            elif result[u"status"] == u"NOTRUN":
+                session.test_state[api][u"not_run"] += 1
+            session.test_state[api]["complete"] += 1
+        else:
+            for test in result[u"subtests"]:
+                if test[u"status"] == u"PASS":
+                    session.test_state[api][u"pass"] += 1
+                elif test[u"status"] == u"FAIL":
+                    session.test_state[api][u"fail"] += 1
+                elif test[u"status"] == u"TIMEOUT":
+                    session.test_state[api][u"timeout"] += 1
+                elif test[u"status"] == u"NOTRUN":
+                    session.test_state[api][u"not_run"] += 1
+                session.test_state[api]["complete"] += 1
 
-            for result in results[api]:
-                if u"subtests" not in result:
-                    if result[u"status"] == u"OK":
-                        flattened_results[api][u"pass"] += 1
-                        continue
-                    if result[u"status"] == u"ERROR":
-                        flattened_results[api][u"fail"] += 1
-                        continue
-                    if result[u"status"] == u"TIMEOUT":
-                        flattened_results[api][u"timeout"] += 1
-                        continue
-                    if result[u"status"] == u"NOTRUN":
-                        flattened_results[api][u"not_run"] += 1
-                        continue
-                for test in result[u"subtests"]:
-                    if test[u"status"] == u"PASS":
-                        flattened_results[api][u"pass"] += 1
-                        continue
-                    if test[u"status"] == u"FAIL":
-                        flattened_results[api][u"fail"] += 1
-                        continue
-                    if test[u"status"] == u"TIMEOUT":
-                        flattened_results[api][u"timeout"] += 1
-                        continue
-                    if test[u"status"] == u"NOTRUN":
-                        flattened_results[api][u"not_run"] += 1
-                        continue
-
-        return flattened_results
+        status = self._tests_manager.get_test_status(session.token, api)
+        session.test_state[api]["status"] = status
+        self._sessions_manager.update_session(session)
 
     def read_common_passed_tests(self, tokens=[]):
         if tokens is None or len(tokens) == 0: return None
@@ -188,6 +174,17 @@ class ResultsManager(object):
         results_directory = os.path.join(self._results_directory_path, token)
         if not os.path.isdir(results_directory): return
         shutil.rmtree(results_directory)
+
+    def _push_to_cache(self, token, result):
+        if token is None: return
+        if token not in self._results:
+            self._results[token] = []
+        self._results[token].append(result)
+
+    def _read_from_cache(self, token):
+        if token is None: return []
+        if token not in self._results: return []
+        return self._results[token]
 
     def prepare_result(self, result):
         harness_status_map = {

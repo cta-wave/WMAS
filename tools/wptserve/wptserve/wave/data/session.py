@@ -8,6 +8,11 @@ ABORTED = u"aborted"
 PENDING = u"pending"
 UNKNOWN = u"unknown"
 
+API_NOT_STARTED = "not_started"
+HTTP_RUNNING = "http"
+HTTPS_RUNNING = "https"
+API_COMPLETE = "complete"
+
 
 class Session(object):
     def __init__(
@@ -22,8 +27,7 @@ class Session(object):
             completed_tests={},
             timeouts={},
             status=UNKNOWN,
-            test_files_count=0,
-            test_files_completed=0,
+            test_state={},
             date_started=None,
             date_finished=None,
             is_public=False,
@@ -43,8 +47,7 @@ class Session(object):
         self.completed_tests = completed_tests
         self.timeouts = timeouts
         self.status = status
-        self.test_files_count = test_files_count
-        self.test_files_completed = test_files_completed
+        self.test_state = test_state
         self.date_started = date_started
         self.date_finished = date_finished
         self.is_public = is_public
