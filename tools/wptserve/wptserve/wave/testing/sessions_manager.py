@@ -7,7 +7,7 @@ import os
 from threading import Timer
 
 from .test_loader import AUTOMATIC, MANUAL
-from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED, API_NOT_STARTED, API_COMPLETE, HTTP_RUNNING, HTTPS_RUNNING
+from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED
 from ..utils.user_agent_parser import parse_user_agent
 from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
@@ -72,7 +72,6 @@ class SessionsManager(object):
                     "not_run": 0,
                     "total": test_files_count[api],
                     "complete": 0,
-                    "status": API_NOT_STARTED
             }
 
         session = Session(
@@ -152,7 +151,6 @@ class SessionsManager(object):
                         "not_run": 0,
                         "total": test_files_count[api],
                         "complete": 0,
-                        "status": API_NOT_STARTED
                 }
             session.test_state = test_state
             

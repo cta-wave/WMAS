@@ -14,7 +14,7 @@ from ..data.exceptions.permission_denied_exception import PermissionDeniedExcept
 from ..data.exceptions.invalid_data_exception import InvalidDataException
 from ..data.exceptions.duplicate_exception import DuplicateException
 from .wpt_report import generate_report, generate_multi_report
-from ..data.session import COMPLETED, HTTP_RUNNING, HTTPS_RUNNING, API_COMPLETE, API_NOT_STARTED
+from ..data.session import COMPLETED
 
 WAVE_SRC_DIR = "./tools/wptserve/wptserve/wave"
 
@@ -48,8 +48,7 @@ class ResultsManager(object):
         self._update_test_state(result, session)
 
         api = next((p for p in test.split(u"/") if p is not u""), None)
-        if session.test_state[api]["status"] == HTTP_RUNNING: return
-        if session.test_state[api]["status"] == HTTPS_RUNNING: return
+        if not self._sessions_manager.is_api_complete(api, session): return
         self.save_api_results(token, api)
         self.generate_report(token, api)
 
@@ -110,8 +109,6 @@ class ResultsManager(object):
                     session.test_state[api][u"not_run"] += 1
                 session.test_state[api]["complete"] += 1
 
-        status = self._tests_manager.get_test_status(session.token, api)
-        session.test_state[api]["status"] = status
         self._sessions_manager.update_session(session)
 
     def read_common_passed_tests(self, tokens=[]):

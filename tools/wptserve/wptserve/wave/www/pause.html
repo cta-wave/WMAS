@@ -122,7 +122,7 @@
         });
       }
 
-      WaveService.connect(TOKEN);
+      WaveService.connectHttpPolling(TOKEN);
       WaveService.onMessage(function(message) {
         if (message.type !== "status") return;
         if (message.data !== "running") return;
