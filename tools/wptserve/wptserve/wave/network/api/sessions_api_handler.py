@@ -80,7 +80,6 @@ class SessionsApiHandler(ApiHandler):
 
             del data[u"pending_tests"]
             del data[u"running_tests"]
-            del data[u"completed_tests"]
             del data[u"malfunctioning_tests"]
             del data[u"test_state"]
             del data[u"date_started"]
@@ -106,7 +105,6 @@ class SessionsApiHandler(ApiHandler):
             del data[u"tests"]
             del data[u"pending_tests"]
             del data[u"running_tests"]
-            del data[u"completed_tests"]
             del data[u"malfunctioning_tests"]
             del data[u"types"]
             del data[u"user_agent"]

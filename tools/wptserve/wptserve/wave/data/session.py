@@ -24,10 +24,11 @@ class Session(object):
             tests={},
             pending_tests={},
             running_tests={},
-            completed_tests={},
             timeouts={},
             status=UNKNOWN,
             test_state={},
+            last_completed_test=None,
+            recent_completed_count=0,
             date_started=None,
             date_finished=None,
             is_public=False,
@@ -44,10 +45,11 @@ class Session(object):
         self.tests = tests
         self.pending_tests = pending_tests
         self.running_tests = running_tests
-        self.completed_tests = completed_tests
         self.timeouts = timeouts
         self.status = status
         self.test_state = test_state
+        self.last_completed_test = last_completed_test
+        self.recent_completed_count = recent_completed_count
         self.date_started = date_started
         self.date_finished = date_finished
         self.is_public = is_public

@@ -83,7 +83,6 @@ class SessionsManager(object):
             timeouts=timeouts,
             pending_tests=pending_tests,
             running_tests={},
-            completed_tests={},
             test_state=test_state,
             status=PENDING,
             reference_tokens=reference_tokens,
@@ -343,11 +342,11 @@ class SessionsManager(object):
 
     def test_in_session(self, test, session):
         return self._test_list_contains_test(test, session.pending_tests) \
-            or self._test_list_contains_test(test, session.running_tests) \
-            or self._test_list_contains_test(test, session.completed_tests)
+            or self._test_list_contains_test(test, session.running_tests) 
 
     def is_test_complete(self, test, session):
-        return self._test_list_contains_test(test, session.completed_tests)
+        return not self._test_list_contains_test(test, session.pending_tests) \
+            and not self._test_list_contains_test(test, session.running_tests)
 
     def _test_list_contains_test(self, test, test_list):
         for api in list(test_list.keys()):

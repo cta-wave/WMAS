@@ -23,14 +23,14 @@ def deserialize_session(session_dict):
     if u"timeouts" in session_dict: timeouts = session_dict[u"timeouts"]
     pending_tests = {}
     if u"pending_tests" in session_dict: pending_tests = session_dict[u"pending_tests"]
-    completed_tests = {}
-    if u"completed_tests" in session_dict: completed_tests = session_dict[u"completed_tests"]
     running_tests = {}
     if u"running_tests" in session_dict: running_tests = session_dict[u"running_tests"]
     status = UNKNOWN
     if u"status" in session_dict: status = session_dict[u"status"]
     test_state = None
     if u"test_state" in session_dict: test_state = session_dict[u"test_state"]
+    last_completed_test = None
+    if u"last_completed_test" in session_dict: last_completed_test = session_dict[u"last_completed_test"]
     date_started = None
     if u"date_started" in session_dict: date_started = session_dict[u"date_started"]
     date_finished = None
@@ -60,6 +60,7 @@ def deserialize_session(session_dict):
         completed_tests=completed_tests,
         status=status,
         test_state=test_state,
+        last_completed_test=last_completed_test,
         date_started=date_started,
         date_finished=date_finished,
         is_public=is_public,

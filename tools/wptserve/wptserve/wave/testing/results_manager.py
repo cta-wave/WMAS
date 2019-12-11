@@ -47,9 +47,19 @@ class ResultsManager(object):
         self._push_to_cache(token, result)
         self._update_test_state(result, session)
 
+        session.last_completed_test = test
+        session.recent_completed_count += 1
+        print(session.recent_completed_count)
+        self._sessions_manager.update_session(session)
+
         api = next((p for p in test.split(u"/") if p is not u""), None)
+        if session.recent_completed_count >= 20 or self._sessions_manager.is_api_complete(api, session):
+            self.save_api_results(token, api)
+            self._clear_cache_api(token, api)
+            session.recent_completed_count = 0
+            self._sessions_manager.update_session(session)
+
         if not self._sessions_manager.is_api_complete(api, session): return
-        self.save_api_results(token, api)
         self.generate_report(token, api)
 
         test_files_count = session.test_files_count
@@ -68,18 +78,18 @@ class ResultsManager(object):
             filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
         results = self._read_from_cache(token)
 
-        results_per_api = {}
+        filtered_results = {}
 
-        for result in results:
-            api = next((p for p in result[u"test"].split(u"/") if p is not u""), None)
+        for api in results:
             if filter_api is not None and api.lower() != filter_api.lower(): continue
-            if filter_path is not None:
-                pattern = re.compile(u"^" + filter_path.replace(u".", u""))
-                if pattern.match(result[u"test"].replace(u".", u"")) is None: continue
-            if api not in results_per_api: results_per_api[api] = []
-            results_per_api[api].append(result)
+            for result in results[api]:
+                if filter_path is not None:
+                    pattern = re.compile(u"^" + filter_path.replace(u".", u""))
+                    if pattern.match(result[u"test"].replace(u".", u"")) is None: continue
+                if api not in filtered_results: filtered_results[api] = []
+                filtered_results[api].append(result)
 
-        return results_per_api
+        return filtered_results
 
     def read_flattened_results(self, token):
         session = self._sessions_manager.read_session(token)
@@ -96,7 +106,6 @@ class ResultsManager(object):
                 session.test_state[api][u"timeout"] += 1
             elif result[u"status"] == u"NOTRUN":
                 session.test_state[api][u"not_run"] += 1
-            session.test_state[api]["complete"] += 1
         else:
             for test in result[u"subtests"]:
                 if test[u"status"] == u"PASS":
@@ -107,8 +116,8 @@ class ResultsManager(object):
                     session.test_state[api][u"timeout"] += 1
                 elif test[u"status"] == u"NOTRUN":
                     session.test_state[api][u"not_run"] += 1
-                session.test_state[api]["complete"] += 1
 
+        session.test_state[api]["complete"] += 1
         self._sessions_manager.update_session(session)
 
     def read_common_passed_tests(self, tokens=[]):
@@ -175,13 +184,23 @@ class ResultsManager(object):
     def _push_to_cache(self, token, result):
         if token is None: return
         if token not in self._results:
-            self._results[token] = []
-        self._results[token].append(result)
+            self._results[token] = {}
+        test = result["test"]
+        api = next((p for p in test.split("/") if p is not u""), None)
+        if api not in self._results[token]:
+            self._results[token][api] = []
+        self._results[token][api].append(result)
 
     def _read_from_cache(self, token):
         if token is None: return []
         if token not in self._results: return []
         return self._results[token]
+
+    def _clear_cache_api(self, token, api):
+        if token is None: return
+        if token not in self._results: return
+        if api not in self._results[token]: return
+        del self._results[token][api]
 
     def prepare_result(self, result):
         harness_status_map = {
@@ -234,14 +253,27 @@ class ResultsManager(object):
 
     def save_api_results(self, token, api):
         results = self.read_results(token)
-        api_results = { "results": results[api] }
+        if api not in results: return
+        results = results[api]
         session = self._sessions_manager.read_session(token)
-
         self._ensure_results_directory_existence(api, token, session)
+        self.create_info_file(session)
 
         file_path = self.get_json_path(token, api)
+        file_exists = os.path.isfile(file_path)
+        file = open(file_path, "r+" if file_exists else "w")
 
-        file = open(file_path, "w+")
+        api_results = None
+        if file_exists:
+            data = file.read()
+            api_results = json.loads(data)
+        else:
+            api_results = { "results": [] }
+
+        api_results["results"] = api_results["results"] + results
+
+        file.seek(0)
+        file.truncate()
         file.write(json.dumps(api_results, indent=4, separators=(',', ': ')))
         file.close()
 
@@ -249,8 +281,6 @@ class ResultsManager(object):
         directory = os.path.join(self._results_directory_path, token, api)
         if not os.path.exists(directory):
             os.makedirs(directory)
-
-        self.create_info_file(session)
     
     def generate_report(self, token, api):
         file_path = self.get_json_path(token, api)
@@ -317,7 +347,6 @@ class ResultsManager(object):
         info = serialize_session(session)
         del info[u"running_tests"]
         del info[u"pending_tests"]
-        del info[u"completed_tests"]
 
         file_content = json.dumps(info, indent=2)
         file = open(info_file_path, "w+")

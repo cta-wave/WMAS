@@ -252,12 +252,9 @@ class TestsManager(object):
 
     def complete_test(self, test, session):
         running_tests = session.running_tests
-        completed_tests = session.completed_tests
 
         running_tests = self.remove_test_from_list(running_tests, test)
-        completed_tests = self.add_test_to_list(completed_tests, test)
         session.running_tests = running_tests
-        session.completed_tests = completed_tests
 
         timeout = next((t for t in self._timeouts if t[u"test"] == test), None)
         timeout[u"timeout"].cancel()
@@ -265,7 +262,6 @@ class TestsManager(object):
 
         self.update_tests(
             running_tests=running_tests, 
-            completed_tests=completed_tests, 
             session=session
         )
 
@@ -279,12 +275,8 @@ class TestsManager(object):
         self, 
         pending_tests=None, 
         running_tests=None, 
-        completed_tests=None, 
         session=None
     ):
-        if completed_tests is not None:
-            session.completed_tests = completed_tests
-
         if pending_tests is not None:
             session.pending_tests = pending_tests
 
