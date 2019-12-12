@@ -21,13 +21,14 @@ DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
 class SessionsManager(object):
-    def initialize(self, test_loader, event_dispatcher, tests_manager, results_directory):
+    def initialize(self, test_loader, event_dispatcher, tests_manager, results_directory, results_manager):
         self._test_loader = test_loader
         self._sessions = {}
         self._expiration_timeout = None
         self._event_dispatcher = event_dispatcher
         self._tests_manager = tests_manager
         self._results_directory = results_directory
+        self._results_manager = results_manager
 
     def create_session(
         self,
@@ -108,8 +109,13 @@ class SessionsManager(object):
         return session
 
     def read_public_sessions(self):
-        public_sessions = self._database.read_public_sessions()
-        session_tokens = map(lambda x: x.token, public_sessions)
+        self.load_all_sessions()
+        session_tokens = []
+        for token in self._sessions:
+            session = self._sessions[token]
+            if not session.is_public: continue
+            session_tokens.append(token)
+
         return session_tokens
 
     def update_session(self, session):
@@ -189,6 +195,12 @@ class SessionsManager(object):
         if session is None: return
         self._database.create_session(session)
         self._push_to_cache(session)
+
+    def load_all_sessions(self):
+        if not os.path.isdir(self._results_directory): return
+        tokens = os.listdir(self._results_directory)
+        for token in tokens:
+            self.load_session(token)
 
     def load_session(self, token):
         result_directory = os.path.join(self._results_directory, token)
@@ -298,6 +310,7 @@ class SessionsManager(object):
             event_type=STATUS_EVENT, 
             data=session.status
         )
+        self._results_manager.persist_session(session)
 
     def stop_session(self, token):
         session = self.read_session(token)

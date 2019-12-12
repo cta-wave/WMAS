@@ -107,6 +107,8 @@ class SessionsApiHandler(ApiHandler):
             del data[u"running_tests"]
             del data[u"malfunctioning_tests"]
             del data[u"types"]
+            del data[u"test_state"]
+            del data[u"last_completed_test"]
             del data[u"user_agent"]
             del data[u"timeouts"]
             del data[u"browser"]

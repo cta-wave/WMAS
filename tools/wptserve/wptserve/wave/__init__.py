@@ -37,7 +37,8 @@ class WaveServer(object):
             test_loader=test_loader,
             event_dispatcher=event_dispatcher,
             tests_manager=tests_manager,
-            results_directory=configuration[u"results_directory_path"]
+            results_directory=configuration[u"results_directory_path"],
+            results_manager=results_manager
         )
 
         results_manager.initialize(

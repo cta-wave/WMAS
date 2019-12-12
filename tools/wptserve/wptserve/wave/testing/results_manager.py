@@ -54,16 +54,13 @@ class ResultsManager(object):
 
         api = next((p for p in test.split(u"/") if p is not u""), None)
         if session.recent_completed_count >= 20 or self._sessions_manager.is_api_complete(api, session):
-            self.save_api_results(token, api)
-            self._clear_cache_api(token, api)
-            session.recent_completed_count = 0
-            self._sessions_manager.update_session(session)
+            self.persist_session(session)
 
         if not self._sessions_manager.is_api_complete(api, session): return
         self.generate_report(token, api)
 
-        test_files_count = session.test_files_count
-        apis = list(test_files_count.keys())
+        test_state = session.test_state
+        apis = list(test_state.keys())
         all_apis_complete = True
         for api in apis:
             if not self._sessions_manager.is_api_complete(api, session):
@@ -76,7 +73,9 @@ class ResultsManager(object):
         filter_api = None
         if filter_path is not None:
             filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
-        results = self._read_from_cache(token)
+        cached_results = self._read_from_cache(token)
+        persisted_results = self.load_results(token)
+        results = self._combine_results_by_api(cached_results, persisted_results)
 
         filtered_results = {}
 
@@ -181,6 +180,37 @@ class ResultsManager(object):
         if not os.path.isdir(results_directory): return
         shutil.rmtree(results_directory)
 
+    def persist_session(self, session):
+        token = session.token
+        if token not in self._results: return
+        for api in list(self._results[token].keys())[:]:
+            self.save_api_results(token, api)
+            self.create_info_file(session)
+            self._clear_cache_api(token, api)
+        session.recent_completed_count = 0
+        self._sessions_manager.update_session(session)
+
+    def load_results(self, token):
+        results_directory = os.path.join(self._results_directory_path, token)
+        if not os.path.isdir(results_directory): return {}
+        results = {}
+        apis = os.listdir(results_directory)
+        for api in apis:
+            api_directory = os.path.join(results_directory, api)
+            if not os.path.isdir(api_directory): continue
+            files = os.listdir(api_directory)
+            for file_name in files:
+                if re.match(r"\w\w\d{1,3}\.json", file_name) is None: continue
+                file_path = os.path.join(api_directory, file_name)
+                file = open(file_path, "r")
+                data = file.read()
+                file.close()
+                result = json.loads(data)
+                results[api] = result["results"]
+                break
+        return results
+
+
     def _push_to_cache(self, token, result):
         if token is None: return
         if token not in self._results:
@@ -201,6 +231,20 @@ class ResultsManager(object):
         if token not in self._results: return
         if api not in self._results[token]: return
         del self._results[token][api]
+
+    def _combine_results_by_api(self, result_a, result_b):
+        combined_result = {}
+        for api in result_a:
+            if api in result_b:
+                combined_result[api] = result_a[api] + result_b[api]
+            else:
+                combined_result[api] = result_a[api]
+
+        for api in result_b:
+            if api in combined_result: continue
+            combined_result[api] = result_b[api]
+
+        return combined_result
 
     def prepare_result(self, result):
         harness_status_map = {
@@ -257,7 +301,6 @@ class ResultsManager(object):
         results = results[api]
         session = self._sessions_manager.read_session(token)
         self._ensure_results_directory_existence(api, token, session)
-        self.create_info_file(session)
 
         file_path = self.get_json_path(token, api)
         file_exists = os.path.isfile(file_path)
@@ -462,49 +505,49 @@ class ResultsManager(object):
     def are_reports_enabled(self):
         return self._reports_enabled
 
-    def load_results(self):
-        if not os.path.isdir(self._results_directory_path): return
+    #def load_results(self):
+    #    if not os.path.isdir(self._results_directory_path): return
 
-        tokens = os.listdir(self._results_directory_path)
+    #    tokens = os.listdir(self._results_directory_path)
 
-        print("Looking for results to import ...")
-        for token in tokens:
-            result_directory_path = os.path.join(self._results_directory_path, token)
-            if os.path.isfile(result_directory_path): continue
-            if self._sessions_manager.read_session(token) is not None: continue
+    #    print("Looking for results to import ...")
+    #    for token in tokens:
+    #        result_directory_path = os.path.join(self._results_directory_path, token)
+    #        if os.path.isfile(result_directory_path): continue
+    #        if self._sessions_manager.read_session(token) is not None: continue
 
-            info_file_path = os.path.join(result_directory_path, "info.json")
-            session = self.load_session_from_info_file(info_file_path)
-            if session is None: continue
-            browser = session.browser
-            print("Loading {} {} results ...".format(browser["name"], browser["version"]))
+    #        info_file_path = os.path.join(result_directory_path, "info.json")
+    #        session = self.load_session_from_info_file(info_file_path)
+    #        if session is None: continue
+    #        browser = session.browser
+    #        print("Loading {} {} results ...".format(browser["name"], browser["version"]))
 
-            results = self.load_result(result_directory_path)
+    #        results = self.load_result(result_directory_path)
 
-            self._sessions_manager.add_session(session)
-            for result in results:
-                self._database.create_result(token, result)
+    #        self._sessions_manager.add_session(session)
+    #        for result in results:
+    #            self._database.create_result(token, result)
 
-    def load_result(self, result_directory_path):
-        all_results = []
+    #def load_result(self, result_directory_path):
+    #    all_results = []
 
-        apis = os.listdir(result_directory_path)
+    #    apis = os.listdir(result_directory_path)
 
-        for api in apis:
-            api_path = os.path.join(result_directory_path, api)
-            if not os.path.isdir(api_path): continue
-            files = os.listdir(api_path)
-            results_file_path = ""
-            for file in files:
-                if re.match(r"\w\w\d{1,3}\.json", file) is None: continue
-                results_file_path = os.path.join(api_path, file)
-                break
-            file = open(results_file_path, "r")
-            data = file.read()
-            file.close()
-            parsed_data = json.loads(data)
-            all_results = all_results + parsed_data["results"]
-        return all_results
+    #    for api in apis:
+    #        api_path = os.path.join(result_directory_path, api)
+    #        if not os.path.isdir(api_path): continue
+    #        files = os.listdir(api_path)
+    #        results_file_path = ""
+    #        for file in files:
+    #            if re.match(r"\w\w\d{1,3}\.json", file) is None: continue
+    #            results_file_path = os.path.join(api_path, file)
+    #            break
+    #        file = open(results_file_path, "r")
+    #        data = file.read()
+    #        file.close()
+    #        parsed_data = json.loads(data)
+    #        all_results = all_results + parsed_data["results"]
+    #    return all_results
 
     def load_session_from_info_file(self, info_file_path):
         if not os.path.isfile(info_file_path): return None

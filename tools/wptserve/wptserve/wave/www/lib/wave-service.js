@@ -619,7 +619,7 @@ var WaveService = {
           WaveService.socket.onMessage(JSON.parse(response));
         },
         function() {
-          if (WaveService.socket.state === OPEN) poll();
+          if (WaveService.socket.state === OPEN) setTimeout(poll, 1000);
         }
       );
       WaveService.socket.close = function() {

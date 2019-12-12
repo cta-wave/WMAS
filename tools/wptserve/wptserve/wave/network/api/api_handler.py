@@ -4,7 +4,7 @@ import json
 
 class ApiHandler(object):
     def send_json(self, data, response, status=200):
-        json_string = json.dumps(data)
+        json_string = json.dumps(data, indent=4)
         response.content = json_string
         response.headers = [(u"Content-Type", u"application/json")]
         response.status = status

@@ -68,20 +68,20 @@
             case undefined:
               resultUi.refreshSessionConfiguration(() => {
                 resultUi.refreshSessionStatus(() => {
-                  resultUi.refreshReferenceSessions(() =>
-                    resultUi.renderReferenceSessions()
-                  );
-                  resultUi.renderControls();
-                  resultUi.renderSessionDetails();
                   resultUi.refreshSessionResults(() => {
+                    resultUi.refreshReferenceSessions(() =>
+                      resultUi.renderReferenceSessions()
+                    );
+                    resultUi.renderControls();
+                    resultUi.renderSessionDetails();
                     resultUi.renderApiResults();
-                  });
-                  resultUi.renderExportView();
-                  resultUi.refreshLastCompletedTests(() => {
-                    resultUi.renderLastCompletedTests();
-                  });
-                  resultUi.refreshMalfunctioningTests(() => {
-                    resultUi.renderMalfunctioningTests();
+                    resultUi.renderExportView();
+                    resultUi.refreshLastCompletedTests(() => {
+                      resultUi.renderLastCompletedTests();
+                    });
+                    resultUi.refreshMalfunctioningTests(() => {
+                      resultUi.renderMalfunctioningTests();
+                    });
                   });
                 });
               });
@@ -115,26 +115,26 @@
         },
         refreshSessionResults(callback = () => {}) {
           WaveService.readResultsCompact(token, results => {
-            const { status } = resultUi.state;
-            Object.keys(status.testFilesCount).forEach(api =>
-              !results[api] ? (results[api] = {}) : null
-            );
-            for (let api in results) {
-              let { pass, fail, timeout, not_run } = results[api];
-              let complete = 0;
-              if (pass) complete += pass;
-              if (fail) complete += fail;
-              if (timeout) complete += timeout;
-              if (not_run) complete += not_run;
-              results[api].complete = complete;
-              const { testFilesCount, testFilesCompleted } = status;
-              if (!testFilesCount[api]) testFilesCount[api] = 0;
-              if (!testFilesCompleted[api]) testFilesCompleted[api] = 0;
-              results[api].isDone =
-                testFilesCount[api] === testFilesCompleted[api];
-              results[api].testFilesCount = testFilesCount[api];
-              results[api].testFilesCompleted = testFilesCompleted[api];
-            }
+            //const { status } = resultUi.state;
+            //Object.keys(status.testFilesCount).forEach(api =>
+            //  !results[api] ? (results[api] = {}) : null
+            //);
+            //for (let api in results) {
+            //  let { pass, fail, timeout, not_run } = results[api];
+            //  let complete = 0;
+            //  if (pass) complete += pass;
+            //  if (fail) complete += fail;
+            //  if (timeout) complete += timeout;
+            //  if (not_run) complete += not_run;
+            //  results[api].complete = complete;
+            //  const { testFilesCount, testFilesCompleted } = status;
+            //  if (!testFilesCount[api]) testFilesCount[api] = 0;
+            //  if (!testFilesCompleted[api]) testFilesCompleted[api] = 0;
+            //  results[api].isDone =
+            //    testFilesCount[api] === testFilesCompleted[api];
+            //  results[api].testFilesCount = testFilesCount[api];
+            //  results[api].testFilesCompleted = testFilesCompleted[api];
+            //}
             resultUi.state.results = results;
             callback(results);
           });
@@ -520,7 +520,7 @@
         },
         renderSessionDetails() {
           const { state } = resultUi;
-          const { configuration, status } = state;
+          const { configuration, status, results } = state;
           if (!configuration || !status) return;
           const sessionDetailsView = UI.createElement({
             style: "margin-bottom: 20px"
@@ -558,7 +558,6 @@
           }
 
           const { addLabelVisible } = state;
-          const { testFilesCount } = status;
           const { showExcluded } = state;
 
           const tokenField = UI.createElement({
@@ -706,8 +705,8 @@
                   className: "field",
                   children: {
                     className: "control",
-                    text: Object.keys(testFilesCount).reduce(
-                      (sum, api) => (sum += testFilesCount[api]),
+                    text: Object.keys(results).reduce(
+                      (sum, api) => (sum += results[api].total),
                       0
                     )
                   }
@@ -1156,8 +1155,7 @@
               timeoutfiles = [],
               not_run: notRun = 0,
               isDone = false,
-              testFilesCount,
-              testFilesCompleted = 0
+              total
             } = results[api];
             return UI.createElement({
               element: "tr",
@@ -1205,9 +1203,9 @@
                   element: "td",
                   children: {
                     style: `overflow: visible; white-space: nowrap; width: ${width}`,
-                    text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
-                      testFilesCompleted,
-                      testFilesCount
+                    text: `${complete}/${total} (${utils.percent(
+                      complete,
+                      total
                     )}%)`
                   }
                 },
@@ -1253,11 +1251,11 @@
             { complete: 0, pass: 0, fail: 0, timeout: 0, not_run: 0 }
           );
           const testFilesCount = Object.keys(results).reduce(
-            (sum, api) => (sum += results[api].testFilesCount),
+            (sum, api) => (sum += results[api].total),
             0
           );
           const testFilesCompleted = Object.keys(results).reduce(
-            (sum, api) => (sum += results[api].testFilesCompleted || 0),
+            (sum, api) => (sum += results[api].complete || 0),
             0
           );
 

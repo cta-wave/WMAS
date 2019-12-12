@@ -128,7 +128,7 @@ class TestsApiHandler(ApiHandler):
 
             status = None
             if u"status" in query:
-                status = query[u"status"]
+                status = query[u"status"].split(",")
             else:
                 status = DEFAULT_LAST_COMPLETED_TESTS_STATUS
 
@@ -154,7 +154,7 @@ class TestsApiHandler(ApiHandler):
         except Exception as e:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read last completed tests: " + info[0].__name__ + u": " + info[1].args[0]
+            print u"Failed to read last completed tests: " + info[0].__name__ + u": " + unicode(info[1].args[0])
             response.status = 500
 
     def read_malfunctioning(self, request, response):
