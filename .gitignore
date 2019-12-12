@@ -65,3 +65,5 @@ xhr/
 # ignore local setup
 setup_log_Py27.txt
 venv/
+
+wptreport/
