@@ -354,6 +354,9 @@ class SessionsManager(object):
         return not self._test_list_contains_test(test, session.pending_tests) \
             and not self._test_list_contains_test(test, session.running_tests)
 
+    def is_test_running(self, test, session):
+        return self._test_list_contains_test(test, session.running_tests)
+
     def _test_list_contains_test(self, test, test_list):
         for api in list(test_list.keys()):
             if test in test_list[api]:

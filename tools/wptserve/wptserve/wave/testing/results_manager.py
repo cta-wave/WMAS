@@ -42,14 +42,13 @@ class ResultsManager(object):
 
         if session is None: return
         if not self._sessions_manager.test_in_session(test, session): return
-        if self._sessions_manager.is_test_complete(test, session): return
+        if not self._sessions_manager.is_test_running(test, session): return
         self._tests_manager.complete_test(test, session)
         self._push_to_cache(token, result)
         self._update_test_state(result, session)
 
         session.last_completed_test = test
         session.recent_completed_count += 1
-        print(session.recent_completed_count)
         self._sessions_manager.update_session(session)
 
         api = next((p for p in test.split(u"/") if p is not u""), None)
