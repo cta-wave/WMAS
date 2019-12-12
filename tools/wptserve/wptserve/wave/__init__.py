@@ -14,8 +14,6 @@ from .testing.tests_manager import TestsManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
-from .database.database import Database
-
 
 class WaveServer(object):
     def initialize(self, configuration_file_path=u".", application_directory_path=u""):
