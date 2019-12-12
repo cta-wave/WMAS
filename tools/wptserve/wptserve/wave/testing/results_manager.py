@@ -295,7 +295,7 @@ class ResultsManager(object):
         return os.path.join(api_directory, file_name)
 
     def save_api_results(self, token, api):
-        results = self.read_results(token)
+        results = self._read_from_cache(token)
         if api not in results: return
         results = results[api]
         session = self._sessions_manager.read_session(token)
