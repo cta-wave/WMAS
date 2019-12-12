@@ -1,8 +1,0 @@
-yarn.lock
-config.json
-data
-!src/data
-node_modules
-.idea
-!www/
-venv
