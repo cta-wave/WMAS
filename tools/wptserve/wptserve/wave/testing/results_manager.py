@@ -25,7 +25,8 @@ class ResultsManager(object):
         sessions_manager,
         tests_manager,
         import_enabled,
-        reports_enabled
+        reports_enabled,
+        persisting_interval
     ):
         self._results_directory_path = results_directory_path
         self._sessions_manager = sessions_manager
@@ -33,6 +34,7 @@ class ResultsManager(object):
         self._import_enabled = import_enabled
         self._reports_enabled = reports_enabled
         self._results = {}
+        self._persisting_interval = persisting_interval
 
     def create_result(self, token, data):
         result = self.prepare_result(data)
@@ -52,7 +54,8 @@ class ResultsManager(object):
         self._sessions_manager.update_session(session)
 
         api = next((p for p in test.split(u"/") if p is not u""), None)
-        if session.recent_completed_count >= 20 or self._sessions_manager.is_api_complete(api, session):
+        if session.recent_completed_count >= self._persisting_interval \
+            or self._sessions_manager.is_api_complete(api, session):
             self.persist_session(session)
 
         if not self._sessions_manager.is_api_complete(api, session): return

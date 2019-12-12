@@ -3,7 +3,7 @@ import json
 import os
 from io import open
 
-DEFAULT_CONFIGURATION_FILE_PATH = u"./tools/wave/config.default.json"
+DEFAULT_CONFIGURATION_FILE_PATH = u"./tools/wptserve/wptserve/wave/config.default.json"
 
 
 def load(configuration_file_path):
@@ -45,6 +45,9 @@ def load(configuration_file_path):
 
     configuration[u"import_enabled"] = configuration.get(
         u"enable_results_import", default_configuration[u"enable_results_import"])
+
+    configuration[u"persisting_interval"] = configuration.get(
+        u"persisting_interval", default_configuration[u"persisting_interval"])
 
     configuration[u"tests_directory_path"] = os.getcwdu()
 
