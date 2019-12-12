@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import uuid
 import time
 import os
+import json
 
 from threading import Timer
 
@@ -195,14 +196,14 @@ class SessionsManager(object):
         info_file = os.path.join(result_directory, "info.json")
         if not os.path.isfile(info_file): return None
 
-        file = open(info_file, "w")
+        file = open(info_file, "r")
         info_data = file.read()
         file.close()
         parsed_info_data = json.loads(info_data)
 
         session = deserialize_session(parsed_info_data)
 
-        if session.status == COMPLETE or session.status == ABORTED:
+        if session.status == COMPLETED or session.status == ABORTED:
             self._push_to_cache(session)
             return session
 
@@ -213,16 +214,8 @@ class SessionsManager(object):
             reference_tokens=session.reference_tokens
         )
 
-        apis = list(pending_tests.keys())
-        for api in apis:
-            status = session.test_state[api]["status"]
-            if status == API_COMPLETE:
-                del pending_tests[api]
-                continue
-            if status == HTTPS_RUNNING:
-                pending_tests[api] = [t for t in pending_tests[api] if "https" in t]
-            if status == HTTP_RUNNING:
-                session.test_state["status"] = API_NOT_STARTED
+        last_completed_test = session.last_completed_test
+        pending_tests = self._tests_manager.skip_to(pending_tests, last_completed_test)
 
         session.pending_tests = pending_tests
         self._push_to_cache(session)

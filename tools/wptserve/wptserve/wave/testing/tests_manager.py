@@ -188,6 +188,21 @@ class TestsManager(object):
 
         return test
 
+    def skip_to(self, test_list, test):
+        sorted_tests = self._sort_tests_by_execution(test_list)
+        index = sorted_tests.index(test)
+        remaining_tests = sorted_tests[index + 1:]
+        remaining_tests_by_api = {}
+        current_api = "___"
+        for test in remaining_tests:
+            if not test.startswith("/" + current_api) and \
+                not test.startswith(current_api):
+                current_api = next((p for p in test.split(u"/") if p != u""), None)
+                if current_api not in remaining_tests_by_api:
+                    remaining_tests_by_api[current_api] = []
+            remaining_tests_by_api[current_api].append(test)
+        return remaining_tests_by_api
+
     def remove_test_from_list(self, test_list, test):
         api = None
         for part in test.split(u"/"):

@@ -57,7 +57,6 @@ def deserialize_session(session_dict):
         timeouts=timeouts,
         pending_tests=pending_tests,
         running_tests=running_tests,
-        completed_tests=completed_tests,
         status=status,
         test_state=test_state,
         last_completed_test=last_completed_test,
