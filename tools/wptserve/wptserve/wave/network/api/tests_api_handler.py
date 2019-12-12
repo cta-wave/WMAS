@@ -17,13 +17,15 @@ class TestsApiHandler(ApiHandler):
         wpt_ssl_port, 
         tests_manager, 
         sessions_manager,
-        hostname
+        hostname,
+        web_root
     ):
         self._tests_manager = tests_manager
         self._sessions_manager = sessions_manager
         self._wpt_port = wpt_port
         self._wpt_ssl_port = wpt_ssl_port
         self._hostname = hostname
+        self._web_root = web_root
 
     def read_tests(self, response):
         tests = self._tests_manager.read_tests()
@@ -242,7 +244,12 @@ class TestsApiHandler(ApiHandler):
             protocol = u"https"
             port = self._wpt_ssl_port
 
-        query = u"?token={}&timeout={}".format(token, test_timeout)
+        query = u"?token={}&timeout={}&https_port={}&web_root={}".format(
+                token,
+                test_timeout,
+                self._wpt_ssl_port,
+                self._web_root
+        )
 
         return self._generate_url(
             protocol=protocol,

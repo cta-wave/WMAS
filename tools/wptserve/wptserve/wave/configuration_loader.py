@@ -23,6 +23,12 @@ def load(configuration_file_path):
         u"ports", default_configuration[u"ports"]).get(
         u"https", default_configuration[u"ports"][u"https"])[0]
 
+    web_root = configuration.get(
+        "web_root", default_configuration["web_root"])
+    if not web_root.startswith("/"): web_root = web_root + "/"
+    if not web_root.endswith("/"): web_root += "/"
+    configuration["web_root"] = web_root
+
     configuration[u"results_directory_path"] = configuration.get(
         u"results", default_configuration[u"results"])
 

@@ -3,18 +3,20 @@ import json
 
 
 class ApiHandler(object):
+    def set_headers(self, response, headers):
+        if not isinstance(response.headers, list):
+            response.headers = []
+        for header in headers:
+            response.headers.append(header)
+
     def send_json(self, data, response, status=200):
         json_string = json.dumps(data, indent=4)
         response.content = json_string
-        response.headers = [(u"Content-Type", u"application/json")]
+        self.set_headers(response, [(u"Content-Type", u"application/json")])
         response.status = status
 
     def send_file(self, blob, file_name, response):
-        if not isinstance(response.headers, list):
-            response.headers = []
-        response.headers.append(
-            ("Content-Disposition", "attachment;filename=" + file_name)
-        )
+        self.set_headers(response, [("Content-Disposition", "attachment;filename=" + file_name)])
         response.content = blob
 
     def send_zip(self, data, file_name, response):

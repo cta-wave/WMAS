@@ -12,6 +12,14 @@ class HttpHandler(object):
         self.results_api_handler = results_api_handler
 
     def handle_request(self, request, response):
+        response.headers = [
+            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Headers", "*"),
+            ("Access-Control-Allow-Methods", "*")
+        ]
+        if request.method == "OPTIONS":
+            return
+
         is_api_call = False
 
         for index, part in enumerate(request.request_path.split(u"/")):

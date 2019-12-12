@@ -48,8 +48,10 @@
       }
 
       var resultData;
-      if (parsedQuery["result"]) {
-        resultData = JSON.parse(decodeURIComponent(parsedQuery["result"]));
+      var rawResult = parsedQuery.result;
+      if (rawResult) {
+	console.log(rawResult)
+        resultData = JSON.parse(decodeURIComponent(rawResult));
       }
 
       createResult(TOKEN, resultData, function() {
