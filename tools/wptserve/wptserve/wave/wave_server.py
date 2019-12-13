@@ -16,7 +16,7 @@ from .testing.event_dispatcher import EventDispatcher
 
 
 class WaveServer(object):
-    def initialize(self, configuration_file_path=u".", application_directory_path=u""):
+    def initialize(self, configuration_file_path=u".", application_directory_path=u"", reports_enabled=False):
         sys.stdout.write(u"Loading configuration ...")
         sys.stdout.flush()
 
@@ -44,7 +44,7 @@ class WaveServer(object):
             sessions_manager=sessions_manager,
             tests_manager=tests_manager,
             import_enabled=configuration["import_enabled"],
-            reports_enabled=False,
+            reports_enabled=reports_enabled,
             persisting_interval=configuration["persisting_interval"]
         )
 

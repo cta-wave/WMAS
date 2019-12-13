@@ -356,7 +356,7 @@ BRANCHORCOMMITID=eaf5d6035d68da3593b0b50b8b25a0cb64fc1f5e
 rm -rf .git/info/sparse-checkout
 
 # Install node modules
-cd ./tools/wave && npm install
+cd $WPTBASEDIR/tools/wave && npm install
 
 # Integrate ECMASCRIPT tests [ECMASCRIPT-6]
 DISTDIR=dist/es6-tests

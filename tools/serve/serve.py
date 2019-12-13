@@ -389,7 +389,8 @@ def build_routes(aliases, wave_cfg=None):
         from wptserve.wave.wave_server import WaveServer
         wave_server = WaveServer()
         wave_server.initialize(
-            configuration_file_path=os.path.abspath("./config.json"))
+            configuration_file_path=os.path.abspath("./config.json"),
+            reports_enabled=wave_cfg.get("report"))
 
         class WaveHandler(object):
             def __call__(self, request, response):
@@ -928,17 +929,17 @@ def run_wave(venv=None, **kwargs):
         if not is_tool_installed(cmd, "v"):
             raise Exception("NodeJS is not installed!")
 
-        cmd = "node ./wptreport --version"
-        if not is_tool_installed(cmd, "wptreport"):
-            print("WPTReport tool is not installed ")
-            print("Installing WPTReport tool .....")
-            install_wptreport()
-            if not is_tool_installed(cmd, "wptreport"):
-                raise Exception("[Error] During WPTReport installation")
-            else:
-                print("> WPTReport tool was successfully installed!")
-        else:
-            print("WPTReport tool is already installed")
+        #cmd = "node ./wptreport --version"
+        #if not is_tool_installed(cmd, "wptreport"):
+        #    print("WPTReport tool is not installed ")
+        #    print("Installing WPTReport tool .....")
+        #    install_wptreport()
+        #    if not is_tool_installed(cmd, "wptreport"):
+        #        raise Exception("[Error] During WPTReport installation")
+        #    else:
+        #        print("> WPTReport tool was successfully installed!")
+        #else:
+        #    print("WPTReport tool is already installed")
 
     run(**kwargs)
 
