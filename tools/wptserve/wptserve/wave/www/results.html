@@ -188,7 +188,7 @@
         },
         openHtmlReport(api) {
           const { results } = resultUi.state;
-          if (!results[api].isDone) return;
+          if (results[api].complete != results[api].total) return;
           WaveService.readReportUri(token, api, function(uri) {
             window.open(uri, "_blank");
           });
@@ -1154,9 +1154,9 @@
               timeout = 0,
               timeoutfiles = [],
               not_run: notRun = 0,
-              isDone = false,
               total
             } = results[api];
+						isDone = results[api].complete == results[api].total;
             return UI.createElement({
               element: "tr",
               style: "white-space: nowrap",
