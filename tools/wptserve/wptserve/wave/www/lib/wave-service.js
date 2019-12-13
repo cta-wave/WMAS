@@ -611,10 +611,11 @@ var WaveService = {
     };
   },
   connectHttpPolling: function(token) {
+		var uniqueId = new Date().getTime()
     var poll = function() {
       var request = sendRequest(
         "GET",
-        "api/sessions/" + token + "/events",
+        "api/sessions/" + token + "/events?id=" + uniqueId,
         null,
         null,
         function(response) {
