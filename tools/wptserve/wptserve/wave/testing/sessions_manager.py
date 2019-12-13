@@ -193,7 +193,6 @@ class SessionsManager(object):
 
     def add_session(self, session):
         if session is None: return
-        self._database.create_session(session)
         self._push_to_cache(session)
 
     def load_all_sessions(self):
@@ -263,7 +262,7 @@ class SessionsManager(object):
         self._expiration_timeout.start()
 
     def _delete_expired_sessions(self):
-        expiring_sessions = self._database.read_expiring_sessions()
+        expiring_sessions = self.read_expiring_sessions()
         now = int(time.time())
 
         for session in expiring_sessions:
@@ -368,6 +367,8 @@ class SessionsManager(object):
 
     def find_token(self, fragment):
         if len(fragment) < 8: return None
-        tokens = self._database.find_tokens(fragment)
+        tokens = []
+        for token in self._sessions:
+            if token.beginswith(fragment): tokens.append(token)
         if len(tokens) != 1: return None
         return tokens[0]

@@ -233,7 +233,8 @@
         });
 
         var configurationUrl =
-          "configuration.html?token=" +
+					location.origin +
+          WaveService.uriPrefix + "configuration.html?token=" +
           token +
           "&resume=" +
           resumeToken;
