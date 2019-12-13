@@ -4,7 +4,7 @@ import urllib2
 import zipfile
 
 START = "start"
-DOWNLOAD_REFERENCE_BROWSERS = "download-reference-browsers"
+DOWNLOAD_REFERENCE_BROWSERS = "download-reference-results"
 
 REFERENCE_BROWSERS = {
     "chrome": {
