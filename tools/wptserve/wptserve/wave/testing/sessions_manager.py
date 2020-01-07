@@ -214,6 +214,11 @@ class SessionsManager(object):
 
         session = deserialize_session(parsed_info_data)
 
+        if "test_state" not in parsed_info_data:
+            results = self._results_manager.load_results(token)
+            test_state = self._results_manager.parse_test_state(results)
+            session.test_state = test_state
+
         if session.status == COMPLETED or session.status == ABORTED:
             self._push_to_cache(session)
             return session

@@ -1157,6 +1157,7 @@
               total
             } = results[api];
 						isDone = results[api].complete == results[api].total;
+            const totalTestResults = pass + fail + timeout + notRun;
             return UI.createElement({
               element: "tr",
               style: "white-space: nowrap",
@@ -1173,7 +1174,7 @@
                   element: "td",
                   children: {
                     style: `color: hsl(141, 71%, 38%); overflow: visible; white-space: nowrap; width: ${width}`,
-                    text: `${pass} (${utils.percent(pass, complete)}%)`
+                    text: `${pass} (${utils.percent(pass, totalTestResults)}%)`
                   }
                 },
                 {
@@ -1181,14 +1182,14 @@
                   children: {
                     className: "has-text-danger",
                     style: `overflow: visible; white-space: nowrap; width: ${width}`,
-                    text: `${fail} (${utils.percent(fail, complete)}%)`
+                    text: `${fail} (${utils.percent(fail, totalTestResults)}%)`
                   }
                 },
                 {
                   element: "td",
                   children: {
                     style: `color: hsl(48, 100%, 40%); overflow: visible; white-space: nowrap; width: ${width}`,
-                    text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                    text: `${timeout} (${utils.percent(timeout, totalTestResults)}%)`
                   }
                 },
                 {
@@ -1196,7 +1197,7 @@
                   children: {
                     className: "has-text-info",
                     style: `overflow: visible; white-space: nowrap; width: ${width}`,
-                    text: `${notRun} (${utils.percent(notRun, complete)}%)`
+                    text: `${notRun} (${utils.percent(notRun, totalTestResults)}%)`
                   }
                 },
                 {
@@ -1241,23 +1242,16 @@
             });
           });
 
-          const { pass, fail, timeout, not_run, complete } = apis.reduce(
+          const { pass, fail, timeout, not_run, complete, total } = apis.reduce(
             (sum, api) => {
               Object.keys(sum).forEach(
                 key => (sum[key] += results[api][key] ? results[api][key] : 0)
               );
               return sum;
             },
-            { complete: 0, pass: 0, fail: 0, timeout: 0, not_run: 0 }
+            { complete: 0, total: 0, pass: 0, fail: 0, timeout: 0, not_run: 0 }
           );
-          const testFilesCount = Object.keys(results).reduce(
-            (sum, api) => (sum += results[api].total),
-            0
-          );
-          const testFilesCompleted = Object.keys(results).reduce(
-            (sum, api) => (sum += results[api].complete || 0),
-            0
-          );
+          const totalTestResults = pass + fail + timeout + not_run;
 
           const footer = UI.createElement({
             element: "tfoot",
@@ -1277,7 +1271,7 @@
                     element: "th",
                     children: {
                       style: `color: hsl(141, 71%, 38%); overflow: visible; white-space: nowrap; width: ${width}`,
-                      text: `${pass} (${utils.percent(pass, complete)}%)`
+                      text: `${pass} (${utils.percent(pass, totalTestResults)}%)`
                     }
                   },
                   {
@@ -1285,14 +1279,14 @@
                     children: {
                       style: `overflow: visible; white-space: nowrap; width: ${width}`,
                       className: "has-text-danger",
-                      text: `${fail} (${utils.percent(fail, complete)}%)`
+                      text: `${fail} (${utils.percent(fail, totalTestResults)}%)`
                     }
                   },
                   {
                     element: "th",
                     children: {
                       style: `color: hsl(48, 100%, 40%); overflow: visible; white-space: nowrap; width: ${width}`,
-                      text: `${timeout} (${utils.percent(timeout, complete)}%)`
+                      text: `${timeout} (${utils.percent(timeout, totalTestResults)}%)`
                     }
                   },
                   {
@@ -1300,16 +1294,16 @@
                     children: {
                       style: `overflow: visible; white-space: nowrap; width: ${width}`,
                       className: "has-text-info",
-                      text: `${not_run} (${utils.percent(not_run, complete)}%)`
+                      text: `${not_run} (${utils.percent(not_run, totalTestResults)}%)`
                     }
                   },
                   {
                     element: "th",
                     children: {
                       style: `overflow: visible; white-space: nowrap; width: ${width}`,
-                      text: `${testFilesCompleted}/${testFilesCount} (${utils.percent(
-                        testFilesCompleted,
-                        testFilesCount
+                      text: `${complete}/${total} (${utils.percent(
+                        complete,
+                        total
                       )}%)`
                     }
                   },

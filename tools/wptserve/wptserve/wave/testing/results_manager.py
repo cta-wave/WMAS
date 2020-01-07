@@ -76,7 +76,9 @@ class ResultsManager(object):
         if filter_path is not None:
             filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
         cached_results = self._read_from_cache(token)
+        print(cached_results)
         persisted_results = self.load_results(token)
+        print(persisted_results)
         results = self._combine_results_by_api(cached_results, persisted_results)
 
         filtered_results = {}
@@ -120,6 +122,40 @@ class ResultsManager(object):
 
         session.test_state[api]["complete"] += 1
         self._sessions_manager.update_session(session)
+
+    def parse_test_state(self, results):
+        test_state = {}
+        for api in list(results.keys()):
+            test_state[api] = {
+                    "pass": 0,
+                    "fail": 0,
+                    "timeout": 0,
+                    "not_run": 0,
+                    "total": len(results[api]),
+                    "complete": 0,
+            }
+            for result in results[api]:
+                if u"subtests" not in result:
+                    if result[u"status"] == u"OK":
+                        test_state[api][u"pass"] += 1
+                    elif result[u"status"] == u"ERROR":
+                        test_state[api][u"fail"] += 1
+                    elif result[u"status"] == u"TIMEOUT":
+                        test_state[api][u"timeout"] += 1
+                    elif result[u"status"] == u"NOTRUN":
+                        test_state[api][u"not_run"] += 1
+                else:
+                    for test in result[u"subtests"]:
+                        if test[u"status"] == u"PASS":
+                            test_state[api][u"pass"] += 1
+                        elif test[u"status"] == u"FAIL":
+                            test_state[api][u"fail"] += 1
+                        elif test[u"status"] == u"TIMEOUT":
+                            test_state[api][u"timeout"] += 1
+                        elif test[u"status"] == u"NOTRUN":
+                            test_state[api][u"not_run"] += 1
+                test_state[api]["complete"] += 1
+        return test_state
 
     def read_common_passed_tests(self, tokens=[]):
         if tokens is None or len(tokens) == 0: return None

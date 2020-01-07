@@ -11,8 +11,11 @@ def deserialize_sessions(session_dicts):
 def deserialize_session(session_dict):
     token = u""
     if u"token" in session_dict: token = session_dict[u"token"]
-    tests = {}
+    tests = { "include": [], "exclude": [] }
     if u"tests" in session_dict: tests = session_dict[u"tests"]
+    if u"path" in session_dict:
+        test_paths = session_dict[u"path"].split(", ")
+        tests[u"include"] = tests[u"include"] + test_paths
     types = []
     if u"types" in session_dict: types = session_dict[u"types"]
     user_agent = u""
