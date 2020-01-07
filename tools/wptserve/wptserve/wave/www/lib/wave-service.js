@@ -10,7 +10,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   xhr.onerror = function() {
     if (onError) onError();
   };
-  xhr.open(method, "https://" + location.hostname + ":" + HTTPS_PORT + WaveService.uriPrefix + uri, true);
+  xhr.open(method, WaveService.uriPrefix + uri, true);
   for (var header in headers) {
     xhr.setRequestHeader(header, headers[header]);
   }

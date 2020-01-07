@@ -92,6 +92,7 @@ class WaveServer(object):
             static_handler=static_handler,
             sessions_api_handler=sessions_api_handler,
             tests_api_handler=tests_api_handler,
-            results_api_handler=results_api_handler
+            results_api_handler=results_api_handler,
+            http_port=configuration[u"wpt_port"]
         )
         self.handle_request = http_handler.handle_request
