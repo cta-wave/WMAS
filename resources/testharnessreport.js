@@ -211,9 +211,7 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
 }
 
 function getWaveUrl(uri) {
-  var url = "https://";
-  url += __WAVE__HOSTNAME + ":" + __HTTPS_PORT;
-  url += __WAVE__WEB_ROOT + uri;
+  var url = __WAVE__WEB_ROOT + uri;
   console.log(url)
   return url;
 }

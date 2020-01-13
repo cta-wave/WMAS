@@ -76,9 +76,7 @@ class ResultsManager(object):
         if filter_path is not None:
             filter_api = next((p for p in filter_path.split(u"/") if p is not None), None)
         cached_results = self._read_from_cache(token)
-        print(cached_results)
         persisted_results = self.load_results(token)
-        print(persisted_results)
         results = self._combine_results_by_api(cached_results, persisted_results)
 
         filtered_results = {}
