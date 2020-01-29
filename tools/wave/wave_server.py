@@ -16,7 +16,10 @@ from .testing.event_dispatcher import EventDispatcher
 
 
 class WaveServer(object):
-    def initialize(self, configuration_file_path=u".", application_directory_path=u"", reports_enabled=False):
+    def initialize(self,
+                   configuration_file_path=u".",
+                   application_directory_path=u"",
+                   reports_enabled=False):
         sys.stdout.write(u"Loading configuration ...")
         sys.stdout.flush()
 
@@ -49,8 +52,8 @@ class WaveServer(object):
         )
 
         tests_manager.initialize(
-            test_loader, 
-            results_manager=results_manager, 
+            test_loader,
+            results_manager=results_manager,
             sessions_manager=sessions_manager,
             event_dispatcher=event_dispatcher
         )
@@ -75,12 +78,12 @@ class WaveServer(object):
                 https_port=configuration["wpt_ssl_port"]
         )
         sessions_api_handler = SessionsApiHandler(
-            sessions_manager=sessions_manager, 
+            sessions_manager=sessions_manager,
             results_manager=results_manager,
             event_dispatcher=event_dispatcher
         )
         tests_api_handler = TestsApiHandler(
-            tests_manager=tests_manager, 
+            tests_manager=tests_manager,
             sessions_manager=sessions_manager,
             wpt_port=configuration[u"wpt_port"],
             wpt_ssl_port=configuration[u"wpt_ssl_port"],

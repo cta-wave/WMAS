@@ -52,24 +52,3 @@ class StaticHandler(object):
 
         response.content = data
         response.headers = headers
-
-
-# add_required_headers
-# close_connection
-# content
-# delete_cookie
-# encoding
-# explicit_flush
-# headers
-# iter_content
-# logger
-# request
-# send_body_for_head_request
-# set_cookie
-# set_error
-# status
-# unset_cookie
-# write
-# write_content
-# write_status_headers
-# writer

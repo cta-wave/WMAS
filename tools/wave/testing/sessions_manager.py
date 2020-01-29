@@ -8,7 +8,8 @@ import json
 from threading import Timer
 
 from .test_loader import AUTOMATIC, MANUAL
-from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED
+from ..data.session import Session, PENDING, \
+                           PAUSED, RUNNING, ABORTED, COMPLETED
 from ..utils.user_agent_parser import parse_user_agent
 from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
@@ -22,7 +23,12 @@ DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
 class SessionsManager(object):
-    def initialize(self, test_loader, event_dispatcher, tests_manager, results_directory, results_manager):
+    def initialize(self,
+                   test_loader,
+                   event_dispatcher,
+                   tests_manager,
+                   results_directory,
+                   results_manager):
         self._test_loader = test_loader
         self._sessions = {}
         self._expiration_timeout = None
@@ -55,7 +61,7 @@ class SessionsManager(object):
 
         for type in types:
             if type != "automatic" and type != "manual":
-                raise InvalidDataException("Unknown type '{}'".format(type)) 
+                raise InvalidDataException("Unknown type '{}'".format(type))
 
         token = unicode(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
@@ -97,7 +103,7 @@ class SessionsManager(object):
             labels=labels,
             expiration_date=expiration_date
         )
-        
+
         self._push_to_cache(session)
         if expiration_date is not None:
             self._set_expiration_timer()
@@ -105,7 +111,8 @@ class SessionsManager(object):
         return session
 
     def read_session(self, token):
-        if token is None: return None
+        if token is None:
+            return None
         session = self._read_from_cache(token)
         if session is None or session.test_state is None:
             session = self.load_session(token)
@@ -114,11 +121,13 @@ class SessionsManager(object):
         return session
 
     def read_session_status(self, token):
-        if token is None: return None
+        if token is None:
+            return None
         session = self._read_from_cache(token)
         if session is None:
             session = self.load_session_info(token)
-            if session is None: return None
+            if session is None:
+                return None
         if session.test_state is None:
             session = self.load_session(token)
         if session is not None:
@@ -130,7 +139,8 @@ class SessionsManager(object):
         session_tokens = []
         for token in self._sessions:
             session = self._sessions[token]
-            if not session.is_public: continue
+            if not session.is_public:
+                continue
             session_tokens.append(token)
 
         return session_tokens
@@ -142,7 +152,8 @@ class SessionsManager(object):
         self, token, tests, types, timeouts, reference_tokens, webhook_urls
     ):
         session = self.read_session(token)
-        if session is None: raise NotFoundException(u"Could not find session")
+        if session is None:
+            raise NotFoundException(u"Could not find session")
         if session.status != PENDING:
             return
 
@@ -177,7 +188,7 @@ class SessionsManager(object):
                         "complete": 0,
                 }
             session.test_state = test_state
-            
+
         if types is not None:
             session.types = types
         if timeouts is not None:
@@ -207,30 +218,37 @@ class SessionsManager(object):
 
     def delete_session(self, token):
         session = self.read_session(token)
-        if session is None: return
-        if session.is_public is True: return
+        if session is None:
+            return
+        if session.is_public is True:
+            return
         del self._sessions[token]
 
     def add_session(self, session):
-        if session is None: return
+        if session is None:
+            return
         self._push_to_cache(session)
 
     def load_all_sessions(self):
-        if not os.path.isdir(self._results_directory): return
+        if not os.path.isdir(self._results_directory):
+            return
         tokens = os.listdir(self._results_directory)
         for token in tokens:
             self.load_session(token)
 
     def load_all_sessions_info(self):
-        if not os.path.isdir(self._results_directory): return
+        if not os.path.isdir(self._results_directory):
+            return
         tokens = os.listdir(self._results_directory)
         for token in tokens:
-            if token in self._sessions: continue
+            if token in self._sessions:
+                continue
             self.load_session_info(token)
 
     def load_session(self, token):
         session = self.load_session_info(token)
-        if session is None: return None
+        if session is None:
+            return None
 
         if session.test_state is None:
             results = self._results_manager.load_results(token)
@@ -243,9 +261,11 @@ class SessionsManager(object):
 
     def load_session_info(self, token):
         result_directory = os.path.join(self._results_directory, token)
-        if not os.path.isdir(result_directory): return None
+        if not os.path.isdir(result_directory):
+            return None
         info_file = os.path.join(result_directory, "info.json")
-        if not os.path.isfile(info_file): return None
+        if not os.path.isfile(info_file):
+            return None
 
         file = open(info_file, "r")
         info_data = file.read()
@@ -255,17 +275,19 @@ class SessionsManager(object):
         session = deserialize_session(parsed_info_data)
         self._push_to_cache(session)
         return session
-        
+
     def _push_to_cache(self, session):
         self._sessions[session.token] = session
 
     def _read_from_cache(self, token):
-        if token not in self._sessions: return None
+        if token not in self._sessions:
+            return None
         return self._sessions[token]
 
     def _set_expiration_timer(self):
         expiring_sessions = self._read_expiring_sessions()
-        if len(expiring_sessions) == 0: return
+        if len(expiring_sessions) == 0:
+            return
 
         next_session = expiring_sessions[0]
         for session in expiring_sessions:
@@ -276,7 +298,8 @@ class SessionsManager(object):
             self._expiration_timeout.cancel()
 
         timeout = next_session.expiration_date / 1000.0 - int(time.time())
-        if timeout < 0: timeout = 0
+        if timeout < 0:
+            timeout = 0
 
         def handle_timeout(self):
             self._delete_expired_sessions()
@@ -297,13 +320,14 @@ class SessionsManager(object):
         expiring_sessions = []
         for token in self._sessions:
             session = self._sessions[token]
-            if session.expiration_date is None: continue
+            if session.expiration_date is None:
+                continue
             expiring_sessions.append(session)
         return expiring_sessions
 
     def start_session(self, token):
         session = self.read_session(token)
-        
+
         if session is None:
             return
 
@@ -325,19 +349,21 @@ class SessionsManager(object):
 
     def pause_session(self, token):
         session = self.read_session(token)
-        if session.status != RUNNING: return
+        if session.status != RUNNING:
+            return
         session.status = PAUSED
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
-            token, 
-            event_type=STATUS_EVENT, 
+            token,
+            event_type=STATUS_EVENT,
             data=session.status
         )
         self._results_manager.persist_session(session)
 
     def stop_session(self, token):
         session = self.read_session(token)
-        if session.status == ABORTED or session.status == COMPLETED: return
+        if session.status == ABORTED or session.status == COMPLETED:
+            return
         session.status = ABORTED
         session.date_finished = time.time() * 1000
         self.update_session(session)
@@ -349,7 +375,8 @@ class SessionsManager(object):
 
     def resume_session(self, token, resume_token):
         session = self.read_session(token)
-        if session.status != PENDING: return
+        if session.status != PENDING:
+            return
         self._event_dispatcher.dispatch_event(
             token,
             event_type=RESUME_EVENT,
@@ -359,7 +386,8 @@ class SessionsManager(object):
 
     def complete_session(self, token):
         session = self.read_session(token)
-        if session.status == COMPLETED or session.status == ABORTED: return
+        if session.status == COMPLETED or session.status == ABORTED:
+            return
         session.status = COMPLETED
         session.date_finished = time.time() * 1000
         self.update_session(session)
@@ -371,7 +399,7 @@ class SessionsManager(object):
 
     def test_in_session(self, test, session):
         return self._test_list_contains_test(test, session.pending_tests) \
-            or self._test_list_contains_test(test, session.running_tests) 
+            or self._test_list_contains_test(test, session.running_tests)
 
     def is_test_complete(self, test, session):
         return not self._test_list_contains_test(test, session.pending_tests) \
@@ -387,12 +415,16 @@ class SessionsManager(object):
         return False
 
     def is_api_complete(self, api, session):
-        return api not in session.pending_tests and api not in session.running_tests
+        return api not in session.pending_tests \
+               and api not in session.running_tests
 
     def find_token(self, fragment):
-        if len(fragment) < 8: return None
+        if len(fragment) < 8:
+            return None
         tokens = []
         for token in self._sessions:
-            if token.startswith(fragment): tokens.append(token)
-        if len(tokens) != 1: return None
+            if token.startswith(fragment):
+                tokens.append(token)
+        if len(tokens) != 1:
+            return None
         return tokens[0]
