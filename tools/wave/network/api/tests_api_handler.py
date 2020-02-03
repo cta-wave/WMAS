@@ -103,7 +103,7 @@ class TestsApiHandler(ApiHandler):
                 return
 
             test_timeout = self._tests_manager.get_test_timeout(
-                           test=test, session=session)
+                test=test, session=session)
             url = self._generate_test_url(
                 test=test,
                 token=token,
@@ -116,8 +116,8 @@ class TestsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read next test: "
-            + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to read next test: "
+                + info[0].__name__ + u": " + info[1].args[0])
             response.status = 500
 
     def read_last_completed(self, request, response):
@@ -138,7 +138,7 @@ class TestsApiHandler(ApiHandler):
                 status = DEFAULT_LAST_COMPLETED_TESTS_STATUS
 
             completed_tests = self._tests_manager.read_last_completed_tests(
-                              token, count)
+                token, count)
             tests = {}
             for one_status in status:
                 one_status = one_status.lower()
@@ -160,8 +160,8 @@ class TestsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read last completed tests: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to read last completed tests: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def read_malfunctioning(self, request, response):
@@ -175,8 +175,8 @@ class TestsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read malfunctioning tests: "
-            + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to read malfunctioning tests: "
+                + info[0].__name__ + u": " + info[1].args[0])
             response.status = 500
 
     def update_malfunctioning(self, request, response):
@@ -193,8 +193,8 @@ class TestsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read malfunctioning tests: "
-            + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to read malfunctioning tests: "
+                + info[0].__name__ + u": " + info[1].args[0])
             response.status = 500
 
     def read_available_apis(self, request, response):
@@ -204,8 +204,8 @@ class TestsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read malfunctioning tests: "
-            + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to read malfunctioning tests: "
+                + info[0].__name__ + u": " + info[1].args[0])
             response.status = 500
 
     def handle_request(self, request, response):

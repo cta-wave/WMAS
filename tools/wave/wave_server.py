@@ -25,7 +25,7 @@ class WaveServer(object):
 
         configuration = configuration_loader.load(configuration_file_path)
 
-        print u" done."
+        print(u" done.")
 
         # Initialize Managers
         event_dispatcher = EventDispatcher()
@@ -58,7 +58,6 @@ class WaveServer(object):
             event_dispatcher=event_dispatcher
         )
 
-        # Load Tests
         exclude_list_file_path = os.path.abspath(u"./excluded.json")
         include_list_file_path = os.path.abspath(u"./included.json")
         manifest_file_path = os.path.abspath(u"./MANIFEST.json")
@@ -73,9 +72,9 @@ class WaveServer(object):
 
         # Initialize HTTP handlers
         static_handler = StaticHandler(
-                web_root=configuration["web_root"],
-                http_port=configuration["wpt_port"],
-                https_port=configuration["wpt_ssl_port"]
+            web_root=configuration["web_root"],
+            http_port=configuration["wpt_port"],
+            https_port=configuration["wpt_ssl_port"]
         )
         sessions_api_handler = SessionsApiHandler(
             sessions_manager=sessions_manager,

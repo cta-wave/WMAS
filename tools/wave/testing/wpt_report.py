@@ -14,23 +14,20 @@ def generate_report(
     try:
         command = [
             "wptreport",
-            "--input",  input_json_directory_path,
+            "--input", input_json_directory_path,
             "--output", output_html_directory_path,
             "--spec", spec_name,
             "--sort true",
             "--failures true",
             "--tokenFileName true" if is_multi else "",
-            "--pass 100 --ref "
-            + reference_dir if reference_dir is not None else ""
-            ]
+            "--pass 100 --ref " + reference_dir if reference_dir is not None else ""]
         whole_command = ""
         for command_part in command:
             whole_command += command_part + " "
         subprocess.call(whole_command, shell=True)
     except subprocess.CalledProcessError as e:
         info = sys.exc_info()
-        raise Exception("Failed to execute wptreport: "
-                        + unicode(info[0].__name__) + ": " + e.output)
+        raise Exception("Failed to execute wptreport: " + str(info[0].__name__) + ": " + e.output)
 
 
 def generate_multi_report(
@@ -48,9 +45,8 @@ def generate_multi_report(
         ))
 
     generate_report(
-            input_json_directory_path=output_html_directory_path,
-            output_html_directory_path=output_html_directory_path,
-            spec_name=spec_name,
-            is_multi=True,
-            reference_dir=reference_dir
-        )
+        input_json_directory_path=output_html_directory_path,
+        output_html_directory_path=output_html_directory_path,
+        spec_name=spec_name,
+        is_multi=True,
+        reference_dir=reference_dir)

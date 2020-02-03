@@ -19,7 +19,7 @@ from .utils import HTTPException
 
 __all__ = ["file_handler", "python_script_handler",
            "FunctionHandler", "handler", "json_handler",
-           "as_is_handler", "ErrorHandler", "BasicAuthHandler", "WaveHandler"]
+           "as_is_handler", "ErrorHandler", "BasicAuthHandler"]
 
 
 def guess_content_type(path):
@@ -147,7 +147,7 @@ class FileHandler(object):
             response.headers.update(self.get_headers(request, path))
             if "Range" in request.headers:
                 try:
-                    byte_ranges = RangeParser()( request.headers['Range'], file_size)
+                    byte_ranges = RangeParser()(request.headers['Range'], file_size)
                 except HTTPException as e:
                     if e.code == 416:
                         response.headers.set("Content-Range", "bytes */%i" % file_size)

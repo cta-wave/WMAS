@@ -13,8 +13,7 @@ from ..utils.deserializer import deserialize_session
 from ..data.exceptions.invalid_data_exception import InvalidDataException
 from ..data.exceptions.duplicate_exception import DuplicateException
 from ..data.exceptions.not_found_exception import NotFoundException
-from ..data.exceptions.permission_denied_exception \
-     import PermissionDeniedException
+from ..data.exceptions.permission_denied_exception import PermissionDeniedException
 from .wpt_report import generate_report, generate_multi_report
 from ..data.session import COMPLETED
 
@@ -139,12 +138,12 @@ class ResultsManager(object):
         test_state = {}
         for api in list(results.keys()):
             test_state[api] = {
-                    "pass": 0,
-                    "fail": 0,
-                    "timeout": 0,
-                    "not_run": 0,
-                    "total": len(results[api]),
-                    "complete": 0,
+                "pass": 0,
+                "fail": 0,
+                "timeout": 0,
+                "not_run": 0,
+                "total": len(results[api]),
+                "complete": 0,
             }
             for result in results[api]:
                 if u"subtests" not in result:
@@ -225,8 +224,8 @@ class ResultsManager(object):
                                                    api)
 
         api_directory_path = os.path.join(
-                self._results_directory_path,
-                relative_api_directory_path
+            self._results_directory_path,
+            relative_api_directory_path
         )
 
         if not os.path.isdir(api_directory_path):
@@ -402,18 +401,18 @@ class ResultsManager(object):
         file_path = self.get_json_path(token, api)
         dir_path = os.path.dirname(file_path)
         generate_report(
-                input_json_directory_path=dir_path,
-                output_html_directory_path=dir_path,
-                spec_name=api
+            input_json_directory_path=dir_path,
+            output_html_directory_path=dir_path,
+            spec_name=api
         )
 
     def generate_multi_report(self, tokens, api):
         comparison_directory_name = self.get_comparison_identifier(tokens)
 
         api_directory_path = os.path.join(
-                self._results_directory_path,
-                comparison_directory_name,
-                api
+            self._results_directory_path,
+            comparison_directory_name,
+            api
         )
 
         if os.path.isdir(api_directory_path):
@@ -431,9 +430,9 @@ class ResultsManager(object):
             if not os.path.isfile(file["path"]):
                 return None
         generate_multi_report(
-                output_html_directory_path=api_directory_path,
-                spec_name=api,
-                result_json_files=result_json_files
+            output_html_directory_path=api_directory_path,
+            spec_name=api,
+            result_json_files=result_json_files
         )
 
     def get_comparison_identifier(self, tokens, ref_tokens=[]):
@@ -486,13 +485,13 @@ class ResultsManager(object):
         results_directory = os.path.join(self._results_directory_path, token)
         results = self.read_results(token)
 
-        zip_file_name = unicode(time.time()) + ".zip"
+        zip_file_name = str(time.time()) + ".zip"
         zip = zipfile.ZipFile(zip_file_name, "w")
         for api, result in results.iteritems():
             zip.writestr(
-                    api + ".json",
-                    json.dumps({"results": result}, indent=4),
-                    zipfile.ZIP_DEFLATED
+                api + ".json",
+                json.dumps({"results": result}, indent=4),
+                zipfile.ZIP_DEFLATED
             )
 
         results_directory = os.path.join(self._results_directory_path, token)
@@ -528,7 +527,7 @@ class ResultsManager(object):
         if not os.path.isdir(session_results_directory):
             return None
 
-        zip_file_name = unicode(time.time()) + ".zip"
+        zip_file_name = str(time.time()) + ".zip"
         zip = zipfile.ZipFile(zip_file_name, "w")
         for root, dirs, files in os.walk(session_results_directory):
             for file in files:
@@ -549,7 +548,7 @@ class ResultsManager(object):
         if session is None:
             raise NotFoundException("Could not find session {}".format(token))
 
-        tmp_file_name = unicode(time.time()) + ".zip"
+        tmp_file_name = str(time.time()) + ".zip"
         zip = zipfile.ZipFile(tmp_file_name, "w")
 
         flattened_results = self.read_flattened_results(token)
@@ -593,13 +592,13 @@ class ResultsManager(object):
         info_file = open(info_file_path, "r")
         data = info_file.read()
         info_file.close()
-        info = json.loads(unicode(data))
+        info = json.loads(str(data))
         return deserialize_session(info)
 
     def import_results(self, blob):
         if not self.is_import_enabled:
             raise PermissionDeniedException()
-        tmp_file_name = "{}.zip".format(unicode(time.time()))
+        tmp_file_name = "{}.zip".format(str(time.time()))
         file = open(tmp_file_name, "w")
         file.write(blob)
         file.close()

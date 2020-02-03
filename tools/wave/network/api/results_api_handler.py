@@ -27,8 +27,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to create result: " + info[0].__name__ + u": "
-            + unicode(info[1].args[0])
+            print(u"Failed to create result: " + info[0].__name__ + u": "
+                + str(info[1].args[0]))
             response.status = 500
 
     def read_results(self, request, response):
@@ -43,8 +43,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read results: " + info[0].__name__ + u": "
-            + info[1].args[0]
+            print(u"Failed to read results: " + info[0].__name__ + u": "
+                + info[1].args[0])
             response.status = 500
 
     def read_results_compact(self, request, response):
@@ -59,8 +59,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read compact results: " + info[0].__name__
-            + u": " + info[1].args[0]
+            print(u"Failed to read compact results: " + info[0].__name__
+                + u": " + info[1].args[0])
             response.status = 500
 
     def read_results_config(self, request, response):
@@ -75,8 +75,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read results configuration: "
-            + info[0].__name__ + u": " + info[1].args[0]
+            print(u"Failed to read results configuration: "
+                + info[0].__name__ + u": " + info[1].args[0])
             response.status = 500
 
     def read_results_api_wpt_report_url(self, request, response):
@@ -90,8 +90,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read results report url: " + info[0].__name__
-            + u": " + info[1].args[0]
+            print(u"Failed to read results report url: " + info[0].__name__
+                + u": " + info[1].args[0])
             response.status = 500
 
     def read_results_api_wpt_multi_report_uri(self, request, response):
@@ -101,15 +101,15 @@ class ResultsApiHandler(ApiHandler):
             query = self.parse_query_parameters(request)
             tokens = query["tokens"].split(",")
             uri = self._results_manager.read_results_wpt_multi_report_uri(
-                    tokens,
-                    api
+                tokens,
+                api
             )
             self.send_json({"uri": uri}, response)
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to read results multi report url: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to read results multi report url: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def download_results_api_json(self, request, response):
@@ -123,16 +123,16 @@ class ResultsApiHandler(ApiHandler):
                 return
             file_path = self._results_manager.get_json_path(token, api)
             file_name = "{}-{}-{}".format(
-                    token.split("-")[0],
-                    api,
-                    file_path.split("/")[-1]
+                token.split("-")[0],
+                api,
+                file_path.split("/")[-1]
             )
             self.send_zip(blob, file_name, response)
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to download api json: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to download api json: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def download_results_all_api_jsons(self, request, response):
@@ -145,8 +145,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to download all api jsons: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to download all api jsons: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def download_results(self, request, response):
@@ -162,8 +162,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to export results: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to export results: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def download_results_overview(self, request, response):
@@ -179,8 +179,8 @@ class ResultsApiHandler(ApiHandler):
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to download results overview:"
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to download results overview:"
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def import_results(self, request, response):
@@ -191,18 +191,18 @@ class ResultsApiHandler(ApiHandler):
         except DuplicateException:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            self.send_json({"error": unicode(info[1].args[0])}, response, 400)
+            self.send_json({"error": str(info[1].args[0])}, response, 400)
             return
         except InvalidDataException:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            self.send_json({"error": unicode(info[1].args[0])}, response, 400)
+            self.send_json({"error": str(info[1].args[0])}, response, 400)
             return
         except Exception:
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print u"Failed to import results: "
-            + info[0].__name__ + u": " + unicode(info[1].args[0])
+            print(u"Failed to import results: "
+                + info[0].__name__ + u": " + str(info[1].args[0]))
             response.status = 500
 
     def handle_request(self, request, response):

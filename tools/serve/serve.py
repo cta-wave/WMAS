@@ -21,7 +21,6 @@ from itertools import chain, product
 from multiprocessing import Process, Event
 
 import re
-import functools
 from subprocess import Popen, PIPE, STDOUT
 
 from localpaths import repo_root
@@ -325,9 +324,9 @@ rewrites = [("GET", "/resources/WebIDLParser.js", "/resources/webidl2/lib/webidl
 
 class RoutesBuilder(object):
     def __init__(self):
-        self.forbidden_override = [ ("GET", "/tools/runner/*", handlers.file_handler),
-                                    ("POST", "/tools/runner/update_manifest.py",
-                                     handlers.python_script_handler)]
+        self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
+            ("POST", "/tools/runner/update_manifest.py",
+            handlers.python_script_handler)]
 
         self.forbidden = [("*", "/_certs/*", handlers.ErrorHandler(404)),
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
@@ -417,8 +416,8 @@ def build_routes(aliases, wave_cfg=None):
         builder.add_handler("*", "/wave*", wave_handler)
         # serving wave specifc testharnessreport.js
         builder.add_static(
-            "tools/wave/resources/testharnessreport.js", 
-            {}, 
+            "tools/wave/resources/testharnessreport.js",
+            {},
             "text/javascript;charset=utf8",
             "/resources/testharnessreport.js")
     return builder.get_routes()
@@ -842,8 +841,8 @@ class ConfigBuilder(config.ConfigBuilder):
         # wave specific configuration parameters
         "results": "./results",
         "timeouts": {
-          "automatic": 60000,
-          "manual": 300000
+            "automatic": 60000,
+            "manual": 300000
         },
         "enable_results_import": False,
         "web_root": "/wave",
@@ -1006,7 +1005,7 @@ def is_semver(prefix, line):
 
 # execute wptreport version check
 def is_wptreport_installed():
-    report_p = Popen("wptreport --version", shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)  
+    report_p = Popen("wptreport --version", shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
     for line in report_p.stdout:
         if line and not line.isspace():
             if not is_semver("wptreport", line):

@@ -8,8 +8,7 @@ import json
 from threading import Timer
 
 from .test_loader import AUTOMATIC, MANUAL
-from ..data.session import Session, PENDING, \
-                           PAUSED, RUNNING, ABORTED, COMPLETED
+from ..data.session import Session, PENDING, PAUSED, RUNNING, ABORTED, COMPLETED
 from ..utils.user_agent_parser import parse_user_agent
 from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
@@ -63,7 +62,7 @@ class SessionsManager(object):
             if type != "automatic" and type != "manual":
                 raise InvalidDataException("Unknown type '{}'".format(type))
 
-        token = unicode(uuid.uuid1())
+        token = str(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
             types,
             include_list=tests[u"include"],
@@ -79,13 +78,12 @@ class SessionsManager(object):
         test_state = {}
         for api in test_files_count:
             test_state[api] = {
-                    "pass": 0,
-                    "fail": 0,
-                    "timeout": 0,
-                    "not_run": 0,
-                    "total": test_files_count[api],
-                    "complete": 0,
-            }
+                "pass": 0,
+                "fail": 0,
+                "timeout": 0,
+                "not_run": 0,
+                "total": test_files_count[api],
+                "complete": 0}
 
         session = Session(
             token=token,
@@ -180,12 +178,12 @@ class SessionsManager(object):
             test_state = {}
             for api in test_files_count:
                 test_state[api] = {
-                        "pass": 0,
-                        "fail": 0,
-                        "timeout": 0,
-                        "not_run": 0,
-                        "total": test_files_count[api],
-                        "complete": 0,
+                    "pass": 0,
+                    "fail": 0,
+                    "timeout": 0,
+                    "not_run": 0,
+                    "total": test_files_count[api],
+                    "complete": 0,
                 }
             session.test_state = test_state
 
@@ -416,7 +414,7 @@ class SessionsManager(object):
 
     def is_api_complete(self, api, session):
         return api not in session.pending_tests \
-               and api not in session.running_tests
+            and api not in session.running_tests
 
     def find_token(self, fragment):
         if len(fragment) < 8:

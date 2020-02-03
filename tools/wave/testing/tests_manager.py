@@ -344,8 +344,7 @@ class TestsManager(object):
 
         session = self._sessions_manager.read_session(token)
         if session is None:
-            raise NotFoundException("Could not find session using token: "
-                                    + token)
+            raise NotFoundException("Could not find session using token: " + token)
         if session.is_public:
             return
         session.malfunctioning_tests = tests

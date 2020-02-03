@@ -58,7 +58,7 @@ def load(configuration_file_path):
         os.getcwdu(), u"tools/wave/data")
 
     configuration[u"api_titles"] = configuration.get(
-       u"api_titles", default_configuration[u"api_titles"])
+        u"api_titles", default_configuration[u"api_titles"])
 
     return configuration
 
