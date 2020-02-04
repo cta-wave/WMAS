@@ -70,27 +70,9 @@ This opens a input field, where you can enter multiple full paths to test files 
 ![Exclude List Add Raw][configuration_page_add_raw]
 
 Each line will be interpreted as a path to exclude a single or a group of tests.
-All available test files are contained in the `wmas2018-tests` branch.
 All tests that have a path starting with one of the provided, will be excluded in the session.
 Lines starting with a # symbol will be ignored, in case you want to organize test paths in a text file using comments.
 Click "Add" and you will see the paths listed in the table below.
-
-#### Example
-```
-# Exclude all tests contained in the directory 'wide-gamut-canvas' of 2dcontext
-/2dcontext/wide-gamut-canvas
-# Exclude exactly the test file '2d.transformation.scale.zero.html'
-/2dcontext/transformations/2d.transformation.scale.zero.html
-
-# more test files to exclude
-/2dcontext/the-canvas-state/2d.state.saverestore.stack.html
-/2dcontext/the-canvas-state/2d.state.saverestore.stackdepth.html
-/2dcontext/the-canvas-state/2d.state.saverestore.strokeStyle.html
-/2dcontext/the-canvas-state/2d.state.saverestore.textAlign.html
-/2dcontext/the-canvas-state/2d.state.saverestore.textBaseline.html
-/2dcontext/the-canvas-state/2d.state.saverestore.transformation.html
-/2dcontext/the-canvas-state/2d.state.saverestore.underflow.html
-```
 
 ### 1.3.2 Use a session's malfunctioning list to add tests to exclude
 

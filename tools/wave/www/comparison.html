@@ -65,6 +65,10 @@
         tokens = tokens ? tokens.split(",") : [];
         const refTokens = reftokens ? reftokens.split(",") : [];
         if (tokens) {
+          WaveService.readResultsConfig(function(config) {
+            comparisonUi.state.reportsEnabled = config.reportsEnabled;
+            comparisonUi.render();
+          });
           WaveService.addRecentSessions(tokens);
           WaveService.addRecentSessions(refTokens);
           comparisonUi.state.tokens = tokens;
@@ -124,7 +128,7 @@
           });
         },
         openResultsOverview() {
-          location.href = "/results.html";
+          location.href = "/wave/overview.html";
         },
         render() {
           const comparisonView = UI.createElement({
@@ -408,6 +412,7 @@
                   )
                 )
                 .concat([
+                  comparisonUi.state.reportsEnabled ?
                   {
                     element: "td",
                     children: {
@@ -423,7 +428,7 @@
                         ),
                       text: "report"
                     }
-                  }
+                  } : null
                 ])
             }))
           });

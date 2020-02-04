@@ -10,11 +10,9 @@
     "http": [8000, "auto"],
     "https": [8443],
     "ws": ["auto"],
-    "wss": ["auto"],
-    "wave": [8050]
+    "wss": ["auto"]
   },
   "check_subdomains": true,
-  "db_compaction_interval": 60000,
   "log_level": "debug",
   "bind_address": true,
   "ssl": {
@@ -34,6 +32,12 @@
   },
   "aliases": [],
   "results": "./results",
-  "timeout": 65000,
-  "enable_results_import": false
+  "timeouts": {
+    "automatic": 60000,
+    "manual": 300000
+  },
+  "enable_results_import": false,
+  "web_root": "/wave",
+  "persisting_interval": 20,
+  "api_titles": []
 }

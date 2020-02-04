@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Web Media API Snapshot 2018 (WMAS 2018) Test Suite</title>
+    <title>Web Media API Snapshot Test Suite</title>
     <link rel="stylesheet" href="css/bulma-0.7.5/bulma.min.css" />
     <link rel="stylesheet" href="css/fontawesome.min.css" />
     <script src="lib/keycodes.js"></script>
@@ -21,12 +21,10 @@
         />
 
         <h1 class="title is-spaced">
-          Web Media API Snapshot 2018 (WMAS 2018) Test Suite
+          WAVE WMAS Test Suite
         </h1>
-        <p class="subtitle">
-          <a href="https://github.com/cta-wave/WMAS">GitHub</a> -
-          <a href="https://github.com/cta-wave/WMAS/issues">Issues</a> -
-          <a href="https://www.w3.org/2018/12/webmediaapi.html">WMAS2018</a>
+				<p class="subtitle">
+          <a href="https://github.com/w3c/webmediaapi/">GitHub</a> -
         </p>
       </div>
 
@@ -113,150 +111,149 @@
         </div>
       </div>
     </section>
+
+		<script>
+			var selectedTabbable = -1;
+
+			function removeClass(element, className) {
+				var elementClass = element.className;
+				var index = elementClass.indexOf(className);
+				if (index !== -1) {
+					element.className = elementClass.replace(className, "");
+				}
+			}
+
+			function addClass(element, className) {
+				element.className += " " + className;
+			}
+
+			function skipFocus(steps) {
+				var tabbables = document.getElementsByClassName("tabbable");
+				if (selectedTabbable === -1) {
+					selectedTabbable = 0;
+				} else {
+					removeClass(tabbables[selectedTabbable], "focused");
+					selectedTabbable += steps;
+				}
+
+				if (selectedTabbable >= tabbables.length) {
+					selectedTabbable = 0;
+				}
+
+				if (selectedTabbable < 0) {
+					selectedTabbable = tabbables.length - 1;
+				}
+
+				tabbables[selectedTabbable].focus();
+				addClass(tabbables[selectedTabbable], "focused");
+			}
+
+			function focusNext() {
+				skipFocus(1);
+			}
+
+			function focusPrevious() {
+				skipFocus(-1);
+			}
+
+			// Resume
+			var resumeToken = "";
+			var cookies = document.cookie.split(";");
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = cookies[i];
+				if (cookie.split("=")[0].replace(/ /g, "") === "resume_token") {
+					resumeToken = cookie.split("=")[1];
+					break;
+				}
+			}
+			if (!resumeToken) resumeToken = "";
+
+			var resumeButton = document.getElementById("resume-button");
+
+			var tokenText = document.getElementById("resume_token");
+			if (resumeToken) {
+				tokenText.innerText = "Last session: " + resumeToken;
+			} else {
+				tokenText.innerText = "No recent session.";
+				resumeButton.setAttribute("disabled", "");
+			}
+			var unknownTokenError = document.getElementById("unknown_token_error");
+			resumeButton.onclick = function(event) {
+				location.href = "next.html?token=" + resumeToken;
+			};
+
+			resumeButton.onkeydown = function(event) {
+				var charCode =
+					typeof event.which === "number" ? event.which : event.keyCode;
+				if (ACTION_KEYS.indexOf(charCode) === -1) return;
+				location.href = "next.html?token=" + resumeToken;
+			};
+
+			document.onkeydown = function(event) {
+				event = event || window.event;
+				var charCode =
+					typeof event.which === "number" ? event.which : event.keyCode;
+
+				if (ACTION_KEYS.indexOf(charCode) !== -1) {
+					event.preventDefault();
+					var tabbables = document.getElementsByClassName("tabbable");
+					var element = tabbables[selectedTabbable];
+					if (!element) return;
+					if (element.type === "checkbox") {
+						element.checked = !element.checked;
+					} else {
+						element.click();
+					}
+				}
+
+				if (PREV_KEYS.indexOf(charCode) !== -1) {
+					focusPrevious();
+				}
+
+				if (NEXT_KEYS.indexOf(charCode) !== -1) {
+					focusNext();
+				}
+			};
+
+			var lifeTime = 30 * 60 * 1000; // 30min
+			WaveService.createSession(
+				{ expirationDate: new Date().getTime() + lifeTime },
+				function(token) {
+					var sessionTokenElement = document.getElementById("session-token");
+					sessionTokenElement.innerText = token;
+
+					WaveService.readSession(token, function(config) {
+						var expiaryDateElement = document.getElementById("expiary-date");
+						expiaryDateElement.innerText = new Date(
+							config.expirationDate
+						).toLocaleString();
+					});
+
+					var configurationUrl =
+						location.origin +
+						WaveService.uriPrefix + "configuration.html?token=" +
+						token +
+						"&resume=" +
+						resumeToken;
+					new QRCode(document.getElementById("qr-code"), configurationUrl);
+					document.getElementById("configure-button").onclick = function() {
+						window.open(configurationUrl, "_blank");
+					};
+
+					WaveService.connectHttpPolling(token);
+					WaveService.onMessage(function(message) {
+						if (message.type === "resume") {
+							var resumeToken = message.data;
+							location.href = "next.html?token=" + resumeToken;
+						}
+
+						if (message.type !== "status") return;
+						if (message.data === "pending") return;
+						location.href = "next.html?token=" + token;
+					});
+				}
+			);
+			document.getElementById("resume-button").focus();
+		</script>
   </body>
-
-  <script>
-    var selectedTabbable = -1;
-
-    function removeClass(element, className) {
-      var elementClass = element.className;
-      var index = elementClass.indexOf(className);
-      if (index !== -1) {
-        element.className = elementClass.replace(className, "");
-      }
-    }
-
-    function addClass(element, className) {
-      element.className += " " + className;
-    }
-
-    function skipFocus(steps) {
-      var tabbables = document.getElementsByClassName("tabbable");
-      if (selectedTabbable === -1) {
-        selectedTabbable = 0;
-      } else {
-        removeClass(tabbables[selectedTabbable], "focused");
-        selectedTabbable += steps;
-      }
-
-      if (selectedTabbable >= tabbables.length) {
-        selectedTabbable = 0;
-      }
-
-      if (selectedTabbable < 0) {
-        selectedTabbable = tabbables.length - 1;
-      }
-
-      tabbables[selectedTabbable].focus();
-      addClass(tabbables[selectedTabbable], "focused");
-    }
-
-    function focusNext() {
-      skipFocus(1);
-    }
-
-    function focusPrevious() {
-      skipFocus(-1);
-    }
-
-    // Resume
-    var resumeToken = "";
-    var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i];
-      if (cookie.split("=")[0].replace(/ /g, "") === "resume_token") {
-        resumeToken = cookie.split("=")[1];
-        break;
-      }
-    }
-    if (!resumeToken) resumeToken = "";
-
-    var resumeButton = document.getElementById("resume-button");
-
-    var tokenText = document.getElementById("resume_token");
-    if (resumeToken) {
-      tokenText.innerText = "Last session: " + resumeToken;
-    } else {
-      tokenText.innerText = "No recent session.";
-      resumeButton.setAttribute("disabled", "");
-    }
-    var unknownTokenError = document.getElementById("unknown_token_error");
-    resumeButton.onclick = function(event) {
-      location.href = "/next.html?token=" + resumeToken;
-    };
-
-    resumeButton.onkeydown = function(event) {
-      var charCode =
-        typeof event.which === "number" ? event.which : event.keyCode;
-      if (ACTION_KEYS.indexOf(charCode) === -1) return;
-      location.href = "/next.html?token=" + resumeToken;
-    };
-
-    document.onkeydown = function(event) {
-      event = event || window.event;
-      var charCode =
-        typeof event.which === "number" ? event.which : event.keyCode;
-
-      if (ACTION_KEYS.indexOf(charCode) !== -1) {
-        event.preventDefault();
-        var tabbables = document.getElementsByClassName("tabbable");
-        var element = tabbables[selectedTabbable];
-        if (!element) return;
-        if (element.type === "checkbox") {
-          element.checked = !element.checked;
-        } else {
-          element.click();
-        }
-      }
-
-      if (PREV_KEYS.indexOf(charCode) !== -1) {
-        focusPrevious();
-      }
-
-      if (NEXT_KEYS.indexOf(charCode) !== -1) {
-        focusNext();
-      }
-    };
-
-    var lifeTime = 30 * 60 * 1000; // 30min
-    WaveService.createSession(
-      { expirationDate: new Date().getTime() + lifeTime },
-      function(token) {
-        var sessionTokenElement = document.getElementById("session-token");
-        sessionTokenElement.innerText = token;
-
-        WaveService.readSession(token, function(config) {
-          var expiaryDateElement = document.getElementById("expiary-date");
-          expiaryDateElement.innerText = new Date(
-            config.expirationDate
-          ).toLocaleString();
-        });
-
-        var configurationUrl =
-          "http://" +
-          location.host +
-          "/configuration.html?token=" +
-          token +
-          "&resume=" +
-          resumeToken;
-        new QRCode(document.getElementById("qr-code"), configurationUrl);
-        document.getElementById("configure-button").onclick = function() {
-          window.open(configurationUrl, "_blank");
-        };
-
-        WaveService.connect(token);
-        WaveService.onMessage(function(message) {
-          if (message.type === "resume") {
-            var resumeToken = message.data;
-            location.href = "/next.html?token=" + resumeToken;
-          }
-
-          if (message.type !== "status") return;
-          if (message.data === "pending") return;
-          location.href = "/next.html?token=" + token;
-        });
-      }
-    );
-    document.getElementById("resume-button").focus();
-  </script>
 </html>

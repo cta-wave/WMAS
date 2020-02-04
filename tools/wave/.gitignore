@@ -1,7 +1,3 @@
-yarn.lock
-config.json
-data
-!src/data
-node_modules
-.idea
-!www/
+!www/lib
+!export/lib
+!export/css

@@ -49,12 +49,6 @@ on Windows:
 ```
 $ python wpt make-hosts-file | Out-File %SystemRoot%\System32\drivers\etc\hosts -Encoding ascii -Append
 ```
-
-Initialize WAVE Server:
-```
-$ ./wave init
-```
-
 Download test files according to WMAS2018 specification, call from WPT root directory:
 ```
 $ ./wmats2018-subset.sh
@@ -62,17 +56,12 @@ $ ./wmats2018-subset.sh
 []([url](url))
 To download the test results of the four reference browsers (Chromium, Firefox, Safari, Edge):
 ```
-$ ./wave download-reference-results
-```
-
-Start WAVE Server:
-```
-$ ./wave start
+$ ./download-reference-results
 ```
 
 Start Web Platform Test runner:
 ```
-$ ./wpt serve
+$ ./wpt serve-wave
 ```
 
 Open in Web browser (on the same host):

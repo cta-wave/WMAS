@@ -128,8 +128,9 @@
               })
             );
           });
-          WaveService.isImportResultsEnabled(function(enabled) {
-            resultsUi.state.importResultsEnabled = enabled;
+          WaveService.readResultsConfig(function(config) {
+            resultsUi.state.importResultsEnabled = config.importEnabled;
+            resultsUi.state.reportsEnabled = config.reportsEnabled;
             resultsUi.renderManageSessions();
           });
         },
@@ -245,7 +246,7 @@
           const tokens = resultsUi.state.comparison;
           if (!tokens || tokens.length === 0) return;
           const refQuery = reftokens ? `&reftokens=${reftokens}` : "";
-          location.href = `/comparison.html?tokens=${tokens.join(
+          location.href = `/wave/comparison.html?tokens=${tokens.join(
             ","
           )}${refQuery}`;
         },
@@ -332,7 +333,7 @@
             WaveService.importResults(
               data,
               function(token) {
-                location.href = "/results.html?token=" + token;
+                location.href = "results.html?token=" + token;
               },
               function(error) {
                 resultsUi.state.importError = error;

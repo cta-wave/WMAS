@@ -355,7 +355,12 @@ cp -R ./* $WPTBASEDIR
 BRANCHORCOMMITID=eaf5d6035d68da3593b0b50b8b25a0cb64fc1f5e
 rm -rf .git/info/sparse-checkout
 
+# Install node modules
+echo "Installing node modules ..."
+cd $WPTBASEDIR/tools/wave && npm install
+
 # Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+echo "Generating ecmascript test files ..."
 DISTDIR=dist/es6-tests
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/ecmascript
@@ -368,6 +373,7 @@ node tools/wave/ecmascript/generate-tests.js $DISTDIR
 cp $DISTDIR/LICENSE $WPTBASEDIR/ecmascript
 
 # Integrate webgl tests [WEBGL-103]
+echo "Generating webgl test files ..."
 DISTDIR=dist/webgl
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/webgl
@@ -391,13 +397,11 @@ cd $WPTBASEDIR
 # Remove the dist folder before manifest generation
 rm -rf dist
 
-# Remove tests listed in the exceptions file
-node tools/wave/src/testing/exceptions/delete_exceptions.js
-
 # delete old MANIFEST.json
 rm MANIFEST.json
 
 # build the MANIFEST.json
+echo "Building MANIFEST.json ..."
 ./wpt manifest --no-download --work
 
 echo "now run './wave start' and './wpt serve'"

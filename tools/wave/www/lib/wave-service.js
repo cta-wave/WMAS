@@ -18,11 +18,14 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   return xhr;
 }
 
+var WEB_ROOT = "{{WEB_ROOT}}"
+var HTTP_PORT = "{{HTTP_PORT}}"
+var HTTPS_PORT = "{{HTTPS_PORT}}"
 var OPEN = "open";
 var CLOSED = "closed";
 
 var WaveService = {
-  uriPrefix: "",
+  uriPrefix: WEB_ROOT,
   socket: {
     state: CLOSED,
     onMessage: function() {},
@@ -44,7 +47,7 @@ var WaveService = {
     });
     sendRequest(
       "POST",
-      "/api/sessions",
+      "api/sessions",
       { "Content-Type": "application/json" },
       data,
       function(response) {
@@ -57,7 +60,7 @@ var WaveService = {
   readSession: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/sessions/" + token,
+      "api/sessions/" + token,
       null,
       null,
       function(response) {
@@ -103,7 +106,7 @@ var WaveService = {
   readSessionStatus: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/sessions/" + token + "/status",
+      "api/sessions/" + token + "/status",
       null,
       null,
       function(response) {
@@ -145,7 +148,7 @@ var WaveService = {
   readPublicSessions: function(onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/sessions/public",
+      "api/sessions/public",
       null,
       null,
       function(response) {
@@ -165,7 +168,7 @@ var WaveService = {
     });
     sendRequest(
       "PUT",
-      "/api/sessions/" + token,
+      "api/sessions/" + token,
       { "Content-Type": "application/json" },
       data,
       function() {
@@ -178,7 +181,7 @@ var WaveService = {
     var data = JSON.stringify({ labels: labels });
     sendRequest(
       "PUT",
-      "/api/sessions/" + token + "/labels",
+      "api/sessions/" + token + "/labels",
       { "Content-Type": "application/json" },
       data,
       function() {
@@ -190,7 +193,7 @@ var WaveService = {
   findToken: function(fragment, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/sessions/" + fragment,
+      "api/sessions/" + fragment,
       null,
       null,
       function(response) {
@@ -202,8 +205,8 @@ var WaveService = {
   },
   startSession: function(token, onSuccess, onError) {
     sendRequest(
-      "GET",
-      "/api/sessions/" + token + "/start",
+      "POST",
+      "api/sessions/" + token + "/start",
       null,
       null,
       function() {
@@ -214,8 +217,8 @@ var WaveService = {
   },
   pauseSession: function(token, onSuccess, onError) {
     sendRequest(
-      "GET",
-      "/api/sessions/" + token + "/pause",
+      "POST",
+      "api/sessions/" + token + "/pause",
       null,
       null,
       function() {
@@ -226,8 +229,8 @@ var WaveService = {
   },
   stopSession: function(token, onSuccess, onError) {
     sendRequest(
-      "GET",
-      "/api/sessions/" + token + "/stop",
+      "POST",
+      "api/sessions/" + token + "/stop",
       null,
       null,
       function() {
@@ -240,7 +243,7 @@ var WaveService = {
     var data = JSON.stringify({ resume_token: resumeToken });
     sendRequest(
       "POST",
-      "/api/sessions/" + token + "/resume",
+      "api/sessions/" + token + "/resume",
       { "Content-Type": "application/json" },
       data,
       function() {
@@ -254,7 +257,7 @@ var WaveService = {
   deleteSession: function(token, onSuccess, onError) {
     sendRequest(
       "DELETE",
-      "/api/sessions/" + token,
+      "api/sessions/" + token,
       null,
       null,
       function() {
@@ -268,7 +271,7 @@ var WaveService = {
   readNextTest: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/tests/" + token + "/next",
+      "api/tests/" + token + "/next",
       null,
       null,
       function(response) {
@@ -288,7 +291,7 @@ var WaveService = {
     }
     sendRequest(
       "GET",
-      "/api/tests/" + token + "/last_completed?status=" + status,
+      "api/tests/" + token + "/last_completed?status=" + status,
       null,
       null,
       function(response) {
@@ -308,7 +311,7 @@ var WaveService = {
   readMalfunctioningTests: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/tests/" + token + "/malfunctioning",
+      "api/tests/" + token + "/malfunctioning",
       null,
       null,
       function(response) {
@@ -330,7 +333,7 @@ var WaveService = {
     var data = JSON.stringify(malfunctioningTests);
     sendRequest(
       "PUT",
-      "/api/tests/" + token + "/malfunctioning",
+      "api/tests/" + token + "/malfunctioning",
       { "Content-Type": "application/json" },
       data,
       function() {
@@ -342,12 +345,29 @@ var WaveService = {
       }
     );
   },
+	readAvailableApis: function(onSuccess, onError) {
+		sendRequest(
+			"GET",
+			"api/tests/apis",
+			null,
+			null,
+			function(response) {
+				var apis = JSON.parse(response);
+				onSuccess(apis);
+			},
+			function(response) {
+				if(!onError) return;
+				var errorMessage = JSON.parse(response).error;
+				onError(errorMessage);
+			}
+		);
+	},
 
   // RESULTS API
   createResult: function(token, result, onSuccess, onError) {
     sendRequest(
       "POST",
-      "/api/results/" + token,
+      "api/results/" + token,
       { "Content-Type": "application/json" },
       JSON.stringify(result),
       function() {
@@ -359,7 +379,7 @@ var WaveService = {
   readResults: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/results/" + token,
+      "api/results/" + token,
       null,
       null,
       function(response) {
@@ -371,7 +391,7 @@ var WaveService = {
   readResultsCompact: function(token, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/results/" + token + "/compact",
+      "api/results/" + token + "/compact",
       null,
       null,
       function(response) {
@@ -427,21 +447,21 @@ var WaveService = {
     }
   },
   downloadResults: function(token) {
-    location.href = "/api/results/" + token + "/export";
+    location.href = "api/results/" + token + "/export";
   },
   downloadApiResult: function(token, api) {
-    location.href = "/api/results/" + token + "/" + api + "/json";
+    location.href = "api/results/" + token + "/" + api + "/json";
   },
   downloadAllApiResults: function(token, api) {
-    location.href = "/api/results/" + token + "/json";
+    location.href = "api/results/" + token + "/json";
   },
   downloadReport: function(token, api) {
-    location.href = "/api/results/" + token + "/" + api + "/report";
+    location.href = "api/results/" + token + "/" + api + "/report";
   },
   importResults: function(data, onSuccess, onError) {
     sendRequest(
       "POST",
-      "/api/results/import",
+      "api/results/import",
       { "Content-Type": "application/octet-stream" },
       data,
       function(response) {
@@ -459,15 +479,18 @@ var WaveService = {
       }
     );
   },
-  isImportResultsEnabled: function(onSuccess, onError) {
+  readResultsConfig: function(onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/results/import",
+      "api/results/config",
       null,
       null,
       function(response) {
-        var enabled = JSON.parse(response).enabled;
-        onSuccess(enabled);
+        var config = JSON.parse(response);
+        onSuccess({
+	      	importEnabled: config.import_enabled,
+	      	reportsEnabled: config.reports_enabled
+	      });
       },
       onError
     );
@@ -475,7 +498,7 @@ var WaveService = {
   readReportUri: function(token, api, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/results/" + token + "/" + api + "/reporturl",
+      "api/results/" + token + "/" + api + "/reporturl",
       null,
       null,
       function(response) {
@@ -487,12 +510,12 @@ var WaveService = {
   },
   downloadMultiReport: function(tokens, api) {
     location.href =
-      "/api/results/" + api + "/report?tokens=" + tokens.join(",");
+      "api/results/" + api + "/report?tokens=" + tokens.join(",");
   },
   readMultiReportUri: function(tokens, api, onSuccess, onError) {
     sendRequest(
       "GET",
-      "/api/results/" + api + "/reporturl?tokens=" + tokens.join(","),
+      "api/results/" + api + "/reporturl?tokens=" + tokens.join(","),
       null,
       null,
       function(response) {
@@ -503,7 +526,7 @@ var WaveService = {
     );
   },
   downloadResultsOverview: function(token) {
-    location.href = "/api/results/" + token + "/overview";
+    location.href = "api/results/" + token + "/overview";
   },
 
   // UTILITY
@@ -605,10 +628,11 @@ var WaveService = {
     };
   },
   connectHttpPolling: function(token) {
+		var uniqueId = new Date().getTime()
     var poll = function() {
       var request = sendRequest(
         "GET",
-        "/api/sessions/" + token + "/events",
+        "api/sessions/" + token + "/events?id=" + uniqueId,
         null,
         null,
         function(response) {
@@ -616,7 +640,7 @@ var WaveService = {
           WaveService.socket.onMessage(JSON.parse(response));
         },
         function() {
-          if (WaveService.socket.state === OPEN) poll();
+          if (WaveService.socket.state === OPEN) setTimeout(poll, 1000);
         }
       );
       WaveService.socket.close = function() {
@@ -675,7 +699,7 @@ var WaveService = {
   //     token = WaveService.defaultToken;
   //   }
   //   const { detailsOnly } = options;
-  //   let url = `/api/sessions/${token}`;
+  //   let url = `api/sessions/${token}`;
   //   if (detailsOnly) url = `${url}/details`;
   //   WaveService.sendRequest("GET", url, response =>
   //     callback(response ? JSON.parse(response) : null)
@@ -693,7 +717,7 @@ var WaveService = {
   //   }
   // },
   // getPublicSessions(callback) {
-  //   WaveService.sendRequest("GET", "/api/sessions/public", response => {
+  //   WaveService.sendRequest("GET", "api/sessions/public", response => {
   //     callback(JSON.parse(response));
   //   });
   // },
@@ -702,14 +726,14 @@ var WaveService = {
   //     callback = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   WaveService.sendRequest("GET", `/api/results/${token}`, response => {
+  //   WaveService.sendRequest("GET", `api/results/${token}`, response => {
   //     callback(JSON.parse(response));
   //   });
   // },
   // getFilteredTestResults: (tokens, refTokens, callback) => {
   //   WaveService.sendRequest(
   //     "GET",
-  //     `/api/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(
+  //     `api/results/${tokens.join(",")}/compare?reftokens=${refTokens.join(
   //       ","
   //     )}`,
   //     response => {
@@ -722,33 +746,33 @@ var WaveService = {
   //     callback = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   WaveService.sendRequest("GET", `/api/sessions/${token}/pause`, callback);
+  //   WaveService.sendRequest("GET", `api/sessions/${token}/pause`, callback);
   // },
   // resumeSession(token, callback) {
   //   if (typeof token !== "string") {
   //     callback = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   WaveService.sendRequest("GET", `/api/sessions/${token}/resume`, callback);
+  //   WaveService.sendRequest("GET", `api/sessions/${token}/resume`, callback);
   // },
   // stopSession(token, callback) {
   //   if (typeof token !== "string") {
   //     callback = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   WaveService.sendRequest("GET", `/api/sessions/${token}/stop`, callback);
+  //   WaveService.sendRequest("GET", `api/sessions/${token}/stop`, callback);
   // },
   // deleteSession(token, callback) {
   //   if (typeof token !== "string") {
   //     callback = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   WaveService.sendRequest("GET", `/api/sessions/${token}/delete`, callback);
+  //   WaveService.sendRequest("GET", `api/sessions/${token}/delete`, callback);
   // },
   // findToken(fragment, callback) {
   //   WaveService.sendRequest(
   //     "GET",
-  //     `/api/sessions/${fragment}/token`,
+  //     `api/sessions/${fragment}/token`,
   //     response => {
   //       response = JSON.parse(response);
   //       if (response.token) {
@@ -764,7 +788,7 @@ var WaveService = {
   //     api = token;
   //     token = WaveService.defaultToken;
   //   }
-  //   location.href = `/api/results/${token}/${api}/json`;
+  //   location.href = `api/results/${token}/${api}/json`;
   // },
   // downloadJsons(token, apis) {
   //   if (typeof token !== "string") {
@@ -784,7 +808,7 @@ var WaveService = {
   //   apis.forEach(api => {
   //     WaveService.sendRequest(
   //       "GET",
-  //       `/api/results/${token}/${api}/json`,
+  //       `api/results/${token}/${api}/json`,
   //       (response, headers) => {
   //         let fileName = "";
   //         try {
@@ -814,7 +838,7 @@ var WaveService = {
   // },
   // downloadHtmlZip(token) {
   //   if (typeof token !== "string") token = WaveService.defaultToken;
-  //   location.href = `/api/results/${token}/html`;
+  //   location.href = `api/results/${token}/html`;
   // },
 
   // openHtmlReport(token, api, reftoken) {
@@ -823,12 +847,12 @@ var WaveService = {
   //     token = WaveService.defaultToken;
   //   }
   //   if (token instanceof Array) {
-  //     const reportUrl = `/api/results/${token.join(",")}/${api}/html${
+  //     const reportUrl = `api/results/${token.join(",")}/${api}/html${
   //       reftoken ? `?reftoken=${reftoken}` : ""
   //     }`;
   //     window.open(reportUrl, "_blank");
   //   } else {
-  //     const reportUrl = `/api/results/${token}/${api}/html`;
+  //     const reportUrl = `api/results/${token}/${api}/html`;
   //     window.open(reportUrl, "_blank");
   //   }
   // },

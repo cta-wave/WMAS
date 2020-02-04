@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if [ "$1" == "init" ]; then
-cd ./tools/wave && npm install
-else
-node ./tools/wave/wave-cli.js $@
-fi

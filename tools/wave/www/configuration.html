@@ -19,104 +19,134 @@
   </head>
   <body>
     <script>
-      var apis = [
-        { title: "2D Context", path: "/2dcontext" },
-        { title: "Content Security Policy", path: "/content-security-policy" },
-        { title: "CSS", path: "/css" },
-        { title: "DOM", path: "/dom" },
-        { title: "ECMAScript", path: "/ecmascript" },
-        { title: "Encrypted media", path: "/encrypted-media" },
-        { title: "Fetch", path: "/fetch" },
-        { title: "FileAPI", path: "/FileAPI" },
-        { title: "Fullscreen", path: "/fullscreen" },
-        { title: "WebGL", path: "/webgl" },
-        { title: "HTML", path: "/html" },
-        { title: "IndexedDB", path: "/IndexedDB" },
-        { title: "Media Source", path: "/media-source" },
-        { title: "Notifications", path: "/notifications" },
-        { title: "Page Visibility", path: "/page-visibility" },
-        { title: "Service Workers", path: "/service-workers" },
-        { title: "UI Events", path: "/uievents" },
-        { title: "WAVE Extra", path: "/wave-extra" },
-        { title: "Webaudio", path: "/webaudio" },
-        { title: "WebCryptoAPI", path: "/WebCryptoAPI" },
-        { title: "Webmessaging", path: "/webmessaging" },
-        { title: "Websockets", path: "/websockets" },
-        { title: "Webstorage", path: "/webstorage" },
-        { title: "Workers", path: "/workers" },
-        { title: "XHR", path: "/xhr" }
-      ];
+//      var apis = [
+//        { title: "2D Context", path: "/2dcontext" },
+//        { title: "Content Security Policy", path: "/content-security-policy" },
+//        { title: "CSS", path: "/css" },
+//        { title: "DOM", path: "/dom" },
+//        { title: "ECMAScript", path: "/ecmascript" },
+//        { title: "Encrypted media", path: "/encrypted-media" },
+//        { title: "Fetch", path: "/fetch" },
+//        { title: "FileAPI", path: "/FileAPI" },
+//        { title: "Fullscreen", path: "/fullscreen" },
+//        { title: "WebGL", path: "/webgl" },
+//        { title: "HTML", path: "/html" },
+//        { title: "IndexedDB", path: "/IndexedDB" },
+//        { title: "Media Source", path: "/media-source" },
+//        { title: "Notifications", path: "/notifications" },
+//        { title: "Page Visibility", path: "/page-visibility" },
+//        { title: "Service Workers", path: "/service-workers" },
+//        { title: "UI Events", path: "/uievents" },
+//        { title: "WAVE Extra", path: "/wave-extra" },
+//        { title: "Webaudio", path: "/webaudio" },
+//        { title: "WebCryptoAPI", path: "/WebCryptoAPI" },
+//        { title: "Webmessaging", path: "/webmessaging" },
+//        { title: "Websockets", path: "/websockets" },
+//        { title: "Webstorage", path: "/webstorage" },
+//        { title: "Workers", path: "/workers" },
+//        { title: "XHR", path: "/xhr" }
+//      ];
+			var apis = [];
 
       var types = [
         { title: "Automatic", value: "automatic" },
         { title: "Manual", value: "manual" }
       ];
 
-      var referenceSessions = [
-        {
-          title: "Edge 44.17763",
-          engine: "",
-          token: "b2924d20-6a93-11e9-98b4-a11fb92a6d1c",
-          icon: "fab fa-edge"
-        },
-        {
-          title: "Firefox 64.0",
-          engine: "Gecko 64.0",
-          token: "bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f",
-          icon: "fab fa-firefox"
-        },
-        {
-          title: "WebKit 605.1.15",
-          engine: "Revision 239158",
-          token: "caf823e0-6a92-11e9-b732-3188d0065ebc",
-          icon: "fab fa-safari"
-        },
-        {
-          title: "Chromium 73.0.3640.0",
-          engine: "Blink 537.36",
-          token: "a50c6db0-6a94-11e9-8d1b-e23fc4555885",
-          icon: "fab fa-chrome"
-        }
-      ];
+//      var referenceSessions = [
+//        {
+//          title: "Edge 44.17763",
+//          engine: "",
+//          token: "b2924d20-6a93-11e9-98b4-a11fb92a6d1c",
+//          icon: "fab fa-edge"
+//        },
+//        {
+//          title: "Firefox 64.0",
+//          engine: "Gecko 64.0",
+//          token: "bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f",
+//          icon: "fab fa-firefox"
+//        },
+//        {
+//          title: "WebKit 605.1.15",
+//          engine: "Revision 239158",
+//          token: "caf823e0-6a92-11e9-b732-3188d0065ebc",
+//          icon: "fab fa-safari"
+//        },
+//        {
+//          title: "Chromium 73.0.3640.0",
+//          engine: "Blink 537.36",
+//          token: "a50c6db0-6a94-11e9-8d1b-e23fc4555885",
+//          icon: "fab fa-chrome"
+//        }
+//      ];
+			var referenceSessions= [];
 
       window.onload = function() {
         const query = utils.parseQuery(location.search);
         token = query.token;
         if (token) WaveService.addRecentSession(token);
         configurationUi.render();
-        WaveService.readSessionStatus(
-          token,
-          function(status) {
-            if (status.status !== "pending") {
-              configurationUi.openResultsPage(token);
-              return;
-            }
+				WaveService.readAvailableApis(function(available_apis) {
+					available_apis = available_apis.sort((apiA, apiB) => apiA.title.toLowerCase() > apiB.title.toLowerCase() ? 1 : -1)
+					apis = available_apis;
+					WaveService.readPublicSessions(function(tokens) {
+						console.log(tokens);
+						WaveService.readMultipleSessions(tokens, function(configurations) {
+							referenceSessions = configurations
+								.sort((confA, confB) => confA.browser.name.toLowerCase() > confB.browser.name.toLowerCase() ? 1 : -1)
+								.map(configuration => {
+									var icon = "";
+									switch(configuration.browser.name.toLowerCase()) {
+										case "firefox": icon = "fab fa-firefox"; break;
+										case "webkit":
+										case "safari": icon = "fab fa-safari"; break;
+										case "edge": icon = "fab fa-edge"; break;
+										case "chrome":
+										case "chromium": icon = "fab fa-chrome"; break;
+									}
+									return {
+										title: configuration.browser.name + " " + configuration.browser.version,
+										token: configuration.token,
+										icon,
+										engine: configuration.browser.engine || ""
+									}
+								});
+							WaveService.readSessionStatus(
+								token,
+								function(status) {
+									if (status.status !== "pending") {
+										configurationUi.openResultsPage(token);
+										return;
+									}
 
-            WaveService.readSession(token, function(configuration) {
-              if (
-                configuration.tests.include.findIndex(test => test === "/") !==
-                -1
-              ) {
-                configuration.tests.include = apis.map(api => api.path);
-              }
-              configurationUi.state.configurationBackup = utils.copyObject(
-                configuration
-              );
-              configurationUi.state.configuration = configuration;
-              setTimeout(
-                configurationUi.handleExpiration,
-                configuration.expirationDate - Date.now()
-              );
-              configurationUi.renderSessionConfiguration();
-            });
-          },
-          function() {
-            configurationUi.state.expired = true;
-            configurationUi.renderSessionConfiguration();
-            configurationUi.renderExcludedTests();
-            configurationUi.renderResumeView();
-          }
-        );
+									WaveService.readSession(token, function(configuration) {
+										if (
+											configuration.tests.include.findIndex(test => test === "/") !==
+											-1
+										) {
+											configuration.tests.include = apis.map(api => api.path);
+										}
+										configurationUi.state.configurationBackup = utils.copyObject(
+											configuration
+										);
+										configurationUi.state.configuration = configuration;
+										setTimeout(
+											configurationUi.handleExpiration,
+											configuration.expirationDate - Date.now()
+										);
+										configurationUi.renderSessionConfiguration();
+									});
+								},
+								function() {
+									configurationUi.state.expired = true;
+									configurationUi.renderSessionConfiguration();
+									configurationUi.renderExcludedTests();
+									configurationUi.renderResumeView();
+								}
+							);
+						});
+					});
+				});
       };
 
       var configurationUi = {
@@ -248,7 +278,7 @@
           configurationUi.renderResumeView();
         },
         openResultsPage: function(token) {
-          location.href = "/results.html?token=" + token;
+          location.href = "results.html?token=" + token;
         },
         handleAddExludedTestsRaw: function() {
           var excludedTestsTextArea = UI.getElement("excluded-tests-text");

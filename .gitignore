@@ -25,3 +25,18 @@ scratch
 .vscode/
 .DS_Store
 *.rej
+
+# igonre pycache
+__pycache__
+
+# ignore SETUP_LOG
+setup_log_Py27.txt
+
+# ignore persisted db files
+**/wave/database/exports/
+
+# ignore local setup
+setup_log_Py27.txt
+venv/
+
+wptreport/

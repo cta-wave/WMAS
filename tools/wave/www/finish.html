@@ -115,13 +115,13 @@
       }
 
       function startTests() {
-        sendRequest("GET", "/api/next", null, function(response) {
+        sendRequest("GET", "/wave/api/next", null, function(response) {
           location.href = response;
         });
       }
 
       var resultsUrl =
-        "http://" + location.host + "/overview.html" + location.search;
+        "http://" + location.host + "/wave/overview.html" + location.search;
       new QRCode(document.getElementById("qr-code"), resultsUrl);
 
       var resultsButton = document.getElementById("results-button");
@@ -131,7 +131,7 @@
 
       var newButton = document.getElementById("new-button");
       newButton.onclick = function() {
-        location.href = "/";
+        location.href = "/wave/index.html";
       };
 
       function removeClass(element, className) {
