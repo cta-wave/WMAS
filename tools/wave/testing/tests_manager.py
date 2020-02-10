@@ -37,6 +37,9 @@ class TestsManager(object):
             session.pending_tests = pending_tests
             self._sessions_manager.update_session(session)
 
+        if running_tests is None:
+            running_tests = {}
+
         test = self._get_next_test_from_list(pending_tests)
         if test is None:
             return None
@@ -242,6 +245,7 @@ class TestsManager(object):
         return test_list
 
     def add_test_to_list(self, test_list, test):
+        print(test_list)
         api = None
         for part in test.split(u"/"):
             if part is None or part == u"":
