@@ -245,7 +245,6 @@ class TestsManager(object):
         return test_list
 
     def add_test_to_list(self, test_list, test):
-        print(test_list)
         api = None
         for part in test.split(u"/"):
             if part is None or part == u"":

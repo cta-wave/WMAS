@@ -164,7 +164,7 @@ class SessionsManager(object):
                 reference_tokens = session.reference_tokens
             if types is None:
                 types = session.types
-            print(tests)
+
             pending_tests = self._test_loader.get_tests(
                 include_list=tests[u"include"],
                 exclude_list=tests[u"exclude"],

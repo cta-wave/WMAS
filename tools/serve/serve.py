@@ -325,8 +325,8 @@ rewrites = [("GET", "/resources/WebIDLParser.js", "/resources/webidl2/lib/webidl
 class RoutesBuilder(object):
     def __init__(self):
         self.forbidden_override = [("GET", "/tools/runner/*", handlers.file_handler),
-            ("POST", "/tools/runner/update_manifest.py",
-            handlers.python_script_handler)]
+                                   ("POST", "/tools/runner/update_manifest.py",
+                                    handlers.python_script_handler)]
 
         self.forbidden = [("*", "/_certs/*", handlers.ErrorHandler(404)),
                           ("*", "/tools/*", handlers.ErrorHandler(404)),
@@ -542,7 +542,7 @@ def start_servers(host, ports, paths, routes, bind_address, config, **kwargs):
         assert len(ports) == {"http": 2}.get(scheme, 1)
 
         # If trying to start HTTP/2.0 server, check compatibility
-        if scheme == 'http2' and not http2_compatible():
+        if scheme == 'h2' and not http2_compatible():
             logger.error('Cannot start HTTP/2.0 server as the environment is not compatible. ' +
                          'Requires Python 2.7.10+ (< 3.0) and OpenSSL 1.0.2+')
             continue
@@ -550,11 +550,11 @@ def start_servers(host, ports, paths, routes, bind_address, config, **kwargs):
         for port in ports:
             if port is None:
                 continue
-            init_func = {"http":start_http_server,
-                         "https":start_https_server,
-                         "http2":start_http2_server,
-                         "ws":start_ws_server,
-                         "wss":start_wss_server}[scheme]
+            init_func = {"http": start_http_server,
+                         "https": start_https_server,
+                         "h2": start_http2_server,
+                         "ws": start_ws_server,
+                         "wss": start_wss_server}[scheme]
 
             server_proc = ServerProc(scheme=scheme)
             server_proc.start(init_func, host, port, paths, routes, bind_address,
@@ -732,8 +732,11 @@ def iter_procs(servers):
 def build_config(override_path=None, **kwargs):
     rv = ConfigBuilder()
 
-    if kwargs.get("h2"):
-        rv._default["ports"]["http2"] = [9000]
+    enable_http2 = kwargs.get("h2")
+    if enable_http2 is None:
+        enable_http2 = True
+    if enable_http2:
+        rv._default["ports"]["h2"] = [9000]
 
     if override_path and os.path.exists(override_path):
         with open(override_path) as f:
@@ -783,6 +786,7 @@ def build_config(override_path=None, **kwargs):
 
 def _make_subdomains_product(s, depth=2):
     return {u".".join(x) for x in chain(*(product(s, repeat=i) for i in range(1, depth+1)))}
+
 
 _subdomains = {u"www",
                u"www1",
@@ -899,9 +903,10 @@ def get_parser():
                         help="Path to WebSockets document root. Overrides config.")
     parser.add_argument("--alias_file", action="store", dest="alias_file",
                         help="File with entries for aliases/multiple doc roots. In form of `/ALIAS_NAME/, DOC_ROOT\\n`")
-    parser.add_argument("--h2", action="store_true", dest="h2",
-                        help="Flag for enabling the HTTP/2.0 server")
-    parser.set_defaults(h2=False)
+    parser.add_argument("--h2", action="store_true", dest="h2", default=None,
+                        help=argparse.SUPPRESS)
+    parser.add_argument("--no-h2", action="store_false", dest="h2", default=None,
+                        help="Disable the HTTP/2.0 server")
     # Added wave specific arguments
     parser.add_argument("--report", action="store_true", dest="report",
                         help="Flag for enabling the WPTReporting server")
@@ -959,19 +964,17 @@ def run(**kwargs):
             signal.signal(signal.SIGTERM, handle_signal)
             signal.signal(signal.SIGINT, handle_signal)
 
-            try:
-                while all(item.is_alive() for item in iter_procs(servers)) and not received_signal.is_set():
-                    for item in iter_procs(servers):
-                        item.join(1)
-                exited = [item for item in iter_procs(servers) if not item.is_alive()]
-                subject = "subprocess" if len(exited) == 1 else "subprocesses"
-
-                logger.info("%s %s exited:" % (len(exited), subject))
-
+            while all(item.is_alive() for item in iter_procs(servers)) and not received_signal.is_set():
                 for item in iter_procs(servers):
-                    logger.info("Status of %s:\t%s" % (item.name, "running" if item.is_alive() else "not running"))
-            except KeyboardInterrupt:
-                logger.info("Shutting down")
+                    item.join(1)
+            exited = [item for item in iter_procs(servers) if not item.is_alive()]
+            subject = "subprocess" if len(exited) == 1 else "subprocesses"
+
+            logger.info("%s %s exited:" % (len(exited), subject))
+
+            for item in iter_procs(servers):
+                logger.info("Status of %s:\t%s" % (item.name, "running" if item.is_alive() else "not running"))
+
 
 # Set command is_wave and start venv wit necessary dependencies
 def run_wave(venv=None, **kwargs):
