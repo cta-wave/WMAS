@@ -18,9 +18,9 @@ function sendRequest(method, uri, headers, data, onSuccess, onError) {
   return xhr;
 }
 
-var WEB_ROOT = "{{WEB_ROOT}}"
-var HTTP_PORT = "{{HTTP_PORT}}"
-var HTTPS_PORT = "{{HTTPS_PORT}}"
+var WEB_ROOT = "{{WEB_ROOT}}";
+var HTTP_PORT = "{{HTTP_PORT}}";
+var HTTPS_PORT = "{{HTTPS_PORT}}";
 var OPEN = "open";
 var CLOSED = "closed";
 
@@ -345,23 +345,23 @@ var WaveService = {
       }
     );
   },
-	readAvailableApis: function(onSuccess, onError) {
-		sendRequest(
-			"GET",
-			"api/tests/apis",
-			null,
-			null,
-			function(response) {
-				var apis = JSON.parse(response);
-				onSuccess(apis);
-			},
-			function(response) {
-				if(!onError) return;
-				var errorMessage = JSON.parse(response).error;
-				onError(errorMessage);
-			}
-		);
-	},
+  readAvailableApis: function(onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "api/tests/apis",
+      null,
+      null,
+      function(response) {
+        var apis = JSON.parse(response);
+        onSuccess(apis);
+      },
+      function(response) {
+        if (!onError) return;
+        var errorMessage = JSON.parse(response).error;
+        onError(errorMessage);
+      }
+    );
+  },
 
   // RESULTS API
   createResult: function(token, result, onSuccess, onError) {
@@ -488,9 +488,9 @@ var WaveService = {
       function(response) {
         var config = JSON.parse(response);
         onSuccess({
-	      	importEnabled: config.import_enabled,
-	      	reportsEnabled: config.reports_enabled
-	      });
+          importEnabled: config.import_enabled,
+          reportsEnabled: config.reports_enabled
+        });
       },
       onError
     );
@@ -509,8 +509,7 @@ var WaveService = {
     );
   },
   downloadMultiReport: function(tokens, api) {
-    location.href =
-      "api/results/" + api + "/report?tokens=" + tokens.join(",");
+    location.href = "api/results/" + api + "/report?tokens=" + tokens.join(",");
   },
   readMultiReportUri: function(tokens, api, onSuccess, onError) {
     sendRequest(
@@ -527,6 +526,125 @@ var WaveService = {
   },
   downloadResultsOverview: function(token) {
     location.href = "api/results/" + token + "/overview";
+  },
+
+  // DEVICES API
+  _device_token: null,
+  _deviceEventListeners: {},
+  registerDevice: function(onSuccess, onError) {
+    sendRequest(
+      "POST",
+      "api/devices",
+      null,
+      null,
+      function(response) {
+        var data = JSON.parse(response);
+        WaveService._device_token = data.token;
+        onSuccess(data.token);
+      },
+      onError
+    );
+  },
+  addDeviceEventListener: function(token, callback) {
+    var listeners = WaveService._deviceEventListeners;
+    if (!listeners[token]) listeners[token] = [];
+    listeners[token].push(callback);
+    WaveService._deviceEventListeners = listeners;
+    WaveService.listenDeviceEvents(token);
+  },
+  removeDeviceEventListener: function(callback) {
+    var listeners = WaveService._deviceEventListeners;
+    for (var token of Object.keys(listeners)) {
+      var index = listeners[token].indexOf(callback);
+      if (index === -1) continue;
+      listeners[token].splice(index, 1);
+      break;
+    }
+    WaveService._deviceEventListeners = listeners;
+  },
+  listenDeviceEvents: function(token) {
+    var listeners = WaveService._deviceEventListeners;
+    if (!listeners[token] || listeners.length === 0) return;
+    WaveService.listenHttpPolling(
+      "api/devices/" + token + "/events",
+      function(response) {
+        if (!response) {
+          WaveService.listenDeviceEvents(token);
+          return;
+        }
+        for (var listener of listeners[token]) {
+          listener(response);
+        }
+        WaveService.listenDeviceEvents(token);
+      },
+      function() {
+        setTimeout(function() {
+          WaveService.listenDeviceEvents();
+        }, 1000);
+      }
+    );
+  },
+  sendDeviceEvent: function(device_token, event, onSuccess, onError) {
+    var data = JSON.stringify({
+      type: event.type,
+      data: event.data
+    });
+    sendRequest(
+      "POST",
+      "api/devices/" + device_token + "/events",
+      { "Content-Type": "application/json" },
+      data,
+      onSuccess,
+      onError
+    );
+  },
+  addGlobalDeviceEventListener: function(callback) {
+    WaveService._globalDeviceEventListeners.push(callback);
+    WaveService.listenGlobalDeviceEvents();
+  },
+  removeGlobalDeviceEventListener: function(callback) {
+    var index = WaveService._globalDeviceEventListeners.indexOf(callback);
+    WaveService._globalDeviceEventListeners.splice(index, 1);
+  },
+  listenGlobalDeviceEvents: function() {
+    var listeners = WaveService._globalDeviceEventListeners;
+    if (listeners.length === 0) return;
+    var query = "";
+    if (WaveService._device_token) {
+      query = "?device_token=" + WaveService._device_token;
+    }
+    WaveService.listenHttpPolling(
+      "api/devices/events" + query,
+      function(response) {
+        if (!response) {
+          WaveService.listenGlobalDeviceEvents();
+          return;
+        }
+        for (var listener of listeners) {
+          listener(response);
+        }
+        WaveService.listenGlobalDeviceEvents();
+      },
+      function() {
+        setTimeout(function() {
+          WaveService.listenGlobalDeviceEvents();
+        }, 1000);
+      }
+    );
+  },
+  sendGlobalDeviceEvent: function(event, onSuccess, onError) {
+    var data = JSON.stringify({
+      type: event.type,
+      data: event.data
+    });
+    sendRequest(
+      "POST",
+      "api/devices/events",
+      { "Content-Type": "application/json" },
+      data,
+      onSuccess,
+      onError
+    );
   },
 
   // UTILITY
@@ -596,79 +714,80 @@ var WaveService = {
     var storage = window.localStorage;
     storage.setItem("wave", JSON.stringify(state));
   },
-  connectWebSocket: function(token) {
-    var protocol;
-    if (location.protocol === "https:") {
-      protocol = "wss";
+  _globalDeviceEventListeners: [],
+  _sessionEventListeners: {},
+  listenHttpPolling: function(url, onSuccess, onError) {
+    var uniqueId = new Date().getTime();
+    if (url.indexOf("?") === -1) {
+      url = url + "?id=" + uniqueId;
     } else {
-      protocol = "ws";
+      url = url + "&id=" + uniqueId;
     }
-    var url = protocol + "://" + location.host;
-    console.log("Connecting web socket to" + url);
-    var webSocket = new WebSocket(url);
-    webSocket.onmessage = function(message) {
-      WaveService.socket.onMessage(JSON.parse(message.data));
-    };
-    webSocket.onclose = function() {
-      WaveService.socket.state = CLOSED;
-      WaveService.socket.onStateChange(CLOSED);
-      WaveService.socket.onClose();
-    };
-    webSocket.onopen = function() {
-      WaveService.socket.state = OPEN;
-      WaveService.socket.onStateChange(OPEN);
-      WaveService.socket.onOpen();
-      webSocket.send(JSON.stringify({ token: token }));
-    };
-    WaveService.socket.send = function(message) {
-      webSocket.send(message);
-    };
-    WaveService.socket.close = function() {
-      webSocket.close();
-    };
-  },
-  connectHttpPolling: function(token) {
-		var uniqueId = new Date().getTime()
-    var poll = function() {
-      var request = sendRequest(
-        "GET",
-        "api/sessions/" + token + "/events?id=" + uniqueId,
-        null,
-        null,
-        function(response) {
-          if (WaveService.socket.state === OPEN) poll();
-          WaveService.socket.onMessage(JSON.parse(response));
-        },
-        function() {
-          if (WaveService.socket.state === OPEN) setTimeout(poll, 1000);
+    sendRequest(
+      "GET",
+      url,
+      null,
+      null,
+      function(response) {
+        if (!response) {
+          onSuccess(null);
+          return;
         }
-      );
-      WaveService.socket.close = function() {
-        request.abort();
-        WaveService.socket.state = CLOSED;
-        WaveService.socket.onStateChange(CLOSED);
-        WaveService.socket.onClose();
-      };
-    };
-    poll();
-    WaveService.socket.onOpen();
-    WaveService.socket.state = OPEN;
-    WaveService.socket.onStateChange(OPEN);
+        onSuccess(JSON.parse(response));
+      },
+      onError
+    );
   },
-  connect: function(token) {
-    if (window.WebSocket) {
-      WaveService.connectWebSocket(token);
-    } else {
-      WaveService.connectHttpPolling(token);
+  addSessionEventListener: function(token, callback) {
+    var listeners = WaveService._sessionEventListeners;
+    if (!listeners[token]) listeners[token] = [];
+    listeners[token].push(callback);
+    WaveService._sessionEventListeners = listeners;
+  },
+  removeSessionEventListener: function(callback) {
+    var listeners = WaveService._sessionEventListeners;
+    for (var token of Object.keys(listeners)) {
+      var index = listeners[token].indexOf(callback);
+      if (index === -1) continue;
+      listeners[token].splice(index, 1);
+      break;
     }
+    WaveService._sessionEventListeners = listeners;
   },
-  onMessage: function(callback) {
-    WaveService.socket.onMessage = callback;
-  },
-  isConnected: function() {
-    return WaveService.socket.state === OPEN;
+  listenSessionEvents: function(token) {
+    var listeners = WaveService._sessionEventListeners;
+    if (!listeners[token] || listeners.length === 0) return;
+    WaveService.listenHttpPolling(
+      "api/sessions/" + token + "/events",
+      function(response) {
+        if (!response) {
+          WaveService.listenSessionEvents(token);
+          return;
+        }
+        for (var listener of listeners[token]) {
+          listener(response);
+        }
+        WaveService.listenSessionEvents(token);
+      },
+      function() {
+        setTimeout(function() {
+          WaveService.listenSessionEvents();
+        }, 1000);
+      }
+    );
   },
   openSession: function(token) {
     location.href = "/results.html?token=" + token;
   }
 };
+
+if (!Object.keys)
+  Object.keys = function(o) {
+    if (o !== Object(o))
+      throw new TypeError("Object.keys called on a non-object");
+    var k = [],
+      p;
+    for (p in o) if (Object.prototype.hasOwnProperty.call(o, p)) k.push(p);
+    return k;
+  };
+

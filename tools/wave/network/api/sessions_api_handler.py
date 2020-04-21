@@ -8,7 +8,7 @@ from .api_handler import ApiHandler
 from ...utils.serializer import serialize_session
 from ...data.exceptions.not_found_exception import NotFoundException
 from ...data.exceptions.invalid_data_exception import InvalidDataException
-from ...data.http_polling_client import HttpPollingClient
+from ...data.http_polling_event_listener import HttpPollingEventListener
 
 TOKEN_LENGTH = 36
 
@@ -271,16 +271,33 @@ class SessionsApiHandler(ApiHandler):
             token = uri_parts[2]
 
             event = threading.Event()
-            http_polling_client = HttpPollingClient(token, event)
-            self._event_dispatcher.add_session_client(http_polling_client)
+            http_polling_event_listener = HttpPollingEventListener(token, event)
+            event_listener_token = self._event_dispatcher.add_event_listener(http_polling_event_listener)
 
             event.wait()
 
-            message = http_polling_client.message
+            message = http_polling_event_listener.message
             self.send_json(data=message, response=response)
+            self._event_dispatcher.remove_event_listener(event_listener_token)
         except Exception:
             self.handle_exception("Failed to register event listener")
             response.status = 500
+
+    def push_event(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[3]
+            message = None
+            body = request.body.decode(u"utf-8")
+            if body != u"":
+                message = json.loads(body)
+
+            self._event_dispatcher.dispatch_event(
+                token,
+                message["type"],
+                message["data"])
+        except Exception:
+            self.handle_exception("Failed to push session event")
 
     def handle_request(self, request, response):
         method = request.method
@@ -333,6 +350,9 @@ class SessionsApiHandler(ApiHandler):
                     return
                 if function == "resume":
                     self.resume_session(request, response)
+                    return
+                if function == "events":
+                    self.push_event(request, response)
                     return
             if method == "PUT":
                 if function == "labels":

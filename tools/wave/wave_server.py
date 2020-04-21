@@ -8,11 +8,13 @@ from .network.http_handler import HttpHandler
 from .network.api.sessions_api_handler import SessionsApiHandler
 from .network.api.tests_api_handler import TestsApiHandler
 from .network.api.results_api_handler import ResultsApiHandler
+from .network.api.devices_api_handler import DevicesApiHandler
 from .network.static_handler import StaticHandler
 
 from .testing.sessions_manager import SessionsManager
 from .testing.results_manager import ResultsManager
 from .testing.tests_manager import TestsManager
+from .testing.devices_manager import DevicesManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
@@ -40,6 +42,7 @@ class WaveServer(object):
         sessions_manager = SessionsManager()
         results_manager = ResultsManager()
         tests_manager = TestsManager()
+        devices_manager = DevicesManager()
         test_loader = TestLoader()
 
         sessions_manager.initialize(
@@ -65,6 +68,8 @@ class WaveServer(object):
             sessions_manager=sessions_manager,
             event_dispatcher=event_dispatcher
         )
+
+        devices_manager.initialize(event_dispatcher)
 
         exclude_list_file_path = os.path.abspath("./excluded.json")
         include_list_file_path = os.path.abspath("./included.json")
@@ -98,6 +103,11 @@ class WaveServer(object):
             web_root=configuration["web_root"],
             test_loader=test_loader
         )
+        devices_api_handler = DevicesApiHandler(
+            devices_manager=devices_manager,
+            event_dispatcher=event_dispatcher,
+            web_root=configuration["web_root"]
+        )
         results_api_handler = ResultsApiHandler(
             results_manager,
             web_root=configuration["web_root"])
@@ -108,6 +118,7 @@ class WaveServer(object):
             sessions_api_handler=sessions_api_handler,
             tests_api_handler=tests_api_handler,
             results_api_handler=results_api_handler,
+            devices_api_handler=devices_api_handler,
             http_port=configuration["wpt_port"],
             web_root=configuration["web_root"]
         )

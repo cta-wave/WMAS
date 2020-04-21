@@ -1,41 +1,46 @@
 from __future__ import unicode_literals
+import uuid
+
 
 STATUS_EVENT = "status"
 RESUME_EVENT = "resume"
 TEST_COMPLETED_EVENT = "test_completed"
 
+DEVICES = "devices"
+DEVICE_ADDED_EVENT = "device_added"
+DEVICE_REMOVED_EVENT = "device_removed"
 
 class EventDispatcher(object):
     def __init__(self):
-        self._clients = {}
+        self._listeners = {}
 
-    def add_session_client(self, client):
-        token = client.session_token
-        if token not in self._clients:
-            self._clients[token] = []
-        self._clients[token].append(client)
+    def add_event_listener(self, listener):
+        token = listener.dispatcher_token
+        if token not in self._listeners:
+            self._listeners[token] = []
+        self._listeners[token].append(listener)
+        listener.token = str(uuid.uuid1())
+        return listener.token
 
-    def remove_session_client(self, client_to_delete):
-        if client_to_delete is None:
+    def remove_event_listener(self, listener_token):
+        if listener_token is None:
             return
-        token = client_to_delete.session_token
-        if token not in self._clients:
-            return
 
-        for client in self._clients[token]:
-            if client.session_token == client_to_delete.session_token:
-                self._clients.remove(client)
-                break
-        if len(self._clients[token]) == 0:
-            del self._clients[token]
+        for dispatcher_token in self._listeners:
+            for listener in self._listeners[dispatcher_token]:
+                if listener.token == listener_token:
+                    self._listeners[dispatcher_token].remove(listener)
+                    if len(self._listeners[dispatcher_token]) == 0:
+                        del self._listeners[dispatcher_token]
+                    return
 
-    def dispatch_event(self, token, event_type, data):
-        if token not in self._clients:
+    def dispatch_event(self, dispatcher_token, event_type, data=None):
+        if dispatcher_token not in self._listeners:
             return
         event = {
             "type": event_type,
             "data": data
         }
 
-        for client in self._clients[token]:
-            client.send_message(event)
+        for listener in self._listeners[dispatcher_token]:
+            listener.send_message(event)

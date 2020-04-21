@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7901c300-0e7a-4009-9af0-c2f47fa5b9f6",
+		"_postman_id": "28f05096-0741-4daa-84cf-7f2101bfc30a",
 		"name": "WAVE Server REST API Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -64,14 +64,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests"
 							]
@@ -132,14 +132,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -222,14 +222,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -285,14 +285,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -348,14 +348,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -370,14 +370,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -475,14 +475,14 @@
 									"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -579,14 +579,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -662,14 +662,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -725,14 +725,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -748,14 +748,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -848,14 +848,14 @@
 									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -899,14 +899,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -921,14 +921,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -999,14 +999,14 @@
 									"raw": "{\n\t\"expiration_date\": {{expiration_date}}\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -1048,14 +1048,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -1084,14 +1084,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -1133,14 +1133,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -1155,14 +1155,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -1206,14 +1206,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/public",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/public",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"public"
@@ -1272,14 +1272,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions"
 							]
@@ -1325,14 +1325,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token_fragment}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token_fragment}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token_fragment}}"
@@ -1347,14 +1347,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -1394,14 +1394,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/1234567",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/1234567",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"1234567"
@@ -1422,14 +1422,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -1458,14 +1458,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -1527,14 +1527,14 @@
 							"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    },\n    \"types\": [\n        \"automatic\"\n    ]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions"
 							]
@@ -1558,8 +1558,10 @@
 									"const nextTest = jsonData.next_test;",
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
+									"const web_root = pm.environment.get(\"web_root\");",
+									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/wave/newsession.html\");",
+									"    pm.expect(test).to.equal(\"/\" + web_root + \"/newsession.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1570,14 +1572,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -1607,14 +1609,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}",
@@ -1658,14 +1660,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -1706,14 +1708,14 @@
 							"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"results",
 								"{{session_token}}"
@@ -1738,8 +1740,10 @@
 									"const nextTest = jsonData.next_test;",
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
+									"const web_root = pm.environment.get(\"web_root\");",
+									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/wave/finish.html\");",
+									"    pm.expect(test).to.equal(\"/\" + web_root + \"/finish.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1750,14 +1754,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -1773,14 +1777,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -1836,14 +1840,14 @@
 							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": 1000\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions"
 							]
@@ -1871,14 +1875,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}",
@@ -1908,14 +1912,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}",
@@ -1941,8 +1945,10 @@
 									"const nextTest = jsonData.next_test;",
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
+									"const web_root = pm.environment.get(\"web_root\");",
+									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/wave/pause.html\");",
+									"    pm.expect(test).to.equal(\"/\" + web_root + \"/pause.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1953,14 +1959,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -1990,14 +1996,14 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}",
@@ -2023,8 +2029,10 @@
 									"const nextTest = jsonData.next_test;",
 									"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 									"",
+									"const web_root = pm.environment.get(\"web_root\");",
+									"",
 									"pm.test(\"Returned test is new session page\", function () {",
-									"    pm.expect(test).to.equal(\"/wave/finish.html\");",
+									"    pm.expect(test).to.equal(\"/\" + web_root + \"/finish.html\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2035,14 +2043,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -2058,14 +2066,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -2127,14 +2135,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -2169,14 +2177,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2211,14 +2219,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2255,14 +2263,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2301,14 +2309,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2345,14 +2353,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2387,14 +2395,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2431,14 +2439,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2473,14 +2481,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2517,14 +2525,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2559,14 +2567,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2603,14 +2611,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2645,14 +2653,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2689,14 +2697,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2735,14 +2743,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2779,14 +2787,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2821,14 +2829,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2887,14 +2895,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2929,14 +2937,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -2995,14 +3003,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3037,14 +3045,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3089,14 +3097,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -3149,14 +3157,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -3213,14 +3221,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3255,14 +3263,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3285,14 +3293,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -3345,14 +3353,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -3378,14 +3386,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3413,14 +3421,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3479,14 +3487,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3521,14 +3529,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3573,14 +3581,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -3646,14 +3654,14 @@
 									"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test}}\"]\n    }\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -3679,14 +3687,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3719,14 +3727,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -3753,14 +3761,14 @@
 									"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -3818,14 +3826,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3860,14 +3868,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3904,14 +3912,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/pause",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/pause",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3946,14 +3954,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -3990,14 +3998,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/stop",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/stop",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -4032,14 +4040,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -4062,14 +4070,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -4135,14 +4143,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -4219,14 +4227,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -4277,14 +4285,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -4340,14 +4348,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -4432,14 +4440,14 @@
 									"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    }\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -4530,14 +4538,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -4613,14 +4621,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -4676,14 +4684,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -4699,14 +4707,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -4801,14 +4809,14 @@
 							"raw": "{\n    \"labels\": [\"label1\", \"label2\"]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions"
 							]
@@ -4889,14 +4897,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -4936,14 +4944,14 @@
 							"raw": "{\n\t\"labels\": [\"new\", \"labels\"]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/labels",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/labels",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}",
@@ -5026,14 +5034,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -5048,14 +5056,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -5117,14 +5125,14 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -5156,14 +5164,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -5192,14 +5200,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions",
 								"{{session_token}}"
@@ -5276,14 +5284,14 @@
 									"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\", \"{{single_test_2}}\"]\n    }\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions"
 									]
@@ -5311,14 +5319,14 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -5354,14 +5362,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}?",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -5422,14 +5430,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/compact",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/compact",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -5477,14 +5485,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/last_completed",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/last_completed",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -5529,14 +5537,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -5592,14 +5600,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -5654,14 +5662,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -5701,14 +5709,14 @@
 									"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -5760,14 +5768,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -5818,14 +5826,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -5876,14 +5884,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/last_completed",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/last_completed",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -5956,14 +5964,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}?",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -6033,14 +6041,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/compact",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/compact",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -6097,14 +6105,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -6156,14 +6164,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -6203,14 +6211,14 @@
 									"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"PASS\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 								},
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -6265,14 +6273,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/status",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/status",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}",
@@ -6324,14 +6332,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}"
@@ -6383,14 +6391,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/last_completed",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/last_completed",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -6472,14 +6480,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}?",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}"
@@ -6571,14 +6579,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/compact",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/compact",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -6614,8 +6622,10 @@
 											"const test = \"/\" + nextTest.split(\"/\").slice(3).join(\"/\").split(\"?\")[0];",
 											"pm.globals.set(\"current_test\", test);",
 											"",
+											"const web_root = pm.environment.get(\"web_root\");",
+											"",
 											"pm.test(\"Returned test finish page\", function () {",
-											"    pm.expect(test).to.equal(\"/wave/finish.html\");",
+											"    pm.expect(test).to.equal(\"/\" + web_root + \"/finish.html\");",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6626,14 +6636,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"tests",
 										"{{session_token}}",
@@ -6656,14 +6666,14 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"sessions",
 										"{{session_token}}"
@@ -6740,14 +6750,14 @@
 											"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    }\n}"
 										},
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"sessions"
 											]
@@ -6775,14 +6785,14 @@
 										"method": "POST",
 										"header": [],
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token}}/start",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token}}/start",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"sessions",
 												"{{session_token}}",
@@ -6821,14 +6831,14 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/next",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/next",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"tests",
 												"{{session_token}}",
@@ -6869,14 +6879,14 @@
 											"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 										},
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"results",
 												"{{session_token}}"
@@ -6942,14 +6952,14 @@
 											"raw": "{\n    \"tests\": {\n        \"include\": [\"{{single_test_1}}\"]\n    }\n}"
 										},
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"sessions"
 											]
@@ -6977,14 +6987,14 @@
 										"method": "POST",
 										"header": [],
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions/{{session_token_comp}}/start",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions/{{session_token_comp}}/start",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"sessions",
 												"{{session_token_comp}}",
@@ -7023,14 +7033,14 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token_comp}}/next",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token_comp}}/next",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"tests",
 												"{{session_token_comp}}",
@@ -7071,14 +7081,14 @@
 											"raw": "{\n  \"test\": \"{{current_test}}\",\n  \"status\": \"OK\",\n  \"message\": null,\n  \"subtests\": [\n    {\n      \"name\": \"Subtest testing feature xy\",\n      \"status\": \"FAIL\",\n      \"message\": \"Error message\"\n    }\n  ]\n}"
 										},
 										"url": {
-											"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token_comp}}",
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token_comp}}",
 											"protocol": "{{protocol}}",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{port}}",
 											"path": [
-												"wave",
+												"{{web_root}}",
 												"api",
 												"results",
 												"{{session_token_comp}}"
@@ -7118,14 +7128,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/overview",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/overview",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -7155,14 +7165,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/json",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/json",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -7197,14 +7207,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{api_name}}/reporturl?tokens={{session_token}},{{session_token_comp}}",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{api_name}}/reporturl?tokens={{session_token}},{{session_token_comp}}",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{api_name}}",
@@ -7250,14 +7260,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/{{api_name}}/json",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/{{api_name}}/json",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -7303,14 +7313,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/results/{{session_token}}/{{api_name}}/reporturl",
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/results/{{session_token}}/{{api_name}}/reporturl",
 									"protocol": "{{protocol}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}",
 									"path": [
-										"wave",
+										"{{web_root}}",
 										"api",
 										"results",
 										"{{session_token}}",
@@ -7391,14 +7401,14 @@
 							"raw": "{\n    \"tests\": {\n        \"include\": {{included_tests}},\n        \"exclude\": {{excluded_tests}}\n    },\n    \"types\": [\n        \"automatic\"\n    ],\n    \"timeouts\": {\n        \"automatic\": {{automatic_timeout}},\n        \"manual\": {{manual_timeout}},\n        \"{{special_timeout_test}}\": {{special_timeout}}\n    },\n    \"labels\": [\"label1\", \"label2\"]\n}"
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/sessions",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/sessions",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"sessions"
 							]
@@ -7433,14 +7443,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/malfunctioning",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -7486,14 +7496,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/malfunctioning",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -7532,14 +7542,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/malfunctioning",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -7585,14 +7595,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/malfunctioning",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -7629,14 +7639,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/wave/api/tests/{{session_token}}/malfunctioning",
+							"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/tests/{{session_token}}/malfunctioning",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"wave",
+								"{{web_root}}",
 								"api",
 								"tests",
 								"{{session_token}}",
@@ -7645,6 +7655,640 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Devices API",
+			"item": [
+				{
+					"name": "create",
+					"item": [
+						{
+							"name": "Create device",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c2dec946-86c2-4241-89a5-80b7aa6a1d81",
+										"exec": [
+											"pm.test(\"Successful POST request\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+											"});",
+											"",
+											"var response = pm.response.json();",
+											"",
+											"pm.test('Schema is valid', function() {",
+											"  pm.expect(response).to.have.property(\"token\");",
+											"});",
+											"",
+											"pm.test('Data is valid', function() {",
+											"  pm.expect(typeof response.token).to.equal(\"string\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clean up: Wait device timeout",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "3700755f-f1dc-47b3-8d3d-fb72193c6144",
+										"exec": [
+											"var timeout = parseInt(pm.environment.get(\"device_timeout\")) + 500",
+											"",
+											"setTimeout(function () {}, timeout);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "read device",
+					"item": [
+						{
+							"name": "Device not found",
+							"item": [
+								{
+									"name": "Read device",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+												"exec": [
+													"pm.test(\"Successful GET request\", function () {",
+													"    pm.expect(pm.response.code).to.equal(404);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "fd132c54-cacb-45f3-bbf1-ae9a73391d1f",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/invalid_token",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												"invalid_token"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Device found",
+							"item": [
+								{
+									"name": "Prep: Create device",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c2dec946-86c2-4241-89a5-80b7aa6a1d81",
+												"exec": [
+													"var response = pm.response.json();",
+													"var token = response.token;",
+													"",
+													"pm.globals.set(\"device_token\", token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Read device",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+												"exec": [
+													"pm.test(\"Successful GET request\", function () {",
+													"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+													"});",
+													"",
+													"var response = pm.response.json();",
+													"",
+													"pm.test('Schema is valid', function() {",
+													"  pm.expect(response).to.have.property(\"token\");",
+													"  pm.expect(response).to.have.property(\"user_agent\");",
+													"  pm.expect(response).to.have.property(\"last_active\");",
+													"  pm.expect(response).to.have.property(\"name\");",
+													"});",
+													"",
+													"pm.test('Data is valid', function() {",
+													"  pm.expect(typeof response.token).to.equal(\"string\");",
+													"  pm.expect(typeof response.user_agent).to.equal(\"string\");",
+													"  pm.expect(typeof response.last_active).to.equal(\"string\");",
+													"  pm.expect(typeof response.name).to.equal(\"string\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/{{device_token}}",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												"{{device_token}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Clean up: Wait device timeout",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "3700755f-f1dc-47b3-8d3d-fb72193c6144",
+												"exec": [
+													"var timeout = parseInt(pm.environment.get(\"device_timeout\")) + 500",
+													"",
+													"setTimeout(function () {}, timeout);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Timed out device",
+							"item": [
+								{
+									"name": "Prep: Create device",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c2dec946-86c2-4241-89a5-80b7aa6a1d81",
+												"exec": [
+													"var response = pm.response.json();",
+													"var token = response.token;",
+													"",
+													"pm.globals.set(\"device_token\", token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Wait device timeout",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "3700755f-f1dc-47b3-8d3d-fb72193c6144",
+												"exec": [
+													"var timeout = parseInt(pm.environment.get(\"device_timeout\")) + 500",
+													"",
+													"setTimeout(function () {}, timeout);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Read device",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+												"exec": [
+													"pm.test(\"Successful GET request\", function () {",
+													"    pm.expect(pm.response.code).to.equal(404);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "fd132c54-cacb-45f3-bbf1-ae9a73391d1f",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/{{device_token}}",
+											"protocol": "{{protocol}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}",
+											"path": [
+												"{{web_root}}",
+												"api",
+												"devices",
+												"{{device_token}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "read devices",
+					"item": [
+						{
+							"name": "Prep: Create device A",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c2dec946-86c2-4241-89a5-80b7aa6a1d81",
+										"exec": [
+											"var response = pm.response.json();",
+											"var token = response.token;",
+											"",
+											"pm.globals.set(\"device_token_a\", token)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Prep: Create device B",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c2dec946-86c2-4241-89a5-80b7aa6a1d81",
+										"exec": [
+											"var response = pm.response.json();",
+											"var token = response.token;",
+											"",
+											"pm.globals.set(\"device_token_b\", token)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Read devices",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+										"exec": [
+											"pm.test(\"Successful GET request\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+											"});",
+											"",
+											"var response = pm.response.json();",
+											"",
+											"pm.test('Schema is valid', function() {",
+											"  pm.expect(response).to.be.instanceof(Array);",
+											"  response.forEach(element => {",
+											"  pm.expect(element).to.have.property(\"token\");",
+											"  pm.expect(element).to.have.property(\"user_agent\");",
+											"  pm.expect(element).to.have.property(\"last_active\");",
+											"  pm.expect(element).to.have.property(\"name\");",
+											"  })",
+											"});",
+											"",
+											"pm.test('Data is valid', function() {",
+											"  pm.expect(response).to.have.lengthOf(2);",
+											"  var devices_left = [",
+											"      pm.globals.get(\"device_token_a\"), ",
+											"      pm.globals.get(\"device_token_b\")",
+											"    ]",
+											"  response.forEach(element => {",
+											"      pm.expect(typeof element.token).to.equal(\"string\");",
+											"      pm.expect(typeof element.user_agent).to.equal(\"string\");",
+											"      pm.expect(typeof element.last_active).to.equal(\"string\");",
+											"      pm.expect(typeof element.name).to.equal(\"string\");",
+											"      pm.expect(devices_left).to.include(element.token);",
+											"      devices_left.splice(devices_left.indexOf(element.token), 1);",
+											"  })",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clean up: Wait device timeout",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7b55e55b-8614-4f0d-9270-645c2486a736",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "3700755f-f1dc-47b3-8d3d-fb72193c6144",
+										"exec": [
+											"var timeout = parseInt(pm.environment.get(\"device_timeout\")) + 500",
+											"",
+											"setTimeout(function () {}, timeout);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/devices/",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"devices",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"protocolProfileBehavior": {}

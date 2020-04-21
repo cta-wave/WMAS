@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+from datetime import datetime
+
 
 def serialize_session(session):
     return {
@@ -21,4 +23,12 @@ def serialize_session(session):
         "webhook_urls": session.webhook_urls,
         "expiration_date": session.expiration_date,
         "malfunctioning_tests": session.malfunctioning_tests
+    }
+
+def serialize_device(device):
+    return {
+        "token": device.token,
+        "user_agent": device.user_agent,
+        "name": device.name,
+        "last_active": datetime.utcfromtimestamp(device.last_active/1000).isoformat()
     }

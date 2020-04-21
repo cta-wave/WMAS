@@ -1,8 +1,12 @@
 from __future__ import unicode_literals
 import httplib
 import sys
+import logging
 import traceback
 
+
+global logger
+logger = logging.getLogger("wave-api-handler")
 
 class HttpHandler(object):
     def __init__(
@@ -11,6 +15,7 @@ class HttpHandler(object):
         sessions_api_handler=None,
         tests_api_handler=None,
         results_api_handler=None,
+        devices_api_handler=None,
         http_port=None,
         web_root=None
     ):
@@ -18,6 +23,7 @@ class HttpHandler(object):
         self.sessions_api_handler = sessions_api_handler
         self.tests_api_handler = tests_api_handler
         self.results_api_handler = results_api_handler
+        self.devices_api_handler = devices_api_handler
         self._http_port = http_port
         self._web_root = web_root
 
@@ -65,6 +71,9 @@ class HttpHandler(object):
         if api_name == "results":
             self.results_api_handler.handle_request(request, response)
             return
+        if api_name == u"devices":
+            self.devices_api_handler.handle_request(request, response)
+            return
 
     def handle_static_file(self, request, response):
         self.static_handler.handle_request(request, response)
@@ -92,8 +101,8 @@ class HttpHandler(object):
             response.status = proxy_response.status
 
         except IOError:
+            message = "Failed to perform proxy request"
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print("Failed to perform proxy request: " +
-                info[0].__name__ + ": " + str(info[1].args[0]))
+            logger.error("{}: {}: {}".format(message, info[0].__name__, info[1].args[0]))
             response.status = 500

@@ -52,3 +52,15 @@ config.json using the keyword `web_root`.
 | [`download overview`](./results-api/download.md#6-download-overview)         | Download an overview of results of all APIs of a session.                       |
 | [`view report`](./results-api/view.md#1-view-report)                         | Read an url to a hosted version of a WPT report for an API of a session.        |
 | [`view multi report`](./results-api/view.md#2-view-multi-report)             | Read an url to a hosted version of a WPT report for an API of multiple session. |
+
+## Devices API <a name="devices-api"></a>
+
+| Name                                                                   | Description                            |
+| ---------------------------------------------------------------------- | -------------------------------------- |
+| [`create`](./devices-api/create.md)                                    | Registers a new device.                |
+| [`read device`](./devices-api/read-device.md)                          | Read information of a specific device. |
+| [`read devices`](./devices-api/read-devices.md)                        | Read a list of all available devices.  |
+| [`register event listener`](./devices-api/register.md)                 | Register for a device specific event.  |
+| [`send event`](./devices-api/send-event.md)                            | Sends a device specific event.         |
+| [`register global event listener`](./devices-api/register-global.md)   | Register for a global device event.    |
+| [`send global event`](./devices-api/send-global-event.md)              | Sends a global device event.           |

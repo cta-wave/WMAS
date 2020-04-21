@@ -311,7 +311,7 @@ class TestsManager(object):
         )
 
         self._event_dispatcher.dispatch_event(
-            token=session.token,
+            dispatcher_token=session.token,
             event_type=TEST_COMPLETED_EVENT,
             data=test
         )
