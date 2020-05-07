@@ -741,8 +741,10 @@ var WaveService = {
   addSessionEventListener: function(token, callback) {
     var listeners = WaveService._sessionEventListeners;
     if (!listeners[token]) listeners[token] = [];
+    if (listeners[token].indexOf(callback) >= 0) return;
     listeners[token].push(callback);
     WaveService._sessionEventListeners = listeners;
+    WaveService.listenSessionEvents(token);
   },
   removeSessionEventListener: function(callback) {
     var listeners = WaveService._sessionEventListeners;

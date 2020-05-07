@@ -19,7 +19,6 @@
  * the WAVE test runner and the results need to be reported to the server using
  * the provided token to identify the session associated this token.  
  */
-console.log("ARDVAARD")
 if (location.search && location.search.indexOf("token=") != -1) {
    var __WAVE__HOSTNAME = location.hostname;
    var __WAVE__PORT = location.port;
@@ -32,9 +31,6 @@ if (location.search && location.search.indexOf("token=") != -1) {
    var __WAVE__TIMEOUT = parseInt(match && match[1] ? match[1] : 65000);
    match = __WAVE__QUERY.match(/web_root=(.+)/);
    var __WAVE__WEB_ROOT = match && match[1] ? match[1] : "/wave/";
-    console.log("\n\n\n\n\n")
-    console.log(match)
-    console.log(__WAVE__WEB_ROOT)
    match = __WAVE__QUERY.match(/token=([^&]+)/);
    var __WAVE__TOKEN = match ? match[1] : null;
    var __WAVE__TEST = location.pathname;
