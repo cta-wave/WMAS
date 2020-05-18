@@ -105,7 +105,7 @@ class TestsApiHandler(ApiHandler):
 
             test_timeout = self._tests_manager.get_test_timeout(
                 test=test, session=session)
-            
+
             test = self._sessions_manager.get_test_path_with_query(test, session)
             url = self._generate_test_url(
                 test=test,

@@ -5,6 +5,9 @@ call must be preceded with a namespace or web root, which is omitted in this
 documentation. The default web root is `/_wave`, which can be changed in the 
 config.json using the keyword `web_root`.
 
+Additional [REST API Guides](./guides/README.md) can help to understand how to 
+use these endpoints in context.
+
 ## Sessions API <a name="sessions-api"></a>
 
 | Name                                           | Description                                          |
