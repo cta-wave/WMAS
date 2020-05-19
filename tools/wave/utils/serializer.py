@@ -5,7 +5,7 @@ from datetime import datetime
 def serialize_session(session):
     return {
         "token": session.token,
-        "types": session.types,
+        "types": session.test_types,
         "user_agent": session.user_agent,
         "labels": session.labels,
         "timeouts": session.timeouts,
@@ -22,6 +22,7 @@ def serialize_session(session):
         "reference_tokens": session.reference_tokens,
         "webhook_urls": session.webhook_urls,
         "expiration_date": session.expiration_date,
+        "type": session.type,
         "malfunctioning_tests": session.malfunctioning_tests
     }
 

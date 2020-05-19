@@ -1,13 +1,13 @@
 function sendRequest(method, uri, headers, data, onSuccess, onError) {
   var xhr = new XMLHttpRequest();
-  xhr.onload = function() {
+  xhr.onload = function () {
     if (xhr.status === 200) {
       onSuccess(xhr.response);
     } else {
       if (onError) onError(xhr.status, xhr.response);
     }
   };
-  xhr.onerror = function() {
+  xhr.onerror = function () {
     if (onError) onError();
   };
   xhr.open(method, WaveService.uriPrefix + uri, true);
@@ -28,42 +28,42 @@ var WaveService = {
   uriPrefix: WEB_ROOT,
   socket: {
     state: CLOSED,
-    onMessage: function() {},
-    onOpen: function() {},
-    onClose: function() {},
-    send: function() {},
-    close: function() {},
-    onStateChange: function() {}
+    onMessage: function () {},
+    onOpen: function () {},
+    onClose: function () {},
+    send: function () {},
+    close: function () {},
+    onStateChange: function () {},
   },
   // SESSIONS API
-  createSession: function(configuration, onSuccess, onError) {
+  createSession: function (configuration, onSuccess, onError) {
     var data = JSON.stringify({
       tests: configuration.tests,
       types: configuration.types,
       timeouts: configuration.timeouts,
       reference_tokens: configuration.referenceTokens,
       expiration_date: configuration.expirationDate,
-      labels: configuration.labels
+      labels: configuration.labels,
     });
     sendRequest(
       "POST",
       "api/sessions",
       { "Content-Type": "application/json" },
       data,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject.token);
       },
       onError
     );
   },
-  readSession: function(token, onSuccess, onError) {
+  readSession: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/sessions/" + token,
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess({
           token: jsonObject.token,
@@ -76,13 +76,13 @@ var WaveService = {
           isPublic: jsonObject.is_public,
           referenceTokens: jsonObject.reference_tokens,
           webhookUrls: jsonObject.webhook_urls,
-          expirationDate: jsonObject.expiration_date
+          expirationDate: jsonObject.expiration_date,
         });
       },
       onError
     );
   },
-  readMultipleSessions: function(tokens, onSuccess, onError) {
+  readMultipleSessions: function (tokens, onSuccess, onError) {
     var requestsLeft = tokens.length;
     if (requestsLeft === 0) onSuccess([]);
     var configurations = [];
@@ -90,12 +90,12 @@ var WaveService = {
       var token = tokens[i];
       WaveService.readSession(
         token,
-        function(configuration) {
+        function (configuration) {
           requestsLeft--;
           configurations.push(configuration);
           if (requestsLeft === 0) onSuccess(configurations);
         },
-        function(status) {
+        function (status) {
           if (status === 404) requestsLeft--;
           if (status !== 404 && onError) onError();
           if (requestsLeft === 0) onSuccess(configurations);
@@ -103,13 +103,13 @@ var WaveService = {
       );
     }
   },
-  readSessionStatus: function(token, onSuccess, onError) {
+  readSessionStatus: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/sessions/" + token + "/status",
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess({
           token: jsonObject.token,
@@ -117,15 +117,15 @@ var WaveService = {
           dateFinished: jsonObject.date_finished,
           testFilesCount: jsonObject.test_files_count,
           testFilesCompleted: jsonObject.test_files_completed,
-          status: jsonObject.status
+          status: jsonObject.status,
         });
       },
-      function() {
+      function () {
         if (onError) onError();
       }
     );
   },
-  readMultipleSessionStatuses: function(tokens, onSuccess, onError) {
+  readMultipleSessionStatuses: function (tokens, onSuccess, onError) {
     var requestsLeft = tokens.length;
     if (requestsLeft === 0) onSuccess([]);
     var statuses = [];
@@ -133,134 +133,135 @@ var WaveService = {
       var token = tokens[i];
       WaveService.readSessionStatus(
         token,
-        function(status) {
+        function (status) {
           requestsLeft--;
           statuses.push(status);
           if (requestsLeft === 0) onSuccess(statuses);
         },
-        function() {
+        function () {
           requestsLeft--;
           if (requestsLeft === 0) onSuccess(statuses);
         }
       );
     }
   },
-  readPublicSessions: function(onSuccess, onError) {
+  readPublicSessions: function (onSuccess, onError) {
     sendRequest(
       "GET",
       "api/sessions/public",
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject);
       },
       onError
     );
   },
-  updateSession: function(token, configuration, onSuccess, onError) {
+  updateSession: function (token, configuration, onSuccess, onError) {
     var data = JSON.stringify({
       tests: configuration.tests,
       types: configuration.types,
       timeouts: configuration.timeouts,
       reference_tokens: configuration.referenceTokens,
-      expiration_date: configuration.expirationDate
+      expiration_date: configuration.expirationDate,
+      type: configuration.type,
     });
     sendRequest(
       "PUT",
       "api/sessions/" + token,
       { "Content-Type": "application/json" },
       data,
-      function() {
+      function () {
         onSuccess();
       },
       onError
     );
   },
-  updateLabels: function(token, labels, onSuccess, onError) {
+  updateLabels: function (token, labels, onSuccess, onError) {
     var data = JSON.stringify({ labels: labels });
     sendRequest(
       "PUT",
       "api/sessions/" + token + "/labels",
       { "Content-Type": "application/json" },
       data,
-      function() {
+      function () {
         if (onSuccess) onSuccess();
       },
       onError
     );
   },
-  findToken: function(fragment, onSuccess, onError) {
+  findToken: function (fragment, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/sessions/" + fragment,
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject.token);
       },
       onError
     );
   },
-  startSession: function(token, onSuccess, onError) {
+  startSession: function (token, onSuccess, onError) {
     sendRequest(
       "POST",
       "api/sessions/" + token + "/start",
       null,
       null,
-      function() {
+      function () {
         onSuccess();
       },
       onError
     );
   },
-  pauseSession: function(token, onSuccess, onError) {
+  pauseSession: function (token, onSuccess, onError) {
     sendRequest(
       "POST",
       "api/sessions/" + token + "/pause",
       null,
       null,
-      function() {
+      function () {
         onSuccess();
       },
       onError
     );
   },
-  stopSession: function(token, onSuccess, onError) {
+  stopSession: function (token, onSuccess, onError) {
     sendRequest(
       "POST",
       "api/sessions/" + token + "/stop",
       null,
       null,
-      function() {
+      function () {
         onSuccess();
       },
       onError
     );
   },
-  resumeSession: function(token, resumeToken, onSuccess, onError) {
+  resumeSession: function (token, resumeToken, onSuccess, onError) {
     var data = JSON.stringify({ resume_token: resumeToken });
     sendRequest(
       "POST",
       "api/sessions/" + token + "/resume",
       { "Content-Type": "application/json" },
       data,
-      function() {
+      function () {
         if (onSuccess) onSuccess();
       },
-      function(response) {
+      function (response) {
         if (onError) onError(response);
       }
     );
   },
-  deleteSession: function(token, onSuccess, onError) {
+  deleteSession: function (token, onSuccess, onError) {
     sendRequest(
       "DELETE",
       "api/sessions/" + token,
       null,
       null,
-      function() {
+      function () {
         onSuccess();
       },
       onError
@@ -268,20 +269,20 @@ var WaveService = {
   },
 
   // TESTS API
-  readNextTest: function(token, onSuccess, onError) {
+  readNextTest: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/tests/" + token + "/next",
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject.next_test);
       },
       onError
     );
   },
-  readLastCompletedTests: function(token, resultTypes, onSuccess, onError) {
+  readLastCompletedTests: function (token, resultTypes, onSuccess, onError) {
     var status = "";
     if (resultTypes) {
       for (var i = 0; i < resultTypes.length; i++) {
@@ -294,7 +295,7 @@ var WaveService = {
       "api/tests/" + token + "/last_completed?status=" + status,
       null,
       null,
-      function(response) {
+      function (response) {
         var tests = JSON.parse(response);
         var parsedTests = [];
         for (var status in tests) {
@@ -308,23 +309,23 @@ var WaveService = {
       onError
     );
   },
-  readMalfunctioningTests: function(token, onSuccess, onError) {
+  readMalfunctioningTests: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/tests/" + token + "/malfunctioning",
       null,
       null,
-      function(response) {
+      function (response) {
         var tests = JSON.parse(response);
         onSuccess(tests);
       },
-      function(response) {
+      function (response) {
         var errorMessage = JSON.parse(response).error;
         onError(errorMessage);
       }
     );
   },
-  updateMalfunctioningTests: function(
+  updateMalfunctioningTests: function (
     token,
     malfunctioningTests,
     onSuccess,
@@ -336,26 +337,26 @@ var WaveService = {
       "api/tests/" + token + "/malfunctioning",
       { "Content-Type": "application/json" },
       data,
-      function() {
+      function () {
         onSuccess();
       },
-      function(response) {
+      function (response) {
         var errorMessage = JSON.parse(response).error;
         onError(errorMessage);
       }
     );
   },
-  readAvailableApis: function(onSuccess, onError) {
+  readAvailableApis: function (onSuccess, onError) {
     sendRequest(
       "GET",
       "api/tests/apis",
       null,
       null,
-      function(response) {
+      function (response) {
         var apis = JSON.parse(response);
         onSuccess(apis);
       },
-      function(response) {
+      function (response) {
         if (!onError) return;
         var errorMessage = JSON.parse(response).error;
         onError(errorMessage);
@@ -364,46 +365,46 @@ var WaveService = {
   },
 
   // RESULTS API
-  createResult: function(token, result, onSuccess, onError) {
+  createResult: function (token, result, onSuccess, onError) {
     sendRequest(
       "POST",
       "api/results/" + token,
       { "Content-Type": "application/json" },
       JSON.stringify(result),
-      function() {
+      function () {
         onSuccess();
       },
       onError
     );
   },
-  readResults: function(token, onSuccess, onError) {
+  readResults: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/results/" + token,
       null,
       null,
-      function(response) {
+      function (response) {
         onSuccess(JSON.parse(response));
       },
       onError
     );
   },
-  readResultsCompact: function(token, onSuccess, onError) {
+  readResultsCompact: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/results/" + token + "/compact",
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject);
       },
       onError
     );
   },
-  readResultComparison: function(tokens, onSuccess, onError) {
+  readResultComparison: function (tokens, onSuccess, onError) {
     var comparison = {};
-    var fetchComplete = function(results) {
+    var fetchComplete = function (results) {
       comparison.total = {};
       for (var i = 0; i < results.length; i++) {
         var result = results[i];
@@ -428,16 +429,16 @@ var WaveService = {
     var results = [];
     for (var i = 0; i < tokens.length; i++) {
       var token = tokens[i];
-      (function(token) {
+      (function (token) {
         WaveService.readResultsCompact(
           token,
-          function(result) {
+          function (result) {
             requestsLeft--;
             result.token = token;
             results.push(result);
             if (requestsLeft === 0) fetchComplete(results);
           },
-          function(responseStatus) {
+          function (responseStatus) {
             if (responseStatus === 404) requestsLeft--;
             if (status !== 404 && onError) onError();
             if (requestsLeft === 0) fetchComplete(results);
@@ -446,29 +447,29 @@ var WaveService = {
       })(token);
     }
   },
-  downloadResults: function(token) {
+  downloadResults: function (token) {
     location.href = "api/results/" + token + "/export";
   },
-  downloadApiResult: function(token, api) {
+  downloadApiResult: function (token, api) {
     location.href = "api/results/" + token + "/" + api + "/json";
   },
-  downloadAllApiResults: function(token, api) {
+  downloadAllApiResults: function (token, api) {
     location.href = "api/results/" + token + "/json";
   },
-  downloadReport: function(token, api) {
+  downloadReport: function (token, api) {
     location.href = "api/results/" + token + "/" + api + "/report";
   },
-  importResults: function(data, onSuccess, onError) {
+  importResults: function (data, onSuccess, onError) {
     sendRequest(
       "POST",
       "api/results/import",
       { "Content-Type": "application/octet-stream" },
       data,
-      function(response) {
+      function (response) {
         var token = JSON.parse(response).token;
         onSuccess(token);
       },
-      function(status, response) {
+      function (status, response) {
         var errorMessage;
         if (status === 500) {
           errorMessage = "Internal server error.";
@@ -479,65 +480,65 @@ var WaveService = {
       }
     );
   },
-  readResultsConfig: function(onSuccess, onError) {
+  readResultsConfig: function (onSuccess, onError) {
     sendRequest(
       "GET",
       "api/results/config",
       null,
       null,
-      function(response) {
+      function (response) {
         var config = JSON.parse(response);
         onSuccess({
           importEnabled: config.import_enabled,
-          reportsEnabled: config.reports_enabled
+          reportsEnabled: config.reports_enabled,
         });
       },
       onError
     );
   },
-  readReportUri: function(token, api, onSuccess, onError) {
+  readReportUri: function (token, api, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/results/" + token + "/" + api + "/reporturl",
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject.uri);
       },
       onError
     );
   },
-  downloadMultiReport: function(tokens, api) {
+  downloadMultiReport: function (tokens, api) {
     location.href = "api/results/" + api + "/report?tokens=" + tokens.join(",");
   },
-  readMultiReportUri: function(tokens, api, onSuccess, onError) {
+  readMultiReportUri: function (tokens, api, onSuccess, onError) {
     sendRequest(
       "GET",
       "api/results/" + api + "/reporturl?tokens=" + tokens.join(","),
       null,
       null,
-      function(response) {
+      function (response) {
         var jsonObject = JSON.parse(response);
         onSuccess(jsonObject.uri);
       },
       onError
     );
   },
-  downloadResultsOverview: function(token) {
+  downloadResultsOverview: function (token) {
     location.href = "api/results/" + token + "/overview";
   },
 
   // DEVICES API
   _device_token: null,
   _deviceEventListeners: {},
-  registerDevice: function(onSuccess, onError) {
+  registerDevice: function (onSuccess, onError) {
     sendRequest(
       "POST",
       "api/devices",
       null,
       null,
-      function(response) {
+      function (response) {
         var data = JSON.parse(response);
         WaveService._device_token = data.token;
         onSuccess(data.token);
@@ -545,14 +546,14 @@ var WaveService = {
       onError
     );
   },
-  addDeviceEventListener: function(token, callback) {
+  addDeviceEventListener: function (token, callback) {
     var listeners = WaveService._deviceEventListeners;
     if (!listeners[token]) listeners[token] = [];
     listeners[token].push(callback);
     WaveService._deviceEventListeners = listeners;
     WaveService.listenDeviceEvents(token);
   },
-  removeDeviceEventListener: function(callback) {
+  removeDeviceEventListener: function (callback) {
     var listeners = WaveService._deviceEventListeners;
     for (var token of Object.keys(listeners)) {
       var index = listeners[token].indexOf(callback);
@@ -562,12 +563,12 @@ var WaveService = {
     }
     WaveService._deviceEventListeners = listeners;
   },
-  listenDeviceEvents: function(token) {
+  listenDeviceEvents: function (token) {
     var listeners = WaveService._deviceEventListeners;
     if (!listeners[token] || listeners.length === 0) return;
     WaveService.listenHttpPolling(
       "api/devices/" + token + "/events",
-      function(response) {
+      function (response) {
         if (!response) {
           WaveService.listenDeviceEvents(token);
           return;
@@ -577,17 +578,17 @@ var WaveService = {
         }
         WaveService.listenDeviceEvents(token);
       },
-      function() {
-        setTimeout(function() {
+      function () {
+        setTimeout(function () {
           WaveService.listenDeviceEvents();
         }, 1000);
       }
     );
   },
-  sendDeviceEvent: function(device_token, event, onSuccess, onError) {
+  sendDeviceEvent: function (device_token, event, onSuccess, onError) {
     var data = JSON.stringify({
       type: event.type,
-      data: event.data
+      data: event.data,
     });
     sendRequest(
       "POST",
@@ -598,15 +599,15 @@ var WaveService = {
       onError
     );
   },
-  addGlobalDeviceEventListener: function(callback) {
+  addGlobalDeviceEventListener: function (callback) {
     WaveService._globalDeviceEventListeners.push(callback);
     WaveService.listenGlobalDeviceEvents();
   },
-  removeGlobalDeviceEventListener: function(callback) {
+  removeGlobalDeviceEventListener: function (callback) {
     var index = WaveService._globalDeviceEventListeners.indexOf(callback);
     WaveService._globalDeviceEventListeners.splice(index, 1);
   },
-  listenGlobalDeviceEvents: function() {
+  listenGlobalDeviceEvents: function () {
     var listeners = WaveService._globalDeviceEventListeners;
     if (listeners.length === 0) return;
     var query = "";
@@ -615,7 +616,7 @@ var WaveService = {
     }
     WaveService.listenHttpPolling(
       "api/devices/events" + query,
-      function(response) {
+      function (response) {
         if (!response) {
           WaveService.listenGlobalDeviceEvents();
           return;
@@ -625,17 +626,17 @@ var WaveService = {
         }
         WaveService.listenGlobalDeviceEvents();
       },
-      function() {
-        setTimeout(function() {
+      function () {
+        setTimeout(function () {
           WaveService.listenGlobalDeviceEvents();
         }, 1000);
       }
     );
   },
-  sendGlobalDeviceEvent: function(event, onSuccess, onError) {
+  sendGlobalDeviceEvent: function (event, onSuccess, onError) {
     var data = JSON.stringify({
       type: event.type,
-      data: event.data
+      data: event.data,
     });
     sendRequest(
       "POST",
@@ -648,7 +649,7 @@ var WaveService = {
   },
 
   // UTILITY
-  addRecentSession: function(token) {
+  addRecentSession: function (token) {
     if (!token) return;
     var state = WaveService.getState();
     if (!state.recent_sessions) state.recent_sessions = [];
@@ -656,18 +657,18 @@ var WaveService = {
     state.recent_sessions.unshift(token);
     WaveService.setState(state);
   },
-  addRecentSessions: function(tokens) {
+  addRecentSessions: function (tokens) {
     for (var i = 0; i < tokens.length; i++) {
       var token = tokens[i];
       WaveService.addRecentSession(token);
     }
   },
-  getPinnedSessions: function() {
+  getPinnedSessions: function () {
     var state = WaveService.getState();
     if (!state || !state.pinned_sessions) return [];
     return state.pinned_sessions;
   },
-  addPinnedSession: function(token) {
+  addPinnedSession: function (token) {
     if (!token) return;
     var state = WaveService.getState();
     if (!state.pinned_sessions) state.pinned_sessions = [];
@@ -675,17 +676,17 @@ var WaveService = {
     state.pinned_sessions.unshift(token);
     WaveService.setState(state);
   },
-  getRecentSessions: function() {
+  getRecentSessions: function () {
     var state = WaveService.getState();
     if (!state || !state.recent_sessions) return [];
     return state.recent_sessions;
   },
-  setRecentSessions: function(sessionTokens) {
+  setRecentSessions: function (sessionTokens) {
     var state = WaveService.getState();
     state.recent_sessions = sessionTokens;
     WaveService.setState(state);
   },
-  removePinnedSession: function(token) {
+  removePinnedSession: function (token) {
     if (!token) return;
     var state = WaveService.getState();
     if (!state.pinned_sessions) return;
@@ -694,7 +695,7 @@ var WaveService = {
     state.pinned_sessions.splice(index, 1);
     WaveService.setState(state);
   },
-  removeRecentSession: function(token) {
+  removeRecentSession: function (token) {
     var state = WaveService.getState();
     if (!state.recent_sessions) return;
     var index = state.recent_sessions.indexOf(token);
@@ -702,21 +703,21 @@ var WaveService = {
     state.recent_sessions.splice(index, 1);
     WaveService.setState(state);
   },
-  getState: function() {
+  getState: function () {
     if (!window.localStorage) return null;
     var storage = window.localStorage;
     var state = JSON.parse(storage.getItem("wave"));
     if (!state) return {};
     return state;
   },
-  setState: function(state) {
+  setState: function (state) {
     if (!window.localStorage) return null;
     var storage = window.localStorage;
     storage.setItem("wave", JSON.stringify(state));
   },
   _globalDeviceEventListeners: [],
   _sessionEventListeners: {},
-  listenHttpPolling: function(url, onSuccess, onError) {
+  listenHttpPolling: function (url, onSuccess, onError) {
     var uniqueId = new Date().getTime();
     if (url.indexOf("?") === -1) {
       url = url + "?id=" + uniqueId;
@@ -728,7 +729,7 @@ var WaveService = {
       url,
       null,
       null,
-      function(response) {
+      function (response) {
         if (!response) {
           onSuccess(null);
           return;
@@ -738,7 +739,7 @@ var WaveService = {
       onError
     );
   },
-  addSessionEventListener: function(token, callback) {
+  addSessionEventListener: function (token, callback) {
     var listeners = WaveService._sessionEventListeners;
     if (!listeners[token]) listeners[token] = [];
     if (listeners[token].indexOf(callback) >= 0) return;
@@ -746,7 +747,7 @@ var WaveService = {
     WaveService._sessionEventListeners = listeners;
     WaveService.listenSessionEvents(token);
   },
-  removeSessionEventListener: function(callback) {
+  removeSessionEventListener: function (callback) {
     var listeners = WaveService._sessionEventListeners;
     for (var token of Object.keys(listeners)) {
       var index = listeners[token].indexOf(callback);
@@ -756,12 +757,12 @@ var WaveService = {
     }
     WaveService._sessionEventListeners = listeners;
   },
-  listenSessionEvents: function(token) {
+  listenSessionEvents: function (token) {
     var listeners = WaveService._sessionEventListeners;
     if (!listeners[token] || listeners.length === 0) return;
     WaveService.listenHttpPolling(
       "api/sessions/" + token + "/events",
-      function(response) {
+      function (response) {
         if (!response) {
           WaveService.listenSessionEvents(token);
           return;
@@ -771,20 +772,20 @@ var WaveService = {
         }
         WaveService.listenSessionEvents(token);
       },
-      function() {
-        setTimeout(function() {
+      function () {
+        setTimeout(function () {
           WaveService.listenSessionEvents();
         }, 1000);
       }
     );
   },
-  openSession: function(token) {
+  openSession: function (token) {
     location.href = "/results.html?token=" + token;
-  }
+  },
 };
 
 if (!Object.keys)
-  Object.keys = function(o) {
+  Object.keys = function (o) {
     if (o !== Object(o))
       throw new TypeError("Object.keys called on a non-object");
     var k = [],
@@ -792,4 +793,3 @@ if (!Object.keys)
     for (p in o) if (Object.prototype.hasOwnProperty.call(o, p)) k.push(p);
     return k;
   };
-

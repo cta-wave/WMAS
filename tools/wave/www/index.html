@@ -241,7 +241,6 @@
 					};
 
 					WaveService.addSessionEventListener(token, function(message) {
-            console.log(message)
 						if (message.type === "resume") {
 							var resumeToken = message.data;
 							location.href = WEB_ROOT + "next.html?token=" + resumeToken;

@@ -356,7 +356,7 @@ class TestsManager(object):
 
     def load_tests(self, session):
         pending_tests = self._test_loader.get_tests(
-            session.types,
+            session.test_types,
             include_list=session.tests["include"],
             exclude_list=session.tests["exclude"],
             reference_tokens=session.reference_tokens

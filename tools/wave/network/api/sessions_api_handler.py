@@ -29,9 +29,9 @@ class SessionsApiHandler(ApiHandler):
             tests = {}
             if "tests" in config:
                 tests = config["tests"]
-            types = None
+            test_types = None
             if "types" in config:
-                types = config["types"]
+                test_types = config["types"]
             timeouts = {}
             if "timeouts" in config:
                 timeouts = config["timeouts"]
@@ -48,16 +48,20 @@ class SessionsApiHandler(ApiHandler):
             expiration_date = None
             if "expiration_date" in config:
                 expiration_date = config["expiration_date"]
+            type = None
+            if "type" in config:
+                type = config["type"]
 
             session = self._sessions_manager.create_session(
                 tests,
-                types,
+                test_types,
                 timeouts,
                 reference_tokens,
                 webhook_urls,
                 user_agent,
                 labels,
-                expiration_date
+                expiration_date,
+                type
             )
 
             self.send_json({"token": session.token}, response)
@@ -146,9 +150,9 @@ class SessionsApiHandler(ApiHandler):
             tests = {}
             if "tests" in config:
                 tests = config["tests"]
-            types = None
+            test_types = None
             if "types" in config:
-                types = config["types"]
+                test_types = config["types"]
             timeouts = {}
             if "timeouts" in config:
                 timeouts = config["timeouts"]
@@ -158,14 +162,18 @@ class SessionsApiHandler(ApiHandler):
             webhook_urls = []
             if "webhook_urls" in config:
                 webhook_urls = config["webhook_urls"]
+            type = None
+            if "type" in config:
+                type = config["type"]
 
             self._sessions_manager.update_session_configuration(
                 token,
                 tests,
-                types,
+                test_types,
                 timeouts,
                 reference_tokens,
-                webhook_urls
+                webhook_urls,
+                type
             )
         except NotFoundException:
             self.handle_exception("Failed to update session configuration")

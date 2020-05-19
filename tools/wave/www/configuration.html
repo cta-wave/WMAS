@@ -89,7 +89,6 @@
 					available_apis = available_apis.sort((apiA, apiB) => apiA.title.toLowerCase() > apiB.title.toLowerCase() ? 1 : -1)
 					apis = available_apis;
 					WaveService.readPublicSessions(function(tokens) {
-						console.log(tokens);
 						WaveService.readMultipleSessions(tokens, function(configurations) {
 							referenceSessions = configurations
 								.sort((confA, confB) => confA.browser.name.toLowerCase() > confB.browser.name.toLowerCase() ? 1 : -1)

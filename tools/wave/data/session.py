@@ -9,12 +9,15 @@ ABORTED = "aborted"
 PENDING = "pending"
 UNKNOWN = "unknown"
 
+WMAS = "wmas"
+DPCTF = "dpctf"
+
 
 class Session(object):
     def __init__(
             self,
             token=None,
-            types=None,
+            test_types=None,
             user_agent=None,
             labels=None,
             tests=None,
@@ -32,14 +35,15 @@ class Session(object):
             browser=None,
             webhook_urls=None,
             expiration_date=None,
+            type=None,
             malfunctioning_tests=None
     ):
         if token is None:
             token = ""
         self.token = token
-        if types is None:
-            types = [AUTOMATIC, MANUAL]
-        self.types = types
+        if test_types is None:
+            test_types = [AUTOMATIC, MANUAL]
+        self.test_types = test_types
         if user_agent is None:
             user_agent = ""
         self.user_agent = user_agent
@@ -81,6 +85,9 @@ class Session(object):
             webhook_urls = []
         self.webhook_urls = webhook_urls
         self.expiration_date = expiration_date
+        if type is None:
+            type = WMAS
+        self.type = type
         if malfunctioning_tests is None:
             malfunctioning_tests = []
         self.malfunctioning_tests = malfunctioning_tests

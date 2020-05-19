@@ -21,9 +21,9 @@ def deserialize_session(session_dict):
     if "path" in session_dict:
         test_paths = session_dict["path"].split(", ")
         tests["include"] = tests["include"] + test_paths
-    types = []
+    test_types = []
     if "types" in session_dict:
-        types = session_dict["types"]
+        test_types = session_dict["types"]
     user_agent = ""
     if "user_agent" in session_dict:
         user_agent = session_dict["user_agent"]
@@ -69,6 +69,9 @@ def deserialize_session(session_dict):
     expiration_date = None
     if "expiration_date" in session_dict:
         expiration_date = session_dict["expiration_date"]
+    type = None
+    if "type" in session_dict:
+        type = session_dict["type"]
     malfunctioning_tests = []
     if "malfunctioning_tests" in session_dict:
         malfunctioning_tests = session_dict["malfunctioning_tests"]
@@ -76,7 +79,7 @@ def deserialize_session(session_dict):
     return Session(
         token=token,
         tests=tests,
-        types=types,
+        test_types=test_types,
         user_agent=user_agent,
         labels=labels,
         timeouts=timeouts,
@@ -92,5 +95,6 @@ def deserialize_session(session_dict):
         browser=browser,
         webhook_urls=webhook_urls,
         expiration_date=expiration_date,
+        type=type,
         malfunctioning_tests=malfunctioning_tests
     )
