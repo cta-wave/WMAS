@@ -28,6 +28,7 @@ class Session(object):
             test_state=None,
             last_completed_test=None,
             recent_completed_count=None,
+            date_created=None,
             date_started=None,
             date_finished=None,
             is_public=None,
@@ -72,6 +73,7 @@ class Session(object):
         if recent_completed_count is None:
             recent_completed_count = 0
         self.recent_completed_count = recent_completed_count
+        self.date_created = date_created
         self.date_started = date_started
         self.date_finished = date_finished
         if is_public is None:

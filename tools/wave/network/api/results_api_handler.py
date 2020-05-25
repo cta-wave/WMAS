@@ -56,7 +56,7 @@ class ResultsApiHandler(ApiHandler):
 
     def read_results_config(self, request, response):
         try:
-            import_enabled = self._results_manager.is_import_enabled()
+            import_enabled = self._results_manager.is_import_results_enabled()
             reports_enabled = self._results_manager.are_reports_enabled()
 
             self.send_json({

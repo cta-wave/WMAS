@@ -101,6 +101,8 @@ class SessionsManager(object):
                 "total": test_files_count[api],
                 "complete": 0}
 
+        date_created = int(time.time()) * 1000
+
         session = Session(
             token=token,
             tests=tests,
@@ -116,7 +118,8 @@ class SessionsManager(object):
             webhook_urls=webhook_urls,
             labels=labels,
             type=type,
-            expiration_date=expiration_date
+            expiration_date=expiration_date,
+            date_created=date_created
         )
 
         self._push_to_cache(session)
@@ -134,6 +137,21 @@ class SessionsManager(object):
         if session is not None:
             self._push_to_cache(session)
         return session
+
+    def read_sessions(self, index=None, count=None):
+        if index is None:
+            index = 0
+        if count is None:
+            count = 10
+        self.load_all_sessions_info()
+        sessions = []
+        for it_index, token in enumerate(self._sessions):
+            if it_index < index:
+                continue
+            if len(sessions) == count:
+                break
+            sessions.append(token)
+        return sessions
 
     def read_session_status(self, token):
         if token is None:
@@ -459,3 +477,6 @@ class SessionsManager(object):
         if len(tokens) != 1:
             return None
         return tokens[0]
+
+    def get_total_sessions(self):
+        return len(self._sessions)

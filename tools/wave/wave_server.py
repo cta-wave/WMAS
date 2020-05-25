@@ -57,7 +57,7 @@ class WaveServer(object):
             results_directory_path=configuration["results_directory_path"],
             sessions_manager=sessions_manager,
             tests_manager=tests_manager,
-            import_enabled=configuration["import_enabled"],
+            import_results_enabled=configuration["import_results_enabled"],
             reports_enabled=reports_enabled,
             persisting_interval=configuration["persisting_interval"]
         )
@@ -92,7 +92,8 @@ class WaveServer(object):
             sessions_manager=sessions_manager,
             results_manager=results_manager,
             event_dispatcher=event_dispatcher,
-            web_root=configuration["web_root"]
+            web_root=configuration["web_root"],
+            read_sessions_enabled=configuration["read_sessions_enabled"]
         )
         tests_api_handler = TestsApiHandler(
             tests_manager=tests_manager,

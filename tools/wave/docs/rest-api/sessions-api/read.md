@@ -1,4 +1,4 @@
-# `read` - [Sessions API](../README.md#sessions-api)
+# `read session` - [Sessions API](../README.md#sessions-api)
 
 The `read` method of the sessions API fetches the configuration of a session, including values that can not be set by the user, but are created by the server upon creation.
 

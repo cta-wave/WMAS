@@ -27,14 +27,14 @@ class ResultsManager(object):
         results_directory_path,
         sessions_manager,
         tests_manager,
-        import_enabled,
+        import_results_enabled,
         reports_enabled,
         persisting_interval
     ):
         self._results_directory_path = results_directory_path
         self._sessions_manager = sessions_manager
         self._tests_manager = tests_manager
-        self._import_enabled = import_enabled
+        self._import_results_enabled = import_results_enabled
         self._reports_enabled = reports_enabled
         self._results = {}
         self._persisting_interval = persisting_interval
@@ -577,8 +577,8 @@ class ResultsManager(object):
 
             return blob
 
-    def is_import_enabled(self):
-        return self._import_enabled
+    def is_import_results_enabled(self):
+        return self._import_results_enabled
 
     def are_reports_enabled(self):
         return self._reports_enabled
@@ -594,7 +594,7 @@ class ResultsManager(object):
             return deserialize_session(info)
 
     def import_results(self, blob):
-        if not self.is_import_enabled:
+        if not self.is_import_results_enabled:
             raise PermissionDeniedException()
         tmp_file_name = "{}.zip".format(str(time.time()))
 

@@ -37,9 +37,10 @@
       "automatic": 60000,
       "manual": 300000
     },
-    "enable_results_import": false,
+    "enable_import_results": false,
     "web_root": "/_wave",
     "persisting_interval": 20,
-    "api_titles": []
+    "api_titles": [],
+    "enable_read_sessions": false
   }
 }

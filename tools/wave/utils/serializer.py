@@ -16,6 +16,7 @@ def serialize_session(session):
         "running_tests": session.running_tests,
         "status": session.status,
         "browser": session.browser,
+        "date_created": session.date_created,
         "date_started": session.date_started,
         "date_finished": session.date_finished,
         "is_public": session.is_public,
@@ -25,6 +26,12 @@ def serialize_session(session):
         "type": session.type,
         "malfunctioning_tests": session.malfunctioning_tests
     }
+
+def serialize_sessions(sessions):
+    serialized_sessions = []
+    for session in sessions:
+        serialized_sessions.append(serialize_session(session))
+    return serialized_sessions
 
 def serialize_device(device):
     return {

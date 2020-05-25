@@ -47,10 +47,15 @@ def load(configuration_file_path):
     configuration["hostname"] = configuration.get(
         "browser_host", default_configuration["browser_host"])
 
-    configuration["import_enabled"] = configuration.get(
+    configuration["import_results_enabled"] = configuration.get(
         "wave", default_configuration["wave"]).get(
-        "enable_results_import",
-        default_configuration["wave"]["enable_results_import"])
+        "enable_import_results",
+        default_configuration["wave"]["enable_import_results"])
+
+    configuration["read_sessions_enabled"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_read_sessions",
+        default_configuration["wave"]["enable_read_sessions"])
 
     configuration["persisting_interval"] = configuration.get(
         "wave", default_configuration["wave"]).get(

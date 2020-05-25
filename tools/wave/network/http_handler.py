@@ -57,6 +57,7 @@ class HttpHandler(object):
 
     def handle_api(self, request, response):
         path = self._remove_web_root(request.request_path)
+        path = path.split("?")[0]
         api_name = path.split("/")[1]
 
         if api_name is None:
@@ -71,7 +72,7 @@ class HttpHandler(object):
         if api_name == "results":
             self.results_api_handler.handle_request(request, response)
             return
-        if api_name == u"devices":
+        if api_name == "devices":
             self.devices_api_handler.handle_request(request, response)
             return
 

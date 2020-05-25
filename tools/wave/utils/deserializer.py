@@ -48,6 +48,9 @@ def deserialize_session(session_dict):
     last_completed_test = None
     if "last_completed_test" in session_dict:
         last_completed_test = session_dict["last_completed_test"]
+    date_created = None
+    if "date_created" in session_dict:
+        date_created = session_dict["date_created"]
     date_started = None
     if "date_started" in session_dict:
         date_started = session_dict["date_started"]
@@ -88,6 +91,7 @@ def deserialize_session(session_dict):
         status=status,
         test_state=test_state,
         last_completed_test=last_completed_test,
+        date_created=date_created,
         date_started=date_started,
         date_finished=date_finished,
         is_public=is_public,
