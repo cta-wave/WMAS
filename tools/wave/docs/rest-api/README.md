@@ -24,7 +24,8 @@ use these endpoints in context.
 | [`pause`](./sessions-api/control.md#pause)         | Pauses a test session.                                         |
 | [`find`](./sessions-api/find.md)                   | Finds a session token by providing a token fragment.           |
 | [`labels`](./sessions-api/labels.md)               | Attach labels to sessions for organization purposes.           |
-| [`events`](./sessions-api/events.md)               | Register for sessions specific events.                         |
+| [`listen events`](./sessions-api/events.md)        | Register for sessions specific events.                         |
+| [`push events`](./sessions-api/events.md)          | Push session specific events.                                  |
 
 ## Tests API <a name="tests-api"></a>
 

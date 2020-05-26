@@ -365,7 +365,7 @@ class SessionsApiHandler(ApiHandler):
     def push_event(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
-            token = uri_parts[3]
+            token = uri_parts[2]
             message = None
             body = request.body.decode(u"utf-8")
             if body != u"":
