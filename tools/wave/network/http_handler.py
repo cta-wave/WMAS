@@ -16,6 +16,7 @@ class HttpHandler(object):
         tests_api_handler=None,
         results_api_handler=None,
         devices_api_handler=None,
+        general_api_handler=None,
         http_port=None,
         web_root=None
     ):
@@ -24,6 +25,7 @@ class HttpHandler(object):
         self.tests_api_handler = tests_api_handler
         self.results_api_handler = results_api_handler
         self.devices_api_handler = devices_api_handler
+        self.general_api_handler = general_api_handler
         self._http_port = http_port
         self._web_root = web_root
 
@@ -75,6 +77,8 @@ class HttpHandler(object):
         if api_name == "devices":
             self.devices_api_handler.handle_request(request, response)
             return
+
+        self.general_api_handler.handle_request(request, response)
 
     def handle_static_file(self, request, response):
         self.static_handler.handle_request(request, response)

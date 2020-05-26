@@ -480,22 +480,6 @@ var WaveService = {
       }
     );
   },
-  readResultsConfig: function (onSuccess, onError) {
-    sendRequest(
-      "GET",
-      "api/results/config",
-      null,
-      null,
-      function (response) {
-        var config = JSON.parse(response);
-        onSuccess({
-          importEnabled: config.import_enabled,
-          reportsEnabled: config.reports_enabled,
-        });
-      },
-      onError
-    );
-  },
   readReportUri: function (token, api, onSuccess, onError) {
     sendRequest(
       "GET",
@@ -644,6 +628,27 @@ var WaveService = {
       { "Content-Type": "application/json" },
       data,
       onSuccess,
+      onError
+    );
+  },
+
+  // GENERAL API
+
+  readConfiguration: function (onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "api/configuration",
+      null,
+      null,
+      function (response) {
+        var data = JSON.parse(response);
+        var configuration = {
+          readSessionsEnabled: data.read_sessions_enabled,
+          importResultsEnabled: data.import_results_enabled,
+          reportsEnabled: data.reports_enabled,
+        };
+        onSuccess(configuration);
+      },
       onError
     );
   },

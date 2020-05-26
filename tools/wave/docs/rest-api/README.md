@@ -45,9 +45,7 @@ use these endpoints in context.
 | [`create`](./results-api/create.md)                                      | Create a new test result for a test in a session.                               |
 | [`read`](./results-api/read.md)                                          | Read all test results of a session.                                             |
 | [`read compact`](./results-api/read-compact.md)                          | Read the number of passed, failed, timed out and not run tests of a session.    |
-| [`config`](./results-api/config.md)                                      | Read what features of the results API are enabled.                              |
 | [`import`](./results-api/import.md)                                      | Import session results.                                                         |
-| [`import enabled`](./results-api/import.md#2-import-enabled)             | Check whether or not the import feature is enabled.                             |
 | [`download`](./results-api/download.md#1-download)                       | Download all session results to import into other WMATS instance.               |
 | [`download api`](./results-api/download.md#2-download-api)               | Download all results of an API.                                                 |
 | [`download all apis`](./results-api/download.md#3-download-all-apis)     | Download all results of all APIs.                                               |
@@ -68,3 +66,9 @@ use these endpoints in context.
 | [`send event`](./devices-api/send-event.md)                          | Sends a device specific event.         |
 | [`register global event listener`](./devices-api/register-global.md) | Register for a global device event.    |
 | [`send global event`](./devices-api/send-global-event.md)            | Sends a global device event.           |
+
+## General API <a name="general-api"></a>
+
+| Name                                              | Description                                          |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| [`configuration`](./general-api/configuration.md) | Returns information on how the server is configured. |

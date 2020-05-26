@@ -2,13 +2,11 @@
 
 If enabled, the WMAS Test Suite can import results exported by any arbitrary other instance.
 
-## 1. `import`
+## HTTP Request
 
-Import a session's results from a ZIP file.
-
-### HTTP Request
-
-`POST /api/results/import`
+```
+POST /api/results/import
+```
 
 ### HTTP Response
 
@@ -25,21 +23,5 @@ However, if an error occured, the server responds the error message:
 ```json
 {
   "error": "String"
-}
-```
-
-## 2. `import enabled`
-
-To check whether or not the import features is enabled, the `import enabled` method returns the state as JSON.
-
-### HTTP Request
-
-`GET /api/results/import`
-
-### Response
-
-```json
-{
-  "enabled": "Boolean"
 }
 ```
