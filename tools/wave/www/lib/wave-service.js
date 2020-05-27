@@ -542,6 +542,26 @@ var WaveService = {
       onError
     );
   },
+  readDevice: function (token, onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "api/devices/" + token,
+      null,
+      null,
+      function (response) {
+        if (!onSuccess) return;
+        var data = JSON.parse(response);
+        onSuccess(data);
+      },
+      function (error) {
+        if (!onError) return;
+        onError(error);
+      }
+    );
+  },
+  DEVICE_ADDED_EVENT: "device_added",
+  DEVICE_REMOVED_EVENT: "device_removed",
+  START_SESSION: "start_session",
   addDeviceEventListener: function (token, callback) {
     var listeners = WaveService._deviceEventListeners;
     if (!listeners[token]) listeners[token] = [];
