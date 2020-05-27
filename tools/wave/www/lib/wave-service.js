@@ -666,10 +666,10 @@ var WaveService = {
 
   // GENERAL API
 
-  readConfiguration: function (onSuccess, onError) {
+  readStatus: function (onSuccess, onError) {
     sendRequest(
       "GET",
-      "api/configuration",
+      "api/status",
       null,
       null,
       function (response) {
@@ -678,6 +678,7 @@ var WaveService = {
           readSessionsEnabled: data.read_sessions_enabled,
           importResultsEnabled: data.import_results_enabled,
           reportsEnabled: data.reports_enabled,
+          versionString: data.version_string,
         };
         onSuccess(configuration);
       },

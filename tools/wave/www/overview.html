@@ -128,7 +128,7 @@
               })
             );
           });
-          WaveService.readConfiguration(function(config) {
+          WaveService.readStatus(function(config) {
             resultsUi.state.importResultsEnabled = config.importResultsEnabled;
             resultsUi.state.reportsEnabled = config.reportsEnabled;
             resultsUi.renderManageSessions();

@@ -41,7 +41,7 @@
           addLabelVisible: false,
         },
         refreshData: (toUpdate) => {
-          WaveService.readConfiguration(function (config) {
+          WaveService.readStatus(function (config) {
             resultUi.state.reportsEnabled = config.reportsEnabled;
             resultUi.renderApiResults();
           });
