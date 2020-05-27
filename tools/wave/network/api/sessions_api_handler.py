@@ -98,17 +98,20 @@ class SessionsApiHandler(ApiHandler):
 
             data = serialize_session(session)
 
-            del data["pending_tests"]
-            del data["running_tests"]
-            del data["malfunctioning_tests"]
-            del data["test_state"]
-            del data["date_started"]
-            del data["date_finished"]
-            del data["status"]
-
             return {
                 "format": "application/json",
-                "data": data
+                "data": {
+                    "token": data["token"],
+                    "tests": data["tests"],
+                    "types": data["types"],
+                    "timeouts": data["timeouts"],
+                    "reference_tokens": data["reference_tokens"],
+                    "user_agent": data["user_agent"],
+                    "browser": data["browser"],
+                    "is_public": data["is_public"],
+                    "date_created": data["date_created"],
+                    "labels": data["labels"]
+                }
             }
         except Exception:
             self.handle_exception("Failed to read session")
@@ -177,23 +180,15 @@ class SessionsApiHandler(ApiHandler):
 
             data = serialize_session(session)
 
-            del data["tests"]
-            del data["pending_tests"]
-            del data["running_tests"]
-            del data["malfunctioning_tests"]
-            del data["types"]
-            del data["test_state"]
-            del data["last_completed_test"]
-            del data["user_agent"]
-            del data["timeouts"]
-            del data["browser"]
-            del data["is_public"]
-            del data["reference_tokens"]
-            del data["webhook_urls"]
-
             return {
                 "format": "application/json",
-                "data": data
+                "data": {
+                    "token": data["token"],
+                    "status": data["status"],
+                    "date_started": data["date_started"],
+                    "date_finished": data["date_finished"],
+                    "expiration_date": data["expiration_date"]
+                }
             }
         except Exception:
             self.handle_exception("Failed to read session status")

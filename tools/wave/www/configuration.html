@@ -116,6 +116,7 @@
 										configurationUi.openResultsPage(token);
 										return;
 									}
+                  configurationUi.state.status = status;
 
 									WaveService.readSession(token, function(configuration) {
 										if (
@@ -130,7 +131,7 @@
 										configurationUi.state.configuration = configuration;
 										setTimeout(
 											configurationUi.handleExpiration,
-											configuration.expirationDate - Date.now()
+											status.expirationDate.getTime() - Date.now()
 										);
 										configurationUi.renderSessionConfiguration();
 									});
@@ -443,6 +444,7 @@
         },
         renderSessionConfiguration: function() {
           var configuration = configurationUi.state.configuration;
+          var status = configurationUi.state.status;
           var sessionConfigurationView = UI.createElement({});
           var sessionConfiguration = UI.getElement("session-configuration");
           sessionConfiguration.innerHTML = "";
@@ -525,9 +527,7 @@
                   className: "field",
                   children: {
                     className: "control",
-                    text: new Date(
-                      configuration.expirationDate
-                    ).toLocaleString()
+                    text: status.expirationDate.toLocaleString()
                   }
                 }
               }

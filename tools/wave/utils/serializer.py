@@ -16,13 +16,13 @@ def serialize_session(session):
         "running_tests": session.running_tests,
         "status": session.status,
         "browser": session.browser,
-        "date_created": session.date_created,
-        "date_started": session.date_started,
-        "date_finished": session.date_finished,
+        "date_created": millis_to_iso(session.date_created),
+        "date_started": millis_to_iso(session.date_started),
+        "date_finished": millis_to_iso(session.date_finished),
         "is_public": session.is_public,
         "reference_tokens": session.reference_tokens,
         "webhook_urls": session.webhook_urls,
-        "expiration_date": session.expiration_date,
+        "expiration_date": millis_to_iso(session.expiration_date),
         "type": session.type,
         "malfunctioning_tests": session.malfunctioning_tests
     }
@@ -38,5 +38,10 @@ def serialize_device(device):
         "token": device.token,
         "user_agent": device.user_agent,
         "name": device.name,
-        "last_active": datetime.utcfromtimestamp(device.last_active/1000).isoformat()
+        "last_active": millis_to_iso(device.last_active)
     }
+
+def millis_to_iso(millis):
+    if millis is None:
+        return None
+    return datetime.utcfromtimestamp(millis/1000.0).isoformat() + "+00:00"

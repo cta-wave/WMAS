@@ -529,7 +529,7 @@
             if (!state.durationInterval)
               state.durationInterval = setInterval(() => {
                 UI.getElement("duration").innerHTML = utils.millisToTimeString(
-                  Date.now() - parseInt(status.dateStarted)
+                  Date.now() - status.dateStarted.getTime()
                 );
               }, 1000);
           }
@@ -806,9 +806,9 @@
                       id: "duration",
                       text: utils.millisToTimeString(
                         status.dateFinished
-                          ? parseInt(status.dateFinished) -
-                              parseInt(status.dateStarted)
-                          : Date.now() - parseInt(status.dateStarted)
+                          ? status.dateFinished.getTime() -
+                              status.dateStarted.getTime()
+                          : Date.now() - status.dateStarted.getTime()
                       ),
                     },
                   },
