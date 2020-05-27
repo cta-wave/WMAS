@@ -70,6 +70,6 @@ use these endpoints in context.
 
 ## General API <a name="general-api"></a>
 
-| Name                                              | Description                                          |
-| ------------------------------------------------- | ---------------------------------------------------- |
-| [`configuration`](./general-api/configuration.md) | Returns information on how the server is configured. |
+| Name                                | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| [`status`](./general-api/status.md) | Returns information on how the server is configured. |

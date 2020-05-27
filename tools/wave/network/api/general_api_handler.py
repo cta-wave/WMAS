@@ -12,18 +12,21 @@ class GeneralApiHandler(ApiHandler):
         web_root,
         read_sessions_enabled,
         import_results_enabled,
-        reports_enabled
+        reports_enabled,
+        version_string
     ):
         super(GeneralApiHandler, self).__init__(web_root)
         self.read_sessions_enabled = read_sessions_enabled
         self.import_results_enabled = import_results_enabled
         self.reports_enabled = reports_enabled
+        self.version_string = version_string
 
-    def read_configuration(self):
+    def read_status(self):
         try:
             return {
                 "format": "application/json",
                 "data": {
+                    "version_string": self.version_string,
                     "read_sessions_enabled": self.read_sessions_enabled,
                     "import_results_enabled": self.import_results_enabled,
                     "reports_enabled": self.reports_enabled
@@ -42,8 +45,8 @@ class GeneralApiHandler(ApiHandler):
         if len(uri_parts) == 2:
             function = uri_parts[1]
             if method == "GET":
-                if function == "configuration":
-                    result = self.read_configuration()
+                if function == "status":
+                    result = self.read_status()
 
         if result is None:
             response.status = 404

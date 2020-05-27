@@ -19,6 +19,8 @@ from .testing.devices_manager import DevicesManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
+VERSION_STRING = "v2.0.0"
+
 
 class WaveServer(object):
     def initialize(self,
@@ -119,7 +121,8 @@ class WaveServer(object):
             web_root=configuration["web_root"],
             read_sessions_enabled=configuration["read_sessions_enabled"],
             import_results_enabled=configuration["import_results_enabled"],
-            reports_enabled=reports_enabled
+            reports_enabled=reports_enabled,
+            version_string=VERSION_STRING
         )
 
         # Initialize HTTP server

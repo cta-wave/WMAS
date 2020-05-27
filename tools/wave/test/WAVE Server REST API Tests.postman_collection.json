@@ -9116,6 +9116,67 @@
 				}
 			],
 			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "General API",
+			"item": [
+				{
+					"name": "server status",
+					"item": [
+						{
+							"name": "Read server status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "8b5b4c23-db0a-4b81-9349-ce8ead64bb7a",
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"",
+											"pm.test(\"JSON structure is as expected\", function () {",
+											"    pm.expect(jsonData).to.have.property(\"import_results_enabled\");",
+											"    pm.expect(typeof jsonData.import_results_enabled).to.equal(\"boolean\");",
+											"    pm.expect(jsonData).to.have.property(\"reports_enabled\");",
+											"    pm.expect(typeof jsonData.reports_enabled).to.equal(\"boolean\");",
+											"    pm.expect(jsonData).to.have.property(\"read_sessions_enabled\");",
+											"    pm.expect(typeof jsonData.read_sessions_enabled).to.equal(\"boolean\");",
+											"    pm.expect(jsonData).to.have.property(\"version_string\");",
+											"    pm.expect(typeof jsonData.version_string).to.equal(\"string\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{protocol}}://{{host}}:{{port}}/{{web_root}}/api/status",
+									"protocol": "{{protocol}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"{{web_root}}",
+										"api",
+										"status"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"protocolProfileBehavior": {}
