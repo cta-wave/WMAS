@@ -3,7 +3,7 @@
 // This polyfill library implements the WebXR Test API as specified here:
 // https://github.com/immersive-web/webxr-test-api
 
-
+// The standingTransform is floor_from_mojo and represented as such here.
 const default_standing = new gfx.mojom.Transform();
 default_standing.matrix = [1, 0, 0, 0,
                            0, 1, 0, 0,
@@ -201,9 +201,115 @@ class MockVRService {
   }
 }
 
+class FakeXRAnchorController {
+  constructor() {
+    // Private properties.
+    this.device_ = null;
+    this.id_ = null;
+    this.dirty_ = true;
+
+    // Properties backing up public attributes / methods.
+    this.deleted_ = false;
+    this.paused_ = false;
+    this.anchorOrigin_ = XRMathHelper.identity();
+  }
+
+  get deleted() {
+    return this.deleted_;
+  }
+
+  pauseTracking() {
+    if(!this.paused_) {
+      this.paused_ = true;
+      this.dirty_ = true;
+    }
+  }
+
+  resumeTracking() {
+    if(this.paused_) {
+      this.paused_ = false;
+      this.dirty_ = true;
+    }
+  }
+
+  stopTracking() {
+    if(!this.deleted_) {
+      this.device_.deleteAnchorController(this.id_);
+
+      this.deleted_ = true;
+      this.dirty_ = true;
+    }
+  }
+
+  setAnchorOrigin(anchorOrigin) {
+    this.anchorOrigin_ = getMatrixFromTransform(anchorOrigin);
+    this.dirty_ = true;
+  }
+
+  // Internal implementation:
+  set id(value) {
+    this.id_ = value;
+  }
+
+  set device(value) {
+    this.device_ = value;
+  }
+
+  get dirty() {
+    return this.dirty_;
+  }
+
+  markProcessed() {
+    this.dirty_ = false;
+  }
+
+  getAnchorOrigin() {
+    return this.anchorOrigin_;
+  }
+}
+
+class FakeXRAnchorCreationEvent extends Event {
+  constructor(type, eventInitDict) {
+    super(type, eventInitDict);
+
+    this.success_ = false;
+    this.requestedAnchorOrigin_ = {};
+    this.isAttachedToEntity_ = false;
+    this.anchorController_ = new FakeXRAnchorController();
+
+    if(eventInitDict.requestedAnchorOrigin != null) {
+      this.requestedAnchorOrigin_ = eventInitDict.requestedAnchorOrigin;
+    }
+
+    if(eventInitDict.isAttachedToEntity != null) {
+      this.isAttachedToEntity_ = eventInitDict.isAttachedToEntity;
+    }
+  }
+
+  get requestedAnchorOrigin() {
+    return this.requestedAnchorOrigin_;
+  }
+
+  get isAttachedToEntity() {
+    return this.isAttachedToEntity_;
+  }
+
+  get success() {
+    return this.success_;
+  }
+
+  set success(value) {
+    this.success_ = value;
+  }
+
+  get anchorController() {
+    return this.anchorController_;
+  }
+}
+
 // Implements XRFrameDataProvider and XRPresentationProvider. Maintains a mock
-// for XRPresentationProvider.
-class MockRuntime {
+// for XRPresentationProvider. Implements FakeXRDevice test API.
+class MockRuntime extends EventTarget {
   // Mapping from string feature names to the corresponding mojo types.
   // This is exposed as a member for extensibility.
   static featureToMojoMap = {
@@ -215,6 +321,7 @@ class MockRuntime {
     'hit-test': device.mojom.XRSessionFeature.HIT_TEST,
     'dom-overlay': device.mojom.XRSessionFeature.DOM_OVERLAY,
     'light-estimation': device.mojom.XRSessionFeature.LIGHT_ESTIMATION,
+    'anchors': device.mojom.XRSessionFeature.ANCHORS,
   };
 
   static sessionModeToMojoMap = {
@@ -224,6 +331,8 @@ class MockRuntime {
   };
 
   constructor(fakeDeviceInit, service) {
+    super();
+
     this.sessionClient_ = new device.mojom.XRSessionClientPtr();
     this.presentation_provider_ = new MockXRPresentationProvider();
 
@@ -247,6 +356,10 @@ class MockRuntime {
     this.transientHitTestSubscriptions_ = new Map();
     // ID of the next subscription to be assigned.
     this.next_hit_test_id_ = 1;
+
+    this.anchor_controllers_ = new Map();
+    // ID of the next anchor to be assigned.
+    this.next_anchor_id_ = 1;
 
     let supportedModes = [];
     if (fakeDeviceInit.supportedModes) {
@@ -409,8 +522,11 @@ class MockRuntime {
     }
 
     this.stageParameters_.standingTransform = new gfx.mojom.Transform();
+
+    // floorOrigin is passed in as mojoFromFloor; however, standingTransform is
+    // floorFromMojo so we need to invert the result of |getMatrixFromTransform|
     this.stageParameters_.standingTransform.matrix =
-      getMatrixFromTransform(floorOrigin);
+      XRMathHelper.inverse(getMatrixFromTransform(floorOrigin));
 
     this.onStageParametersUpdated();
   }
@@ -568,6 +684,11 @@ class MockRuntime {
     this.input_sources_.delete(source.source_id_);
   }
 
+  // These methods are intended to be used by FakeXRAnchorController only.
+  deleteAnchorController(controllerId) {
+    this.anchor_controllers_.delete(controllerId);
+  }
+
   // Extension point for non-standard modules.
 
   _injectAdditionalFrameData(options, frameData) {
@@ -620,6 +741,8 @@ class MockRuntime {
 
     this._calculateHitTestResults(frameData);
 
+    this._calculateAnchorInformation(frameData);
+
     this._injectAdditionalFrameData(options, frameData);
 
     return Promise.resolve({
@@ -659,25 +782,7 @@ class MockRuntime {
       });
     }
 
-    if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.inputSourceId) {
-      if (!this.input_sources_.has(nativeOriginInformation.inputSourceId)) {
-        // Reject - unknown input source ID.
-        return Promise.resolve({
-          result : device.mojom.SubscribeToHitTestResult.FAILURE_GENERIC,
-          subscriptionId : 0
-        });
-      }
-    } else if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.referenceSpaceCategory) {
-      // Bounded_floor & unbounded ref spaces are not yet supported for AR:
-      if (nativeOriginInformation.referenceSpaceCategory == device.mojom.XRReferenceSpaceCategory.UNBOUNDED
-       || nativeOriginInformation.referenceSpaceCategory == device.mojom.XRReferenceSpaceCategory.BOUNDED_FLOOR) {
-        return Promise.resolve({
-          result : device.mojom.SubscribeToHitTestResult.FAILURE_GENERIC,
-          subscriptionId : 0
-        });
-      }
-    } else {
-      // Planes and anchors are not yet supported by the mock interface.
+    if (!this._nativeOriginKnown(nativeOriginInformation)) {
       return Promise.resolve({
         result : device.mojom.SubscribeToHitTestResult.FAILURE_GENERIC,
         subscriptionId : 0
@@ -710,6 +815,65 @@ class MockRuntime {
     return Promise.resolve({
       result : device.mojom.SubscribeToHitTestResult.SUCCESS,
       subscriptionId : id
+    });
+  }
+
+  createAnchor(nativeOriginInformation, nativeOriginFromAnchor) {
+    return new Promise((resolve) => {
+      const mojoFromNativeOrigin = this._getMojoFromNativeOrigin(nativeOriginInformation);
+      if(mojoFromNativeOrigin == null) {
+        resolve({
+          result : device.mojom.CreateAnchorResult.FAILURE,
+          anchorId : 0
+        });
+
+        return;
+      }
+
+      const mojoFromAnchor = XRMathHelper.mul4x4(mojoFromNativeOrigin, nativeOriginFromAnchor);
+
+      const createAnchorEvent = new FakeXRAnchorCreationEvent("anchorcreate", {
+        requestedAnchorOrigin: mojoFromAnchor,
+        isAttachedToEntity: false,
+      });
+
+      this.dispatchEvent(createAnchorEvent);
+
+      if(createAnchorEvent.success) {
+        let anchor_controller = createAnchorEvent.anchorController;
+        const anchor_id = this.next_anchor_id_;
+        this.next_anchor_id_++;
+
+        // If the test allowed the anchor creation,
+        // store the anchor controller & return success.
+        this.anchor_controllers_.set(anchor_id, anchor_controller);
+        anchor_controller.device = this;
+        anchor_controller.id = anchor_id;
+
+        resolve({
+          result : device.mojom.CreateAnchorResult.SUCCESS,
+          anchorId : anchor_id
+        });
+
+        return;
+      }
+
+      resolve({
+        result : device.mojom.CreateAnchorResult.FAILURE,
+        anchorId : 0
+      });
+    });
+  }
+
+  createPlaneAnchor(planeFromAnchor, planeId) {
+    return new Promise((resolve) => {
+
+      // Not supported yet.
+
+      resolve({
+        result : device.mojom.CreateAnchorResult.FAILURE,
+        anchorId : 0
+      });
     });
   }
 
@@ -774,6 +938,61 @@ class MockRuntime {
     });
   }
 
+  // Private functions - utilities:
+  _nativeOriginKnown(nativeOriginInformation){
+
+    if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.inputSourceId) {
+      if (!this.input_sources_.has(nativeOriginInformation.inputSourceId)) {
+        // Unknown input source.
+        return false;
+      }
+
+      return true;
+    } else if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.referenceSpaceCategory) {
+      // Bounded_floor & unbounded ref spaces are not yet supported for AR:
+      if (nativeOriginInformation.referenceSpaceCategory == device.mojom.XRReferenceSpaceCategory.UNBOUNDED
+       || nativeOriginInformation.referenceSpaceCategory == device.mojom.XRReferenceSpaceCategory.BOUNDED_FLOOR) {
+        return false;
+      }
+
+      return true;
+    } else {
+      // Planes and anchors are not yet supported by the mock interface.
+      return false;
+    }
+  }
+
+  // Private functions - anchors implementation:
+
+  // Modifies passed in frameData to add anchor information.
+  _calculateAnchorInformation(frameData) {
+    if (!this.supportedModes_.includes(device.mojom.XRSessionMode.kImmersiveAr)) {
+      return;
+    }
+
+    frameData.anchorsData = new device.mojom.XRAnchorsData();
+    frameData.anchorsData.allAnchorsIds = [];
+    frameData.anchorsData.updatedAnchorsData = [];
+
+    for(const [id, controller] of this.anchor_controllers_) {
+      frameData.anchorsData.allAnchorsIds.push(id);
+
+      // Send the entire anchor data over if there was a change since last GetFrameData().
+      if(controller.dirty) {
+        const anchorData = new device.mojom.XRAnchorData();
+        anchorData.id = id;
+        if(!controller.paused) {
+          anchorData.pose = XRMathHelper.decomposeRigidTransform(
+            controller.getAnchorOrigin());
+        }
+
+        controller.markProcessed();
+
+        frameData.anchorsData.updatedAnchorsData.push(anchorData);
+      }
+    }
+  }
+
   // Private functions - hit test implementation:
 
   // Modifies passed in frameData to add hit test results.
@@ -822,7 +1041,7 @@ class MockRuntime {
                                                         .filter(input_source => input_source.profiles_.includes(subscription.profileName));
 
       for (const input_source of matching_input_sources) {
-        const mojo_from_native_origin = this._getMojoFromInputSource(mojo_from_viewer, input_source);
+        const mojo_from_native_origin = input_source._getMojoFromInputSource(mojo_from_viewer);
 
         const [mojo_ray_origin, mojo_ray_direction] = this._transformRayToMojoSpace(
           subscription.ray,
@@ -1011,29 +1230,6 @@ class MockRuntime {
     }
   }
 
-  _getMojoFromInputSource(mojo_from_viewer, input_source) {
-    if (input_source.target_ray_mode_ === 'gaze') {  // XRTargetRayMode::GAZING
-      // If the pointer origin is gaze, then the result is
-      // just mojo_from_viewer.
-      return mojo_from_viewer;
-    } else if (input_source.target_ray_mode_ === 'tracked-pointer') {  // XRTargetRayMode:::POINTING
-      // If the pointer origin is tracked-pointer, the result is just
-      // mojo_from_input*input_from_pointer.
-      return XRMathHelper.mul4x4(
-        input_source.mojo_from_input_.matrix,
-        input_source.input_from_pointer_.matrix);
-    } else if (input_source.target_ray_mode_ === 'screen') { // XRTargetRayMode::TAPPING
-      // If the pointer origin is screen, the input_from_pointer is
-      // equivalent to viewer_from_pointer and the result is
-      // mojo_from_viewer*viewer_from_pointer.
-      return XRMathHelper.mul4x4(
-        mojo_from_viewer,
-        input_source.input_from_pointer_.matrix);
-    } else {
-      return null;
-    }
-  }
-
   _getMojoFromViewer() {
     const transform = {
       position: [
@@ -1051,15 +1247,6 @@ class MockRuntime {
   }
 
   _getMojoFromNativeOrigin(nativeOriginInformation) {
-    const identity = function() {
-      return [
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-      ];
-    };
-
     const mojo_from_viewer = this._getMojoFromViewer();
 
     if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.inputSourceId) {
@@ -1067,12 +1254,12 @@ class MockRuntime {
         return null;
       } else {
         const inputSource = this.input_sources_.get(nativeOriginInformation.inputSourceId);
-        return this._getMojoFromInputSource(mojo_from_viewer, inputSource);
+        return inputSource._getMojoFromInputSource(mojo_from_viewer);
       }
     } else if (nativeOriginInformation.$tag == device.mojom.XRNativeOriginInformation.Tags.referenceSpaceCategory) {
       switch (nativeOriginInformation.referenceSpaceCategory) {
         case device.mojom.XRReferenceSpaceCategory.LOCAL:
-          return identity();
+          return XRMathHelper.identity();
         case device.mojom.XRReferenceSpaceCategory.LOCAL_FLOOR:
           if (this.stageParameters_ == null || this.stageParameters_.standingTransform == null) {
             console.warn("Standing transform not available.");
@@ -1163,9 +1350,14 @@ class MockXRInputSource {
 
   setGripOrigin(transform, emulatedPosition = false) {
     // grip_origin was renamed to mojo_from_input in mojo
-    this.mojo_from_input_ = new gfx.mojom.Transform();
-    this.mojo_from_input_.matrix = getMatrixFromTransform(transform);
+    this.mojo_from_input_ = composeGFXTransform(transform);
     this.emulated_position_ = emulatedPosition;
+
+    // Technically, setting the grip shouldn't make the description dirty, but
+    // the webxr-test-api sets our pointer as mojoFromPointer; however, we only
+    // support it across mojom as inputFromPointer, so we need to recalculate it
+    // whenever the grip moves.
+    this.desc_dirty_ = true;
   }
 
   clearGripOrigin() {
@@ -1173,14 +1365,14 @@ class MockXRInputSource {
     if (this.mojo_from_input_ != null) {
       this.mojo_from_input_ = null;
       this.emulated_position_ = false;
+      this.desc_dirty_ = true;
     }
   }
 
   setPointerOrigin(transform, emulatedPosition = false) {
-    // pointer_origin was renamed to input_from_pointer in mojo
+    // pointer_origin is mojo_from_pointer.
     this.desc_dirty_ = true;
-    this.input_from_pointer_ = new gfx.mojom.Transform();
-    this.input_from_pointer_.matrix = getMatrixFromTransform(transform);
+    this.mojo_from_pointer_ = composeGFXTransform(transform);
     this.emulated_position_ = emulatedPosition;
   }
 
@@ -1359,7 +1551,39 @@ class MockXRInputSource {
           break;
       }
 
-      input_desc.inputFromPointer = this.input_from_pointer_;
+      // Mojo requires us to send the pointerOrigin as relative to the grip
+      // space. If we don't have a grip space, we'll just assume that there
+      // is a grip at identity. This allows tests to simulate controllers that
+      // are really just a pointer with no tracked grip, though we will end up
+      // exposing that grip space.
+      let mojo_from_input = XRMathHelper.identity();
+      switch (this.target_ray_mode_) {
+        case 'gaze':
+        case 'screen':
+          // For gaze and screen space, we won't have a mojo_from_input; however
+          // the "input" position is just the viewer, so use mojo_from_viewer.
+          mojo_from_input = this.pairedDevice_._getMojoFromViewer();
+          break;
+        case 'tracked-pointer':
+          // If we have a tracked grip position (e.g. mojo_from_input), then use
+          // that. If we don't, then we'll just set the pointer offset directly,
+          // using identity as set above.
+          if (this.mojo_from_input_) {
+            mojo_from_input = this.mojo_from_input_.matrix;
+          }
+          break;
+        default:
+          throw new Error('Unhandled target ray mode ' + this.target_ray_mode_);
+      }
+
+      // To convert mojo_from_pointer to input_from_pointer, we need:
+      // input_from_pointer = input_from_mojo * mojo_from_pointer
+      // Since we store mojo_from_input, we need to invert it here before
+      // multiplying.
+      let input_from_mojo = XRMathHelper.inverse(mojo_from_input);
+      input_desc.inputFromPointer = new gfx.mojom.Transform();
+      input_desc.inputFromPointer.matrix =
+        XRMathHelper.mul4x4(input_from_mojo, this.mojo_from_pointer_.matrix);
 
       input_desc.profiles = this.profiles_;
 
@@ -1464,6 +1688,10 @@ class MockXRInputSource {
         return -1;
     }
   }
+
+  _getMojoFromInputSource(mojo_from_viewer) {
+    return this.mojo_from_pointer_.matrix;
+  }
 }
 
 // Mojo helper classes
@@ -1515,21 +1743,4 @@ class MockXRPresentationProvider {
   }
 }
 
-// This is a temporary workaround for the fact that spinning up webxr before
-// the mojo interceptors are created will cause the interceptors to not get
-// registered, so we have to create this before we query xr;
-const XRTest = new ChromeXRTest();
-
-// This test API is also used to run Chrome's internal legacy VR tests; however,
-// those fail if navigator.xr has been used. Those tests will set a bool telling
-// us not to try to check navigator.xr
-if ((typeof legacy_vr_test === 'undefined') || !legacy_vr_test) {
-  // Some tests may run in the http context where navigator.xr isn't exposed
-  // This should just be to test that it isn't exposed, but don't try to set up
-  // the test framework in this case.
-  if (navigator.xr) {
-    navigator.xr.test = XRTest;
-  }
-} else {
-  navigator.vr = { test: XRTest };
-}
+navigator.xr.test = new ChromeXRTest();

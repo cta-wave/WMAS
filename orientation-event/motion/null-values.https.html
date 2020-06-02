@@ -25,15 +25,15 @@ sensor_test(async (t, sensorProvider) => {
                                          null, null, null);
 
   setMockMotionData(sensorProvider, motionData1);
-  await waitForMotion(motionData1);
+  await waitForEvent(getExpectedMotionEvent(motionData1));
 
   setMockMotionData(sensorProvider, motionData2);
-  await waitForMotion(motionData2);
+  await waitForEvent(getExpectedMotionEvent(motionData2));
 
   setMockMotionData(sensorProvider, motionData3);
-  await waitForMotion(motionData3);
+  await waitForEvent(getExpectedMotionEvent(motionData3));
 
   setMockMotionData(sensorProvider, motionData4);
-  return waitForMotion(motionData4);
+  await waitForEvent(getExpectedMotionEvent(motionData4));
 }, 'Tests using null values for some or all of the event properties.');
 </script>

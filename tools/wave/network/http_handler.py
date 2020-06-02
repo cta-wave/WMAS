@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
-import httplib
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
 import sys
 import logging
 import traceback
@@ -24,7 +27,6 @@ class HttpHandler(object):
         self.sessions_api_handler = sessions_api_handler
         self.tests_api_handler = tests_api_handler
         self.results_api_handler = results_api_handler
-        self.devices_api_handler = devices_api_handler
         self.general_api_handler = general_api_handler
         self._http_port = http_port
         self._web_root = web_root

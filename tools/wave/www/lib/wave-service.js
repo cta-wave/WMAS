@@ -665,7 +665,6 @@ var WaveService = {
   },
 
   // GENERAL API
-
   readStatus: function (onSuccess, onError) {
     sendRequest(
       "GET",

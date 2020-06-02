@@ -14,6 +14,6 @@ sensor_test(async (t, sensorProvider) => {
   // the absolute one.
   sensorProvider.setGetSensorShouldFail('RelativeOrientationEulerAngles', true);
   setMockOrientationData(sensorProvider, orientationData);
-  return waitForOrientation(orientationData);
+  return waitForEvent(getExpectedAbsoluteOrientationEvent(orientationData));
 }, 'Tests that deviceorientation falls back to using absolute orientation data if relative is unavailable.');
 </script>

@@ -51,12 +51,13 @@ async function initialize_generic_sensor_tests() {
 
 function sensor_test(func, name, properties) {
   promise_test(async (t) => {
+    t.add_cleanup(() => {
+      if (sensorTest)
+        return sensorTest.reset();
+    });
+
     let sensorTest = await initialize_generic_sensor_tests();
-    try {
-      await func(t, sensorTest.getSensorProvider());
-    } finally {
-      await sensorTest.reset();
-    };
+    return func(t, sensorTest.getSensorProvider());
   }, name, properties);
 }
 
@@ -91,7 +92,15 @@ function generateOrientationData(alpha, beta, gamma, absolute) {
 
 async function setMockSensorDataForType(sensorProvider, sensorType, mockDataArray) {
   const createdSensor = await sensorProvider.getCreatedSensor(sensorType);
-  return createdSensor.setSensorReading([mockDataArray]);
+  // We call setSensorReadingAndUpdateSharedBuffer() rather than
+  // setSensorReading() to accommodate Blink's Device Orientation
+  // implementation, which uses its own timer to read the sensor's shared
+  // memory buffer rather than relying on SensorReadingChanged(). This timer
+  // may fire out of sync with the JS timer in MockSensor.startReading(), so
+  // the former might read the shared memory buffer before the latter has
+  // updated |this.buffer_|. We thus immediately update the buffer here
+  // (without consuming data from the ring buffer).
+  return createdSensor.setSensorReadingImmediately([mockDataArray]);
 }
 
 // Device[Orientation|Motion]EventPump treat NaN as a missing value.
@@ -128,120 +137,67 @@ function setMockOrientationData(sensorProvider, orientationData) {
   ]);
 }
 
-function checkMotion(event, expectedMotionData) {
-  assert_equals(event.acceleration.x, expectedMotionData.accelerationX, "acceleration.x");
-  assert_equals(event.acceleration.y, expectedMotionData.accelerationY, "acceleration.y");
-  assert_equals(event.acceleration.z, expectedMotionData.accelerationZ, "acceleration.z");
-
-  assert_equals(event.accelerationIncludingGravity.x, expectedMotionData.accelerationIncludingGravityX, "accelerationIncludingGravity.x");
-  assert_equals(event.accelerationIncludingGravity.y, expectedMotionData.accelerationIncludingGravityY, "accelerationIncludingGravity.y");
-  assert_equals(event.accelerationIncludingGravity.z, expectedMotionData.accelerationIncludingGravityZ, "accelerationIncludingGravity.z");
-
-  assert_approx_equals(event.rotationRate.alpha, expectedMotionData.rotationRateAlpha, MOTION_ROTATION_EPSILON, "rotationRate.alpha");
-  assert_approx_equals(event.rotationRate.beta, expectedMotionData.rotationRateBeta, MOTION_ROTATION_EPSILON, "rotationRate.beta");
-  assert_approx_equals(event.rotationRate.gamma, expectedMotionData.rotationRateGamma, MOTION_ROTATION_EPSILON, "rotationRate.gamma");
-
-  assert_equals(event.interval, expectedMotionData.interval, "interval");
+function assertEventEquals(actualEvent, expectedEvent) {
+  for (let key1 of Object.keys(Object.getPrototypeOf(expectedEvent))) {
+    if (typeof expectedEvent[key1] === "object" && expectedEvent[key1] !== null) {
+      for (let key2 of Object.keys(expectedEvent[key1])) {
+        assert_equals(actualEvent[key1][key2], expectedEvent[key1][key2],
+            `$[key1].$[key2]`);
+      }
+    } else {
+      assert_equals(actualEvent[key1], expectedEvent[key1], key1);
+    }
+  }
 }
 
-function checkOrientation(event, expectedOrientationData) {
-  assert_equals(event.alpha, expectedOrientationData.alpha, "alpha");
-  assert_equals(event.beta, expectedOrientationData.beta, "beta");
-  assert_equals(event.gamma, expectedOrientationData.gamma, "gamma");
-
-  assert_equals(event.absolute, expectedOrientationData.absolute, "absolute");
-}
-
-// Returns a promise that will be resolved when an event equal to the given
-// event is fired.
-function waitForEvent(expectedEvent, targetWindow = window) {
-  const stringify = (thing, targetWindow) => {
-    if (thing instanceof targetWindow.Object && thing.constructor !== targetWindow.Object) {
-      let str = '{';
-      for (let key of Object.keys(Object.getPrototypeOf(thing))) {
-        str += JSON.stringify(key) + ': ' + stringify(thing[key], targetWindow) + ', ';
-      }
-      return str + '}';
-    } else if (thing instanceof Number) {
-      return thing.toFixed(6);
-    }
-    return JSON.stringify(thing);
-  };
-
-  return new Promise((resolve, reject) => {
-    let events = [];
-    let timeoutId = null;
-
-    const expectedEventString = stringify(expectedEvent, window);
-    function listener(event) {
-      const eventString = stringify(event, targetWindow);
-      if (eventString === expectedEventString) {
-        targetWindow.clearTimeout(timeoutId);
-        targetWindow.removeEventListener(expectedEvent.type, listener);
-        resolve();
-      } else {
-        events.push(eventString);
-      }
-    }
-    targetWindow.addEventListener(expectedEvent.type, listener);
-
-    timeoutId = targetWindow.setTimeout(() => {
-      targetWindow.removeEventListener(expectedEvent.type, listener);
-      let errorMessage = 'Timeout waiting for expected event: ' + expectedEventString;
-      if (events.length == 0) {
-        errorMessage += ', no events were fired';
-      } else {
-        errorMessage += ', received events: '
-        for (let event of events) {
-          errorMessage += event + ', ';
-        }
-      }
-      reject(errorMessage);
-    }, 500);
+function getExpectedOrientationEvent(expectedOrientationData) {
+  return new DeviceOrientationEvent('deviceorientation', {
+    alpha: expectedOrientationData.alpha,
+    beta: expectedOrientationData.beta,
+    gamma: expectedOrientationData.gamma,
+    absolute: expectedOrientationData.absolute,
   });
 }
 
-function waitForOrientation(expectedOrientationData, targetWindow = window) {
-  return waitForEvent(
-      new DeviceOrientationEvent('deviceorientation', {
-        alpha: expectedOrientationData.alpha,
-        beta: expectedOrientationData.beta,
-        gamma: expectedOrientationData.gamma,
-        absolute: expectedOrientationData.absolute,
-      }),
-      targetWindow);
+function getExpectedAbsoluteOrientationEvent(expectedOrientationData) {
+  return new DeviceOrientationEvent('deviceorientationabsolute', {
+    alpha: expectedOrientationData.alpha,
+    beta: expectedOrientationData.beta,
+    gamma: expectedOrientationData.gamma,
+    absolute: expectedOrientationData.absolute,
+  });
 }
 
-function waitForAbsoluteOrientation(expectedOrientationData, targetWindow = window) {
-  return waitForEvent(
-      new DeviceOrientationEvent('deviceorientationabsolute', {
-        alpha: expectedOrientationData.alpha,
-        beta: expectedOrientationData.beta,
-        gamma: expectedOrientationData.gamma,
-        absolute: expectedOrientationData.absolute,
-      }),
-      targetWindow);
+function getExpectedMotionEvent(expectedMotionData) {
+  return new DeviceMotionEvent('devicemotion', {
+    acceleration: {
+      x: expectedMotionData.accelerationX,
+      y: expectedMotionData.accelerationY,
+      z: expectedMotionData.accelerationZ,
+    },
+    accelerationIncludingGravity: {
+      x: expectedMotionData.accelerationIncludingGravityX,
+      y: expectedMotionData.accelerationIncludingGravityY,
+      z: expectedMotionData.accelerationIncludingGravityZ,
+    },
+    rotationRate: {
+      alpha: expectedMotionData.rotationRateAlpha,
+      beta: expectedMotionData.rotationRateBeta,
+      gamma: expectedMotionData.rotationRateGamma,
+    },
+    interval: expectedMotionData.interval,
+  });
 }
 
-function waitForMotion(expectedMotionData, targetWindow = window) {
-  return waitForEvent(
-      new DeviceMotionEvent('devicemotion', {
-        acceleration: {
-          x: expectedMotionData.accelerationX,
-          y: expectedMotionData.accelerationY,
-          z: expectedMotionData.accelerationZ,
-        },
-        accelerationIncludingGravity: {
-          x: expectedMotionData.accelerationIncludingGravityX,
-          y: expectedMotionData.accelerationIncludingGravityY,
-          z: expectedMotionData.accelerationIncludingGravityZ,
-        },
-        rotationRate: {
-          alpha: expectedMotionData.rotationRateAlpha,
-          beta: expectedMotionData.rotationRateBeta,
-          gamma: expectedMotionData.rotationRateGamma,
-        },
-        interval: expectedMotionData.interval,
-      }),
-      targetWindow);
+function waitForEvent(expected_event) {
+  return new Promise((resolve, reject) => {
+    window.addEventListener(expected_event.type, (event) => {
+      try {
+        assertEventEquals(event, expected_event);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    }, { once: true });
+  });
 }

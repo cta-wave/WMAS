@@ -53,7 +53,9 @@ class TestEnvironmentError(Exception):
 class TestEnvironment(object):
     """Context manager that owns the test environment i.e. the http and
     websockets servers"""
-    def __init__(self, test_paths, testharness_timeout_multipler, pause_after_test, debug_info, options, ssl_config, env_extras):
+    def __init__(self, test_paths, testharness_timeout_multipler,
+                 pause_after_test, debug_info, options, ssl_config, env_extras,
+                 enable_quic=False):
         self.test_paths = test_paths
         self.server = None
         self.config_ctx = None
@@ -69,6 +71,7 @@ class TestEnvironment(object):
         self.env_extras = env_extras
         self.env_extras_cms = None
         self.ssl_config = ssl_config
+        self.enable_quic = enable_quic
 
     def __enter__(self):
         self.config_ctx = self.build_config()
@@ -123,13 +126,16 @@ class TestEnvironment(object):
 
         config = serve.ConfigBuilder()
 
-        config.ports = {
+        ports = {
             "http": [8000, 8001],
             "https": [8443],
             "ws": [8888],
             "wss": [8889],
             "h2": [9000],
         }
+        if self.enable_quic:
+            ports["quic-transport"] = [10000]
+        config.ports = ports
 
         if os.path.exists(override_path):
             with open(override_path) as f:
@@ -233,6 +239,9 @@ class TestEnvironment(object):
 
         if not failed and self.test_server_port:
             for scheme, servers in iteritems(self.servers):
+                # TODO(Hexcles): Find a way to test QUIC's UDP port.
+                if scheme == "quic-transport":
+                    continue
                 for port, server in servers:
                     s = socket.socket()
                     s.settimeout(0.1)

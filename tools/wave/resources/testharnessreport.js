@@ -273,5 +273,4 @@ if (location.search && location.search.indexOf("token=") != -1) {
       setup(JSON.parse(JSON.stringify(window.opener.testharness_properties)));
     }
   } catch (e) {}
-  // vim: set expandtab shiftwidth=4 tabstop=4:
 }
