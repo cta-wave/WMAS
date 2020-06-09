@@ -19,7 +19,7 @@ from .testing.devices_manager import DevicesManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
-VERSION_STRING = "v2.0.1"
+VERSION_STRING = "v2.1.0"
 
 
 class WaveServer(object):
