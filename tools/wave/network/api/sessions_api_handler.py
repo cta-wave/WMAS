@@ -344,9 +344,14 @@ class SessionsApiHandler(ApiHandler):
             uri_parts = self.parse_uri(request)
             token = uri_parts[2]
 
+            query_parameters = self.parse_query_parameters(request)
+            last_event_number = None
+            if ("last_event" in query_parameters):
+                last_event_number = int(query_parameters["last_event"])
+
             event = threading.Event()
             http_polling_event_listener = HttpPollingEventListener(token, event)
-            event_listener_token = self._event_dispatcher.add_event_listener(http_polling_event_listener)
+            event_listener_token = self._event_dispatcher.add_event_listener(http_polling_event_listener, last_event_number)
 
             event.wait()
 

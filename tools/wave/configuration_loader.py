@@ -63,6 +63,10 @@ def load(configuration_file_path):
         "wave", default_configuration["wave"]).get(
         "persisting_interval", default_configuration["wave"]["persisting_interval"])
 
+    configuration["event_cache_duration"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "event_cache_duration", default_configuration["wave"]["event_cache_duration"])
+
     configuration["tests_directory_path"] = os.getcwd()
 
     configuration["manifest_file_path"] = os.path.join(

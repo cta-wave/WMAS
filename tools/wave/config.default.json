@@ -41,6 +41,7 @@
     "web_root": "/_wave",
     "persisting_interval": 20,
     "api_titles": [],
-    "enable_read_sessions": false
+    "enable_read_sessions": false,
+    "event_cache_duration": 60000
   }
 }
