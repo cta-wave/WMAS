@@ -1,5 +1,9 @@
 # Usage Guide - [WAVE Test Suite](../README.md)
 
+With WAVE Test Runner v1.0.0 all files and REST API endpoints are served under 
+a configurable namespace, by default `/_wave/`, which will be used in this 
+usage guide.
+
 ## Contents
 
 1. [Creating test sessions](#1-creating-test-sessions)
@@ -26,7 +30,7 @@ Each new session is configured using several parameters before the run starts.
 Every new session is created from the landing page.
 It is recommended to create a new session from the device that is tested, as the user agent is part of the displayed information, as well as the browser and version, which gets parsed from it.
 However, this does not influence the execution of tests or the creation of test results.  
-To create a new session, open the landing page on the URI path `/`.
+To create a new session, open the landing page on the URI path `/_wave/index.html`.
 
 ![landing_page]
 
@@ -132,7 +136,7 @@ To load the next test of a specific session, simply open the following URL:
 
 For example:
 
-`/next.html?token=24fcd360-ef4d-11e9-a95f-d6e1ad4c5fdb`
+`/_wave/next.html?token=24fcd360-ef4d-11e9-a95f-d6e1ad4c5fdb`
 
 [To the top](#usage-guide---wave-test-suite)
 
@@ -178,7 +182,7 @@ Remove tests by clicking their corresponding button with the trashcan icon.
 
 # 4. Managing test sessions
 
-The overview page provides features that help to manage and organize multiple sessions. You can access it from the URL `/overview.html`.
+The overview page provides features that help to manage and organize multiple sessions. You can access it from the URL `/_wave/overview.html`.
 
 ![overview_page]
 
