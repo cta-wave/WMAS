@@ -21,7 +21,6 @@ def serialize_session(session):
         "date_finished": millis_to_iso(session.date_finished),
         "is_public": session.is_public,
         "reference_tokens": session.reference_tokens,
-        "webhook_urls": session.webhook_urls,
         "expiration_date": millis_to_iso(session.expiration_date),
         "type": session.type,
         "malfunctioning_tests": session.malfunctioning_tests

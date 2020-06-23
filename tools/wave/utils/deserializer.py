@@ -72,9 +72,6 @@ def deserialize_session(session_dict):
     browser = None
     if "browser" in session_dict:
         browser = session_dict["browser"]
-    webhook_urls = []
-    if "webhook_urls" in session_dict:
-        webhook_urls = session_dict["webhook_urls"]
     expiration_date = None
     if "expiration_date" in session_dict:
         expiration_date = session_dict["expiration_date"]
@@ -104,7 +101,6 @@ def deserialize_session(session_dict):
         is_public=is_public,
         reference_tokens=reference_tokens,
         browser=browser,
-        webhook_urls=webhook_urls,
         expiration_date=expiration_date,
         type=type,
         malfunctioning_tests=malfunctioning_tests

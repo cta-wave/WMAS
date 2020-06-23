@@ -34,7 +34,6 @@ class Session(object):
             is_public=None,
             reference_tokens=None,
             browser=None,
-            webhook_urls=None,
             expiration_date=None,
             type=None,
             malfunctioning_tests=None
@@ -75,9 +74,6 @@ class Session(object):
             reference_tokens = []
         self.reference_tokens = reference_tokens
         self.browser = browser
-        if webhook_urls is None:
-            webhook_urls = []
-        self.webhook_urls = webhook_urls
         self.expiration_date = expiration_date
         if type is None:
             type = WMAS

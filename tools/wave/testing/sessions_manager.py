@@ -44,7 +44,6 @@ class SessionsManager(object):
         test_types=None,
         timeouts=None,
         reference_tokens=None,
-        webhook_urls=None,
         user_agent=None,
         labels=None,
         expiration_date=None,
@@ -56,8 +55,6 @@ class SessionsManager(object):
             timeouts = {}
         if reference_tokens is None:
             reference_tokens = []
-        if webhook_urls is None:
-            webhook_urls = []
         if user_agent is None:
             user_agent = ""
         if labels is None:
@@ -115,7 +112,6 @@ class SessionsManager(object):
             test_state=test_state,
             status=PENDING,
             reference_tokens=reference_tokens,
-            webhook_urls=webhook_urls,
             labels=labels,
             type=type,
             expiration_date=expiration_date,
@@ -182,7 +178,7 @@ class SessionsManager(object):
         self._push_to_cache(session)
 
     def update_session_configuration(
-        self, token, tests, test_types, timeouts, reference_tokens, webhook_urls, type
+        self, token, tests, test_types, timeouts, reference_tokens, type
     ):
         session = self.read_session(token)
         if session is None:
@@ -232,8 +228,6 @@ class SessionsManager(object):
             session.timeouts = timeouts
         if reference_tokens is not None:
             session.reference_tokens = reference_tokens
-        if webhook_urls is not None:
-            session.webhook_urls = webhook_urls
         if type is not None:
             session.type = type
 
