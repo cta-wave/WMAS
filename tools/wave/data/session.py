@@ -51,14 +51,8 @@ class Session(object):
         if labels is None:
             labels = []
         self.labels = labels
-        if tests is None:
-            tests = {}
         self.tests = tests
-        if pending_tests is None:
-            pending_tests = {}
         self.pending_tests = pending_tests
-        if running_tests is None:
-            running_tests = {}
         self.running_tests = running_tests
         if timeouts is None:
             timeouts = {}
@@ -66,8 +60,6 @@ class Session(object):
         if status is None:
             status = UNKNOWN
         self.status = status
-        if test_state is None:
-            test_state = {}
         self.test_state = test_state
         self.last_completed_test = last_completed_test
         if recent_completed_count is None:
