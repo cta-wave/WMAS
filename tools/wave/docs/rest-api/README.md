@@ -1,4 +1,4 @@
-# REST API - [WAVE Test Suite](../README.md)
+# REST API - [WAVE Test Runner](../README.md)
 
 The REST API allows the WAVE server to be integrated into other systems. Every
 call must be preceded with a namespace or web root, which is omitted in this

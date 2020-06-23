@@ -1,6 +1,6 @@
 # Import results - [Results API](../README.md#results-api)
 
-If enabled, the WMAS Test Suite can import results exported by any arbitrary other instance.
+If enabled, the WMAS Test Runner can import results exported by any arbitrary other instance.
 
 ## HTTP Request
 
