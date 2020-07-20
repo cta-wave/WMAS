@@ -26,6 +26,7 @@ def get_route_builder_func(report):
         data = load_manifest()
         from ..wave.wave_server import WaveServer
         wave_server = WaveServer()
+        configuration_file_path = os.path.join(wpt.localpaths.repo_root, "tools/wave/resources/testharnessreport.js")
         wave_server.initialize(
             configuration_file_path=os.path.abspath("./config.json"),
             reports_enabled=report,

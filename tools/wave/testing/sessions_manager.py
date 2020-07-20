@@ -29,7 +29,8 @@ class SessionsManager(object):
                    event_dispatcher,
                    tests_manager,
                    results_directory,
-                   results_manager):
+                   results_manager,
+                   configuration):
         self._test_loader = test_loader
         self._sessions = {}
         self._expiration_timeout = None
@@ -37,6 +38,7 @@ class SessionsManager(object):
         self._tests_manager = tests_manager
         self._results_directory = results_directory
         self._results_manager = results_manager
+        self._configuration = configuration
 
     def create_session(
         self,
@@ -65,9 +67,9 @@ class SessionsManager(object):
         if "exclude" not in tests:
             tests["exclude"] = []
         if "automatic" not in timeouts:
-            timeouts["automatic"] = DEFAULT_TEST_AUTOMATIC_TIMEOUT
+            timeouts["automatic"] = self._configuration["timeouts"]["automatic"]
         if "manual" not in timeouts:
-            timeouts["manual"] = DEFAULT_TEST_MANUAL_TIMEOUT
+            timeouts["manual"] = self._configuration["timeouts"]["manual"]
         if test_types is None:
             test_types = DEFAULT_TEST_TYPES
 
