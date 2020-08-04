@@ -1,2 +1,2 @@
 #!/bin/bash
-python ./tools/wptserve/wptserve/wave/wave-cli.py download-reference-results
+python ./tools/wave/wave-cli.py download-reference-results
