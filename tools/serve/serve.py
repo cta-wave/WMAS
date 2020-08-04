@@ -385,7 +385,7 @@ def build_routes(aliases, wave_cfg=None):
 
     # Add Wave specific Handler
     if wave_cfg is not None and wave_cfg.get("is_wave") is True:
-        from wave.wave_server import WaveServer
+        from ..wave.wave_server import WaveServer
         wave_server = WaveServer()
         wave_server.initialize(
             configuration_file_path=os.path.abspath("./config.json"),
