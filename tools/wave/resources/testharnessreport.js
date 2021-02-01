@@ -171,9 +171,13 @@ if (location.search && location.search.indexOf("token=") != -1) {
       );
    }
 
-   function readNextAlt(token) {
-      location.href = getWaveUrl("next.html?token=" + token);
-   }
+  function readNextAlt(token) {
+    location.href =
+      location.protocol +
+      "//" +
+      location.host +
+      getWaveUrl("next.html?token=" + token);
+  }
 
    function createResult(token, result, onSuccess, onError) {
       sendRequest(
@@ -195,18 +199,19 @@ if (location.search && location.search.indexOf("token=") != -1) {
          "&result=" + encodeURIComponent(JSON.stringify(result));
    }
 
-   function sendRequest(method, uri, headers, data, onSuccess, onError) {
-      var url = getWaveUrl(uri);
-      var xhr = new XMLHttpRequest();
-      xhr.addEventListener("load", function () {
-         onSuccess(xhr.response);
-      });
-      xhr.addEventListener("error", function () {
-         if (onError) onError();
-      });
-      logToConsole("Sending", method, 'request to "' + url + '"');
-      xhr.open(method, url, true);
-      if (headers) {
+  function sendRequest(method, uri, headers, data, onSuccess, onError) {
+    var url = getWaveUrl(uri);
+    url = location.protocol + "//" + location.host + url;
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function () {
+      onSuccess(xhr.response);
+    });
+    xhr.addEventListener("error", function () {
+      if (onError) onError();
+    });
+    logToConsole("Sending", method, 'request to "' + url + '"');
+    xhr.open(method, url, true);
+    if (headers) {
          for (var header in headers) {
             xhr.setRequestHeader(header, headers[header]);
          }
