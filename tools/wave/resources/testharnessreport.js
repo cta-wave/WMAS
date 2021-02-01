@@ -173,7 +173,11 @@ if (location.search && location.search.indexOf("token=") != -1) {
   }
 
   function readNextAlt(token) {
-    location.href = getWaveUrl("next.html?token=" + token);
+    location.href =
+      location.protocol +
+      "//" +
+      location.host +
+      getWaveUrl("next.html?token=" + token);
   }
 
   function createResult(token, result, onSuccess, onError) {
@@ -203,6 +207,7 @@ if (location.search && location.search.indexOf("token=") != -1) {
 
   function sendRequest(method, uri, headers, data, onSuccess, onError) {
     var url = getWaveUrl(uri);
+    url = location.protocol + "//" + location.host + url;
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function () {
       onSuccess(xhr.response);
