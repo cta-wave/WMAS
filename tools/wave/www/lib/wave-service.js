@@ -280,6 +280,19 @@ var WaveService = {
   },
 
   // TESTS API
+  readTestList: function (onSuccess, onError) {
+    sendRequest(
+      "GET",
+      "api/tests",
+      null,
+      null,
+      function (response) {
+        var jsonObject = JSON.parse(response);
+        onSuccess(jsonObject);
+      },
+      onError
+    );
+  },
   readNextTest: function (token, onSuccess, onError) {
     sendRequest(
       "GET",
