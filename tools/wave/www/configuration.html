@@ -73,7 +73,7 @@
       //        }
       //      ];
 
-      var detailedTestSelectionEnabled = false;
+      var detailedTestSelectionEnabled = true;
 
       window.onload = function () {
         new ConfigurationView();
@@ -91,13 +91,61 @@
           { title: "Manual", value: "manual" },
         ];
         var state = {};
+        loadSessionData(token, function () {
+          loadPublicSessionData();
+        });
         render();
 
-        WaveService.readAvailableApis(function (available_apis) {
-          available_apis = available_apis.sort((apiA, apiB) =>
-            apiA.title.toLowerCase() > apiB.title.toLowerCase() ? 1 : -1
+        function loadSessionData(token, callback) {
+          if (!token) {
+            state.expired = true;
+            return;
+          }
+          WaveService.readSessionStatus(
+            token,
+            function (status) {
+              if (status.status !== "pending") {
+                openResultsPage(token);
+                return;
+              }
+              state.status = status;
+
+              WaveService.readSession(token, function (configuration) {
+                if (
+                  configuration.tests.include.findIndex(
+                    (test) => test === "/"
+                  ) !== -1
+                ) {
+                  configuration.tests.include = apis.map((api) => api.path);
+                }
+                state.configurationBackup = utils.copyObject(configuration);
+                state.configuration = configuration;
+                setTimeout(
+                  handleExpiration,
+                  status.expirationDate.getTime() - Date.now()
+                );
+                renderSessionConfiguration();
+                callback();
+                WaveService.readAvailableApis(function (available_apis) {
+                  available_apis = available_apis.sort((apiA, apiB) =>
+                    apiA.title.toLowerCase() > apiB.title.toLowerCase() ? 1 : -1
+                  );
+                  apis = available_apis;
+                  selectAllTests();
+                  renderSessionConfiguration();
+                });
+              });
+            },
+            function () {
+              state.expired = true;
+              renderSessionConfiguration();
+              renderExcludedTests();
+              renderResumeView();
+            }
           );
-          apis = available_apis;
+        }
+
+        function loadPublicSessionData() {
           WaveService.readPublicSessions(function (tokens) {
             WaveService.readMultipleSessions(tokens, function (configurations) {
               referenceSessions = configurations
@@ -135,42 +183,49 @@
                     engine: configuration.browser.engine || "",
                   };
                 });
-              WaveService.readSessionStatus(
-                token,
-                function (status) {
-                  if (status.status !== "pending") {
-                    openResultsPage(token);
-                    return;
-                  }
-                  state.status = status;
-
-                  WaveService.readSession(token, function (configuration) {
-                    if (
-                      configuration.tests.include.findIndex(
-                        (test) => test === "/"
-                      ) !== -1
-                    ) {
-                      configuration.tests.include = apis.map((api) => api.path);
-                    }
-                    state.configurationBackup = utils.copyObject(configuration);
-                    state.configuration = configuration;
-                    setTimeout(
-                      handleExpiration,
-                      status.expirationDate.getTime() - Date.now()
-                    );
-                    renderSessionConfiguration();
-                  });
-                },
-                function () {
-                  state.expired = true;
-                  renderSessionConfiguration();
-                  renderExcludedTests();
-                  renderResumeView();
-                }
-              );
             });
           });
-        });
+        }
+
+        function handleConfigureSession() {
+          const tokenFragmentInput = UI.getElement("token-fragment");
+          const fragment = tokenFragmentInput.value;
+          findSession(fragment, function (session) {
+            if (!session) {
+              const errorBox = UI.getElement("find-error");
+              errorBox.setAttribute("style", "display: block");
+              return;
+            }
+            tokenFragmentInput.value = "";
+            const errorBox = UI.getElement("find-error");
+            errorBox.setAttribute("style", "display: none");
+            const path = location.pathname + "?token=" + session.token;
+            location.href = path;
+          });
+        }
+
+        function findSession(fragment, callback) {
+          if (!fragment || fragment.length < 8) {
+            callback(null);
+            return;
+          }
+          WaveService.findToken(
+            fragment,
+            function (token) {
+              WaveService.readSession(token, function (session) {
+                WaveService.readSessionStatus(token, function (status) {
+                  session.status = status.status;
+                  session.dateStarted = status.dateStarted;
+                  session.dateFinished = status.dateFinished;
+                  callback(session);
+                });
+              });
+            },
+            function () {
+              callback(null);
+            }
+          );
+        }
 
         function hasIncludedTest(path) {
           var tests = state.configuration.tests;
@@ -543,14 +598,80 @@
 
           if (state.expired) {
             var expiredIndicator = UI.createElement({
-              className: "level",
+              className: "level container",
+              style: "max-width: 500px",
               children: {
                 element: "span",
-                className: "level-item",
+                className: "level-item field column",
                 children: [
                   {
-                    text:
-                      "The specified session does not exist or is already expired.",
+                    element: "article",
+                    className: "message is-danger",
+                    id: "find-error",
+                    children: [
+                      {
+                        text:
+                          "Could not find any sessions! Try adding more characters of the token.",
+                        className: "message-body",
+                      },
+                    ],
+                    style: "display: none",
+                  },
+                  {
+                    className: "label has-text-weight-normal",
+                    text: "Session token:",
+                  },
+                  {
+                    className: "field-body",
+                    children: {
+                      className: "field",
+                      children: {
+                        className: "control",
+                        children: {
+                          style: "display: flex; margin-bottom: 10px;",
+                          children: [
+                            {
+                              element: "input",
+                              inputType: "text",
+                              className: "input is-family-monospace",
+                              id: "token-fragment",
+                              placeholder:
+                                "First 8 characters or more of session token",
+                              onKeyDown: function (event) {
+                                if (event.key === "Enter") {
+                                  handleConfigureSession();
+                                }
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    className: "field is-grouped is-grouped-right",
+                    children: {
+                      className: "control",
+                      children: {
+                        className: "button is-dark is-outlined",
+                        children: [
+                          {
+                            element: "span",
+                            className: "icon",
+                            children: [
+                              {
+                                element: "i",
+                                className: "fas fa-cog",
+                              },
+                            ],
+                          },
+                          { text: "Configure Session", element: "span" },
+                        ],
+                        onclick: function () {
+                          handleConfigureSession();
+                        },
+                      },
+                    },
                   },
                 ],
               },
