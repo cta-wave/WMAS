@@ -16,6 +16,7 @@ parameters and what they are used for.
    6. [API titles](#26-api-titles)
    7. [Enable listing all sessions](#27-enable-listing-all-sessions)
    8. [Event caching duration](#28-event-caching-duration)
+   9. [Enable test type selection](#29-enable-test-type-selection)
 
 ## 1. Location and structure
 
@@ -301,5 +302,25 @@ accordingly.
   "event_cache_duration": 60000
 }
 ```
+
+[🠑 top](#configuration---wave-test-runner)
+
+### 2.9 Enable test type selection
+
+Sets display of test type configuration UI elements.
+
+**Parameters**:
+
+```json
+{
+  "enable_test_type_selection": "<Boolean>"
+}
+```
+
+- **enable_test_type_selection**: Whether or not test type UI controls are displayed
+
+**Default**:
+
+False
 
 [🠑 top](#configuration---wave-test-runner)

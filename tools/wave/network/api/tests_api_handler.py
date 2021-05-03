@@ -14,6 +14,10 @@ from ...data.session import PAUSED, COMPLETED, ABORTED, PENDING, RUNNING
 DEFAULT_LAST_COMPLETED_TESTS_COUNT = 5
 DEFAULT_LAST_COMPLETED_TESTS_STATUS = ["ALL"]
 
+EXECUTION_MODE_AUTO = "auto"
+EXECUTION_MODE_MANUAL = "manual"
+EXECUTION_MODE_PROGRAMMATIC = "programmatic"
+
 
 class TestsApiHandler(ApiHandler):
     def __init__(

@@ -85,16 +85,25 @@
         if (token) WaveService.addRecentSession(token);
         var referenceSessions = [];
         var apis = [];
+        var testTypeSelectionEnabled = true;
 
         var types = [
           { title: "Automatic", value: "automatic" },
           { title: "Manual", value: "manual" },
         ];
         var state = {};
+        loadServerStatus();
         loadSessionData(token, function () {
           loadPublicSessionData();
         });
         render();
+
+        function loadServerStatus() {
+          WaveService.readStatus(function (status) {
+            testTypeSelectionEnabled = status.testTypeSelectionEnabled;
+            renderSessionConfiguration();
+          });
+        }
 
         function loadSessionData(token, callback) {
           if (!token) {
@@ -1064,6 +1073,7 @@
         }
 
         function renderTypesField() {
+          if (!testTypeSelectionEnabled) return;
           var typesField = UI.getElement("types-field");
           typesField.parentNode.replaceChild(
             UI.createElement({
@@ -1095,6 +1105,9 @@
         }
 
         function renderReferencesField() {
+          if (referenceSessions.length === 0) {
+            return;
+          }
           var referencesField = UI.getElement("references-field");
           referencesField.parentNode.replaceChild(
             UI.createElement({
