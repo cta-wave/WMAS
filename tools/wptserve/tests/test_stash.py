@@ -1,5 +1,7 @@
-import threading
 import multiprocessing
+import threading
+import sys
+
 from multiprocessing.managers import BaseManager
 
 import pytest
@@ -17,6 +19,7 @@ def add_cleanup():
 
     for fn in fns:
         fn()
+
 
 def run(process_queue, request_lock, response_lock):
     """Create two Stash instances in parallel threads. Use the provided locks
@@ -56,12 +59,18 @@ def run(process_queue, request_lock, response_lock):
     process_queue.put(thread_queue.get())
 
 
+class SlowLock(BaseManager):
+    # This can only be used in test_delayed_lock since that test modifies the
+    # class body, but it has to be a global for multiprocessing
+    pass
+
+
+@pytest.mark.xfail(sys.platform == "win32" or
+                   multiprocessing.get_start_method() == "spawn",
+                   reason="https://github.com/web-platform-tests/wpt/issues/16938")
 def test_delayed_lock(add_cleanup):
     """Ensure that delays in proxied Lock retrieval do not interfere with
     initialization in parallel threads."""
-
-    class SlowLock(BaseManager):
-        pass
 
     request_lock = multiprocessing.Lock()
     response_lock = multiprocessing.Lock()
@@ -92,12 +101,19 @@ def test_delayed_lock(add_cleanup):
     assert [queue.get(), queue.get()] == [False, False], (
         "both instances had valid locks")
 
+
+class SlowDict(BaseManager):
+    # This can only be used in test_delayed_dict since that test modifies the
+    # class body, but it has to be a global for multiprocessing
+    pass
+
+
+@pytest.mark.xfail(sys.platform == "win32" or
+                   multiprocessing.get_start_method() == "spawn",
+                   reason="https://github.com/web-platform-tests/wpt/issues/16938")
 def test_delayed_dict(add_cleanup):
     """Ensure that delays in proxied `dict` retrieval do not interfere with
     initialization in parallel threads."""
-
-    class SlowDict(BaseManager):
-        pass
 
     request_lock = multiprocessing.Lock()
     response_lock = multiprocessing.Lock()

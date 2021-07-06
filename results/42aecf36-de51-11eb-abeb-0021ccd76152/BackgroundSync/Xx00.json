@@ -1,0 +1,15 @@
+{
+    "results": [
+        {
+            "test": "/BackgroundSync/idlharness.https.any.html",
+            "status": "TIMEOUT",
+            "message": null,
+            "subtests": [
+                {
+                    "status": "TIMEOUT",
+                    "xstatus": "SERVERTIMEOUT"
+                }
+            ]
+        }
+    ]
+}

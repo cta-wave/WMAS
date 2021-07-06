@@ -1,0 +1,16 @@
+{
+    "results": [
+        {
+            "test": "/BackgroundSync/idlharness.https.any.html",
+            "status": "OK",
+            "message": null,
+            "subtests": [
+                {
+                    "name": "Subtest testing feature xy",
+                    "status": "FAIL",
+                    "message": "Error message"
+                }
+            ]
+        }
+    ]
+}

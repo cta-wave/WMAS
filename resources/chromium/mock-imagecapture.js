@@ -1,34 +1,34 @@
-"use strict";
+import {FillLightMode, ImageCapture, ImageCaptureReceiver, MeteringMode, RedEyeReduction} from '/gen/media/capture/mojom/image_capture.mojom.m.js';
 
-var ImageCaptureTest = (() => {
+self.ImageCaptureTest = (() => {
   // Class that mocks ImageCapture interface defined in
   // https://cs.chromium.org/chromium/src/media/capture/mojom/image_capture.mojom
   class MockImageCapture {
     constructor() {
-      this.interceptor_ = new MojoInterfaceInterceptor(
-        media.mojom.ImageCapture.name);
+      this.interceptor_ =
+          new MojoInterfaceInterceptor(ImageCapture.$interfaceName);
       this.interceptor_.oninterfacerequest =
-        e => this.bindingSet_.addBinding(this, e.handle);
+        e => this.receiver_.$.bindHandle(e.handle);
       this.interceptor_.start();
 
       this.state_ = {
         state: {
           supportedWhiteBalanceModes: [
-            media.mojom.MeteringMode.SINGLE_SHOT,
-            media.mojom.MeteringMode.CONTINUOUS
+            MeteringMode.SINGLE_SHOT,
+            MeteringMode.CONTINUOUS
           ],
-          currentWhiteBalanceMode: media.mojom.MeteringMode.CONTINUOUS,
+          currentWhiteBalanceMode: MeteringMode.CONTINUOUS,
           supportedExposureModes: [
-            media.mojom.MeteringMode.MANUAL,
-            media.mojom.MeteringMode.SINGLE_SHOT,
-            media.mojom.MeteringMode.CONTINUOUS
+            MeteringMode.MANUAL,
+            MeteringMode.SINGLE_SHOT,
+            MeteringMode.CONTINUOUS
           ],
-          currentExposureMode: media.mojom.MeteringMode.MANUAL,
+          currentExposureMode: MeteringMode.MANUAL,
           supportedFocusModes: [
-            media.mojom.MeteringMode.MANUAL,
-            media.mojom.MeteringMode.SINGLE_SHOT
+            MeteringMode.MANUAL,
+            MeteringMode.SINGLE_SHOT
           ],
-          currentFocusMode: media.mojom.MeteringMode.MANUAL,
+          currentFocusMode: MeteringMode.MANUAL,
           pointsOfInterest: [{
             x: 0.4,
             y: 0.6
@@ -91,6 +91,20 @@ var ImageCaptureTest = (() => {
             step: 1.0
           },
 
+          pan: {
+            min: 0.0,
+            max: 10.0,
+            current: 5.0,
+            step: 2.0
+          },
+
+          tilt: {
+            min: 0.0,
+            max: 10.0,
+            current: 5.0,
+            step: 2.0
+          },
+
           zoom: {
             min: 0.0,
             max: 10.0,
@@ -101,7 +115,7 @@ var ImageCaptureTest = (() => {
           supportsTorch: true,
           torch: false,
 
-          redEyeReduction: media.mojom.RedEyeReduction.CONTROLLABLE,
+          redEyeReduction: RedEyeReduction.CONTROLLABLE,
           height: {
             min: 240.0,
             max: 2448.0,
@@ -114,25 +128,37 @@ var ImageCaptureTest = (() => {
             current: 320.0,
             step: 3.0
           },
-          fillLightMode: [
-            media.mojom.FillLightMode.AUTO, media.mojom.FillLightMode.FLASH
-          ],
+          fillLightMode: [FillLightMode.AUTO, FillLightMode.FLASH],
         }
       };
+      this.panTiltZoomPermissionStatus_ = null;
       this.settings_ = null;
-      this.bindingSet_ = new mojo.BindingSet(media.mojom.ImageCapture);
+      this.receiver_ = new ImageCaptureReceiver(this);
     }
 
     reset() {
-      this.bindingSet_.closeAllBindings();
+      this.receiver_.$.close();
       this.interceptor_.stop();
     }
 
-    getPhotoState(source_id) {
-      return Promise.resolve(this.state_);
+    async getPhotoState(source_id) {
+      const shouldKeepPanTiltZoom = await this.isPanTiltZoomPermissionGranted();
+      if (shouldKeepPanTiltZoom)
+        return Promise.resolve(this.state_);
+
+      const newState = {...this.state_};
+      newState.state.pan = {};
+      newState.state.tilt = {};
+      newState.state.zoom = {};
+      return Promise.resolve(newState);
     }
 
-    setOptions(source_id, settings) {
+    async setOptions(source_id, settings) {
+      const isAllowedToControlPanTiltZoom = await this.isPanTiltZoomPermissionGranted();
+      if (!isAllowedToControlPanTiltZoom &&
+          (settings.hasPan || settings.hasTilt || settings.hasZoom)) {
+        return Promise.resolve({ success: false });
+      }
       this.settings_ = settings;
       if (settings.hasIso)
         this.state_.state.iso.current = settings.iso;
@@ -140,6 +166,10 @@ var ImageCaptureTest = (() => {
         this.state_.state.height.current = settings.height;
       if (settings.hasWidth)
         this.state_.state.width.current = settings.width;
+      if (settings.hasPan)
+        this.state_.state.pan.current = settings.pan;
+      if (settings.hasTilt)
+        this.state_.state.tilt.current = settings.tilt;
       if (settings.hasZoom)
         this.state_.state.zoom.current = settings.zoom;
       if (settings.hasFocusMode)
@@ -199,6 +229,16 @@ var ImageCaptureTest = (() => {
           data: new Array(2)
         }
       });
+    }
+
+    async isPanTiltZoomPermissionGranted() {
+      if (!this.panTiltZoomPermissionStatus_) {
+        this.panTiltZoomPermissionStatus_ = await navigator.permissions.query({
+          name: "camera",
+          panTiltZoom: true
+        });
+      }
+      return this.panTiltZoomPermissionStatus_.state == "granted";
     }
 
     state() {

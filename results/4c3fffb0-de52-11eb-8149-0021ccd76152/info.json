@@ -1,0 +1,43 @@
+{
+  "token": "4c3fffb0-de52-11eb-8149-0021ccd76152",
+  "types": [
+    "automatic",
+    "manual"
+  ],
+  "user_agent": "PostmanRuntime/7.26.8",
+  "labels": [],
+  "timeouts": {
+    "automatic": 300000,
+    "manual": 300000
+  },
+  "test_state": {
+    "BackgroundSync": {
+      "pass": 0,
+      "fail": 1,
+      "timeout": 0,
+      "not_run": 0,
+      "total": 1,
+      "complete": 1
+    }
+  },
+  "last_completed_test": "/BackgroundSync/idlharness.https.any.html",
+  "tests": {
+    "include": [
+      "/BackgroundSync/idlharness.https.any.html"
+    ],
+    "exclude": []
+  },
+  "status": "completed",
+  "browser": {
+    "name": "Other",
+    "version": "0"
+  },
+  "date_created": "2021-07-06T12:04:21.348000+00:00",
+  "date_started": "2021-07-06T12:04:21.807000+00:00",
+  "date_finished": "2021-07-06T12:04:22.809000+00:00",
+  "is_public": false,
+  "reference_tokens": [],
+  "expiration_date": null,
+  "type": "wmas",
+  "malfunctioning_tests": []
+}

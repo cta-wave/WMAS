@@ -1,18 +1,35 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
+import sys
+import traceback
+import logging
+
+try:
+    from urllib.parse import parse_qsl
+except ImportError:
+    from urlparse import parse_qsl
+
+global logger
+logger = logging.getLogger("wave-api-handler")
 
 
 class ApiHandler(object):
+    def __init__(self, web_root):
+        self._web_root = web_root
+
     def set_headers(self, response, headers):
         if not isinstance(response.headers, list):
             response.headers = []
         for header in headers:
             response.headers.append(header)
 
-    def send_json(self, data, response, status=200):
+    def send_json(self, data, response, status=None):
+        if status is None:
+            status = 200
         json_string = json.dumps(data, indent=4)
         response.content = json_string
-        self.set_headers(response, [(u"Content-Type", u"application/json")])
+        self.set_headers(response, [("Content-Type", "application/json")])
         response.status = status
 
     def send_file(self, blob, file_name, response):
@@ -26,34 +43,60 @@ class ApiHandler(object):
         self.send_file(data, file_name, response)
 
     def parse_uri(self, request):
-        uri_parts = []
-        request_path = request.request_path
-        if u"?" in request_path:
-            request_path = request_path.split(u"?")[0]
-        for part in request_path.split(u"/"):
-            if part == u"":
-                continue
-            uri_parts.append(part)
+        path = request.url_parts.path
+        if self._web_root is not None:
+            path = path[len(self._web_root):]
+
+        uri_parts = list(filter(None, path.split("/")))
         return uri_parts
 
     def parse_query_parameters(self, request):
-        if u"?" not in request.request_path:
-            return {}
-        query = request.request_path.split(u"?")[1]
-        if query == u"":
-            return {}
-        key_value_pairs = []
-        if u"&" in query:
-            key_value_pairs = query.split(u"&")
-        else:
-            key_value_pairs.append(query)
+        return dict(parse_qsl(request.url_parts.query))
 
-        parsed_parameters = {}
-        for key_value_pair in key_value_pairs:
-            if u"=" not in key_value_pair:
-                parsed_parameters[key_value_pair] = True
-                continue
-            key, value = key_value_pair.split(u"=")
-            parsed_parameters[key] = value
+    def handle_exception(self, message):
+        info = sys.exc_info()
+        traceback.print_tb(info[2])
+        logger.error("{}: {}: {}".format(message, info[0].__name__, info[1].args[0]))
 
-        return parsed_parameters
+    def create_hal_list(self, items, uris, index, count, total):
+        hal_list = {}
+        links = {}
+        if uris is not None:
+            for relation in uris:
+                if relation == "self":
+                    continue
+                uri = uris[relation]
+                templated = "{" in uri
+                links[relation] = {"href": uri, "templated": templated}
+
+            if "self" in uris:
+                self_uri = uris["self"]
+                self_uri += "?index={}&count={}".format(index, count)
+                links["self"] = {"href": self_uri}
+
+                first_uri = uris["self"]
+                first_uri += "?index={}&count={}".format(0, count)
+                links["first"] = {"href": first_uri}
+
+                last_uri = uris["self"]
+                last_uri += "?index={}&count={}".format(total - (total % count), count)
+                links["last"] = {"href": last_uri}
+
+                if index + count <= total:
+                    next_index = index + count
+                    next_uri = uris["self"]
+                    next_uri += "?index={}&count={}".format(next_index, count)
+                    links["next"] = {"href": next_uri}
+
+                if index != 0:
+                    previous_index = index - count
+                    if previous_index < 0:
+                        previous_index = 0
+                    previous_uri = uris["self"]
+                    previous_uri += "?index={}&count={}".format(previous_index, count)
+                    links["previous"] = {"href": previous_uri}
+
+        hal_list["_links"] = links
+        hal_list["items"] = items
+
+        return hal_list

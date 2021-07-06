@@ -1,0 +1,28 @@
+{
+  "ua": [
+    "Xx00"
+  ],
+  "results": {
+    "/BackgroundSync/idlharness.https.any.html": {
+      "byUA": {
+        "Xx00": "TIMEOUT"
+      },
+      "UAmessage": {},
+      "totals": {
+        "TIMEOUT": 1
+      },
+      "subtests": {
+        "undefined": {
+          "stNum": 0,
+          "byUA": {
+            "Xx00": "TIMEOUT"
+          },
+          "UAmessage": {},
+          "totals": {
+            "TIMEOUT": 1
+          }
+        }
+      }
+    }
+  }
+}

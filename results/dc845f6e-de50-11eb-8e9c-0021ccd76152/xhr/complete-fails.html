@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>xhr: Complete Failures</title>
+    <link rel='stylesheet' href='bootstrap.min.css'>
+    <link rel='stylesheet' href='analysis.css'>
+  </head>
+  <body>
+    <div class='container'>
+      <header>
+        <h1>xhr: Complete Failures</h1>
+      </header>
+      
+      <p><strong>Completely failed files</strong>: 121; <strong>Completely failed subtests</strong>: 78; <strong>Failure level</strong>: 78/849 (9.19%)</p>
+      <h3>Test Files</h3>
+<ol class='toc'><li><a href='#test-file-0'>/xhr/abort-after-send.any.worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-1'>/xhr/cookies.http.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-2'>/xhr/event-error.sub.any.worker.html</a> <small>(1/2, 50.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-3'>/xhr/event-readystatechange-loaded.any.worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-4'>/xhr/formdata/constructor-formelement.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-5'>/xhr/idlharness.any.sharedworker.html</a> <small>(2/160, 1.25%, 0.24% of total)</small></li>
+<li><a href='#test-file-6'>/xhr/idlharness.any.worker.html</a> <small>(2/160, 1.25%, 0.24% of total)</small></li>
+<li><a href='#test-file-7'>/xhr/json.any.worker.html</a> <small>(1/2, 50.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-8'>/xhr/overridemimetype-blob.html</a> <small>(52/74, 70.27%, 6.12% of total)</small></li>
+<li><a href='#test-file-9'>/xhr/responseType-document-in-worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-10'>/xhr/responseXML-unavailable-in-worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-11'>/xhr/responseurl.html</a> <small>(2/2, 100.00%, 0.24% of total)</small></li>
+<li><a href='#test-file-12'>/xhr/send-data-sharedarraybuffer.any.worker.html</a> <small>(1/11, 9.09%, 0.12% of total)</small></li>
+<li><a href='#test-file-13'>/xhr/xmlhttprequest-timeout-aborted.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-14'>/xhr/xmlhttprequest-timeout-abortedonmain.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-15'>/xhr/xmlhttprequest-timeout-overrides.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-16'>/xhr/xmlhttprequest-timeout-overridesexpires.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-17'>/xhr/xmlhttprequest-timeout-simple.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-18'>/xhr/xmlhttprequest-timeout-synconmain.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-19'>/xhr/xmlhttprequest-timeout-twice.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-20'>/xhr/xmlhttprequest-timeout-worker-overrides.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-21'>/xhr/xmlhttprequest-timeout-worker-simple.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-22'>/xhr/xmlhttprequest-timeout-worker-synconworker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+<li><a href='#test-file-23'>/xhr/xmlhttprequest-timeout-worker-twice.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></li>
+</ol>
+      <table class='table persist-area'>
+        <thead><tr class='persist-header'><th>Test <span class='message_toggle'>Show/Hide Messages</span></th><th>Ch91</th></tr></thead>
+<tr class='test' id='test-file-2'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/abort-after-send.any.worker.html' target='_blank'>/xhr/abort-after-send.any.worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-2-0' class='subtest'><td>XMLHttpRequest: abort() after send()</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "abort(0,0,false)" but got "upload.abort(0,0,false)"</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-31'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/cookies.http.html' target='_blank'>/xhr/cookies.http.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-31-0' class='subtest'><td>Basic non-cross-site cookie handling in XHR</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_regexp_match: an insecure cookie was sent expected object "/.*WK-test=1.*/" but got ""</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-36'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/event-error.sub.any.worker.html' target='_blank'>/xhr/event-error.sub.any.worker.html</a> <small>(1/2, 50.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-36-1' class='subtest'><td>error while reading body should report zeros for loaded and total</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: loaded expected 0 but got 50</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-43'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/event-readystatechange-loaded.any.worker.html' target='_blank'>/xhr/event-readystatechange-loaded.any.worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-43-0' class='subtest'><td>XMLHttpRequest: the LOADING state change may be emitted multiple times</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_greater_than: LOADING state change may be emitted multiple times expected a number greater than 1 but got 1</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-53'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/formdata/constructor-formelement.html' target='_blank'>/xhr/formdata/constructor-formelement.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-53-0' class='subtest'><td>test that FormData is correctly constructed from the form data set</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_array_equals: submit-me-16 expected property 0 to be "textarea value\nwith linebreaks set to LF" but got "textarea value\r\nwith linebreaks set to LF" (expected array ["textarea value\nwith linebreaks set to LF"] got ["textarea value\r\nwith linebreaks set to LF"])</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-67'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/idlharness.any.sharedworker.html' target='_blank'>/xhr/idlharness.any.sharedworker.html</a> <small>(2/160, 1.25%, 0.24% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-67-72' class='subtest'><td>XMLHttpRequest interface: member responseXML</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_false: The prototype object must not have a property "responseXML" expected false got true</td></tr>
+</table></td></tr>
+<tr id='subtest-67-105' class='subtest'><td>XMLHttpRequest interface: new XMLHttpRequest() must not have property "responseXML"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_false: expected false got true</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-68'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/idlharness.any.worker.html' target='_blank'>/xhr/idlharness.any.worker.html</a> <small>(2/160, 1.25%, 0.24% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-68-72' class='subtest'><td>XMLHttpRequest interface: member responseXML</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_false: The prototype object must not have a property "responseXML" expected false got true</td></tr>
+</table></td></tr>
+<tr id='subtest-68-105' class='subtest'><td>XMLHttpRequest interface: new XMLHttpRequest() must not have property "responseXML"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_false: expected false got true</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-69'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/json.any.worker.html' target='_blank'>/xhr/json.any.worker.html</a> <small>(1/2, 50.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-69-1' class='subtest'><td>Ensure UTF-16 results in an error</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected null but got object "[object Object]"</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-72'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/overridemimetype-blob.html' target='_blank'>/xhr/overridemimetype-blob.html</a> <small>(52/74, 70.27%, 6.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-72-72' class='subtest'><td>70) MIME types need to be parsed and serialized: text/ html</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "application/octet-stream" but got "text/ html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-71' class='subtest'><td>69) MIME types need to be parsed and serialized: text /html</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "application/octet-stream" but got "text /html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-69' class='subtest'><td>67) MIME types need to be parsed and serialized: {/}</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "application/octet-stream" but got "{/}"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-53' class='subtest'><td>51) MIME types need to be parsed and serialized: x/x;test=�;x=x</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;x=x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-52' class='subtest'><td>50) MIME types need to be parsed and serialized: text/html;test=ÿ;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;test=\"ÿ\";charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-51' class='subtest'><td>49) MIME types need to be parsed and serialized: x/x;
+	 x=x
+	 ;x=y</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;x=x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-50' class='subtest'><td>48) MIME types need to be parsed and serialized: 
+	 x/x;x=x
+	 </td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;x=x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-49' class='subtest'><td>47) MIME types need to be parsed and serialized: x/x
+	 ;x=x</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;x=x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-48' class='subtest'><td>46) MIME types need to be parsed and serialized: x/x;x=	</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-47' class='subtest'><td>45) MIME types need to be parsed and serialized: x/x;x= </td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-46' class='subtest'><td>44) MIME types need to be parsed and serialized: x/x;test="\</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;test=\"\\\\\"" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-45' class='subtest'><td>43) MIME types need to be parsed and serialized: x/x;test</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-44' class='subtest'><td>42) MIME types need to be parsed and serialized: x/x;x="	 !\"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "x/x;x=\"\t !\\\"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\"" but got "x/x"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-43' class='subtest'><td>41) MIME types need to be parsed and serialized: !#$%&amp;'*+-.^_`|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/!#$%&amp;'*+-.^_`|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz;!#$%&amp;'*+-.^_`|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz=!#$%&amp;'*+-.^_`|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "!#$%&amp;'*+-.^_`|~0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz/!#$%&amp;'*+-.^_`|~0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz;!#$%&amp;'*+-.^_`|~0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz=!#$%&amp;'*+-.^_`|~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" but got "!#$%&amp;'*+-.^_`|~0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz/!#$%&amp;'*+-.^_`|~0123456789abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-41' class='subtest'><td>39) MIME types need to be parsed and serialized: text/html;0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789=x;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789=x;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-40' class='subtest'><td>38) MIME types need to be parsed and serialized: text/html;charset={gbk}</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"{gbk}\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-39' class='subtest'><td>37) MIME types need to be parsed and serialized: text/html;charset=";charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\";charset=GBK\"" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-38' class='subtest'><td>36) MIME types need to be parsed and serialized: text/html;charset="";charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-37' class='subtest'><td>35) MIME types need to be parsed and serialized: text/html;charset="gbk"x</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-36' class='subtest'><td>34) MIME types need to be parsed and serialized: text/html;charset="\g\b\k"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-35' class='subtest'><td>33) MIME types need to be parsed and serialized: text/html;charset="\ gbk"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\" gbk\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-34' class='subtest'><td>32) MIME types need to be parsed and serialized: text/html;charset="gbk "</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"gbk \"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-33' class='subtest'><td>31) MIME types need to be parsed and serialized: text/html;charset=" gbk"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\" gbk\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-32' class='subtest'><td>30) MIME types need to be parsed and serialized: text/html;charset=gbk"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"gbk\\\"\"" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-31' class='subtest'><td>29) MIME types need to be parsed and serialized: text/html;charset="gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-30' class='subtest'><td>28) MIME types need to be parsed and serialized: text/html;charset="gbk"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-29' class='subtest'><td>27) MIME types need to be parsed and serialized: text/html;charset=";charset=foo";charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=GBK" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-28' class='subtest'><td>26) MIME types need to be parsed and serialized: text/html;charset= ";charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=GBK" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-27' class='subtest'><td>25) MIME types need to be parsed and serialized: text/html;;;;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-26' class='subtest'><td>24) MIME types need to be parsed and serialized: text/html ; ; charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-25' class='subtest'><td>23) MIME types need to be parsed and serialized: text/html;";charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-24' class='subtest'><td>22) MIME types need to be parsed and serialized: text/html;';charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-23' class='subtest'><td>21) MIME types need to be parsed and serialized: text/html;test=;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-22' class='subtest'><td>20) MIME types need to be parsed and serialized: text/html;test;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-21' class='subtest'><td>19) MIME types need to be parsed and serialized: text/html;charset=';charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset='" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-20' class='subtest'><td>18) MIME types need to be parsed and serialized: text/html;charset=gbk'</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk'" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-19' class='subtest'><td>17) MIME types need to be parsed and serialized: text/html;charset='gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset='gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-18' class='subtest'><td>16) MIME types need to be parsed and serialized: text/html;charset='gbk'</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset='gbk'" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-17' class='subtest'><td>15) MIME types need to be parsed and serialized: text/html;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-16' class='subtest'><td>14) MIME types need to be parsed and serialized: text/html;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-15' class='subtest'><td>13) MIME types need to be parsed and serialized: text/html;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-14' class='subtest'><td>12) MIME types need to be parsed and serialized: text/html;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-13' class='subtest'><td>11) MIME types need to be parsed and serialized: text/html;charset= "gbk"</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\" \\\"gbk\\\"\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-12' class='subtest'><td>10) MIME types need to be parsed and serialized: text/html;charset= gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\" gbk\"" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-11' class='subtest'><td>9) MIME types need to be parsed and serialized: text/html; charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-10' class='subtest'><td>8) MIME types need to be parsed and serialized: text/html ;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-8' class='subtest'><td>6) MIME types need to be parsed and serialized: text/html;charset=();charset=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"()\"" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-7' class='subtest'><td>5) MIME types need to be parsed and serialized: text/html;charset=gbk;charset=windows-1255</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-6' class='subtest'><td>4) MIME types need to be parsed and serialized: text/html;x=(;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;x=\"(\";charset=gbk" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-5' class='subtest'><td>3) MIME types need to be parsed and serialized: text/html;charset=gbk(</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=\"gbk(\"" but got "application/octet-stream"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-4' class='subtest'><td>2) MIME types need to be parsed and serialized: TEXT/HTML;CHARSET=GBK</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=GBK" but got "text/html"</td></tr>
+</table></td></tr>
+<tr id='subtest-72-3' class='subtest'><td>1) MIME types need to be parsed and serialized: text/html;charset=gbk</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "text/html;charset=gbk" but got "text/html"</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-80'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/responseType-document-in-worker.html' target='_blank'>/xhr/responseType-document-in-worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-80-0' class='subtest'><td>Setting XMLHttpRequest responseType to 'document' in a worker should have no effect.</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_not_equals: got disallowed value "document"</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-81'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/responseXML-unavailable-in-worker.html' target='_blank'>/xhr/responseXML-unavailable-in-worker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-81-0' class='subtest'><td>XMLHttpRequest's responseXML property should not be exposed in workers.</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_false: responseXML should not be on the prototype. expected false got true</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-83'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/responseurl.html' target='_blank'>/xhr/responseurl.html</a> <small>(2/2, 100.00%, 0.24% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-83-0' class='subtest'><td>404 response has proper responseURL</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "http://web-platform.test:8000/xhr/responseurl.html?token=dc845f6e-de50-11eb-8e9c-0021ccd76152&amp;timeout=300000&amp;https_port=8443&amp;web_root=/_wave/foo.html" but got "http://web-platform.test:8000/xhr/foo.html"</td></tr>
+</table></td></tr>
+<tr id='subtest-83-1' class='subtest'><td>Redirected response has proper responseURL</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_equals: expected "http://web-platform.test:8000/xhr/responseurl.html?token=dc845f6e-de50-11eb-8e9c-0021ccd76152&amp;timeout=300000&amp;https_port=8443&amp;web_root=/_wave/resources/image.gif" but got "http://web-platform.test:8000/xhr/resources/image.gif"</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-90'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/send-data-sharedarraybuffer.any.worker.html' target='_blank'>/xhr/send-data-sharedarraybuffer.any.worker.html</a> <small>(1/11, 9.09%, 0.12% of total)</small></td><td class='OK'>OK</td></tr>
+<tr id='subtest-90-0' class='subtest'><td>sending a SharedArrayBuffer</td><td class='FAIL'>FAIL</td></tr>
+<tr class='messages'><td colspan='2'><table><tr class='message'><td class='ua'>Ch91:</td><td> assert_throws_js: function "function() {
+        xhr.send(buf)
+    }" did not throw</td></tr>
+</table></td></tr>
+<tr class='test' id='test-file-107'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-aborted.html' target='_blank'>/xhr/xmlhttprequest-timeout-aborted.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-107-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-aborted.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-108'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-abortedonmain.html' target='_blank'>/xhr/xmlhttprequest-timeout-abortedonmain.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-108-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-abortedonmain.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-109'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-overrides.html' target='_blank'>/xhr/xmlhttprequest-timeout-overrides.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-109-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-overrides.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-110'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-overridesexpires.html' target='_blank'>/xhr/xmlhttprequest-timeout-overridesexpires.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-110-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-overridesexpires.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-112'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-simple.html' target='_blank'>/xhr/xmlhttprequest-timeout-simple.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-112-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-simple.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-113'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-synconmain.html' target='_blank'>/xhr/xmlhttprequest-timeout-synconmain.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-113-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-synconmain.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-114'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-twice.html' target='_blank'>/xhr/xmlhttprequest-timeout-twice.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-114-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-twice.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-116'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-worker-overrides.html' target='_blank'>/xhr/xmlhttprequest-timeout-worker-overrides.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-116-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-worker-overrides.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-118'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-worker-simple.html' target='_blank'>/xhr/xmlhttprequest-timeout-worker-simple.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-118-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-worker-simple.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-119'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-worker-synconworker.html' target='_blank'>/xhr/xmlhttprequest-timeout-worker-synconworker.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-119-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-worker-synconworker.html</td><td class='ERROR'>ERROR</td></tr>
+<tr class='test' id='test-file-120'><td><a href='https://github.com/cta-wave/WMAS/blob/wmas2018-tests/xhr/xmlhttprequest-timeout-worker-twice.html' target='_blank'>/xhr/xmlhttprequest-timeout-worker-twice.html</a> <small>(1/1, 100.00%, 0.12% of total)</small></td><td class='ERROR'>ERROR</td></tr>
+<tr id='subtest-120-0' class='subtest'><td>/xhr/xmlhttprequest-timeout-worker-twice.html</td><td class='ERROR'>ERROR</td></tr>
+
+      </table>
+    </div>
+    <script src='jquery.min.js'></script>
+    <script src='sticky-headers.js'></script>
+    <script type='application/javascript'>
+      window.setTimeout(function() { 
+ $('.message_toggle').show();
+ $('.messages').toggle(); 
+ $('.message_toggle').on('click', function() {
+$('.messages').toggle();
+});
+}, 1000);
+    </script>
+  </body>
+</html>

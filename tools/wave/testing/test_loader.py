@@ -1,10 +1,10 @@
 from __future__ import absolute_import
-import json
+from __future__ import unicode_literals
 import os
 import re
 
-AUTOMATIC = u"automatic"
-MANUAL = u"manual"
+AUTOMATIC = "automatic"
+MANUAL = "manual"
 
 TEST_TYPES = [AUTOMATIC, MANUAL]
 
@@ -25,30 +25,25 @@ class TestLoader(object):
         self._tests[MANUAL] = {}
         self._api_titles = api_titles
 
-    def load_tests(self, manifest_file_path):
-        manifest_file_handle = open(manifest_file_path)
-        manifest_file = manifest_file_handle.read()
-        manifest = json.loads(manifest_file)
-        tests = manifest[u"items"]
-
+    def load_tests(self, tests):
         include_list = self._load_test_list(self._include_list_file_path)
         exclude_list = self._load_test_list(self._exclude_list_file_path)
 
-        if u"testharness" in tests:
+        if "testharness" in tests:
             self._tests[AUTOMATIC] = self._load_tests(
-                tests=tests[u"testharness"],
+                tests=tests["testharness"],
                 exclude_list=exclude_list
             )
 
-        if u"manual" in tests:
+        if "manual" in tests:
             self._tests[MANUAL] = self._load_tests(
-                tests=tests[u"manual"],
+                tests=tests["manual"],
                 include_list=include_list
             )
 
         for api in self._tests[AUTOMATIC]:
             for test_path in self._tests[AUTOMATIC][api][:]:
-                if u"manual" not in test_path:
+                if "manual" not in test_path:
                     continue
                 self._tests[AUTOMATIC][api].remove(test_path)
 
@@ -62,8 +57,28 @@ class TestLoader(object):
 
     def _load_tests(self, tests, exclude_list=None, include_list=None):
         loaded_tests = {}
-        for test in tests:
-            test_path = tests[test][0][0]
+
+        def get_next_part(tests):
+            paths = []
+            for test in tests:
+                if isinstance(tests[test], dict):
+                    subs = get_next_part(tests[test])
+                    for sub in subs:
+                        if sub is None:
+                            continue
+                        paths.append(test + "/" + sub)
+                    continue
+                if test.endswith(".html"):
+                    paths.append(test)
+                    continue
+                if test.endswith(".js"):
+                    for element in tests[test][1:]:
+                        paths.append(element[0])
+                    continue
+            return paths
+
+        test_paths = get_next_part(tests)
+        for test_path in test_paths:
             if not test_path.startswith("/"):
                 test_path = "/" + test_path
             if self._is_valid_test(test_path, exclude_list, include_list):
@@ -74,8 +89,8 @@ class TestLoader(object):
         return loaded_tests
 
     def _parse_api_name(self, test_path):
-        for part in test_path.split(u"/"):
-            if part == u"":
+        for part in test_path.split("/"):
+            if part == "":
                 continue
             return part
 
@@ -85,7 +100,8 @@ class TestLoader(object):
         if include_list is not None and len(include_list) > 0:
             is_valid = False
             for include_test in include_list:
-                pattern = re.compile(u"^" + include_test)
+                include_test = include_test.split("?")[0]
+                pattern = re.compile("^" + include_test)
                 if pattern.match(test_path) is not None:
                     is_valid = True
                     break
@@ -96,7 +112,8 @@ class TestLoader(object):
         if exclude_list is not None and len(exclude_list) > 0:
             is_valid = True
             for exclude_test in exclude_list:
-                pattern = re.compile(u"^" + exclude_test)
+                exclude_test = exclude_test.split("?")[0]
+                pattern = re.compile("^" + exclude_test)
                 if pattern.match(test_path) is not None:
                     is_valid = False
                     break
@@ -108,13 +125,14 @@ class TestLoader(object):
         if not os.path.isfile(file_path):
             return tests
 
-        file_handle = open(file_path)
-        file_content = file_handle.read()
+        file_content = None
+        with open(file_path) as file_handle:
+            file_content = file_handle.read()
 
         for line in file_content.split():
-            line = line.replace(u" u", u"")
-            line = re.sub(r"^#", u"", line)
-            if line == u"":
+            line = line.replace(" ", "")
+            line = re.sub(r"^#", "", line)
+            if line == "":
                 continue
             tests.append(line)
 
@@ -122,17 +140,26 @@ class TestLoader(object):
 
     def get_tests(
         self,
-        types=[AUTOMATIC, MANUAL],
-        include_list=[],
-        exclude_list=[],
-        reference_tokens=[]
+        test_types=None,
+        include_list=None,
+        exclude_list=None,
+        reference_tokens=None
     ):
+        if test_types is None:
+            test_types = [AUTOMATIC, MANUAL]
+        if include_list is None:
+            include_list = []
+        if exclude_list is None:
+            exclude_list = []
+        if reference_tokens is None:
+            reference_tokens = []
+
         loaded_tests = {}
 
         reference_results = self._results_manager.read_common_passed_tests(
             reference_tokens)
 
-        for test_type in types:
+        for test_type in test_types:
             if test_type not in TEST_TYPES:
                 continue
             for api in self._tests[test_type]:

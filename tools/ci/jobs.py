@@ -4,34 +4,45 @@ import re
 from ..wpt.testfiles import branch_point, files_changed
 
 from tools import localpaths  # noqa: F401
-from six import iteritems
 
 wpt_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 
+# Common exclusions between affected_tests and stability jobs.
+# Files in these dirs would trigger the execution of too many tests.
+EXCLUDES = [
+    "!tools/",
+    "!docs/",
+    "!conformance-checkers/",
+    "!.*/OWNERS",
+    "!.*/META.yml",
+    "!.*/tools/",
+    "!.*/README",
+    "!css/[^/]*$"
+]
+
 # Rules are just regex on the path, with a leading ! indicating a regex that must not
-# match for the job
+# match for the job. Paths should be kept in sync with update-built-tests.sh.
 job_path_map = {
-    "stability": [".*/.*",
-                  "!tools/",
-                  "!docs/",
-                  "!resources/*",
-                  "!conformance-checkers/",
-                  "!.*/OWNERS",
-                  "!.*/META.yml",
-                  "!.*/tools/",
-                  "!.*/README",
-                  "!css/[^/]*$"],
+    "affected_tests": [".*/.*", "!resources/(?!idlharness.js)"] + EXCLUDES,
+    "stability": [".*/.*", "!resources/.*"] + EXCLUDES,
     "lint": [".*"],
     "manifest_upload": [".*"],
     "resources_unittest": ["resources/", "tools/"],
     "tools_unittest": ["tools/"],
-    "wptrunner_unittest": ["tools/wptrunner/*"],
+    "wptrunner_unittest": ["tools/"],
     "build_css": ["css/"],
-    "update_built": ["2dcontext/",
+    "update_built": ["update-built-tests\\.sh",
+                     "conformance-checkers/",
+                     "css/css-ui/",
                      "html/",
-                     "offscreen-canvas/"],
+                     "infrastructure/",
+                     "mimesniff/",
+                     "WebIDL"],
     "wpt_integration": ["tools/"],
-    "wptrunner_infrastructure": ["infrastructure/", "tools/", "resources/"],
+    "wptrunner_infrastructure": ["infrastructure/",
+                                 "tools/",
+                                 "resources/",
+                                 "webdriver/tests/support"],
 }
 
 
@@ -84,8 +95,7 @@ def get_paths(**kwargs):
         revish = kwargs["revish"]
 
     changed, _ = files_changed(revish)
-    all_changed = set(os.path.relpath(item, wpt_root)
-                      for item in set(changed))
+    all_changed = {os.path.relpath(item, wpt_root) for item in set(changed)}
     return all_changed
 
 
@@ -99,7 +109,7 @@ def get_jobs(paths, **kwargs):
     includes = kwargs.get("includes")
     if includes is not None:
         includes = set(includes)
-    for key, value in iteritems(job_path_map):
+    for key, value in job_path_map.items():
         if includes is None or key in includes:
             rules[key] = Ruleset(value)
 
@@ -114,7 +124,7 @@ def get_jobs(paths, **kwargs):
 
     # Default jobs shuld run even if there were no changes
     if not paths:
-        for job, path_re in iteritems(job_path_map):
+        for job, path_re in job_path_map.items():
             if ".*" in path_re:
                 jobs.add(job)
 
