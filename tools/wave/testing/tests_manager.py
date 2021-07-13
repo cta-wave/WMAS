@@ -146,9 +146,10 @@ class TestsManager(object):
                     micro_test_list[api_a] = [test_a]
                     micro_test_list[api_b] = [test_b]
                 next_test = self.tests_manager._get_next_test_from_list(micro_test_list)
-                return next_test == test_a
+                return next_test == test_b
 
         sorted_tests.sort(key=lambda test: compare(self, test))
+        print(sorted_tests)
         return sorted_tests
 
     def _get_next_test_from_list(self, tests):
@@ -163,7 +164,7 @@ class TestsManager(object):
         apis.sort(key=lambda api: api.lower())
 
         for api in apis:
-            tests[api].sort(key=lambda api: api.replace("/", "").lower())
+            tests[api].sort(key=lambda test: test.replace("/", "").lower())
 
         while test is None:
             if len(apis) <= current_api:
