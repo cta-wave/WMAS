@@ -359,7 +359,7 @@ rm -rf .git/info/sparse-checkout
 echo "Installing node modules ..."
 cd $WPTBASEDIR/tools/wave && npm install
 
-# Integrate ECMASCRIPT tests [ECMASCRIPT-6]
+# Integrate ECMASCRIPT tests [ECMASCRIPT-2020]
 echo "Generating ecmascript test files ..."
 DISTDIR=dist/es6-tests
 cd $WPTBASEDIR
@@ -367,7 +367,7 @@ rm -rf $WPTBASEDIR/ecmascript
 rm -rf $DISTDIR
 git clone https://github.com/tc39/test262.git $DISTDIR
 cd $DISTDIR
-git checkout 5e653f2e6ca14ac1ad8e801955a709cae7ac8a11 #this is the Commit ID from 29 Dec 2015. ES6 was released in June 2016
+git checkout 59f5b4935985ff456a4f3438bffe0dcc60af1294 #this is the Commit ID from 10 Jul 2020. ES2020 was released on 11 June 2020
 cd $WPTBASEDIR
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 cp $DISTDIR/LICENSE $WPTBASEDIR/ecmascript

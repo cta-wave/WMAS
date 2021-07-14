@@ -1,4 +1,4 @@
-setup(function() {}, {
+setup(function() { }, {
   allow_uncaught_exception: true
 });
 
@@ -19,24 +19,35 @@ function evaluate(error) {
   evaluated = true;
   getSource(function(source) {
     var meta = parseMetadata(source);
+    console.log(meta);
+    test(function() {
+      var negative = null;
+      if (meta.hasOwnProperty("negative")) {
+        negative = {};
+        if (meta["negative"] !== "") {
+          negative.regex = new RegExp(meta["negative"]);
+        }
+      }
 
-    var negative = null;
-    if (meta.hasOwnProperty("negative")) {
-      negative = {};
-      if (meta["negative"] !== "") {
-        negative.regex = new RegExp(meta["negative"]);
-      }
-    }
-    if (negative) {
-      if (negative.regex) {
-        assert_regexp_match(error, negative.regex, meta.description);
+      if (negative) {
+        if (negative.regex) {
+          assert_regexp_match(error, negative.regex, meta.description);
+        } else {
+          if (error) {
+            assert_true(true, meta.description);
+          } else {
+            throw new Error("Expected an error to be thrown.");
+          }
+        }
       } else {
-        assert_not_equals(error, undefined, meta.description);
+        if (error) {
+          throw error;
+        } else {
+          assert_true(true, meta.description);
+        }
       }
-    } else {
-      assert_equals(error, undefined, meta.description);
-    }
-    done();
+      done();
+    }, meta.description);
   });
 }
 

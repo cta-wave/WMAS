@@ -118,6 +118,9 @@ const parseFrontmatter = src => {
             flags.async = true;
             break;
           case "generated":
+          case "non-deterministic":
+          case "CanBlockIsTrue":
+          case "CanBlockIsFalse":
             break;
           default:
             console.error("unrecocognized flag: " + flag, frontmatter);
