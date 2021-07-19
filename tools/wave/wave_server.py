@@ -126,7 +126,8 @@ class WaveServer(object):
             import_results_enabled=configuration["import_results_enabled"],
             reports_enabled=reports_enabled,
             version_string=VERSION_STRING,
-            test_type_selection_enabled=configuration["enable_test_type_selection"]
+            test_type_selection_enabled=configuration["enable_test_type_selection"],
+            test_file_selection_enabled=configuration["enable_test_file_selection"]
         )
 
         # Initialize HTTP server

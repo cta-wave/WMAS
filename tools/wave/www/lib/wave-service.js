@@ -697,7 +697,8 @@ var WaveService = {
           importResultsEnabled: data.import_results_enabled,
           reportsEnabled: data.reports_enabled,
           versionString: data.version_string,
-          testTypeSelectionEnabled: data.test_type_selection_enabled
+          testTypeSelectionEnabled: data.test_type_selection_enabled,
+          testFileSelectionEnabled: data.test_file_selection_enabled
         };
         onSuccess(configuration);
       },

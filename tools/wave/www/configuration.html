@@ -73,7 +73,7 @@
       //        }
       //      ];
 
-      var detailedTestSelectionEnabled = true;
+      var testFileSelectionEnabled = true;
 
       window.onload = function () {
         new ConfigurationView();
@@ -86,6 +86,7 @@
         var referenceSessions = [];
         var apis = [];
         var testTypeSelectionEnabled = true;
+        var testFileSelectionEnabled = false;
 
         var types = [
           { title: "Automatic", value: "automatic" },
@@ -101,6 +102,7 @@
         function loadServerStatus() {
           WaveService.readStatus(function (status) {
             testTypeSelectionEnabled = status.testTypeSelectionEnabled;
+            testFileSelectionEnabled = status.testFileSelectionEnabled;
             renderSessionConfiguration();
           });
         }
@@ -954,7 +956,7 @@
           var apiListItem = {
             element: "a",
             onClick: function (event) {
-              if (!detailedTestSelectionEnabled) return;
+              if (!testFileSelectionEnabled) return;
               if (!state.expandedApis) state.expandedApis = {};
               state.expandedApis[api.path] = !state.expandedApis[api.path];
               renderApiList(api);
@@ -976,7 +978,7 @@
                   renderApiList(api);
                 },
               },
-              detailedTestSelectionEnabled
+              testFileSelectionEnabled
                 ? {
                     element: "span",
                     style:
