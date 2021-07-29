@@ -6,6 +6,7 @@ BRANCHORCOMMITID=4bdeca6b451519a7f60f592468600e0a6cbfc42b
 WPTBASEDIR=`pwd`
 
 
+rm -rf $WPTBASEDIR/2dcontext
 rm -rf $WPTBASEDIR/accelerometer
 rm -rf $WPTBASEDIR/accessibility
 rm -rf $WPTBASEDIR/accname
@@ -265,6 +266,7 @@ mv dom $WPTBASEDIR
 git checkout 40dc04fca82111bedc417296361bd5f31333bef8 html 2>1 1>/dev/null
 rm -rf html/**/*shared-workers*
 rm -rf html/canvas/element
+rm -rf html/canvas/resources
 mv html $WPTBASEDIR
 git checkout b83ec322c2c9dbeba625d94351a69136f8584629 websockets 2>1 1>/dev/null
 mv websockets $WPTBASEDIR
@@ -436,6 +438,11 @@ echo "No tests specified for Graphics Interchange Format [GIF]"
 # HTML Canvas 2D Context [2DCONTEXT]
 git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 html/canvas/element 2>1 1>/dev/null
 mv html/canvas/element $WPTBASEDIR/2dcontext
+git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 html/canvas/resources 2>1 1>/dev/null
+mv html/canvas $WPTBASEDIR/html/canvas
+git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 images 2>1 1>/dev/null
+mv images $WPTBASEDIR/images
+ln -s $WPTBASEDIR/images $WPTBASEDIR/html/canvas/images
 
 # JPEG File Interchange Format [JPEG]
 echo "No tests specified for JPEG File Interchange Format [JPEG]"
@@ -564,7 +571,6 @@ echo "Installing node modules ..."
 cd $WPTBASEDIR/tools/wave && npm install 2>1 1>/dev/null
 
 # Integrate ECMASCRIPT tests [ECMASCRIPT-2020]
-echo "Generating ecmascript test files ..."
 DISTDIR=dist/es6-tests
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/ecmascript
@@ -574,6 +580,7 @@ git clone https://github.com/tc39/test262.git $DISTDIR 2>1 1>/dev/null
 cd $DISTDIR
 git checkout 59f5b4935985ff456a4f3438bffe0dcc60af1294 2>1 1>/dev/null #this is the Commit ID from 10 Jul 2020. ES2020 was released on 11 June 2020
 cd $WPTBASEDIR
+echo "Generating ecmascript tests ..."
 node tools/wave/ecmascript/generate-tests.js $DISTDIR
 cp $DISTDIR/LICENSE $WPTBASEDIR/ecmascript
 rm -rf ecmascript/tests/**/*SharedArrayBuffer*
@@ -587,15 +594,16 @@ rm -rf ecmascript/tests/**/*BigUint*
 rm -rf ecmascript/tests/**/*biguint*
 
 # Integrate webgl tests [WEBGL-103]
-echo "Generating webgl test files ..."
 DISTDIR=dist/webgl
 cd $WPTBASEDIR
 rm -rf $WPTBASEDIR/webgl
 rm -rf $DISTDIR
+echo "Fetching webgl test files ..."
 git clone https://github.com/KhronosGroup/WebGL $DISTDIR 2>1 1>/dev/null
 cd $DISTDIR
 git checkout 495b85b3505837566e724e9f595354149af547f9 2>1 1>/dev/null #this is the Commit ID from 06 Jul 2021.
 cd $WPTBASEDIR
+echo "Generating webgl tests ..."
 node tools/wave/webgl/prepare-tests.js $DISTDIR
 cp $DISTDIR/LICENSE.txt $WPTBASEDIR/webgl
 
@@ -609,7 +617,7 @@ cp $DISTDIR/LICENSE.txt $WPTBASEDIR/webgl
 #cd $WPTBASEDIR
 
 # Remove the dist folder before manifest generation
-rm -rf dist
+rm -rf $DISTDIR
 
 # delete old MANIFEST.json
 #rm MANIFEST.json

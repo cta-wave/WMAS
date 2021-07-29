@@ -149,7 +149,6 @@ class TestsManager(object):
                 return next_test == test_b
 
         sorted_tests.sort(key=lambda test: compare(self, test))
-        print(sorted_tests)
         return sorted_tests
 
     def _get_next_test_from_list(self, tests):
