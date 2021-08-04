@@ -46,7 +46,8 @@ use these endpoints in context.
 | [`create`](./results-api/create.md)                                      | Create a new test result for a test in a session.                               |
 | [`read`](./results-api/read.md)                                          | Read all test results of a session.                                             |
 | [`read compact`](./results-api/read-compact.md)                          | Read the number of passed, failed, timed out and not run tests of a session.    |
-| [`import`](./results-api/import.md)                                      | Import session results.                                                         |
+| [`import session`](./results-api/import.md#1-import-session)             | Import session results.                                                         |
+| [`import api results`](./results-api/import.md#2-import-api-results)     | Import results of a specific API into existing session.                         |
 | [`download`](./results-api/download.md#1-download)                       | Download all session results to import into other WMATS instance.               |
 | [`download api`](./results-api/download.md#2-download-api)               | Download all results of an API.                                                 |
 | [`download all apis`](./results-api/download.md#3-download-all-apis)     | Download all results of all APIs.                                               |

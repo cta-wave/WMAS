@@ -1,4 +1,4 @@
-# Configuration - [WAVE Test Runner](../README.md)
+# Configuration - [WAVE Test Runner](./README.md)
 
 Using a configuration file, the WAVE Test Runner can be configured to be more
 functional in different use cases. This document lists all configuration

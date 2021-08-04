@@ -19,7 +19,7 @@ from .testing.devices_manager import DevicesManager
 from .testing.test_loader import TestLoader
 from .testing.event_dispatcher import EventDispatcher
 
-VERSION_STRING = "v3.0.1"
+VERSION_STRING = "v3.3.0"
 
 
 class WaveServer(object):
@@ -126,7 +126,8 @@ class WaveServer(object):
             import_results_enabled=configuration["import_results_enabled"],
             reports_enabled=reports_enabled,
             version_string=VERSION_STRING,
-            test_type_selection_enabled=configuration["enable_test_type_selection"]
+            test_type_selection_enabled=configuration["enable_test_type_selection"],
+            test_file_selection_enabled=configuration["enable_test_file_selection"]
         )
 
         # Initialize HTTP server

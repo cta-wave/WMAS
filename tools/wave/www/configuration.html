@@ -73,7 +73,7 @@
       //        }
       //      ];
 
-      var detailedTestSelectionEnabled = true;
+      var testFileSelectionEnabled = true;
 
       window.onload = function () {
         new ConfigurationView();
@@ -86,6 +86,7 @@
         var referenceSessions = [];
         var apis = [];
         var testTypeSelectionEnabled = true;
+        var testFileSelectionEnabled = false;
 
         var types = [
           { title: "Automatic", value: "automatic" },
@@ -101,6 +102,7 @@
         function loadServerStatus() {
           WaveService.readStatus(function (status) {
             testTypeSelectionEnabled = status.testTypeSelectionEnabled;
+            testFileSelectionEnabled = status.testFileSelectionEnabled;
             renderSessionConfiguration();
           });
         }
@@ -258,7 +260,7 @@
           var tests = state.configuration.tests;
           if (state.tests && state.tests[path.substr(1)]) {
             tests.include = tests.include.filter(function (test) {
-              return !test.match(new RegExp("^" + path));
+              return !test.match(new RegExp("^" + path + "/"));
             });
             tests.include = tests.include.concat(state.tests[path.substr(1)]);
           } else {
@@ -271,7 +273,7 @@
 
           if (state.tests && state.tests[path.substr(1)]) {
             tests.include = tests.include.filter(function (test) {
-              return !test.match(new RegExp("^" + path));
+              return !test.match(new RegExp("^" + path + "/"));
             });
           } else {
             var index = tests.include.findIndex((test) => test === path);
@@ -392,7 +394,11 @@
           apiErrorElement.innerHTML = "";
           if (!isTestListValid()) {
             apiErrorElement.appendChild(
-              UI.createElement(createErrorMessage("Select at least one API"))
+              UI.createElement(
+                createErrorMessage(
+                  "Select at least one API or at least one test within an API"
+                )
+              )
             );
           }
           renderButtonsField();
@@ -950,7 +956,7 @@
           var apiListItem = {
             element: "a",
             onClick: function (event) {
-              if (!detailedTestSelectionEnabled) return;
+              if (!testFileSelectionEnabled) return;
               if (!state.expandedApis) state.expandedApis = {};
               state.expandedApis[api.path] = !state.expandedApis[api.path];
               renderApiList(api);
@@ -972,6 +978,20 @@
                   renderApiList(api);
                 },
               },
+              testFileSelectionEnabled
+                ? {
+                    element: "span",
+                    style:
+                      "display: inline-block;vertical-align: middle;margin-left:0.3em;width: 0.7em",
+                    children: {
+                      element: "i",
+                      className:
+                        state.expandedApis && state.expandedApis[api.path]
+                          ? "fas fa-angle-down"
+                          : "fas fa-angle-right",
+                    },
+                  }
+                : null,
               {
                 style:
                   "display: inline-block;vertical-align: middle;margin-left:0.3em;width: 90%",
@@ -992,7 +1012,6 @@
             WaveService.readTestList(
               function (readTests) {
                 state.tests = readTests;
-                var tests = state.configuration.tests;
                 for (var api in state.tests) {
                   if (hasIncludedTest("/" + api)) {
                     handleRemoveIncludedTest("/" + api);
@@ -1011,34 +1030,36 @@
             };
 
             testListView.children = testListView.children.concat(
-              tests.map(function (test) {
-                return {
-                  element: "li",
-                  onclick: function (event) {
-                    handleIncludedTestToggle(test);
-                    renderApiList(api);
-                  },
-                  children: [
-                    {
-                      element: "a",
-                      children: [
-                        {
-                          element: "input",
-                          type: "checkbox",
-                          style:
-                            "width: 1.3em; height: 1.3em;vertical-align: middle;",
-                          checked: hasIncludedTest(test),
-                        },
-                        {
-                          style:
-                            "display: inline-block;vertical-align: middle;margin-left:0.3em;max-width: 90%",
-                          text: test,
-                        },
-                      ],
+              tests
+                .sort()
+                .map(function (test) {
+                  return {
+                    element: "li",
+                    onclick: function (event) {
+                      handleIncludedTestToggle(test);
+                      renderApiList(api);
                     },
-                  ],
-                };
-              })
+                    children: [
+                      {
+                        element: "a",
+                        children: [
+                          {
+                            element: "input",
+                            type: "checkbox",
+                            style:
+                              "width: 1.3em; height: 1.3em;vertical-align: middle;",
+                            checked: hasIncludedTest(test),
+                          },
+                          {
+                            style:
+                              "display: inline-block;vertical-align: middle;margin-left:0.3em;max-width: 90%",
+                            text: test,
+                          },
+                        ],
+                      },
+                    ],
+                  };
+                })
             );
             return UI.createElement(testListView);
           }

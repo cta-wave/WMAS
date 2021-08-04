@@ -232,16 +232,19 @@ promise_test(t => {
 
 }, 'ReadableStream teeing: failing to cancel the original stream should cause cancel() to reject on branches');
 
-test(() => {
+promise_test(t => {
 
+  const theError = { name: 'You just watch yourself!' };
   let controller;
   const stream = new ReadableStream({ start(c) { controller = c; } });
   const [branch1, branch2] = stream.tee();
 
-  controller.error("error");
+  controller.error(theError);
 
-  branch1.cancel().catch(_=>_);
-  branch2.cancel().catch(_=>_);
+  return Promise.all([
+    promise_rejects_exactly(t, theError, branch1.cancel()),
+    promise_rejects_exactly(t, theError, branch2.cancel())
+  ]);
 
 }, 'ReadableStream teeing: erroring a teed stream should properly handle canceled branches');
 
@@ -316,6 +319,93 @@ promise_test(t => {
   return promise;
 
 }, 'ReadableStream teeing: erroring the original should immediately error the branches');
+
+promise_test(async t => {
+
+  let controller;
+  const rs = new ReadableStream({
+    start(c) {
+      controller = c;
+    }
+  });
+
+  const [reader1, reader2] = rs.tee().map(branch => branch.getReader());
+  const cancelPromise = reader2.cancel();
+
+  controller.enqueue('a');
+
+  const read1 = await reader1.read();
+  assert_object_equals(read1, { value: 'a', done: false }, 'first read() from branch1 should fulfill with the chunk');
+
+  controller.close();
+
+  const read2 = await reader1.read();
+  assert_object_equals(read2, { value: undefined, done: true }, 'second read() from branch1 should be done');
+
+  await Promise.all([
+    reader1.closed,
+    cancelPromise
+  ]);
+
+}, 'ReadableStream teeing: canceling branch1 should finish when branch2 reads until end of stream');
+
+promise_test(async t => {
+
+  let controller;
+  const theError = { name: 'boo!' };
+  const rs = new ReadableStream({
+    start(c) {
+      controller = c;
+    }
+  });
+
+  const [reader1, reader2] = rs.tee().map(branch => branch.getReader());
+  const cancelPromise = reader2.cancel();
+
+  controller.error(theError);
+
+  await Promise.all([
+    promise_rejects_exactly(t, theError, reader1.read()),
+    cancelPromise
+  ]);
+
+}, 'ReadableStream teeing: canceling branch1 should finish when original stream errors');
+
+promise_test(async () => {
+
+  const rs = new ReadableStream({});
+
+  const [branch1, branch2] = rs.tee();
+
+  const cancel1 = branch1.cancel();
+  await flushAsyncEvents();
+  const cancel2 = branch2.cancel();
+
+  await Promise.all([cancel1, cancel2]);
+
+}, 'ReadableStream teeing: canceling both branches in sequence with delay');
+
+promise_test(async t => {
+
+  const theError = { name: 'boo!' };
+  const rs = new ReadableStream({
+    cancel() {
+      throw theError;
+    }
+  });
+
+  const [branch1, branch2] = rs.tee();
+
+  const cancel1 = branch1.cancel();
+  await flushAsyncEvents();
+  const cancel2 = branch2.cancel();
+
+  await Promise.all([
+    promise_rejects_exactly(t, theError, cancel1),
+    promise_rejects_exactly(t, theError, cancel2)
+  ]);
+
+}, 'ReadableStream teeing: failing to cancel when canceling both branches in sequence with delay');
 
 test(t => {
 

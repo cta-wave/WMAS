@@ -107,6 +107,20 @@ class ResultsApiHandler(ApiHandler):
             self.handle_exception("Failed to download api json")
             response.status = 500
 
+    def import_results_api_json(self, request, response):
+        try:
+            uri_parts = self.parse_uri(request)
+            token = uri_parts[2]
+            api = uri_parts[3]
+            blob = request.body
+
+            self._results_manager.import_results_api_json(token, api, blob)
+
+            response.status = 200
+        except Exception:
+            self.handle_exception("Failed to upload api json")
+            response.status = 500
+
     def download_results_all_api_jsons(self, request, response):
         try:
             uri_parts = self.parse_uri(request)
@@ -209,6 +223,10 @@ class ResultsApiHandler(ApiHandler):
                     return
                 if function == "json":
                     self.download_results_api_json(request, response)
+                    return
+            if method == "POST":
+                if function == "json":
+                    self.import_results_api_json(request, response)
                     return
 
         response.status = 404

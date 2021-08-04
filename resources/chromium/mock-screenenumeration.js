@@ -1,14 +1,27 @@
-'use strict'
+import {MultipleDisplays, ScreenEnumeration, ScreenEnumerationReceiver} from '/gen/third_party/blink/public/mojom/screen_enumeration/screen_enumeration.mojom.m.js';
+import {BufferFormat} from '/gen/ui/gfx/mojom/buffer_types.mojom.m.js';
+import {ColorSpaceMatrixID, ColorSpacePrimaryID, ColorSpaceRangeID, ColorSpaceTransferID} from '/gen/ui/gfx/mojom/color_space.mojom.m.js';
+import {AccelerometerSupport, Rotation, TouchSupport} from '/gen/ui/display/mojom/display.mojom.m.js';
 
-var ScreenEnumerationTest = (() => {
+export const HelperTypes = {
+  AccelerometerSupport,
+  BufferFormat,
+  ColorSpaceMatrixID,
+  ColorSpacePrimaryID,
+  ColorSpaceRangeID,
+  ColorSpaceTransferID,
+  Rotation,
+  TouchSupport,
+};
 
+self.ScreenEnumerationTest = (() => {
   class MockScreenEnumeration {
     constructor() {
-      this.bindingSet_ = new mojo.BindingSet(blink.mojom.ScreenEnumeration);
-      this.interceptor_ = new MojoInterfaceInterceptor(blink.mojom.ScreenEnumeration.name);
-      this.interceptor_.oninterfacerequest = e => {
-        this.bindingSet_.addBinding(this, e.handle);
-      }
+      this.receiver_ = new ScreenEnumerationReceiver(this);
+      this.interceptor_ =
+          new MojoInterfaceInterceptor(ScreenEnumeration.$interfaceName);
+      this.interceptor_.oninterfacerequest =
+          e => this.receiver_.$.bindHandle(e.handle);
       this.reset();
       this.interceptor_.start();
     }
@@ -20,8 +33,11 @@ var ScreenEnumerationTest = (() => {
       this.success_ = false;
     }
 
-    setIds(internalId, primaryId) {
+    setInternalId(internalId) {
       this.internalId_ = internalId;
+    }
+
+    setPrimaryId(primaryId) {
       this.primaryId_ = primaryId;
     }
 
@@ -33,13 +49,31 @@ var ScreenEnumerationTest = (() => {
       this.displays_.push(display);
     }
 
+    removeDisplay(id) {
+      for (var i = 0; i < this.displays_.length; i++) {
+        if (this.displays_[i].id === id)
+          this.displays_.splice(i,1);
+      }
+    }
+
     async getDisplays() {
-      return Promise.resolve({
+      if (!this.success_)
+        return {result: undefined};
+      const result = {
         displays: this.displays_,
         internalId: this.internalId_,
         primaryId: this.primaryId_,
-        success: this.success_,
-      });
+      };
+      return {result};
+    }
+
+    hasMultipleDisplays() {
+      if (!this.success_)
+        return {result: MultipleDisplays.kError};
+      return {
+        result: this.displays_.length > 1
+            ? MultipleDisplays.kTrue : MultipleDisplays.kFalse,
+      };
     }
   }
 

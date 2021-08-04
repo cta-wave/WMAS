@@ -13,6 +13,18 @@ class ClickAction(object):
         self.protocol.click.element(element)
 
 
+class DeleteAllCookiesAction(object):
+    name = "delete_all_cookies"
+
+    def __init__(self, logger, protocol):
+        self.logger = logger
+        self.protocol = protocol
+
+    def __call__(self, payload):
+        self.logger.debug("Deleting all cookies")
+        self.protocol.cookies.delete_all_cookies()
+
+
 class SendKeysAction(object):
     name = "send_keys"
 
@@ -43,12 +55,12 @@ class ActionSequenceAction(object):
                 for action in actionSequence["actions"]:
                     if (action["type"] == "pointerMove" and
                         isinstance(action["origin"], dict)):
-                        action["origin"] = self.get_element(action["origin"]["selector"], action["frame"]["frame"])
+                        action["origin"] = self.get_element(action["origin"]["selector"])
         self.protocol.action_sequence.send_actions({"actions": actions})
 
-    def get_element(self, element_selector, frame):
-        element = self.protocol.select.element_by_selector(element_selector, frame)
-        return element
+    def get_element(self, element_selector):
+        return self.protocol.select.element_by_selector(element_selector)
+
 
 class GenerateTestReportAction(object):
     name = "generate_test_report"
@@ -171,6 +183,7 @@ class SetUserVerifiedAction(object):
 
 
 actions = [ClickAction,
+           DeleteAllCookiesAction,
            SendKeysAction,
            ActionSequenceAction,
            GenerateTestReportAction,

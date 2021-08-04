@@ -14,7 +14,8 @@ class GeneralApiHandler(ApiHandler):
         import_results_enabled,
         reports_enabled,
         version_string,
-        test_type_selection_enabled
+        test_type_selection_enabled,
+        test_file_selection_enabled
     ):
         super(GeneralApiHandler, self).__init__(web_root)
         self.read_sessions_enabled = read_sessions_enabled
@@ -22,6 +23,7 @@ class GeneralApiHandler(ApiHandler):
         self.reports_enabled = reports_enabled
         self.version_string = version_string
         self.test_type_selection_enabled = test_type_selection_enabled
+        self.test_file_selection_enabled = test_file_selection_enabled
 
     def read_status(self):
         try:
@@ -32,7 +34,8 @@ class GeneralApiHandler(ApiHandler):
                     "read_sessions_enabled": self.read_sessions_enabled,
                     "import_results_enabled": self.import_results_enabled,
                     "reports_enabled": self.reports_enabled,
-                    "test_type_selection_enabled": self.test_type_selection_enabled
+                    "test_type_selection_enabled": self.test_type_selection_enabled,
+                    "test_file_selection_enabled": self.test_file_selection_enabled
                 }
             }
         except Exception:

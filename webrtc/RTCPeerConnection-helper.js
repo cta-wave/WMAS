@@ -176,11 +176,9 @@ function exchangeIceCandidates(pc1, pc2) {
     localPc.addEventListener('icecandidate', event => {
       const { candidate } = event;
 
-      // candidate may be null to indicate end of candidate gathering.
-      // There is ongoing discussion on w3c/webrtc-pc#1213
-      // that there should be an empty candidate string event
-      // for end of candidate for each m= section.
-      if(candidate && remotePc.signalingState !== 'closed') {
+      // Guard against already closed peerconnection to
+      // avoid unrelated exceptions.
+      if (remotePc.signalingState !== 'closed') {
         remotePc.addIceCandidate(candidate);
       }
     });
@@ -190,117 +188,63 @@ function exchangeIceCandidates(pc1, pc2) {
   doExchange(pc2, pc1);
 }
 
-// Returns a promise that resolves when the |transport| gets a
-// 'statechange' event with the value |state|.
-// This should work for RTCSctpTransport, RTCDtlsTransport and RTCIceTransport.
-function waitForState(transport, state) {
-  return new Promise((resolve, reject) => {
-    if (transport.state == state) {
-      resolve();
-    }
-    const eventHandler = () => {
-      if (transport.state == state) {
-        transport.removeEventListener('statechange', eventHandler, false);
-        resolve();
-      }
-    };
-    transport.addEventListener('statechange', eventHandler, false);
-  });
+// Returns a promise that resolves when a |name| event is fired.
+function waitUntilEvent(obj, name) {
+  return new Promise(r => obj.addEventListener(name, r, {once: true}));
 }
 
+// Returns a promise that resolves when the |transport.state| is |state|
+// This should work for RTCSctpTransport, RTCDtlsTransport and RTCIceTransport.
+async function waitForState(transport, state) {
+  while (transport.state != state) {
+    await waitUntilEvent(transport, 'statechange');
+  }
+}
 
 // Returns a promise that resolves when |pc.iceConnectionState| is 'connected'
 // or 'completed'.
-function listenToIceConnected(pc) {
-  return new Promise((resolve) => {
-    function isConnected(pc) {
-      return pc.iceConnectionState == 'connected' ||
-            pc.iceConnectionState == 'completed';
-    }
-    if (isConnected(pc)) {
-      resolve();
-      return;
-    }
-    pc.addEventListener('iceconnectionstatechange', () => {
-      if (isConnected(pc))
-        resolve();
-    });
-  });
+async function listenToIceConnected(pc) {
+  await waitForIceStateChange(pc, ['connected', 'completed']);
 }
 
 // Returns a promise that resolves when |pc.iceConnectionState| is in one of the
 // wanted states.
-function waitForIceStateChange(pc, wantedStates) {
-  return new Promise((resolve) => {
-    if (wantedStates.includes(pc.iceConnectionState)) {
-      resolve();
-      return;
-    }
-    pc.addEventListener('iceconnectionstatechange', () => {
-      if (wantedStates.includes(pc.iceConnectionState))
-        resolve();
-    });
-  });
+async function waitForIceStateChange(pc, wantedStates) {
+  while (!wantedStates.includes(pc.iceConnectionState)) {
+    await waitUntilEvent(pc, 'iceconnectionstatechange');
+  }
 }
 
 // Returns a promise that resolves when |pc.connectionState| is 'connected'.
-function listenToConnected(pc) {
-  return new Promise((resolve) => {
-    if (pc.connectionState == 'connected') {
-      resolve();
-      return;
-    }
-    pc.onconnectionstatechange = () => {
-      if (pc.connectionState == 'connected')
-        resolve();
-    };
-  });
+async function listenToConnected(pc) {
+  while (pc.connectionState != 'connected') {
+    await waitUntilEvent(pc, 'connectionstatechange');
+  }
 }
 
 // Returns a promise that resolves when |pc.connectionState| is in one of the
 // wanted states.
-function waitForConnectionStateChange(pc, wantedStates) {
-  return new Promise((resolve) => {
-    if (wantedStates.includes(pc.connectionState)) {
-      resolve();
-      return;
-    }
-    pc.addEventListener('connectionstatechange', () => {
-      if (wantedStates.includes(pc.connectionState))
-        resolve();
-    });
-  });
+async function waitForConnectionStateChange(pc, wantedStates) {
+  while (!wantedStates.includes(pc.connectionState)) {
+    await waitUntilEvent(pc, 'connectionstatechange');
+  }
 }
 
-// Returns a promise that resolves when |pc.connectionState| is in one of the
-// wanted states.
-function waitForConnectionStateChange(pc, wantedStates) {
-  return new Promise((resolve) => {
-    if (wantedStates.includes(pc.connectionState)) {
-      resolve();
-      return;
-    }
-    pc.addEventListener('connectionstatechange', () => {
-      if (wantedStates.includes(pc.connectionState))
-        resolve();
-    });
-  });
+async function waitForIceGatheringState(pc, wantedStates) {
+  while (!wantedStates.includes(pc.iceGatheringState)) {
+    await waitUntilEvent(pc, 'icegatheringstatechange');
+  }
 }
 
 // Resolves when RTP packets have been received.
-function listenForSSRCs(t, receiver) {
-  return new Promise((resolve) => {
-    function listen() {
-      const ssrcs = receiver.getSynchronizationSources();
-      assert_true(ssrcs != undefined);
-      if (ssrcs.length > 0) {
-        resolve(ssrcs);
-        return;
-      }
-      t.step_timeout(listen, 0);
-    };
-    listen();
-  });
+async function listenForSSRCs(t, receiver) {
+  while (true) {
+    const ssrcs = receiver.getSynchronizationSources();
+    if (Array.isArray(ssrcs) && ssrcs.length > 0) {
+      return ssrcs;
+    }
+    await new Promise(r => t.step_timeout(r, 0));
+  }
 }
 
 // Helper function to create a pair of connected data channels.
@@ -365,28 +309,21 @@ async function waitForRtpAndRtcpStats(pc) {
 // Wait for a single message event and return
 // a promise that resolve when the event fires
 function awaitMessage(channel) {
+  const once = true;
   return new Promise((resolve, reject) => {
-    channel.addEventListener('message',
-      event => resolve(event.data),
-      { once: true });
-
-    channel.addEventListener('error', reject, { once: true });
+    channel.addEventListener('message', ({data}) => resolve(data), {once});
+    channel.addEventListener('error', reject, {once});
   });
 }
 
 // Helper to convert a blob to array buffer so that
 // we can read the content
-function blobToArrayBuffer(blob) {
+async function blobToArrayBuffer(blob) {
+  const reader = new FileReader();
+  reader.readAsArrayBuffer(blob);
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.addEventListener('load', () => {
-      resolve(reader.result);
-    });
-
-    reader.addEventListener('error', reject);
-
-    reader.readAsArrayBuffer(blob);
+    reader.addEventListener('load', () => resolve(reader.result), {once: true});
+    reader.addEventListener('error', () => reject(reader.error), {once: true});
   });
 }
 
@@ -458,7 +395,7 @@ const trackFactories = {
     return dst.stream.getAudioTracks()[0];
   },
 
-  video({width = 640, height = 480, signal = null} = {}) {
+  video({width = 640, height = 480, signal} = {}) {
     const canvas = Object.assign(
       document.createElement("canvas"), {width, height}
     );
@@ -466,15 +403,17 @@ const trackFactories = {
     const stream = canvas.captureStream();
 
     let count = 0;
-    setInterval(() => {
+    const interval = setInterval(() => {
       ctx.fillStyle = `rgb(${count%255}, ${count*count%255}, ${count%255})`;
       count += 1;
       ctx.fillRect(0, 0, width, height);
-      // If signal is set, add a constant-color box to the video frame
-      // at coordinates 10 to 30 in both X and Y direction.
-      if (signal !== null) {
+      // If signal is set (0-255), add a constant-color box of that luminance to
+      // the video frame at coordinates 20 to 60 in both X and Y direction.
+      // (big enough to avoid color bleed from surrounding video in some codecs,
+      // for more stable tests).
+      if (signal != undefined) {
         ctx.fillStyle = `rgb(${signal}, ${signal}, ${signal})`;
-        ctx.fillRect(10, 10, 20, 20);
+        ctx.fillRect(20, 20, 40, 40);
       }
     }, 100);
 
@@ -483,42 +422,50 @@ const trackFactories = {
     } else {
       document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(canvas);
-      });
+      }, {once: true});
     }
 
-    return stream.getVideoTracks()[0];
+    // Implement track.stop() for performance in some tests on some platforms
+    const track = stream.getVideoTracks()[0];
+    const nativeStop = track.stop;
+    track.stop = function stop() {
+      clearInterval(interval);
+      nativeStop.apply(this);
+      if (document.body && canvas.parentElement == document.body) {
+        document.body.removeChild(canvas);
+      }
+    };
+    return track;
   }
 };
 
 // Get the signal from a video element inserted by createNoiseStream
 function getVideoSignal(v) {
-  if (v.videoWidth < 21 || v.videoHeight < 21) {
-    return null;
+  if (v.videoWidth < 60 || v.videoHeight < 60) {
+    throw new Error('getVideoSignal: video too small for test');
   }
-  const canvas = new OffscreenCanvas(v.videoWidth, v.videoHeight);
-  let context = canvas.getContext('2d');
-  context.drawImage(v, 0, 0, v.videoWidth, v.videoHeight);
-  // Extract pixel value at position 20, 20
-  let pixel = context.getImageData(20, 20, 1, 1);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 60;
+  const context = canvas.getContext('2d');
+  context.drawImage(v, 0, 0);
+  // Extract pixel value at position 40, 40
+  const pixel = context.getImageData(40, 40, 1, 1);
   // Use luma reconstruction to get back original value according to
   // ITU-R rec BT.709
   return (pixel.data[0] * 0.21 + pixel.data[1] * 0.72 + pixel.data[2] * 0.07);
 }
 
-function detectSignal(t, v, value) {
-  return new Promise((resolve) => {
-    let check = () => {
-      const signal = getVideoSignal(v);
-      if (signal !== null && signal < value + 1 && signal > value - 1) {
-        resolve();
-      } else {
-        // We would like to wait for each new frame instead here,
-        // but there seems to be no such callback.
-        t.step_timeout(check, 100);
-      }
+async function detectSignal(t, v, value) {
+  while (true) {
+    const signal = getVideoSignal(v).toFixed();
+    // allow off-by-two pixel error (observed in some implementations)
+    if (value - 2 <= signal && signal <= value + 2) {
+      return;
     }
-    check();
-  });
+    // We would like to wait for each new frame instead here,
+    // but there seems to be no such callback.
+    await new Promise(r => t.step_timeout(r, 100));
+  }
 }
 
 // Generate a MediaStream bearing the specified tracks.
@@ -589,8 +536,12 @@ async function exchangeOffer(caller, callee) {
 }
 // Performs an answer exchange caller -> callee.
 async function exchangeAnswer(caller, callee) {
-  await callee.setLocalDescription(await callee.createAnswer());
-  await caller.setRemoteDescription(callee.localDescription);
+  // Note that caller's remote description must be set first; if not,
+  // there's a chance that candidates from callee arrive at caller before
+  // it has a remote description to apply them to.
+  const answer = await callee.createAnswer();
+  await caller.setRemoteDescription(answer);
+  await callee.setLocalDescription(answer);
 }
 async function exchangeOfferAnswer(caller, callee) {
   await exchangeOffer(caller, callee);
@@ -652,14 +603,13 @@ class Resolver extends Promise {
   }
 }
 
-function addEventListenerPromise(t, target, type, listener) {
-  return new Promise((resolve, reject) => {
-    target.addEventListener(type, t.step_func(e => {
-      if (listener != undefined)
-        e = listener(e);
-      resolve(e);
-    }));
-  });
+function addEventListenerPromise(t, obj, type, listener) {
+  if (!listener) {
+    return waitUntilEvent(obj, type);
+  }
+  return new Promise(r => obj.addEventListener(type,
+                                               t.step_func(e => r(listener(e))),
+                                               {once: true}));
 }
 
 function createPeerConnectionWithCleanup(t) {
@@ -717,3 +667,40 @@ class UniqueSet extends Set {
     super.add(value);
   }
 }
+
+const iceGatheringStateTransitions = async (pc, ...states) => {
+  for (const state of states) {
+    await new Promise((resolve, reject) => {
+      pc.addEventListener('icegatheringstatechange', () => {
+        if (pc.iceGatheringState == state) {
+          resolve();
+        } else {
+          reject(`Unexpected gathering state: ${pc.iceGatheringState}, was expecting ${state}`);
+        }
+      }, {once: true});
+    });
+  }
+};
+
+const initialOfferAnswerWithIceGatheringStateTransitions =
+    async (pc1, pc2, offerOptions) => {
+      await pc1.setLocalDescription(
+        await pc1.createOffer(offerOptions));
+      const pc1Transitions =
+          iceGatheringStateTransitions(pc1, 'gathering', 'complete');
+      await pc2.setRemoteDescription(pc1.localDescription);
+      await pc2.setLocalDescription(await pc2.createAnswer());
+      const pc2Transitions =
+          iceGatheringStateTransitions(pc2, 'gathering', 'complete');
+      await pc1.setRemoteDescription(pc2.localDescription);
+      await pc1Transitions;
+      await pc2Transitions;
+    };
+
+const expectNoMoreGatheringStateChanges = async (t, pc) => {
+  pc.onicegatheringstatechange =
+      t.step_func(() => {
+        assert_unreached(
+            'Should not get an icegatheringstatechange right now!');
+      });
+};

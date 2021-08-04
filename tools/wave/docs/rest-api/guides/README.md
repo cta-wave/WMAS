@@ -1,4 +1,4 @@
-# REST API Guides
+# REST API Guides - [WAVE Test Runner](../../README.md)
 
 In addition to the [REST API documentation](../README.md), these guide shall 
 provide a better understanding on how to properly use the different endpoints.

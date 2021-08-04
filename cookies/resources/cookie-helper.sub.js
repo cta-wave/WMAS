@@ -1,8 +1,11 @@
 // Set up exciting global variables for cookie tests.
 (_ => {
   var HOST = "{{host}}";
+  var INSECURE_PORT = ":{{ports[http][0]}}";
   var SECURE_PORT = ":{{ports[https][0]}}";
   var CROSS_ORIGIN_HOST = "{{hosts[alt][]}}";
+
+  window.INSECURE_ORIGIN = "http://" + HOST + INSECURE_PORT;
 
   //For secure cookie verification
   window.SECURE_ORIGIN = "https://" + HOST + SECURE_PORT;
@@ -30,6 +33,12 @@ function credFetch(url) {
 // Returns a URL on |origin| which redirects to a given absolute URL.
 function redirectTo(origin, url) {
   return origin + "/cookies/resources/redirectWithCORSHeaders.py?status=307&location=" + encodeURIComponent(url);
+}
+
+// Returns a URL on |origin| which navigates the window to the given URL (by
+// setting window.location).
+function navigateTo(origin, url) {
+  return origin + "/cookies/resources/navigate.html?location=" + encodeURIComponent(url);
 }
 
 // Asserts that `document.cookie` contains or does not contain (according to
@@ -293,6 +302,28 @@ function resetSameSiteNoneCookies(origin, value) {
     })
     .then(_ => {
       return credFetch(origin + "/cookies/resources/setSameSiteNone.py?" + value);
+    })
+}
+
+// Reset test cookies with multiple SameSite attributes on |origin|.
+// If |origin| matches `self.origin`, assert (via `document.cookie`)
+// that they were properly removed.
+function resetSameSiteMultiAttributeCookies(origin, value) {
+  return credFetch(origin + "/cookies/resources/dropSameSiteMultiAttribute.py")
+    .then(_ => {
+      if (origin == self.origin) {
+        assert_dom_cookie("samesite_unsupported", value, false);
+        assert_dom_cookie("samesite_unsupported_none", value, false);
+        assert_dom_cookie("samesite_unsupported_lax", value, false);
+        assert_dom_cookie("samesite_unsupported_strict", value, false);
+        assert_dom_cookie("samesite_none_unsupported", value, false);
+        assert_dom_cookie("samesite_lax_unsupported", value, false);
+        assert_dom_cookie("samesite_strict_unsupported", value, false);
+        assert_dom_cookie("samesite_lax_none", value, false);
+      }
+    })
+    .then(_ => {
+      return credFetch(origin + "/cookies/resources/setSameSiteMultiAttribute.py?" + value);
     })
 }
 

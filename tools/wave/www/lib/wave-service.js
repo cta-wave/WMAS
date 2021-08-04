@@ -540,6 +540,7 @@ var WaveService = {
   // DEVICES API
   _device_token: null,
   _deviceEventListeners: {},
+  _deviceEventNumbers: {},
   registerDevice: function (onSuccess, onError) {
     sendRequest(
       "POST",
@@ -594,8 +595,13 @@ var WaveService = {
   listenDeviceEvents: function (token) {
     var listeners = WaveService._deviceEventListeners;
     if (!listeners[token] || listeners.length === 0) return;
+    var url = "api/devices/" + token + "/events";
+    var lastEventNumber = WaveService._deviceEventNumbers[token];
+    if (lastEventNumber) {
+      url += "?last_active=" + lastEventNumber;
+    }
     WaveService.listenHttpPolling(
-      "api/devices/" + token + "/events",
+      url,
       function (response) {
         if (!response) {
           WaveService.listenDeviceEvents(token);
@@ -604,6 +610,7 @@ var WaveService = {
         for (var listener of listeners[token]) {
           listener(response);
         }
+        WaveService._deviceEventNumbers[token] = lastEventNumber;
         WaveService.listenDeviceEvents(token);
       },
       function () {
@@ -690,7 +697,8 @@ var WaveService = {
           importResultsEnabled: data.import_results_enabled,
           reportsEnabled: data.reports_enabled,
           versionString: data.version_string,
-          testTypeSelectionEnabled: data.test_type_selection_enabled
+          testTypeSelectionEnabled: data.test_type_selection_enabled,
+          testFileSelectionEnabled: data.test_file_selection_enabled
         };
         onSuccess(configuration);
       },

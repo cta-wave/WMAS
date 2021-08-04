@@ -4,6 +4,9 @@ With WAVE Test Runner v1.0.0 all files and REST API endpoints are served under
 a configurable namespace, by default `/_wave/`, which will be used in this 
 usage guide.
 
+In this document the usage is explained using screenshots from the context of 
+the WMAS project. However, practices can be applied to different contexts as well.
+
 ## Contents
 
 1. [Creating test sessions](#1-creating-test-sessions)

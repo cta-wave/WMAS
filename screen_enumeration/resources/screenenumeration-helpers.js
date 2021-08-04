@@ -6,45 +6,31 @@
 //
 //   --enable-blink-features=MojoJS,MojoJSTest
 
-const loadChromiumResources = async () => {
-  if (!("MojoInterfaceInterceptor" in self)) {
-    // Do nothing on non-Chromium-based browsers or when the Mojo bindings are
-    // not present in the global namespace.
-    return;
-  }
-
-  const resources = [
-    "/gen/layout_test_data/mojo/public/js/mojo_bindings.js",
-    "/gen/ui/gfx/mojom/color_space.mojom.js",
-    "/gen/ui/gfx/mojom/buffer_types.mojom.js",
-    "/gen/ui/gfx/mojom/display_color_spaces.mojom.js",
-    "/gen/ui/gfx/geometry/mojom/geometry.mojom.js",
-    "/gen/ui/display/mojom/display.mojom.js",
-    "/gen/third_party/blink/public/mojom/screen_enumeration/screen_enumeration.mojom.js",
-    "/resources/testdriver.js",
-    "/resources/testdriver-vendor.js",
-    "/resources/chromium/mock-screenenumeration.js",
-  ];
-  await Promise.all(resources.map(path => {
-    const script = document.createElement("script");
-    script.src = path;
-    script.async = false;
-    const promise = new Promise((resolve, reject) => {
-      script.onload = resolve;
-      script.onerror = reject;
-    });
-    document.head.appendChild(script);
-    return promise;
-  }));
-
-};
+async function loadChromiumResources() {
+  await loadScript('/resources/testdriver.js');
+  await loadScript('/resources/testdriver-vendor.js');
+  const {HelperTypes} = await import('/resources/chromium/mock-screenenumeration.js');
+  self.HelperTypes = HelperTypes;
+}
 
 async function initialize_screen_enumeration_tests() {
-  if (typeof ScreenEnumerationTest === "undefined")
-    await loadChromiumResources();
+  if (typeof ScreenEnumerationTest === "undefined") {
+    const script = document.createElement('script');
+    script.src = '/resources/test-only-api.js';
+    script.async = false;
+    const p = new Promise((resolve, reject) => {
+      script.onload = () => { resolve(); };
+      script.onerror = e => { reject(e); };
+    });
+    document.head.appendChild(script);
+    await p;
 
-  assert_true(typeof ScreenEnumerationTest !== "undefined",
-              "Screen Enumeration testing interface is not available.");
+    if (isChromiumBased) {
+      await loadChromiumResources();
+    }
+  }
+  assert_implements(ScreenEnumerationTest,
+                    'Screen Enumeration testing interface is not available.');
   let enumTest = new ScreenEnumerationTest();
   await enumTest.initialize();
   return enumTest;
@@ -62,28 +48,24 @@ function screen_enumeration_test(func, name, properties) {
 function makeDisplay(id, bounds, work_area, scale_factor) {
   let myColorSpace = fillColorSpaceVector();
   let myBufferFormat = fillBufferFormatVector();
-  let newDisplay = new display.mojom.Display({id: id,
-                          bounds: new gfx.mojom.Rect({x: bounds.x, y: bounds.y,
-                                                      width: bounds.width,
-                                                      height: bounds.height}),
-                          sizeInPixels: new gfx.mojom.Size({width: bounds.width,
-                                                            height: bounds.height}),
-                          maximumCursorSize: new gfx.mojom.Size({width: 20, height: 20}),
-                          workArea: new gfx.mojom.Rect({x: work_area.x, y: work_area.y,
-                                                        width: work_area.width,
-                                                        height: work_area.height}),
-                          deviceScaleFactor: scale_factor,
-                          rotation: display.mojom.Rotation.VALUE_0,
-                          touchSupport: display.mojom.TouchSupport.UNAVAILABLE,
-                          accelerometerSupport: display.mojom.AccelerometerSupport.UNAVAILABLE,
-                          colorSpaces: new gfx.mojom.DisplayColorSpaces({colorSpaces: myColorSpace,
-                                                                         bufferFormats: myBufferFormat,
-                                                                         sdrWhiteLevel: 1.0}),
-                          colorDepth: 10,
-                          depthPerComponent: 10,
-                          isMonochrome: true,
-                          displayFrequency: 120});
-  return newDisplay;
+  return {
+    id,
+    bounds,
+    sizeInPixels: {width: bounds.width, height: bounds.height},
+    maximumCursorSize: {width: 20, height: 20},
+    workArea: work_area,
+    deviceScaleFactor: scale_factor,
+    rotation: HelperTypes.Rotation.VALUE_0,
+    touchSupport: HelperTypes.TouchSupport.UNAVAILABLE,
+    accelerometerSupport: HelperTypes.AccelerometerSupport.UNAVAILABLE,
+    colorSpaces: {colorSpaces: myColorSpace,
+                  bufferFormats: myBufferFormat,
+                  sdrWhiteLevel: 1.0},
+    colorDepth: 10,
+    depthPerComponent: 10,
+    isMonochrome: true,
+    displayFrequency: 120
+  };
 }
 
 // Function to construct color space vector.
@@ -91,13 +73,14 @@ function makeDisplay(id, bounds, work_area, scale_factor) {
 function fillColorSpaceVector() {
   let colorSpaceVector = [];
   for (let i = 0; i < 6; i++) {
-    let colorSpace = new gfx.mojom.ColorSpace({
-                       primaries: gfx.mojom.ColorSpacePrimaryID.BT709,
-                       transfer: gfx.mojom.ColorSpaceTransferID.BT709,
-                       matrix: gfx.mojom.ColorSpaceMatrixID.BT709,
-                       range: gfx.mojom.ColorSpaceRangeID.LIMITED,
-                       customPrimaryMatrix: fillCustomPrimaryMatrix(),
-                       transferParams: fillTransferParams()});
+    let colorSpace = {
+      primaries: HelperTypes.ColorSpacePrimaryID.BT709,
+      transfer: HelperTypes.ColorSpaceTransferID.BT709,
+      matrix: HelperTypes.ColorSpaceMatrixID.BT709,
+      range: HelperTypes.ColorSpaceRangeID.LIMITED,
+      customPrimaryMatrix: fillCustomPrimaryMatrix(),
+      transferParams: fillTransferParams()
+    };
     colorSpaceVector.push(colorSpace);
   }
   return colorSpaceVector;
@@ -120,12 +103,12 @@ function fillTransferParams () {
 // Function to construct buffer format vector.
 // Values are purely random but mandatory.
 function fillBufferFormatVector() {
-
-  let bufferFormat = [gfx.mojom.BufferFormat.RGBA_8888,
-                      gfx.mojom.BufferFormat.RGBA_8888,
-                      gfx.mojom.BufferFormat.RGBA_8888,
-                      gfx.mojom.BufferFormat.RGBA_8888,
-                      gfx.mojom.BufferFormat.RGBA_8888,
-                      gfx.mojom.BufferFormat.RGBA_8888];
+  const BufferFormat = HelperTypes.BufferFormat;
+  let bufferFormat = [BufferFormat.RGBA_8888,
+                      BufferFormat.RGBA_8888,
+                      BufferFormat.RGBA_8888,
+                      BufferFormat.RGBA_8888,
+                      BufferFormat.RGBA_8888,
+                      BufferFormat.RGBA_8888];
   return bufferFormat;
 }

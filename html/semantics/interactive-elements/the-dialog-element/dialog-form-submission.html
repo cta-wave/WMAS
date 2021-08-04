@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset=urf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
 <title>Test dialog form submission</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
@@ -9,7 +10,7 @@
 
 <body>
 <dialog id="favDialog">
-  <form method="dialog">
+  <form id="dialogForm" method="dialog">
     <button id="confirmBtn" value="default">Confirm</button>
     <input id="confirmImgBtn" src="./resources/submit.jpg" width="41"
     height="41" type="image" alt="Hello">
@@ -51,7 +52,7 @@ promise_test(async () => {
   button.removeAttribute("value");
   button.click();
   assert_false(dialog.open, "dialog should be closed now");
-  assert_false(dialog.returnValue === undefined, "returnValue should not be set");
+  assert_not_equals(dialog.returnValue, undefined, "returnValue should not be set");
 }, "no returnValue when there's no result.");
 
 promise_test(async () => {
@@ -68,7 +69,7 @@ promise_test(async () => {
   assert_false(dialog.open, "dialog should be closed now");
   assert_not_equals(dialog.returnValue, "", "returnValue shouldn't be empty string");
   assert_equals(dialog.returnValue, expectedReturnValue, "returnValue should be the offsets of the click");
-}, "input image button should return the coordianates");
+}, "input image button should return the coordinates");
 
 promise_test(async () => {
   const dialog = document.querySelector('dialog');
@@ -77,6 +78,26 @@ promise_test(async () => {
   await test_driver.click(button);
   assert_false(dialog.open, "dialog should be closed now");
 }, "formmethod attribute should use dialog form submission");
+
+promise_test(async () => {
+  const dialog = document.querySelector('dialog');
+  dialog.returnValue = "";
+  dialog.showModal();
+
+  const button = document.querySelector('button');
+  button.value = "sushi";
+
+  const dialogForm = document.getElementById('dialogForm');
+  dialogForm.onsubmit = function() {
+    dialog.close();
+  }
+
+  button.click();
+  assert_false(dialog.open, "dialog should be closed now");
+  // If the submission request got processed, the returnValue should change
+  // to "sushi" because that's the value of the submitter
+  assert_equals(dialog.returnValue, "", "dialog's returnValue remains the same");
+}, "closing the dialog while submitting should stop the submission");
 
 </script>
 </body>

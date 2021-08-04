@@ -43,6 +43,7 @@
     "api_titles": [],
     "enable_read_sessions": false,
     "event_cache_duration": 60000,
-    "enable_test_type_selection": false
+    "enable_test_type_selection": false,
+    "enable_test_file_selection": false
   }
 }

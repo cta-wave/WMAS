@@ -13,10 +13,13 @@ The `ScreenEnumerationTest` interface is defined as:
 
   class MockScreenEnumeration {
     reset(); Empties data of created mock displays.
-    setId(internalId, primaryId); // Set primary screen and internal screen IDs.
+    setInternalId(internalId); // Set internal screen ID.
+    setPrimaryId(primaryId); // Set primary screen ID.
     setSuccess(success); // Set boolean to validate getDisplays() returned values.
     addDisplay(display); // Push display to the display vector.
+    removeDisplay(id); // Remove display from the display vector.
     async getDisplays(); // Interceptor of getDisplays (screen_enumeration.mojom).
+    async hasMultipleDisplays(); // Interceptor of hasMultipleDisplays (screen_enumeration.mojom).
   };
 ```
 

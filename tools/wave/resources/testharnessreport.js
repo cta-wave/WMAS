@@ -115,10 +115,13 @@ if (location.search && location.search.indexOf("token=") != -1) {
 
     parent.appendChild(results_element);
 
-    screenConsole = document.createElement("div");
-    screenConsole.setAttribute("id", "console");
-    screenConsole.setAttribute("style", "font-family: monospace; padding: 5px");
-    parent.appendChild(screenConsole);
+    screenConsole = document.getElementById("console");
+    if (!screenConsole) {
+      screenConsole = document.createElement("div");
+      screenConsole.setAttribute("id", "console");
+      screenConsole.setAttribute("style", "font-family: monospace; padding: 5px");
+      parent.appendChild(screenConsole);
+    }
     window.onerror = logToConsole;
 
     finishWptTest(data);

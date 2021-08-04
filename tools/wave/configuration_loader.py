@@ -80,6 +80,10 @@ def load(configuration_file_path):
         "wave", default_configuration["wave"]).get(
         "enable_test_type_selection", default_configuration["wave"]["enable_test_type_selection"])
 
+    configuration["enable_test_file_selection"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_test_file_selection", default_configuration["wave"]["enable_test_file_selection"])
+
     return configuration
 
 
