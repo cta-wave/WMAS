@@ -95,13 +95,9 @@ function testExtractContents(i) {
 
     expectedFrag = myExtractContents(expectedRange);
     if (typeof expectedFrag == "string") {
-      assert_throws_dom(
-        expectedFrag,
-        actualIframe.contentWindow.DOMException,
-        function() {
-          actualRange.extractContents();
-        }
-      );
+      assert_throws(expectedFrag, function() {
+        actualRange.extractContents();
+      });
     } else {
       actualFrag = actualRange.extractContents();
     }

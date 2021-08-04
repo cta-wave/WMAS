@@ -13,7 +13,7 @@
 <div id="log"></div>
 <script type="text/javascript">
 
-function doTest(doc, tagToTest, templateInnerHTML, id, tagName, bodiesNum = null, footerIsNull,
+function doTest(doc, tagToTest, templateInnerHTML, id, tagName, bodiesNum, footerIsNull,
         footerId, headerIsNull, headerId) {
 
     doc.body.innerHTML = '' +
@@ -51,7 +51,7 @@ function doTest(doc, tagToTest, templateInnerHTML, id, tagName, bodiesNum = null
 
     assert_equals(table.caption, null, 'Table should have no caption');
 
-    if (bodiesNum !== null) {
+    if (bodiesNum) {
         assert_equals(table.tBodies.length, bodiesNum, 'Table should have '
                 + bodiesNum + ' body');
     }
@@ -175,8 +175,7 @@ var parameters = [
      doc, 'tbody', '</tfoot>', null, null]
 ];
 
-// Clearing stack back to a table body context.
-generate_tests(doTest, parameters);
+generate_tests(doTest, parameters, 'Clearing stack back to a table body context.');
 
 </script>
 </body>

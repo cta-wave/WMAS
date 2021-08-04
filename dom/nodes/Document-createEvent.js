@@ -17,6 +17,7 @@ var aliases = {
   "StorageEvent": "StorageEvent",
   "SVGEvents": "Event",
   "TextEvent": "CompositionEvent",
+  "TouchEvent": "TouchEvent",
   "UIEvent": "UIEvent",
   "UIEvents": "UIEvent",
 };

@@ -13,9 +13,9 @@
   current.search = "";
   if (navigateTo) {
     let next = new URL(navigateTo, current);
-    window.addEventListener("load", () => {
+    setTimeout(() => {
       window.location = next.href;
-    });
+    }, 50);
   }
 
   if (channelName) {

@@ -1,6 +1,6 @@
 def main(request, response):
-    headers = [(b"Content-Type", b"text/html")]
-    return headers, u'''
+    headers = [("Content-Type", "text/html")]
+    return headers, '''
         <script>
             onload = function() {opener.next()}
             document.write(Math.random());

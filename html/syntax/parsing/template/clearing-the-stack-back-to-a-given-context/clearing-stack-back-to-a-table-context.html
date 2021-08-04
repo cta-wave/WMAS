@@ -13,7 +13,7 @@
 <div id="log"></div>
 <script type="text/javascript">
 
-function doTest(doc, templateInnerHTML, id, tagName, bodiesNum = null, footerIsNull,
+function doTest(doc, templateInnerHTML, id, tagName, bodiesNum, footerIsNull,
         headerIsNull) {
 
     doc.body.innerHTML = '' +
@@ -43,7 +43,7 @@ function doTest(doc, templateInnerHTML, id, tagName, bodiesNum = null, footerIsN
     assert_equals(doc.querySelector('#tbl').caption, null, 'Table should have no caption');
     assert_equals(template.content.querySelector('#' + id).tagName, tagName,
                 'Wrong element in the template content');
-    if (bodiesNum !== null) {
+    if (bodiesNum) {
         assert_equals(table.tBodies.length, bodiesNum, 'Table should have '
                 + bodiesNum + ' body');
     }
@@ -77,8 +77,7 @@ var parameters = [
      doc, '<col id="col1" width="100%"/>', 'col1', 'COL']
 ];
 
-// Clearing stack back to a table body context.
-generate_tests(doTest, parameters);
+generate_tests(doTest, parameters, 'Clearing stack back to a table body context.');
 
 </script>
 </body>

@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <body>
     <script type="module">
-        import v from "./malformed.css" assert { type: "css" };
+        import v from "./malformed.css";
         document.adoptedStyleSheets = [v];
     </script>
 
     <div id="test">
         I am a test div.
-    </div>
-    <div id="test2">
-        I am another test div.
     </div>
 </body>

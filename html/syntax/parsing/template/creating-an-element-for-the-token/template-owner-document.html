@@ -171,9 +171,9 @@ function compare_owners(element, template) {
     assert_equals(element.ownerDocument, template.content.ownerDocument)
 }
 
-// Test ownerDocument property of all HTML5 elements in a template.
-// Current DOCUMENT has no browsing context.
-generate_tests(compare_owners, parameters);
+generate_tests(compare_owners, parameters,
+        'Test ownerDocument property of all HTML5 elements in a template. '
+            + 'Current DOCUMENT has no browsing context.');
 
 var context = newContext();
 parameters = [];

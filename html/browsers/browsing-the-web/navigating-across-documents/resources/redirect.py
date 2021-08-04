@@ -1,4 +1,4 @@
 def main(request, response):
-    location = request.GET.first(b"location")
+    location = request.GET.first("location")
     response.status = 302
-    response.headers.set(b"Location", location)
+    response.headers.set("Location", location)

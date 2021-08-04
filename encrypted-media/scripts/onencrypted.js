@@ -25,7 +25,7 @@ function runTest(config) {
             };
 
         waitForEventAndRunStep('encrypted', video, onEncrypted, test);
-        testmediasource(config).then(function (source) {
+        return testmediasource(config).then(function (source) {
             mediaSource = source;
             config.video.src = URL.createObjectURL(mediaSource);
             return source.done;

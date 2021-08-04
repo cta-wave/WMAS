@@ -5,14 +5,13 @@ importScripts("/resources/WebIDLParser.js", "/resources/idlharness.js");
 
 idl_test(
   ["html"],
-  ["wai-aria", "dom", "cssom", "touch-events", "uievents"],
+  ["dom", "cssom", "touch-events", "uievents"],
   idlArray => {
     idlArray.add_untested_idls('typedef Window WindowProxy;');
     idlArray.add_objects({
       WorkerLocation: ['self.location'],
       WorkerNavigator: ['self.navigator'],
-      EventSource: ['new EventSource("http://invalid")'],
-      WebSocket: ['new WebSocket("ws://invalid")'],
+      WebSocket: ['new WebSocket("ws://foo")'],
       CloseEvent: ['new CloseEvent("close")'],
       Worker: [],
       MessageEvent: ['new MessageEvent("message", { data: 5 })'],

@@ -1,56 +1,47 @@
-import json
-
 def main(request, response):
-    requestData = request.GET
-    if request.method == u"POST":
-        requestData = request.POST
-
-    coop = requestData.first(b"coop")
-    coopReportOnly = requestData.first(b"coop-report-only", None)
-    coep = requestData.first(b"coep")
-    coepReportOnly = requestData.first(b"coep-report-only", None)
-    redirect = requestData.first(b"redirect", None)
-    if coop != b"":
-        response.headers.set(b"Cross-Origin-Opener-Policy", coop)
-    if coopReportOnly is not None:
-        response.headers.set(b"Cross-Origin-Opener-Policy-Report-Only", coopReportOnly)
-    if coep != b"":
-        response.headers.set(b"Cross-Origin-Embedder-Policy", coep)
-    if coepReportOnly is not None:
-        response.headers.set(b"Cross-Origin-Embedder-Policy-Report-Only", coepReportOnly)
-    if b'cache' in requestData:
-        response.headers.set(b'Cache-Control', b'max-age=3600')
-    host = request.url_parts[1]
+    coop = request.GET.first("coop")
+    coep = request.GET.first("coep")
+    redirect = request.GET.first("redirect", None)
+    if coop != "":
+        response.headers.set("Cross-Origin-Opener-Policy", coop)
+    if coep != "":
+        response.headers.set("Cross-Origin-Embedder-Policy", coep)
+    if 'cache' in request.GET:
+        response.headers.set('Cache-Control', 'max-age=3600')
 
     if redirect != None:
         response.status = 302
-        response.headers.set(b"Location", redirect)
+        response.headers.set("Location", redirect)
         return
 
-    # Collect relevant params to be visible to response JS
-    params = {}
-    for key in (b"navHistory", b"avoidBackAndForth", b"navigate", b"channel"):
-        value = requestData.first(key, None)
-        params[key.decode()] = value and value.decode()
-
     # This uses an <iframe> as BroadcastChannel is same-origin bound.
-    response.content = b"""
+    response.content = """
 <!doctype html>
 <meta charset=utf-8>
 <script src="/common/get-host-info.sub.js"></script>
-<script src="/html/cross-origin-opener-policy/resources/common.js"></script>
-<body>
+<iframe></iframe>
 <script>
-  const params = %s;
-  const navHistory = params.navHistory;
-  const avoidBackAndForth = params.avoidBackAndForth;
-  const navigate = params.navigate;
+  const params = new URL(location).searchParams;
+  const navHistory = params.get("navHistory");
+  const avoidBackAndForth = params.get("avoidBackAndForth");
+  const navigate = params.get("navigate");
+  // Need to wait until the page is fully loaded before navigating
+  // so that it creates a history entry properly.
+  const fullyLoaded = new Promise((resolve, reject) => {
+    addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    });
+  });
   if (navHistory !== null) {
-    fullyLoaded().then(() => {
+    fullyLoaded.then(() => {
       history.go(Number(navHistory));
     });
   } else if (navigate !== null && (history.length === 1 || !avoidBackAndForth)) {
-    fullyLoaded().then(() => {
+    fullyLoaded.then(() => {
       self.location = navigate;
     });
   } else {
@@ -66,15 +57,13 @@ def main(request, response):
         close();
       }
     });
-    iframe = document.createElement("iframe");
+    const iframe = document.querySelector("iframe");
     iframe.onload = () => {
       const payload = { name: self.name, opener: !!self.opener, openerDOMAccess: openerDOMAccessAllowed };
       iframe.contentWindow.postMessage(payload, "*");
     };
-    const channelName = params.channel;
-    iframe.src = `${get_host_info().HTTPS_ORIGIN}/html/cross-origin-opener-policy/resources/postback.html?channel=${encodeURIComponent(channelName)}`;
-    document.body.appendChild(iframe);
+    const channelName = new URL(location).searchParams.get("channel");
+    iframe.src = `${get_host_info().HTTPS_ORIGIN}/html/cross-origin-opener-policy/resources/postback.html?channel=${channelName}`;
   }
 </script>
-</body>
-""" % json.dumps(params).encode("utf-8")
+"""
