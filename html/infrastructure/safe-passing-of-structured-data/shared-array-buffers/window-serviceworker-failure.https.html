@@ -11,14 +11,12 @@
 "use strict";
 promise_test(t => {
   const scope = "resources/blank.html";
-  return service_worker_unregister_and_register(t, "resources/serviceworker-failure.js", scope)
-  .then(reg => {
-    t.add_cleanup(() => service_worker_unregister(t, scope));
+  return service_worker_unregister_and_register(t, "resources/serviceworker-failure.js", scope).then(reg => {
     return wait_for_state(t, reg.installing, "activated");
   })
-  .then(() =>  with_iframe(scope))
-  .then(iframe => {
-    t.add_cleanup(() => iframe.remove());
+  .then(() => {
+    return with_iframe(scope);
+  }).then(iframe => {
     const sw = iframe.contentWindow.navigator.serviceWorker;
     let state = "start in window";
 
@@ -42,7 +40,7 @@ promise_test(t => {
 
         assert_equals(e.data, null, "data");
         assert_equals(e.origin, self.origin, "origin");
-        assert_not_equals(e.source, null, "source");
+        assert_equals(e.source, null, "source");
         assert_equals(e.ports.length, 0, "ports length");
 
         state = "done in window";

@@ -9,7 +9,7 @@
  * - `postTest()`: An optional, async function run after a test is done
  * - `structuredClone(obj, transferList)`: Required function that somehow
  *                                         structurally clones an object.
- * - `hasDocument`: When true, disables tests that require a document. True by default.
+ * - `noTransferTests`: When true, disables tests with transferables
  */
 
 function runStructuredCloneBatteryOfTests(runner) {
@@ -17,17 +17,12 @@ function runStructuredCloneBatteryOfTests(runner) {
     setup() {},
     preTest() {},
     postTest() {},
-    teardown() {},
-    hasDocument: true
+    teardown() {}
   };
   runner = Object.assign({}, defaultRunner, runner);
 
   let setupPromise = runner.setup();
   const allTests = structuredCloneBatteryOfTests.map(test => {
-
-    if (!runner.hasDocument && test.requiresDocument) {
-      return;
-    }
 
     return new Promise(resolve => {
       promise_test(async _ => {

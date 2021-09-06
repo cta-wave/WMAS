@@ -1,3 +1,3 @@
 def main(request, response):
-    headers = [(b"Location", b"")]
-    return 302, headers, b""
+    headers = [("Location", "")]
+    return 302, headers, ""

@@ -1,6 +1,6 @@
 def main(request, response):
-    token = request.GET.first(b"token")
+    token = request.GET.first("token")
     if request.server.stash.take(token) is not None:
-        return b"1"
+        return "1"
     else:
-        return b"0"
+        return "0"

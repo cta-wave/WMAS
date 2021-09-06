@@ -1,49 +1,49 @@
 def main(request, response):
     def fail(message):
-        response.content = b"FAIL: " + message
+        response.content = "FAIL: " + str(message)
         response.status = 400
 
     def getState(token):
         server_state = request.server.stash.take(token)
         if not server_state:
-            return b"Uninitialized"
+            return "Uninitialized"
         return server_state
 
     def setState(token, state):
         request.server.stash.put(token, state)
 
     def resetState(token):
-        setState(token, b"")
+        setState(token, "")
 
-    response.headers.set(b"Cache-Control", b"no-store")
-    response.headers.set(b"Access-Control-Allow-Origin", request.headers.get(b"origin"))
-    response.headers.set(b"Access-Control-Max-Age", 1)
-    token = request.GET.first(b"token", None)
+    response.headers.set("Cache-Control", "no-store")
+    response.headers.set("Access-Control-Allow-Origin", request.headers.get("origin"))
+    response.headers.set("Access-Control-Max-Age", 1)
+    token = request.GET.first("token", None)
     state = getState(token)
-    command = request.GET.first(b"command", None)
+    command = request.GET.first("command", None)
 
-    if command == b"reset":
-        if request.method == u"GET":
+    if command == "reset":
+        if request.method == "GET":
             resetState(token)
-            response.content = b"Server state reset"
+            response.content = "Server state reset"
         else:
-            fail(b"Invalid Method.")
-    elif state == b"Uninitialized":
-        if request.method == u"OPTIONS":
-            response.content = b"This request should not be displayed."
-            setState(token, b"Denied")
+            fail("Invalid Method.")
+    elif state == "Uninitialized":
+        if request.method == "OPTIONS":
+            response.content = "This request should not be displayed."
+            setState(token, "Denied")
         else:
             fail(state)
-    elif state == b"Denied":
-        if request.method == u"GET" and command == b"complete":
+    elif state == "Denied":
+        if request.method == "GET" and command == "complete":
             resetState(token)
-            response.content = b"Request successfully blocked."
+            response.content = "Request successfully blocked."
         else:
-            setState(token, b"Deny Ignored")
-            fail(b"The request was not denied.")
-    elif state == b"Deny Ignored":
+            setState("Deny Ignored")
+            fail("The request was not denied.")
+    elif state == "Deny Ignored":
         resetState(token)
         fail(state)
     else:
         resetState(token)
-        fail(b"Unknown Error.")
+        fail("Unknown Error.")

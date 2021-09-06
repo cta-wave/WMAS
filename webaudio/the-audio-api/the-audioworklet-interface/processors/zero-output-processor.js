@@ -9,7 +9,7 @@
 
 const kRenderQuantumFrames = 128;
 
-class ZeroOutputProcessor extends AudioWorkletProcessor {
+class ZeroOuttputProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super();
 
@@ -39,4 +39,4 @@ class ZeroOutputProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('zero-output-processor', ZeroOutputProcessor);
+registerProcessor('zero-output-processor', ZeroOuttputProcessor);

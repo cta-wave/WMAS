@@ -1,6 +1,6 @@
 def main(request, response):
-    headers = [(b"Location", request.GET[b'redirectTo'])]
-    if b'corp' in request.GET:
-        headers.append((b'Cross-Origin-Resource-Policy', request.GET[b'corp']))
+    headers = [("Location", request.GET['redirectTo'])]
+    if 'corp' in request.GET:
+        headers.append(('Cross-Origin-Resource-Policy', request.GET['corp']))
 
-    return 302, headers, b""
+    return 302, headers, ""

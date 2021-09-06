@@ -46,15 +46,9 @@ var waitOnMessageFromSW = async t => {
 // worker destination
 /////////////////////
 promise_test(async t => {
-    // We can use an html file as we don't really care about the dedicated worker successfully loading.
+    // We can use an html file as we don't really care about the worker successfully loading.
     let worker = new frame.contentWindow.Worker("dummy.html?t=worker&dest=worker");
     await waitOnMessageFromSW(t);
-}, 'DedicatedWorker fetches with a "worker" Request.destination');
-
-promise_test(async t => {
-    // We can use an html file as we don't really care about the shared worker successfully loading.
-    let worker = new frame.contentWindow.SharedWorker("dummy.html?t=sharedworker&dest=sharedworker");
-    await waitOnMessageFromSW(t);
-}, 'SharedWorker fetches with a "sharedworker" Request.destination');
+}, 'Worker fetches with a "worker" Request.destination');
 
 </script>

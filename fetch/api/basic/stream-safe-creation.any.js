@@ -1,4 +1,4 @@
-// META: global=window,worker
+// META: global=worker
 
 // These tests verify that stream creation is not affected by changes to
 // Object.prototype.
@@ -14,8 +14,8 @@ const creationCases = {
                                             {method: 'POST', body: 'yes'}).arrayBuffer(),
 };
 
-for (const creationCase of Object.keys(creationCases)) {
-  for (const accessorName of ['start', 'type', 'size', 'highWaterMark']) {
+for (creationCase of Object.keys(creationCases)) {
+  for (accessorName of ['start', 'type', 'size', 'highWaterMark']) {
     promise_test(async t => {
       Object.defineProperty(Object.prototype, accessorName, {
         get() { throw Error(`Object.prototype.${accessorName} was accessed`); },

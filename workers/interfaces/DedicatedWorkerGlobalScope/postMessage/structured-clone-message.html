@@ -1,3 +1,20 @@
+<!--
+var err = new Error('foo');
+var date = new Date();
+// commented out bits are either tested elsewhere or not supported yet. or uncloneable.
+var tests = [undefined, null, false, true, 1, NaN, Infinity, 'foo', date, /foo/, /* ImageData, File, FileData, FileList,*/ null/*self*/,
+              [undefined, null, false, true, 1, NaN, Infinity, 'foo', /*date, /foo/,*/ null/*self*/, /*[], {},*/ null/*err*/],
+              {a:undefined, b:null, c:false, d:true, e:1, f:NaN, g:Infinity, h:'foo', /*i:date, j:/foo/,*/ k:null/*self*/, /*l:[], m:{},*/ n:null/*err*/},
+            null/*err*/];
+for (var i = 0; i < tests.length; ++i) {
+  try {
+    postMessage(tests[i]);
+  } catch(e) {
+    postMessage(''+e);
+  }
+}
+/*
+-->
 <!doctype html>
 <title>structured clone of message</title>
 <script src="/resources/testharness.js"></script>
@@ -28,7 +45,7 @@ setTimeout(tests[tests.length-1].test.step_func(function() {
 }), 500);
 
 wrapper_test.step(function() {
-  var worker = new Worker('structured-clone-message.js');
+  var worker = new Worker('#');
   var i = 0;
   worker.onmessage = function(e) {
     tests[i].test.step(function() { tests[i].check(e); this.done(); });
@@ -36,3 +53,6 @@ wrapper_test.step(function() {
   };
 });
 </script>
+<!--
+*/
+//-->

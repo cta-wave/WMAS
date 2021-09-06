@@ -7,7 +7,6 @@
 </style>
 <dialog open id=dialog></dialog>
 <script>
-test(function() {
-  assert_equals(getComputedStyle(document.getElementById('dialog')).display, 'block');
-});
+assert_equals(getComputedStyle(document.getElementById('dialog')).display, 'block');
+done();
 </script>

@@ -1,3 +1,9 @@
+<!--
+onmessage = function(e) {
+  postMessage(e.ports instanceof Array && e.ports.length === 0);
+}
+/*
+-->
 <!doctype html>
 <title>e.ports in dedicated worker</title>
 <script src="/resources/testharness.js"></script>
@@ -5,7 +11,7 @@
 <div id="log"></div>
 <script>
 (async_test()).step(function() {
-  var worker = new Worker('event-ports-dedicated.js');
+  var worker = new Worker('#');
   worker.postMessage(1);
   worker.onmessage = this.step_func(function(e) {
     assert_true(e.data);
@@ -13,3 +19,7 @@
   });
 });
 </script>
+<!--
+*/
+//-->
+

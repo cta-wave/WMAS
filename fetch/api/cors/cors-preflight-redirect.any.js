@@ -1,4 +1,3 @@
-// META: global=window,worker
 // META: script=/common/utils.js
 // META: script=../resources/utils.js
 // META: script=/common/get-host-info.sub.js
@@ -19,9 +18,9 @@ function corsPreflightRedirect(desc, redirectUrl, redirectLocation, redirectStat
   urlParameters += "&allow_headers=x-force-preflight";
 
   promise_test(function(test) {
-    return fetch(RESOURCES_DIR + "clean-stash.py?token=" + uuid_token).then(function(resp) {
+    fetch(RESOURCES_DIR + "clean-stash.py?token=" + uuid_token).then(function(resp) {
       assert_equals(resp.status, 200, "Clean stash response's status is 200");
-      return promise_rejects_js(test, TypeError, fetch(url + urlParameters, requestInit));
+      return promise_rejects(test, new TypeError(), fetch(url + urlParameters, requestInit));
     });
   }, desc);
 }

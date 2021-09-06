@@ -1,5 +1,5 @@
 /* global btoa fetch token promise_test step_timeout */
-/* global assert_equals assert_true assert_own_property assert_throws_js assert_less_than */
+/* global assert_equals assert_true assert_own_property assert_throws assert_less_than */
 
 const templates = {
   'fresh': {
@@ -42,12 +42,6 @@ function makeTest (test) {
   return function () {
     var uuid = token()
     var requests = expandTemplates(test)
-    var fetchFunctions = makeFetchFunctions(requests, uuid)
-    return runTest(fetchFunctions, requests, uuid)
-  }
-}
-
-function makeFetchFunctions(requests, uuid) {
     var fetchFunctions = []
     for (let i = 0; i < requests.length; ++i) {
       fetchFunctions.push({
@@ -59,7 +53,7 @@ function makeFetchFunctions(requests, uuid) {
             .then(makeCheckResponse(idx, config))
             .then(makeCheckResponseBody(config, uuid), function (reason) {
               if ('expected_type' in config && config.expected_type === 'error') {
-                assert_throws_js(TypeError, function () { throw reason })
+                assert_throws(new TypeError(), function () { throw reason })
               } else {
                 throw reason
               }
@@ -68,10 +62,6 @@ function makeFetchFunctions(requests, uuid) {
         pauseAfter: 'pause_after' in requests[i]
       })
     }
-    return fetchFunctions
-}
-
-function runTest(fetchFunctions, requests, uuid) {
     var idx = 0
     function runNextStep () {
       if (fetchFunctions.length) {
@@ -96,6 +86,7 @@ function runTest(fetchFunctions, requests, uuid) {
         checkRequests(requests, testState)
         return Promise.resolve()
       })
+  }
 }
 
 function expandTemplates (test) {
@@ -235,14 +226,10 @@ function pause () {
 
 function makeTestUrl (uuid, config) {
   var arg = ''
-  var base_url = ''
-  if ('base_url' in config) {
-    base_url = config.base_url
-  }
   if ('query_arg' in config) {
     arg = `&target=${config.query_arg}`
   }
-  return `${base_url}resources/http-cache.py?dispatch=test&uuid=${uuid}${arg}`
+  return `resources/http-cache.py?dispatch=test&uuid=${uuid}${arg}`
 }
 
 function getServerState (uuid) {

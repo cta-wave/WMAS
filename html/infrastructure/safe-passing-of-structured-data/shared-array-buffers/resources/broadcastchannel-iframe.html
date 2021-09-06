@@ -4,13 +4,10 @@
 
 <script>
 "use strict";
-const query = new URLSearchParams(location.search);
-const channel = new BroadcastChannel(query.get("channel"));
-const i = Number(query.get("index"));
+const channel = new BroadcastChannel("channel name");
 
-channel.onmessage = e => {
-  const sab = e.data.sab;
-  if (sab === undefined) {
+channel.onmessage = ({ data: { sab, i }, source }) => {
+  if (!sab) {
     // We only care about "broadcasts" from the window
     return;
   }

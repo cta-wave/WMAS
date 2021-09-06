@@ -1,34 +1,6 @@
 // NOTE: this file needs to be split up rather than expanded. See ../location.sub.html for some
 // extracted tests. Tracked by https://github.com/web-platform-tests/wpt/issues/4934.
 
-/*
-* help:
-*   https://html.spec.whatwg.org/multipage/#the-link-element
-*   https://html.spec.whatwg.org/multipage/#styling
-*   https://html.spec.whatwg.org/multipage/#prepare-a-script
-*   https://html.spec.whatwg.org/multipage/#concept-media-load-algorithm
-*   https://html.spec.whatwg.org/multipage/#track-url
-*   https://html.spec.whatwg.org/multipage/#concept-form-submit
-*   https://html.spec.whatwg.org/multipage/#set-the-frozen-base-url
-*   https://dom.spec.whatwg.org/#dom-node-baseuri
-*   https://html.spec.whatwg.org/multipage/#the-a-element
-*   https://html.spec.whatwg.org/multipage/#dom-worker
-*   https://html.spec.whatwg.org/multipage/#dom-sharedworker
-*   https://html.spec.whatwg.org/multipage/#dom-eventsource
-*   https://html.spec.whatwg.org/multipage/#dom-xmldocument-load
-*   https://html.spec.whatwg.org/multipage/#dom-open
-*   http://url.spec.whatwg.org/#dom-url-search
-*   https://www.w3.org/Bugs/Public/show_bug.cgi?id=24148
-*   https://xhr.spec.whatwg.org/#the-open()-method
-*   https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object
-*   https://html.spec.whatwg.org/multipage/#dom-workerglobalscope-importscripts
-*   https://html.spec.whatwg.org/multipage/#parse-a-websocket-url's-components
-*   https://html.spec.whatwg.org/multipage/#dom-websocket-url
-*   https://html.spec.whatwg.org/multipage/#parse-a-manifest
-*   https://www.w3.org/Bugs/Public/show_bug.cgi?id=23968
-*   http://dev.w3.org/csswg/cssom/#requirements-on-user-agents-implementing-the-xml-stylesheet-processing-instruction
-*   http://url.spec.whatwg.org/#dom-url
-*/
 setup({explicit_done:true});
 onload = function() {
   var encoding = '{{GET[encoding]}}';
@@ -54,32 +26,9 @@ onload = function() {
     return 'expected substring '+expected+' got '+got;
   }
 
-  function poll_for_stash(test_obj, uuid, expected) {
-    var start = new Date();
-    var poll = test_obj.step_func(function () {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', stash_take + uuid);
-      xhr.onload = test_obj.step_func(function(e) {
-        if (xhr.response == "") {
-          if (new Date() - start > 10000) {
-            // If we set the status to TIMEOUT here we avoid a race between the
-            // page and the test timing out
-            test_obj.force_timeout();
-          }
-          test_obj.step_timeout(poll, 200);
-        } else {
-          assert_equals(xhr.response, expected);
-          test_obj.done();
-        }
-      });
-      xhr.send();
-    })
-    test_obj.step_timeout(poll, 200);
-  }
-
   // loading html (or actually svg to support <embed>)
   function test_load_nested_browsing_context(tag, attr, spec_url) {
-    subsetTestByKey('nested-browsing', async_test, function() {
+    async_test(function() {
       var id = 'test_load_nested_browsing_context_'+tag;
       var elm = document.createElement(tag);
       elm.setAttribute(attr, input_url_svg);
@@ -92,7 +41,8 @@ onload = function() {
         assert_equals(window[id].document.documentElement.textContent, expected_current);
       });
 
-    }, 'load nested browsing context <'+tag+' '+attr+'>');
+    }, 'load nested browsing context <'+tag+' '+attr+'>',
+    {help:spec_url});
   }
 
   spec_url_load_nested_browsing_context = {
@@ -108,7 +58,7 @@ onload = function() {
   });
 
   // loading css with <link>
-  subsetTestByKey('loading', async_test, function() {
+  async_test(function() {
     var elm = document.createElement('link');
     elm.href = input_url_css;
     elm.rel = 'stylesheet';
@@ -121,21 +71,24 @@ onload = function() {
       assert_true(elm.sheet.href.indexOf(expected_current) > -1, 'sheet.href ' + msg(expected_current, got));
       assert_equals(elm.sheet.cssRules[0].style.content, '"'+expected_current+'"', 'sheet.cssRules[0].style.content');
     });
-  }, 'loading css <link>');
+  }, 'loading css <link>',
+  {help:['https://html.spec.whatwg.org/multipage/#the-link-element',
+         'https://html.spec.whatwg.org/multipage/#styling']});
 
   // loading js
-  subsetTestByKey('loading-css', async_test, function() {
+  async_test(function() {
     var elm = document.createElement('script');
     elm.src = input_url_js + '&var=test_load_js_got';
     document.head.appendChild(elm); // no cleanup
     elm.onload = this.step_func_done(function() {
       assert_equals(window.test_load_js_got, expected_current);
     });
-  }, 'loading js <script>');
+  }, 'loading js <script>',
+  {help:'https://html.spec.whatwg.org/multipage/#prepare-a-script'});
 
   // loading image
   function test_load_image(tag, attr, spec_url) {
-    subsetTestByKey('loading', async_test, function() {
+    async_test(function() {
       var elm = document.createElement(tag);
       if (tag == 'input') {
         elm.type = 'image';
@@ -161,7 +114,8 @@ onload = function() {
       if (tag == 'video') {
         interval = setInterval(check_video_width, 10);
       }
-    }, 'loading image <'+tag+' '+attr+'>');
+    }, 'loading image <'+tag+' '+attr+'>',
+    {help:spec_url});
   }
 
   var query_to_image_width = {
@@ -196,7 +150,7 @@ onload = function() {
 
   // loading video
   function test_load_video(tag, use_source_element) {
-    subsetTestByKey('loading', async_test, function() {
+    async_test(function() {
       var elm = document.createElement(tag);
       var video_ext = '';
       if (elm.canPlayType('video/ogg; codecs="theora,flac"')) {
@@ -226,7 +180,8 @@ onload = function() {
         var got = Math.round(elm.duration);
         assert_equals(got, query_to_video_duration[expected_current], msg(expected_current, video_duration_to_query[got]));
       });
-    }, 'loading video <'+tag+'>' + (use_source_element ? '<source>' : ''));
+    }, 'loading video <'+tag+'>' + (use_source_element ? '<source>' : ''),
+    {help:'https://html.spec.whatwg.org/multipage/#concept-media-load-algorithm'});
   }
 
   var query_to_video_duration = {
@@ -251,7 +206,7 @@ onload = function() {
   });
 
   // loading webvtt
-  subsetTestByKey('loading', async_test, function() {
+  async_test(function() {
     var video = document.createElement('video');
     var track = document.createElement('track');
     video.appendChild(track);
@@ -261,7 +216,8 @@ onload = function() {
       var got = track.track.cues[0].text;
       assert_equals(got, expected_current);
     });
-  }, 'loading webvtt <track>');
+  }, 'loading webvtt <track>',
+  {help:'https://html.spec.whatwg.org/multipage/#track-url'});
 
   // XXX downloading seems hard to automate
   // <a href download>
@@ -269,7 +225,7 @@ onload = function() {
 
   // submit forms
   function test_submit_form(tag, attr) {
-    subsetTestByKey('submit', async_test, function(){
+    async_test(function(){
       var elm = document.createElement(tag);
       elm.setAttribute(attr, input_url_html);
       var form;
@@ -302,7 +258,8 @@ onload = function() {
         }
         assert_equals(got, expected_current);
       });
-    }, 'submit form <'+tag+' '+attr+'>');
+    }, 'submit form <'+tag+' '+attr+'>',
+    {help:'https://html.spec.whatwg.org/multipage/#concept-form-submit'});
   }
 
   'form action, input formaction, button formaction'.split(', ').forEach(function(str) {
@@ -311,7 +268,7 @@ onload = function() {
   });
 
   // <base href>
-  subsetTestByKey('base-href', async_test, function() {
+  async_test(function() {
     var iframe = document.createElement('iframe');
     iframe.src = blank;
     document.body.appendChild(iframe);
@@ -327,28 +284,33 @@ onload = function() {
       var got_a_href = doc.links[0].href;
       assert_true(got_a_href.indexOf(expected_current) > -1, msg(expected_current, got_a_href), 'a.href');
     });
-  }, '<base href>');
+  }, '<base href>',
+  {help:['https://html.spec.whatwg.org/multipage/#set-the-frozen-base-url',
+  'https://dom.spec.whatwg.org/#dom-node-baseuri',
+  'https://html.spec.whatwg.org/multipage/#the-a-element']});
 
   // XXX drag and drop (<a href> or <img src>) seems hard to automate
 
   // Worker()
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new Worker(input_url_worker);
     worker.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_current);
     });
-  }, 'Worker constructor');
+  }, 'Worker constructor',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-worker'});
 
   // SharedWorker()
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new SharedWorker(input_url_sharedworker);
     worker.port.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_current);
     });
-  }, 'SharedWorker constructor');
+  }, 'SharedWorker constructor',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-sharedworker'});
 
   // EventSource()
-  subsetTestByKey('eventsource', async_test, function() {
+  async_test(function() {
     var source = new EventSource(input_url_eventstream);
     this.add_cleanup(function() {
       source.close();
@@ -356,18 +318,30 @@ onload = function() {
     source.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_current);
     });
-  }, 'EventSource constructor');
+  }, 'EventSource constructor',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-eventsource'});
 
   // EventSource#url
-  subsetTestByKey('eventsource', test, function() {
+  test(function() {
     var source = new EventSource(input_url_eventstream);
     source.close();
     var got = source.url;
     assert_true(source.url.indexOf(expected_current) > -1, msg(expected_current, got));
-  }, 'EventSource#url');
+  }, 'EventSource#url',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-eventsource'});
+
+  // XMLDocument#load()
+  async_test(function() {
+    var doc = document.implementation.createDocument(null, "x");
+    doc.load(input_url_svg);
+    doc.onload = this.step_func_done(function() {
+      assert_equals(doc.documentElement.textContent, expected_current);
+    });
+  }, 'XMLDocument#load()',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-xmldocument-load'});
 
   // window.open
-  subsetTestByKey('window-open', async_test, function() {
+  async_test(function() {
     var id = 'test_window_open';
     var iframe = document.createElement('iframe');
     iframe.name = id;
@@ -383,11 +357,12 @@ onload = function() {
         this.done();
       }
     });
-  }, 'window.open()');
+  }, 'window.open()',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-open'});
 
   // a.search, area.search
   function test_hyperlink_search(tag) {
-    subsetTestByKey('hyperlink-search', test, function() {
+    test(function() {
       var elm = document.createElement(tag);
       var input_arr = input_url_html.split('?');
       elm.href = input_arr[0];
@@ -396,7 +371,9 @@ onload = function() {
       assert_true(got_href.indexOf(expected_current) > -1, 'href content attribute ' + msg(expected_current, got_href));
       var got_search = elm.search;
       assert_true(got_search.indexOf(expected_current) > -1, 'getting .search '+msg(expected_current, got_search));
-    }, '<'+tag+'>.search');
+    }, '<'+tag+'>.search',
+    {help:['https://html.spec.whatwg.org/multipage/#the-'+tag+'-element',
+           'http://url.spec.whatwg.org/#dom-url-search']});
   }
   'a, area'.split(', ').forEach(function(str) {
     test_hyperlink_search(str);
@@ -405,7 +382,7 @@ onload = function() {
   // history.pushState
   // history.replaceState
   function test_history(prop) {
-    subsetTestByKey('history', async_test, function() {
+    async_test(function() {
       var iframe = document.createElement('iframe');
       iframe.src = blank;
       document.body.appendChild(iframe);
@@ -418,7 +395,8 @@ onload = function() {
         assert_true(got.indexOf(expected_current) > -1, msg(expected_current, got));
         assert_equals(got.indexOf('/resources/resources/'), -1, 'url was resolved against the iframe\'s URL instead of the settings object\'s API base URL');
       });
-    }, 'history.'+prop);
+    }, 'history.'+prop,
+    {help:'https://html.spec.whatwg.org/multipage/#dom-history-'+prop.toLowerCase()});
   }
 
   'pushState, replaceState'.split(', ').forEach(function(str) {
@@ -428,7 +406,7 @@ onload = function() {
   // SVG
   var ns = {svg:'http://www.w3.org/2000/svg', xlink:'http://www.w3.org/1999/xlink'};
   // a
-  subsetTestByKey('svg', async_test, function() {
+  async_test(function() {
     SVGAElement; // check support
     var iframe = document.createElement('iframe');
     var id = 'test_svg_a';
@@ -457,7 +435,7 @@ onload = function() {
 
   // feImage, image, use
   function test_svg(func, tag) {
-    subsetTestByKey('svg', async_test, function() {
+    async_test(function() {
       var uuid = token();
       var id = 'test_svg_'+tag;
       var svg = document.createElementNS(ns.svg, 'svg');
@@ -470,7 +448,8 @@ onload = function() {
         document.body.removeChild(svg);
       });
       poll_for_stash(this, uuid, expected_current);
-    }, 'SVG <' + tag + '>');
+    }, 'SVG <' + tag + '>',
+    {help:'https://www.w3.org/Bugs/Public/show_bug.cgi?id=24148'});
   }
 
   [[function(svg, id) {
@@ -490,60 +469,73 @@ onload = function() {
 
   // UTF-8:
   // XHR
-  subsetTestByKey('xhr', async_test, function() {
+  async_test(function() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', input_url_html);
     xhr.onload = this.step_func_done(function() {
       assert_equals(xhr.response, expected_utf8);
     });
     xhr.send();
-  }, 'XMLHttpRequest#open()');
+  }, 'XMLHttpRequest#open()',
+  {help:'https://xhr.spec.whatwg.org/#the-open()-method'});
 
   // in a worker
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new Worker(input_url_worker_importScripts);
     worker.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'importScripts() in a dedicated worker');
+  }, 'importScripts() in a dedicated worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-workerglobalscope-importscripts']});
 
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new Worker(input_url_worker_worker);
     worker.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'Worker() in a dedicated worker');
+  }, 'Worker() in a dedicated worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-worker']});
 
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new Worker(input_url_worker_sharedworker);
     worker.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'SharedWorker() in a dedicated worker');
+  }, 'SharedWorker() in a dedicated worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-sharedworker']});
 
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new SharedWorker(input_url_sharedworker_importScripts);
     worker.port.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'importScripts() in a shared worker');
+  }, 'importScripts() in a shared worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-workerglobalscope-importscripts']});
 
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new SharedWorker(input_url_sharedworker_worker);
     worker.port.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'Worker() in a shared worker');
+  }, 'Worker() in a shared worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-worker']});
 
-  subsetTestByKey('workers', async_test, function() {
+  async_test(function() {
     var worker = new SharedWorker(input_url_sharedworker_sharedworker);
     worker.port.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'SharedWorker() in a shared worker');
+  }, 'SharedWorker() in a shared worker',
+  {help:['https://html.spec.whatwg.org/multipage/#set-up-a-worker-script-settings-object',
+         'https://html.spec.whatwg.org/multipage/#dom-sharedworker']});
 
   // WebSocket()
-  subsetTestByKey('websocket', async_test, function() {
+  async_test(function(){
     var ws = new WebSocket('ws://{{host}}:{{ports[ws][0]}}/echo-query?\u00E5');
     this.add_cleanup(function() {
       ws.close();
@@ -551,19 +543,21 @@ onload = function() {
     ws.onmessage = this.step_func_done(function(e) {
       assert_equals(e.data, expected_utf8);
     });
-  }, 'WebSocket constructor');
+  }, 'WebSocket constructor',
+  {help:'https://html.spec.whatwg.org/multipage/#parse-a-websocket-url\'s-components'});
 
   // WebSocket#url
-  subsetTestByKey('websocket', test, function() {
+  test(function(){
     var ws = new WebSocket('ws://{{host}}:{{ports[ws][0]}}/echo-query?\u00E5');
     ws.close();
     var got = ws.url;
     assert_true(ws.url.indexOf(expected_utf8) > -1, msg(expected_utf8, got));
-  }, 'WebSocket#url');
+  }, 'WebSocket#url',
+  {help:'https://html.spec.whatwg.org/multipage/#dom-websocket-url'});
 
   // Parsing cache manifest
   function test_cache_manifest(mode) {
-    subsetTestByKey('appcache', async_test, function() {
+    async_test(function() {
       var iframe = document.createElement('iframe');
       var uuid = token();
       iframe.src = 'resources/page-using-manifest.py?id='+uuid+'&encoding='+encoding+'&mode='+mode;
@@ -572,7 +566,8 @@ onload = function() {
         document.body.removeChild(iframe);
       });
       poll_for_stash(this, uuid, expected_utf8);
-    }, 'Parsing cache manifest (' + mode + ')');
+    }, 'Parsing cache manifest (' + mode + ')',
+    {help:'https://html.spec.whatwg.org/multipage/#parse-a-manifest'});
   }
 
   'CACHE, FALLBACK, NETWORK'.split(', ').forEach(function(str) {
@@ -582,7 +577,7 @@ onload = function() {
   // CSS
   function test_css(tmpl, expected_cssom, encoding, use_style_element) {
     var desc = ['CSS', (use_style_element ? '<style>' : '<link> (' + encoding + ')'),  tmpl].join(' ');
-    subsetTestByKey('css', async_test, function(){
+    async_test(function(){
       css_is_supported(tmpl, expected_cssom, this);
       var uuid = token();
       var id = 'test_css_' + uuid;
@@ -607,7 +602,8 @@ onload = function() {
         document.body.removeChild(div);
       });
       poll_for_stash(this, uuid, expected_utf8);
-    }, desc);
+    }, desc,
+    {help:'https://www.w3.org/Bugs/Public/show_bug.cgi?id=23968'});
   }
 
   // fail fast if the input doesn't parse into the expected cssom
@@ -653,7 +649,7 @@ onload = function() {
   // image() (not implemented?)
 
   // <?xml-stylesheet?>
-  subsetTestByKey('xml', async_test, function() {
+  async_test(function() {
     var iframe = document.createElement('iframe');
     iframe.src = input_url_xmlstylesheet_css;
     document.body.appendChild(iframe);
@@ -663,26 +659,29 @@ onload = function() {
     iframe.onload = this.step_func_done(function() {
       assert_equals(iframe.contentDocument.firstChild.sheet.cssRules[0].style.content, '"' + expected_utf8 + '"');
     });
-  }, '<?xml-stylesheet?> (CSS)');
+  }, '<?xml-stylesheet?> (CSS)',
+  {help:'http://dev.w3.org/csswg/cssom/#requirements-on-user-agents-implementing-the-xml-stylesheet-processing-instruction'});
 
   // new URL()
-  subsetTestByKey('url', test, function() {
+  test(function() {
     var url = new URL('http://example.org/'+input_url);
     var expected = expected_utf8;
     assert_true(url.href.indexOf(expected) > -1, 'url.href '+msg(expected, url.href));
     assert_true(url.search.indexOf(expected) > -1, 'url.search '+msg(expected, url.search));
-  }, 'URL constructor, url');
+  }, 'URL constructor, url',
+  {help:'http://url.spec.whatwg.org/#dom-url'});
 
-  subsetTestByKey('url', test, function() {
+  test(function() {
     var url = new URL('', 'http://example.org/'+input_url);
     var expected = expected_utf8;
     assert_true(url.href.indexOf(expected) > -1, 'url.href '+msg(expected, url.href));
     assert_true(url.search.indexOf(expected) > -1, 'url.search '+msg(expected, url.search));
-  }, 'URL constructor, base');
+  }, 'URL constructor, base',
+  {help:'http://url.spec.whatwg.org/#dom-url'});
 
   // Test different schemes
   function test_scheme(url, utf8) {
-    subsetTestByKey('scheme', test, function() {
+    test(function() {
       var a = document.createElement('a');
       a.setAttribute('href', url);
       var got = a.href;

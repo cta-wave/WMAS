@@ -1,4 +1,3 @@
-// META: global=window,worker
 // META: script=../resources/utils.js
 
 promise_test(function() {

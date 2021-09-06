@@ -13,11 +13,7 @@ function import_blob_url_test(testCase) {
     worker.postMessage('Send message for tests from main script.');
     const msgEvent = await new Promise((resolve, reject) => {
       worker.onmessage = resolve;
-      worker.onerror = error => {
-        const msg = error instanceof ErrorEvent ? error.message
-                                                : 'unknown error';
-        reject(msg);
-      };
+      worker.onerror = (error) => reject(error && error.message);
     });
     assert_array_equals(msgEvent.data, testCase.expectation);
   }, testCase.description);

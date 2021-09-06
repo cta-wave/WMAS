@@ -1,3 +1,9 @@
+<!--
+postMessage(1);
+close();
+postMessage(2);
+/*
+-->
 <!doctype html>
 <title>close() and sending messages</title>
 <script src="/resources/testharness.js"></script>
@@ -5,7 +11,7 @@
 <div id="log"></div>
 <script>
 async_test(function() {
-  var worker = new Worker('sending-messages.js');
+  var worker = new Worker('#');
   var i = 0;
   worker.onmessage = this.step_func(function(e) {
     i++;
@@ -16,3 +22,6 @@ async_test(function() {
   });
 });
 </script>
+<!--
+*/
+//-->

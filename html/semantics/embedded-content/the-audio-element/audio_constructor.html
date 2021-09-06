@@ -32,24 +32,18 @@ test(function() {
     }, description);
   });
 });
-
 test(function() {
-  var audio = new Audio();
-  assert_equals(Object.getPrototypeOf(audio), HTMLAudioElement.prototype);
-}, "Prototype of object created with named constructor");
-
-test(function() {
-  assert_throws_js(TypeError, function() {
+  assert_throws(new TypeError(), function() {
     Audio();
   });
 }, "Calling Audio should throw");
 test(function() {
-  assert_throws_js(TypeError, function() {
+  assert_throws(new TypeError(), function() {
     HTMLAudioElement();
   });
 }, "Calling HTMLAudioElement should throw");
 test(function() {
-  assert_throws_js(TypeError, function() {
+  assert_throws(new TypeError(), function() {
     new HTMLAudioElement();
   });
 }, "Constructing HTMLAudioElement should throw");

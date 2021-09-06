@@ -2,7 +2,7 @@
 
 structuredCloneBatteryOfTests = [];
 
-function check(description, input, callback, requiresDocument = false) {
+function check(description, input, callback) {
   testObjMock = {
     done() {},
     step_func(f) {return _ => f()},
@@ -17,8 +17,7 @@ function check(description, input, callback, requiresDocument = false) {
       }
       const copy = await runner.structuredClone(newInput);
       await callback(copy, newInput, testObjMock);
-    },
-    requiresDocument
+    }
   });
 }
 
@@ -55,7 +54,7 @@ function compare_Object(callback, callback_is_async) {
 
 function enumerate_props(compare_func, test_obj) {
   return function(actual, input) {
-    for (const x in input) {
+    for (var x in input) {
       compare_func(actual[x], input[x], test_obj);
     }
   };
@@ -80,10 +79,6 @@ check('primitive number, 9007199254740992', 9007199254740992, compare_primitive)
 check('primitive number, -9007199254740992', -9007199254740992, compare_primitive);
 check('primitive number, 9007199254740994', 9007199254740994, compare_primitive);
 check('primitive number, -9007199254740994', -9007199254740994, compare_primitive);
-check('primitive BigInt, 0n', 0n, compare_primitive);
-check('primitive BigInt, -0n', -0n, compare_primitive);
-check('primitive BigInt, -9007199254740994000n', -9007199254740994000n, compare_primitive);
-check('primitive BigInt, -9007199254740994000900719925474099400090071992547409940009007199254740994000n', -9007199254740994000900719925474099400090071992547409940009007199254740994000n, compare_primitive);
 
 check('Array primitives', [undefined,
                            null,
@@ -103,10 +98,7 @@ check('Array primitives', [undefined,
                            9007199254740992,
                            -9007199254740992,
                            9007199254740994,
-                           -9007199254740994,
-                           -12n,
-                           -0n,
-                           0n], compare_Array(enumerate_props(compare_primitive)));
+                           -9007199254740994], compare_Array(enumerate_props(compare_primitive)));
 check('Object primitives', {'undefined':undefined,
                            'null':null,
                            'true':true,
@@ -142,7 +134,7 @@ check('Array Boolean objects', [new Boolean(true), new Boolean(false)], compare_
 check('Object Boolean objects', {'true':new Boolean(true), 'false':new Boolean(false)}, compare_Object(enumerate_props(compare_Boolean)));
 
 function compare_obj(what) {
-  const Type = self[what];
+  var Type = window[what];
   return function(actual, input, test_obj) {
     if (typeof actual === 'string')
       assert_unreached(actual);
@@ -179,9 +171,6 @@ check('Number 9007199254740992', new Number(9007199254740992), compare_obj('Numb
 check('Number -9007199254740992', new Number(-9007199254740992), compare_obj('Number'));
 check('Number 9007199254740994', new Number(9007199254740994), compare_obj('Number'));
 check('Number -9007199254740994', new Number(-9007199254740994), compare_obj('Number'));
-// BigInt does not have a non-throwing constructor
-check('BigInt -9007199254740994n', Object(-9007199254740994n), compare_obj('BigInt'));
-
 check('Array Number objects', [new Number(0.2),
                                new Number(0),
                                new Number(-0),
@@ -244,7 +233,7 @@ function compare_RegExp(expected_source) {
   }
 }
 function func_RegExp_flags_lastIndex() {
-  const r = /foo/gim;
+  var r = /foo/gim;
   r.lastIndex = 2;
   return r;
 }
@@ -282,9 +271,9 @@ async function compare_Blob(actual, input, test_obj, expect_File) {
   assert_equals(actual.size, input.size, 'size');
   assert_equals(actual.type, input.type, 'type');
   assert_not_equals(actual, input);
-  const ab1 = await new Response(actual).arrayBuffer();
-  const ab2 = await new Response(input).arrayBuffer();
-  assert_equals(ab1.byteLength, ab2.byteLength, 'byteLength');
+  const ab1 = new Response(actual).arrayBuffer();
+  const ab2 = new Response(input).arrayBuffer();
+  assert_equals(ab1.btyeLength, ab2.byteLength, 'byteLength');
   const ta1 = new Uint8Array(ab1);
   const ta2 = new Uint8Array(ab2);
   for(let i = 0; i < ta1.size; i++) {
@@ -302,7 +291,7 @@ function b(str) {
 function encode_cesu8(codeunits) {
   // http://www.unicode.org/reports/tr26/ section 2.2
   // only the 3-byte form is supported
-  const rv = [];
+  var rv = [];
   codeunits.forEach(function(codeunit) {
     rv.push(b('11100000') + ((codeunit & b('1111000000000000')) >> 12));
     rv.push(b('10000000') + ((codeunit & b('0000111111000000')) >> 6));
@@ -312,9 +301,9 @@ function encode_cesu8(codeunits) {
 }
 function func_Blob_bytes(arr) {
   return function() {
-    const buffer = new ArrayBuffer(arr.length);
-    const view = new DataView(buffer);
-    for (let i = 0; i < arr.length; ++i) {
+    var buffer = new ArrayBuffer(arr.length);
+    var view = new DataView(buffer);
+    for (var i = 0; i < arr.length; ++i) {
       view.setUint8(i, arr[i]);
     }
     return new Blob([view]);
@@ -339,7 +328,6 @@ check('Array Blob object, Blob unpaired low surrogate (invalid utf-8)', [func_Bl
 check('Array Blob object, Blob paired surrogates (invalid utf-8)', [func_Blob_bytes([0xD800, 0xDC00])()], compare_Array(enumerate_props(compare_Blob), true));
 check('Array Blob object, Blob empty', [func_Blob_empty()], compare_Array(enumerate_props(compare_Blob), true));
 check('Array Blob object, Blob NUL', [func_Blob_NUL()], compare_Array(enumerate_props(compare_Blob), true));
-check('Array Blob object, two Blobs', [func_Blob_basic(), func_Blob_empty()], compare_Array(enumerate_props(compare_Blob), true));
 
 check('Object Blob object, Blob basic', {'x':func_Blob_basic()}, compare_Object(enumerate_props(compare_Blob), true));
 check('Object Blob object, Blob unpaired high surrogate (invalid utf-8)', {'x':func_Blob_bytes([0xD800])()}, compare_Object(enumerate_props(compare_Blob), true));
@@ -371,23 +359,23 @@ function compare_FileList(actual, input, test_obj) {
     test_obj.done();
 }
 function func_FileList_empty() {
-  const input = document.createElement('input');
+  var input = document.createElement('input');
   input.type = 'file';
   return input.files;
 }
-check('FileList empty', func_FileList_empty, compare_FileList, true);
-check('Array FileList object, FileList empty', () => ([func_FileList_empty()]), compare_Array(enumerate_props(compare_FileList)), true);
-check('Object FileList object, FileList empty', () => ({'x':func_FileList_empty()}), compare_Object(enumerate_props(compare_FileList)), true);
+check('FileList empty', func_FileList_empty, compare_FileList);
+check('Array FileList object, FileList empty', [func_FileList_empty()], compare_Array(enumerate_props(compare_FileList)));
+check('Object FileList object, FileList empty', {'x':func_FileList_empty()}, compare_Object(enumerate_props(compare_FileList)));
 
 function compare_ArrayBufferView(view) {
-  const Type = self[view];
+  var Type = window[view];
   return function(actual, input, test_obj) {
     if (typeof actual === 'string')
       assert_unreached(actual);
     assert_true(actual instanceof Type, 'instanceof '+view);
     assert_equals(actual.length, input.length, 'length');
     assert_not_equals(actual.buffer, input.buffer, 'buffer');
-    for (let i = 0; i < actual.length; ++i) {
+    for (var i = 0; i < actual.length; ++i) {
       assert_equals(actual[i], input[i], 'actual['+i+']');
     }
     if (test_obj)
@@ -405,31 +393,31 @@ function compare_ImageData(actual, input, test_obj) {
     test_obj.done();
 }
 function func_ImageData_1x1_transparent_black() {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
   return ctx.createImageData(1, 1);
 }
-check('ImageData 1x1 transparent black', func_ImageData_1x1_transparent_black, compare_ImageData, true);
+check('ImageData 1x1 transparent black', func_ImageData_1x1_transparent_black, compare_ImageData);
 function func_ImageData_1x1_non_transparent_non_black() {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const imagedata = ctx.createImageData(1, 1);
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  var imagedata = ctx.createImageData(1, 1);
   imagedata.data[0] = 100;
   imagedata.data[1] = 101;
   imagedata.data[2] = 102;
   imagedata.data[3] = 103;
   return imagedata;
 }
-check('ImageData 1x1 non-transparent non-black', func_ImageData_1x1_non_transparent_non_black, compare_ImageData, true);
-check('Array ImageData object, ImageData 1x1 transparent black', () => ([func_ImageData_1x1_transparent_black()]), compare_Array(enumerate_props(compare_ImageData)), true);
-check('Array ImageData object, ImageData 1x1 non-transparent non-black', () => ([func_ImageData_1x1_non_transparent_non_black()]), compare_Array(enumerate_props(compare_ImageData)), true);
-check('Object ImageData object, ImageData 1x1 transparent black', () => ({'x':func_ImageData_1x1_transparent_black()}), compare_Object(enumerate_props(compare_ImageData)), true);
-check('Object ImageData object, ImageData 1x1 non-transparent non-black', () => ({'x':func_ImageData_1x1_non_transparent_non_black()}), compare_Object(enumerate_props(compare_ImageData)), true);
+check('ImageData 1x1 non-transparent non-black', func_ImageData_1x1_non_transparent_non_black, compare_ImageData);
+check('Array ImageData object, ImageData 1x1 transparent black', [func_ImageData_1x1_transparent_black()], compare_Array(enumerate_props(compare_ImageData)));
+check('Array ImageData object, ImageData 1x1 non-transparent non-black', [func_ImageData_1x1_non_transparent_non_black()], compare_Array(enumerate_props(compare_ImageData)));
+check('Object ImageData object, ImageData 1x1 transparent black', {'x':func_ImageData_1x1_transparent_black()}, compare_Object(enumerate_props(compare_ImageData)));
+check('Object ImageData object, ImageData 1x1 non-transparent non-black', {'x':func_ImageData_1x1_non_transparent_non_black()}, compare_Object(enumerate_props(compare_ImageData)));
 
 
 check('Array sparse', new Array(10), compare_Array(enumerate_props(compare_primitive)));
 check('Array with non-index property', function() {
-  const rv = [];
+  var rv = [];
   rv.foo = 'bar';
   return rv;
 }, compare_Array(enumerate_props(compare_primitive)));
@@ -440,12 +428,12 @@ function check_circular_property(prop) {
   };
 }
 check('Array with circular reference', function() {
-  const rv = [];
+  var rv = [];
   rv[0] = rv;
   return rv;
 }, compare_Array(check_circular_property('0')));
 check('Object with circular reference', function() {
-  const rv = {};
+  var rv = {};
   rv['x'] = rv;
   return rv;
 }, compare_Object(check_circular_property('x')));
@@ -455,11 +443,11 @@ function check_identical_property_values(prop1, prop2) {
   };
 }
 check('Array with identical property values', function() {
-  const obj = {}
+  var obj = {}
   return [obj, obj];
 }, compare_Array(check_identical_property_values('0', '1')));
 check('Object with identical property values', function() {
-  const obj = {}
+  var obj = {}
   return {'x':obj, 'y':obj};
 }, compare_Object(check_identical_property_values('x', 'y')));
 
@@ -469,13 +457,13 @@ function check_absent_property(prop) {
   };
 }
 check('Object with property on prototype', function() {
-  const Foo = function() {};
+  var Foo = function() {};
   Foo.prototype = {'foo':'bar'};
   return new Foo();
 }, compare_Object(check_absent_property('foo')));
 
 check('Object with non-enumerable property', function() {
-  const rv = {};
+  var rv = {};
   Object.defineProperty(rv, 'foo', {value:'bar', enumerable:false, writable:true, configurable:true});
   return rv;
 }, compare_Object(check_absent_property('foo')));
@@ -488,7 +476,7 @@ function check_writable_property(prop) {
   };
 }
 check('Object with non-writable property', function() {
-  const rv = {};
+  var rv = {};
   Object.defineProperty(rv, 'foo', {value:'bar', enumerable:true, writable:false, configurable:true});
   return rv;
 }, compare_Object(check_writable_property('foo')));
@@ -501,7 +489,7 @@ function check_configurable_property(prop) {
   };
 }
 check('Object with non-configurable property', function() {
-  const rv = {};
+  var rv = {};
   Object.defineProperty(rv, 'foo', {value:'bar', enumerable:true, writable:true, configurable:false});
   return rv;
 }, compare_Object(check_configurable_property('foo')));
@@ -510,18 +498,18 @@ check('Object with non-configurable property', function() {
 more substantial changed due to their previous async setup */
 
 function get_canvas_1x1_transparent_black() {
-  const canvas = document.createElement('canvas');
+  var canvas = document.createElement('canvas');
   canvas.width = 1;
   canvas.height = 1;
   return canvas;
 }
 
 function get_canvas_1x1_non_transparent_non_black() {
-  const canvas = document.createElement('canvas');
+  var canvas = document.createElement('canvas');
   canvas.width = 1;
   canvas.height = 1;
-  const ctx = canvas.getContext('2d');
-  const imagedata = ctx.getImageData(0, 0, 1, 1);
+  var ctx = canvas.getContext('2d');
+  var imagedata = ctx.getImageData(0, 0, 1, 1);
   imagedata.data[0] = 100;
   imagedata.data[1] = 101;
   imagedata.data[2] = 102;
@@ -540,79 +528,59 @@ function compare_ImageBitmap(actual, input) {
 structuredCloneBatteryOfTests.push({
   description: 'ImageBitmap 1x1 transparent black',
   async f(runner) {
-    const canvas = get_canvas_1x1_transparent_black();
+    var canvas = get_canvas_1x1_transparent_black();
     const bm = await createImageBitmap(canvas);
     const copy = await runner.structuredClone(bm);
     compare_ImageBitmap(bm, copy);
-  },
-  requiresDocument: true
+  }
 });
 
 structuredCloneBatteryOfTests.push({
   description: 'ImageBitmap 1x1 non-transparent non-black',
   async f(runner) {
-    const canvas = get_canvas_1x1_non_transparent_non_black();
+    var canvas = get_canvas_1x1_non_transparent_non_black();
     const bm = await createImageBitmap(canvas);
     const copy = await runner.structuredClone(bm);
     compare_ImageBitmap(bm, copy);
-  },
-  requiresDocument: true
+  }
 });
 
 structuredCloneBatteryOfTests.push({
   description: 'Array ImageBitmap object, ImageBitmap 1x1 transparent black',
   async f(runner) {
-    const canvas = get_canvas_1x1_transparent_black();
+    var canvas = get_canvas_1x1_transparent_black();
     const bm = [await createImageBitmap(canvas)];
     const copy = await runner.structuredClone(bm);
     compare_Array(enumerate_props(compare_ImageBitmap))(bm, copy);
-  },
-  requiresDocument: true
+  }
 });
 
 structuredCloneBatteryOfTests.push({
   description: 'Array ImageBitmap object, ImageBitmap 1x1 transparent non-black',
   async f(runner) {
-    const canvas = get_canvas_1x1_non_transparent_non_black();
+    var canvas = get_canvas_1x1_non_transparent_non_black();
     const bm = [await createImageBitmap(canvas)];
     const copy = await runner.structuredClone(bm);
     compare_Array(enumerate_props(compare_ImageBitmap))(bm, copy);
-  },
-  requiresDocument: true
+  }
 });
 
 structuredCloneBatteryOfTests.push({
   description: 'Object ImageBitmap object, ImageBitmap 1x1 transparent black',
   async f(runner) {
-    const canvas = get_canvas_1x1_transparent_black();
+    var canvas = get_canvas_1x1_transparent_black();
     const bm = {x: await createImageBitmap(canvas)};
     const copy = await runner.structuredClone(bm);
     compare_Object(enumerate_props(compare_ImageBitmap))(bm, copy);
-  },
-  requiresDocument: true
+  }
 });
 
 structuredCloneBatteryOfTests.push({
   description: 'Object ImageBitmap object, ImageBitmap 1x1 transparent non-black',
   async f(runner) {
-    const canvas = get_canvas_1x1_non_transparent_non_black();
+    var canvas = get_canvas_1x1_non_transparent_non_black();
     const bm = {x: await createImageBitmap(canvas)};
     const copy = await runner.structuredClone(bm);
     compare_Object(enumerate_props(compare_ImageBitmap))(bm, copy);
-  },
-  requiresDocument: true
-});
-
-check('ObjectPrototype must lose its exotic-ness when cloned',
-  () => Object.prototype,
-  (copy, original) => {
-    assert_not_equals(copy, original);
-    assert_true(copy instanceof Object);
-
-    const newProto = { some: 'proto' };
-    // Must not throw:
-    Object.setPrototypeOf(copy, newProto);
-
-    assert_equals(Object.getPrototypeOf(copy), newProto);
   }
-);
+});

@@ -1,7 +1,6 @@
 function message_from_port(port) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     port.onmessage = e => resolve(e.data);
-    port.onerror = e => reject(e);
   });
 }
 

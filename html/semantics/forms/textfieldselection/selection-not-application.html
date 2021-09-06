@@ -14,11 +14,6 @@
     var el = document.createElement("input");
     el.type = type;
 
-    if (el.type != type) {
-      // Type is not supported - don't bother with the following checks.
-      return;
-    }
-
     test(() => {
       assert_equals(el.selectionStart, null);
     }, `selectionStart on an input[type=${type}] returns null`);
@@ -32,42 +27,39 @@
     }, `selectionDirection on an input[type=${type}] returns null`);
 
     test(() => {
-      assert_throws_dom("InvalidStateError", function(){
+      assert_throws("InvalidStateError", function(){
         el.selectionStart = 0;
       });
     }, `assigning selectionStart on an input[type=${type}] throws InvalidStateError`);
 
     test(() => {
-      assert_throws_dom("InvalidStateError", function(){
+      assert_throws("InvalidStateError", function(){
         el.selectionEnd = 0;
       });
     }, `assigning selectionEnd on an input[type=${type}] throws InvalidStateError`);
 
     test(() => {
-      assert_throws_dom("InvalidStateError", function(){
+      assert_throws("InvalidStateError", function(){
         el.selectionDirection = 'none';
       });
     }, `assigning selectionDirection on an input[type=${type}] throws InvalidStateError`);
 
     test(() => {
-      assert_throws_dom("InvalidStateError", function(){
+      assert_throws("InvalidStateError", function(){
         el.setRangeText("foobar");
       });
     }, `setRangeText on an input[type=${type}] throws InvalidStateError`);
 
     test(() => {
-      assert_throws_dom("InvalidStateError", function(){
+      assert_throws("InvalidStateError", function(){
         el.setSelectionRange(0, 1);
       });
     }, `setSelectionRange on an input[type=${type}] throws InvalidStateError`);
   });
 
   applicableTypes.forEach(function(type) {
-    const el = document.createElement("input");
-    if (type) {
-      el.type = type;
-    }
-    const initialDirection = el.selectionDirection;
+    var el = document.createElement("input");
+    if (type) el.type = type;
 
     test(() => {
       assert_equals(el.selectionStart, 0);
@@ -78,13 +70,8 @@
     }, `selectionEnd on an input[type=${type}] returns a value`);
 
     test(() => {
-      assert_in_array(el.selectionDirection, ["forward", "none"]);
+      assert_equals(el.selectionDirection, "none");
     }, `selectionDirection on an input[type=${type}] returns a value`);
-
-    test(() => {
-      el.selectionDirection = "none";
-      assert_equals(el.selectionDirection, initialDirection);
-    }, `assigning selectionDirection "none" on an input[type=${type}] should give the initial direction`);
 
     test(() => {
       el.selectionStart = 1;

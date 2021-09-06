@@ -1,7 +1,6 @@
-// META: global=window,dedicatedworker,sharedworker
+// META: global=sharedworker
 // META: script=/resources/WebIDLParser.js
 // META: script=/resources/idlharness.js
-// META: timeout=long
 
 idl_test(
   ['xhr'],

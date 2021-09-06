@@ -1,16 +1,14 @@
 import time
 
-from wptserve.utils import isomorphic_encode
-
 def main(request, response):
-    code = int(request.GET.first(b"code", 302))
-    location = request.GET.first(b"location", isomorphic_encode(request.url_parts.path + u"?followed"))
+    code = int(request.GET.first("code", 302))
+    location = request.GET.first("location", request.url_parts.path + "?followed")
 
-    if b"delay" in request.GET:
-        delay = float(request.GET.first(b"delay"))
+    if "delay" in request.GET:
+        delay = float(request.GET.first("delay"))
         time.sleep(delay / 1E3)
 
-    if b"followed" in request.GET:
-        return [(b"Content:Type", b"text/plain")], b"MAGIC HAPPENED"
+    if "followed" in request.GET:
+        return [("Content:Type", "text/plain")], "MAGIC HAPPENED"
     else:
-        return (code, b"WEBSRT MARKETING"), [(b"Location", location)], b"TEST"
+        return (code, "WEBSRT MARKETING"), [("Location", location)], "TEST"

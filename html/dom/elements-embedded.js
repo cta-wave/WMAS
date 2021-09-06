@@ -30,6 +30,7 @@ var embeddedElements = {
     sandbox: "settable tokenlist",
     allowFullscreen: "boolean",
     allowUserMedia: "boolean",
+    allowPaymentRequest: "boolean",
     width: "string",
     height: "string",
     referrerPolicy: {type: "enum", keywords: ["", "no-referrer", "no-referrer-when-downgrade", "same-origin", "origin", "strict-origin", "origin-when-cross-origin", "strict-origin-when-cross-origin", "unsafe-url"]},
@@ -58,6 +59,7 @@ var embeddedElements = {
     // Conforming
     data: "url",
     type: "string",
+    typeMustMatch: "boolean",
     name: "string",
     useMap: "string",
     width: "string",
@@ -93,13 +95,11 @@ var embeddedElements = {
     autoplay: "boolean",
     loop: "boolean",
     controls: "boolean",
-    controlsList: {type: "tokenlist", domAttrName: "controlsList"},
     defaultMuted: {type: "boolean", domAttrName: "muted"},
 
     width: "unsigned long",
     height: "unsigned long",
-    poster: "url",
-    playsInline: "boolean",
+    poster: "url"
   },
   audio: {
     // HTMLMediaElement

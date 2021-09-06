@@ -1,3 +1,15 @@
+<!--
+var x;
+var y;
+try {
+  importScripts('data:text/javascript,x={',
+                'data:text/javascript,}');
+} catch(e) {
+  y = true;
+}
+postMessage([x, y]);
+/*
+-->
 <!doctype html>
 <title>importScripts separate scripts</title>
 <script src="/resources/testharness.js"></script>
@@ -5,7 +17,7 @@
 <div id="log"></div>
 <script>
 async_test(function() {
-  var worker = new Worker('005.js');
+  var worker = new Worker('#');
   worker.onmessage = this.step_func(function(e) {
     assert_equals(e.data[0], undefined);
     assert_true(e.data[1]);
@@ -13,3 +25,6 @@ async_test(function() {
   });
 });
 </script>
+<!--
+*/
+//-->

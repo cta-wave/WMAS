@@ -1,4 +1,17 @@
 var obsoleteElements = {
+  applet: {
+    align: "string",
+    alt: "string",
+    archive: "string",
+    code: "string",
+    codeBase: "url",
+    height: "string",
+    hspace: "unsigned long",
+    name: "string",
+    object: "url",
+    vspace: "unsigned long",
+    width: "string",
+  },
   marquee: {
     behavior: {
       type: {

@@ -11,7 +11,6 @@
   <meta name="assert" content="Test checks that css properties of grid layout exist.">
   <script src="/resources/testharness.js"></script>
   <script src="/resources/testharnessreport.js"></script>
-  <link rel="stylesheet" type="text/css" href="/fonts/ahem.css" />
   <style>
     #container {
         width: 800px;
@@ -35,8 +34,6 @@
   </div>
 
   <script>
-  setup({explicit_done: true});
-  document.fonts.ready.then(()=> {
     var myDiv = document.getElementById('myDiv')
 
     test(function(){
@@ -97,7 +94,7 @@
         '<line-names>': ['[a] auto [b] auto [c]', '[a] 50px [b] 50px [c] 50px'],
         '<track-size>.auto': ['auto', '50px 50px 50px'],
         '<track-size>.<track-breadth>.<length>': ['100px', '100px 50px 50px'],
-        '<track-size>.<track-breadth>.<percentage>': ['100%', '150px 50px 50px'],
+        '<track-size>.<track-breadth>.<percentage>': ['100%', '50px 50px 50px'],
         '<track-size>.<track-breadth>.<flex>': ['1fr', '50px 50px 50px'],
         '<track-size>.<track-breadth>.min-content': ['min-content', '50px 50px 50px'],
         '<track-size>.<track-breadth>.max-content': ['max-content', '50px 50px 50px'],
@@ -111,13 +108,13 @@
         'reset': ['none', 'none'],
       },
       'grid-template': {
-        initial: '50px 50px 50px / 150px',
-        'none': ['', '50px 50px 50px / 150px'],
+        initial: '150px / 50px 50px 50px',
+        'none': ['', '150px / 50px 50px 50px'],
         '<grid-template-rows> / <grid-template-columns>': ['100px 100px / 200px 200px', '100px 100px / 200px 200px'],
         '<line-names>': ['[a] auto [b] auto [c] / [d] auto [e] auto [f]', '[a] auto [b] auto [c] / [d] auto [e] auto [f]'],
         '<string>+': ['"a b" "a b"', '"a b" "a b"'],
         '<string><track-size>+': ['100px / "a b" 50px', '100px / "a b" 50px'],
-        'reset': ['', '50px 50px 50px / 150px'],
+        'reset': ['', '150px / 50px 50px 50px'],
       },
       'grid-auto-columns': {
         initial: 'auto',
@@ -145,8 +142,8 @@
         initial: 'row',
         'row': ['row', 'row'],
         'column': ['column', 'column'],
-        'dense': ['dense', 'dense'],
-        'row dense': ['dense', 'dense'],
+        'dense': ['dense', 'row dense'],
+        'row dense': ['row dense', 'row dense'],
         'column dense': ['column dense', 'column dense'],
         'reset': ['row', 'row'],
       },
@@ -231,8 +228,6 @@
         'reset': ['auto', 'auto'],
       },
     })
-    done();
-  });
   </script>
 </body>
 </html>

@@ -1,3 +1,17 @@
+<!--
+if ('onmessage' in self) { // dedicated worker
+  onmessage = function(e) {
+    postMessage(navigator.onLine);
+  }
+} else { // shared worker
+  onconnect = function(e) {
+    e.ports[0].onmessage = function(e) {
+      this.postMessage(navigator.onLine);
+    }
+  }
+}
+/*
+-->
 <!doctype html>
 <title>navigator.onLine in dedicated worker</title>
 <pre>Log:
@@ -5,7 +19,7 @@
 <script>
 var pre = document.querySelector('pre');
 var worker, shared;
-try { worker = new Worker('navigator-onLine.js'); } catch(e) { pre.textContent += '\nnew Worker threw: ' + e.message; }
+try { worker = new Worker('#'); } catch(e) { pre.textContent += '\nnew Worker threw: ' + e.message; }
 try { shared = new SharedWorker('#', ''); } catch(e) { pre.textContent += '\nnew SharedWorker threw: ' + e.message; }
 if (worker) {
   worker.onmessage = function(e) {
@@ -27,3 +41,6 @@ ononline = onoffline = update;
 </script>
 <p>As you go online and offline, the log should be filled with the correct status of navigator.onLine.</p>
 <p><button onclick="update()">Check navigator.onLine status</button></p>
+<!--
+*/
+//-->

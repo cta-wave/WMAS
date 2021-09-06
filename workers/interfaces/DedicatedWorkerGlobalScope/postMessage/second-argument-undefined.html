@@ -1,3 +1,11 @@
+<!--
+try {
+  postMessage(1, undefined);
+} catch(e) {
+  postMessage(''+e);
+}
+/*
+-->
 <!doctype html>
 <title>Using undefined in postMessage's second argument</title>
 <script src="/resources/testharness.js"></script>
@@ -5,10 +13,13 @@
 <div id="log"></div>
 <script>
 (async_test()).step(function() {
-  var worker = new Worker('second-argument-undefined.js');
+  var worker = new Worker('#');
   worker.onmessage = this.step_func(function(e) {
     assert_equals(e.data, 1);
     this.done();
   });
 });
 </script>
+<!--
+*/
+//-->

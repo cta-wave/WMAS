@@ -33,7 +33,7 @@ test(t => {
 test(t => {
   err = noError;
   document.write("<custom-element></custom-element>");
-  assert_throws_dom("InvalidStateError", () => {
+  assert_throws("InvalidStateError", () => {
     throw err;
   });
 }, "document.open() is forbidden in custom element constructor when creating element from parser");

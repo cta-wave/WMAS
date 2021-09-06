@@ -11,17 +11,15 @@
     <script>
       var test = async_test(),
           client,
-          exceptionCtor,
-          count = 0;
+          count = 0
       function init() {
         test.step(function() {
           if(0 == count) {
-            client = new self[0].XMLHttpRequest();
-            exceptionCtor = self[0].DOMException;
+            client = new self[0].XMLHttpRequest()
             count++
             self[0].location.reload()
           } else if(1 == count) {
-            assert_throws_dom("InvalidStateError", exceptionCtor, function() {client.open("GET", "...") });
+            assert_throws("InvalidStateError", function() { client.open("GET", "...") })
             test.done()
           }
         })
