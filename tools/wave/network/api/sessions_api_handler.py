@@ -50,7 +50,12 @@ class SessionsApiHandler(ApiHandler):
                 labels = config["labels"]
             expiration_date = None
             if "expiration_date" in config:
-                expiration_date = config["expiration_date"]
+                try:
+                    expiration_date = int(config["expiration_date"])
+                except ValueError as exc:
+                    msg = "expiration_date must be an int, got: {}".format(
+                        config["expiration_date"])
+                    raise InvalidDataException(msg) from exc
             type = None
             if "type" in config:
                 type = config["type"]
