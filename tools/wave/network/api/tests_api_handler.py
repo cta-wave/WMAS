@@ -187,6 +187,13 @@ class TestsApiHandler(ApiHandler):
                 data = json.loads(body)
 
             self._tests_manager.update_malfunctioning_tests(token, data)
+        except json.JSONDecodeError:
+            self.handle_exception("Failed to create session")
+            return {
+                "format": "application/json",
+                "data": {"error": "Invalid json data!"},
+                "status": 400
+            }
         except Exception:
             self.handle_exception("Failed to update malfunctioning tests")
             response.status = 500

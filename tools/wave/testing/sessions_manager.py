@@ -13,6 +13,7 @@ from .event_dispatcher import STATUS_EVENT, RESUME_EVENT
 from ..data.exceptions.not_found_exception import NotFoundException
 from ..data.exceptions.invalid_data_exception import InvalidDataException
 from ..utils.deserializer import deserialize_session
+from ..utils.deserializer import iso_to_millis
 
 DEFAULT_TEST_TYPES = [AUTOMATIC, MANUAL]
 DEFAULT_TEST_PATHS = ["/"]
@@ -46,7 +47,7 @@ class SessionsManager(object):
         user_agent=None,
         labels=None,
         expiration_date=None,
-        type=None
+        session_type=None
     ):
         if tests is None:
             tests = {}
@@ -73,6 +74,13 @@ class SessionsManager(object):
         for test_type in test_types:
             if test_type != "automatic" and test_type != "manual":
                 raise InvalidDataException("Unknown type '{}'".format(test_type))
+        print("exp date again", expiration_date)
+
+        if expiration_date is not None and type(expiration_date) != int:
+            expiration_date = iso_to_millis(expiration_date)
+            if type(expiration_date) != int:
+                raise InvalidDataException("Expected ISO string for expiration date: {}", expiration_date)
+
 
         token = str(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
@@ -112,7 +120,7 @@ class SessionsManager(object):
             status=PENDING,
             reference_tokens=reference_tokens,
             labels=labels,
-            type=type,
+            session_type=session_type,
             expiration_date=expiration_date,
             date_created=date_created
         )
@@ -178,7 +186,7 @@ class SessionsManager(object):
         self._push_to_cache(session)
 
     def update_session_configuration(
-        self, token, tests, test_types, timeouts, reference_tokens, type
+        self, token, tests, test_types, timeouts, reference_tokens, session_type
     ):
         session = self.read_session(token)
         if session is None:
@@ -228,8 +236,8 @@ class SessionsManager(object):
             session.timeouts = timeouts
         if reference_tokens is not None:
             session.reference_tokens = reference_tokens
-        if type is not None:
-            session.type = type
+        if session_type is not None:
+            session.session_type = session_type
 
         self._push_to_cache(session)
         return session

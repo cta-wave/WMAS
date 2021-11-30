@@ -653,6 +653,7 @@ class ResultsManager(object):
         session.test_state = test_state
 
         self._sessions_manager.update_session(session)
+        self.generate_report(token, api)
 
     def remove_tmp_files(self):
         files = os.listdir(".")
