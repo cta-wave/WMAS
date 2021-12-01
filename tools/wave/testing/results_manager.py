@@ -5,7 +5,6 @@ import json
 import hashlib
 import zipfile
 import time
-from threading import Timer
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
@@ -20,7 +19,6 @@ from ..data.session import COMPLETED
 WAVE_SRC_DIR = "./tools/wave"
 RESULTS_FILE_REGEX = r"^\w\w\d\d\d?\.json$"
 RESULTS_FILE_PATTERN = re.compile(RESULTS_FILE_REGEX)
-SESSION_RESULTS_TIMEOUT = 60*30  # 30min
 
 
 class ResultsManager(object):
@@ -40,7 +38,6 @@ class ResultsManager(object):
         self._reports_enabled = reports_enabled
         self._results = {}
         self._persisting_interval = persisting_interval
-        self._timeouts = {}
 
     def create_result(self, token, data):
         result = self.prepare_result(data)
@@ -66,6 +63,7 @@ class ResultsManager(object):
         if session.recent_completed_count >= self._persisting_interval \
            or self._sessions_manager.is_api_complete(api, session):
             self.persist_session(session)
+            self._flush_results_cache(session)
 
         if not self._sessions_manager.is_api_complete(api, session):
             return
@@ -87,10 +85,9 @@ class ResultsManager(object):
         if filter_path is not None:
             filter_api = next((p for p in filter_path.split("/")
                                if p is not None), None)
-        results = self._read_from_cache(token)
-        if results == []:
-            results = self.load_results(token)
-            self._set_session_cache(token, results)
+        cached_results = self._read_from_cache(token)
+        persisted_results = self.load_results(token)
+        results = self._combine_results_by_api(persisted_results, cached_results)
 
         filtered_results = {}
 
@@ -245,11 +242,6 @@ class ResultsManager(object):
         shutil.rmtree(results_directory)
 
     def persist_session(self, session):
-        token = session.token
-        if token not in self._results:
-            return
-        for api in list(self._results[token].keys())[:]:
-            self.save_api_results(token, api)
         self.create_info_file(session)
         session.recent_completed_count = 0
         self._sessions_manager.update_session(session)
@@ -287,20 +279,12 @@ class ResultsManager(object):
         if api not in self._results[token]:
             self._results[token][api] = []
         self._results[token][api].append(result)
-        self._set_timeout(token)
-
-    def _set_session_cache(self, token, results):
-        if token is None:
-            return
-        self._results[token] = results
-        self._set_timeout(token)
 
     def _read_from_cache(self, token):
         if token is None:
             return []
         if token not in self._results:
             return []
-        self._set_timeout(token)
         return self._results[token]
 
     def _clear_session_cache(self, token):
@@ -309,6 +293,14 @@ class ResultsManager(object):
         if token not in self._results:
             return
         del self._results[token]
+
+    def _flush_results_cache(self, session):
+        token = session.token
+        if token not in self._results:
+            return
+        for api in list(self._results[token].keys())[:]:
+            self.save_api_results(session, api)
+        self._clear_session_cache(token)
 
     def _combine_results_by_api(self, result_a, result_b):
         combined_result = {}
@@ -376,12 +368,12 @@ class ResultsManager(object):
 
         return os.path.join(api_directory, file_name)
 
-    def save_api_results(self, token, api):
+    def save_api_results(self, session, api):
+        token = session.token
         results = self._read_from_cache(token)
         if api not in results:
             return
         results = results[api]
-        session = self._sessions_manager.read_session(token)
         self._ensure_results_directory_existence(api, token, session)
 
         file_path = self.get_json_path(token, api)
@@ -464,9 +456,12 @@ class ResultsManager(object):
 
     def create_info_file(self, session):
         token = session.token
-        info_file_path = os.path.join(
+        info_dir_path = os.path.join(
             self._results_directory_path,
-            token,
+            token
+        )
+        info_file_path = os.path.join(
+            info_dir_path,
             "info.json"
         )
         info = serialize_session(session)
@@ -474,6 +469,9 @@ class ResultsManager(object):
         del info["pending_tests"]
 
         file_content = json.dumps(info, indent=2)
+        if not os.path.exists(info_dir_path):
+            os.makedirs(info_dir_path)
+
         with open(info_file_path, "w+") as file:
             file.write(file_content)
 
@@ -625,7 +623,6 @@ class ResultsManager(object):
         os.makedirs(destination_path)
         zip.extractall(destination_path)
         self.remove_tmp_files()
-        self.load_results(token)
         return token
 
     def import_results_api_json(self, token, api, blob):
@@ -662,12 +659,3 @@ class ResultsManager(object):
             if re.match(r"\d{10}\.\d{2}\.zip", file) is None:
                 continue
             os.remove(file)
-
-    def _set_timeout(self, token):
-        if token in self._timeouts:
-            self._timeouts[token].cancel()
-
-        def handler(self, token):
-            self._clear_session_cache(token)
-
-        self._timeouts[token] = Timer(SESSION_RESULTS_TIMEOUT, handler, [self, token])
