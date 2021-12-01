@@ -74,7 +74,6 @@ class SessionsManager(object):
         for test_type in test_types:
             if test_type != "automatic" and test_type != "manual":
                 raise InvalidDataException("Unknown type '{}'".format(test_type))
-        print("exp date again", expiration_date)
 
         if expiration_date is not None and type(expiration_date) != int:
             expiration_date = iso_to_millis(expiration_date)
@@ -136,7 +135,6 @@ class SessionsManager(object):
             return None
         session = self._read_from_cache(token)
         if session is None or session.test_state is None:
-            print("loading session from file system")
             session = self.load_session(token)
         if session is not None:
             self._push_to_cache(session)

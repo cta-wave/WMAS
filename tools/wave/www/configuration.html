@@ -161,7 +161,6 @@
         function loadPublicSessionData(callback) {
           WaveService.readPublicSessions(function (tokens) {
             WaveService.readMultipleSessions(tokens, function (configurations) {
-                    console.log(configurations);
               referenceSessions = configurations
                 .sort((confA, confB) =>
                   confA.browser.name.toLowerCase() >
