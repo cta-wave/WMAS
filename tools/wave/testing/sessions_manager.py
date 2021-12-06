@@ -285,6 +285,7 @@ class SessionsManager(object):
         if session is None:
             return None
 
+
         if session.test_state is None:
             results = self._results_manager.load_results(token)
             test_state = self._results_manager.parse_test_state(results)

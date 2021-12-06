@@ -102,7 +102,7 @@ def deserialize_session(session_dict):
         reference_tokens=reference_tokens,
         browser=browser,
         expiration_date=expiration_date,
-        session_type=type,
+        session_type=session_type,
         malfunctioning_tests=malfunctioning_tests
     )
 
