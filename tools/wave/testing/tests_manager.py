@@ -145,7 +145,7 @@ class TestsManager(object):
                     micro_test_list[api_a] = [test_a]
                     micro_test_list[api_b] = [test_b]
                 next_test = self.tests_manager._get_next_test_from_list(micro_test_list)
-                return next_test == test_b
+                return next_test == test_a
 
         sorted_tests.sort(key=lambda test: compare(self, test))
         return sorted_tests
@@ -222,7 +222,7 @@ class TestsManager(object):
         remaining_tests_by_api = {}
         current_api = "___"
         for test in remaining_tests:
-            if not test.startswith("/" + current_api) and \
+            if not test.startswith("/" + str(current_api)) and \
                not test.startswith(current_api):
                 current_api = next((p for p in test.split("/") if p != ""),
                                    None)
