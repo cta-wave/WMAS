@@ -10,9 +10,13 @@ def generate_report(
         output_html_directory_path=None,
         spec_name=None,
         is_multi=None,
-        reference_dir=None):
+        reference_dir=None,
+        tests_base_url=None):
     if is_multi is None:
         is_multi = False
+    if tests_base_url is None:
+        tests_base_url = ""
+
     try:
         command = [
             "wptreport",
@@ -23,7 +27,9 @@ def generate_report(
             "--failures", "true",
             "--tokenFileName", "true" if is_multi else "false",
             "--pass", "100",
-            "--ref", reference_dir if reference_dir is not None else ""]
+            "--ref", reference_dir if reference_dir is not None else "",
+            "--testsBaseUrl", tests_base_url
+            ]
         whole_command = ""
         for command_part in command:
             whole_command += command_part + " "
