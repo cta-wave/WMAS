@@ -822,7 +822,8 @@ class ConfigBuilder(config.ConfigBuilder):
         "enable_results_import": False,
         "web_root": "/wave",
         "persisting_interval": 20,
-        "api_titles": []
+        "api_titles": [],
+        "tests_base_url": ""
     }
 
     computed_properties = ["ws_doc_root"] + config.ConfigBuilder.computed_properties

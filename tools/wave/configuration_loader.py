@@ -60,6 +60,9 @@ def load(configuration_file_path):
     configuration[u"api_titles"] = configuration.get(
         u"api_titles", default_configuration[u"api_titles"])
 
+    configuration[u"tests_base_url"] = configuration.get(
+        u"tests_base_url", default_configuration[u"tests_base_url"])
+
     return configuration
 
 

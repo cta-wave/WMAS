@@ -65,5 +65,6 @@
     { "title": "Webstorage", "path": "/webstorage" },
     { "title": "Workers", "path": "/workers" },
     { "title": "XHR", "path": "/xhr" }
-  ]
+  ],
+  "tests_base_url": ""
 }

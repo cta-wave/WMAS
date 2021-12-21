@@ -48,6 +48,7 @@ class WaveServer(object):
             tests_manager=tests_manager,
             import_enabled=configuration["import_enabled"],
             reports_enabled=reports_enabled,
+            tests_base_url=configuration["tests_base_url"],
             persisting_interval=configuration["persisting_interval"]
         )
 
