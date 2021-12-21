@@ -29,6 +29,7 @@ class ResultsManager(object):
         tests_manager,
         import_results_enabled,
         reports_enabled,
+        tests_base_url,
         persisting_interval
     ):
         self._results_directory_path = results_directory_path
@@ -36,6 +37,7 @@ class ResultsManager(object):
         self._tests_manager = tests_manager
         self._import_results_enabled = import_results_enabled
         self._reports_enabled = reports_enabled
+        self._tests_base_url = tests_base_url
         self._results = {}
         self._persisting_interval = persisting_interval
 
@@ -404,7 +406,8 @@ class ResultsManager(object):
         generate_report(
             input_json_directory_path=dir_path,
             output_html_directory_path=dir_path,
-            spec_name=api
+            spec_name=api,
+            tests_base_url=self._tests_base_url
         )
 
     def generate_multi_report(self, tokens, api):
