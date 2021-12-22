@@ -66,5 +66,5 @@
     { "title": "Workers", "path": "/workers" },
     { "title": "XHR", "path": "/xhr" }
   ],
-  "tests_base_url": ""
+  "tests_base_url": "https://github.com/cta-wave/WMAS/blob/wmas2018-tests"
 }
