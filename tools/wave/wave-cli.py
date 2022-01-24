@@ -20,8 +20,8 @@ REFERENCE_BROWSERS = {
         "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Firefox84-da39b02a-2503-11ec-ad8a-6c88140d17f8.zip"
     },
     "safari": {
-        "name": "Safari 11.1.2",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Safari11-03daa098-279c-11ec-b192-0242ac110002.zip"
+        "name": "Safari 13.1.2",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Safari13-e5a7779e-5da7-11ec-b665-0242ac110002.zip"
     }
 }
 
