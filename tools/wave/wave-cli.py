@@ -12,8 +12,8 @@ REFERENCE_BROWSERS = {
         "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Chromium89-e98c8a96-2aa0-11ec-afc9-0242ac110002.zip"
     },
     "edge": {
-        "name": "Edge 94.0.992.38",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Edge94-3b217db8-2a91-11ec-8d51-0242ac110002.zip"
+        "name": "Edge 88.0.705.56",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Edge88-b486cfac-82d2-11ec-ac19-0242ac110002.zip"
     },
     "firefox": {
         "name": "Firefox 84.0",
