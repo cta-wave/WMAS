@@ -18,6 +18,10 @@ REFERENCE_BROWSERS = {
     "safari": {
         "name": "Safari 13.1.2",
         "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2019/Safari13-fd59e14a-416b-11ec-81ed-0242ac110002.zip"
+    },
+    "edge": {
+        "name": "Edge 79.0.3945",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2019/Edge79-60384ada-83c1-11ec-acf3-0242ac110002.zip"
     }
 }
 
