@@ -259,11 +259,11 @@ git fetch origin 2>/dev/null 1>/dev/null
 ###############################
 
 # DOM [DOM]
-git checkout 5fb2692263f71ff8cb1b8af8349c3873d69e6ba5 dom 2>/dev/null 1>/dev/null
+git checkout f7e7059d3772fed15cb7389daa3b17ccce32d1c5 dom 2>/dev/null 1>/dev/null
 mv dom $WPTBASEDIR
 
 # HTML [HTML]
-git checkout 40dc04fca82111bedc417296361bd5f31333bef8 html 2>/dev/null 1>/dev/null
+git checkout 351e1ce8543ff88a1a14daa2e18d3d0cfbc52613 html 2>/dev/null 1>/dev/null
 rm -rf html/**/*shared-workers*
 rm -rf html/canvas/element
 rm -rf html/canvas/resources
@@ -296,7 +296,7 @@ git checkout f6acb6c0316cabf895c8c47dc654e77ef4b2a287 css/css-animations 2>/dev/
 mv css/css-animations $WPTBASEDIR/css
 
 # CSS Backgrounds and Borders Module Level 3 [CSS3-BACKGROUND]
-git checkout 398cdfa444185dda88ca6e87fb12096bc8a82199 css/css-backgrounds 2>/dev/null 1>/dev/null
+git checkout 4c83511984d28d692a68de2330a844183b9d488e css/css-backgrounds 2>/dev/null 1>/dev/null
 mv css/css-backgrounds $WPTBASEDIR/css
 
 # CSS Basic User Interface Module Level 3 (CSS3 UI) [CSS-UI-3]
@@ -308,7 +308,7 @@ git checkout 9ad6ebf9fff00dcd46d6c5438ebbd0f7e71c15f8 css/css-cascade 2>/dev/nul
 mv css/css-cascade $WPTBASEDIR/css
 
 # CSS Color Module Level 3 [CSS3-COLOR]
-git checkout b6e84edf4a398cc48f4983cbd8398858816996ae css/css-color 2>/dev/null 1>/dev/null
+git checkout 1d6ace2d5bfaa1d55e7cf1c6803c54e6567e7585 css/css-color 2>/dev/null 1>/dev/null
 mv css/css-color $WPTBASEDIR/css
 
 # CSS Conditional Rules Module Level 3 [CSS3-CONDITIONAL]
@@ -316,32 +316,35 @@ git checkout 01bda5c03bf8ae4ee00251b8969adf1ef69f443d css/css-conditional 2>/dev
 mv css/css-conditional $WPTBASEDIR/css
 
 # CSS Custom Properties For Cascading Variables Module Level 1 [CSS-VARIABLES-1]
-git checkout b1f24df9a2e449e0545bf6d74b62c0a40c543fde css/css-variables 2>/dev/null 1>/dev/null
+git checkout dfd2e8569778e2a8409d47b529bd062f7ce862b5 css/css-variables 2>/dev/null 1>/dev/null
 mv css/css-variables $WPTBASEDIR/css
 
 # CSS Easing Functions Level 1 [CSS-EASING-1]
 git checkout 9f47205824fa25eca5d9ab2c87a016a7c5c4df3a css/css-easing 2>/dev/null 1>/dev/null
-rm -rf css/css-easing/**/*step*
 mv css/css-easing $WPTBASEDIR/css
 
 # CSS Flexible Box Layout Module Level 1 [CSS-FLEXBOX-1]
 git checkout 9d6f1c1aa7e1daa62c350b3fec18d594792f408a css/css-flexbox 2>/dev/null 1>/dev/null
 mv css/css-flexbox $WPTBASEDIR/css
 
+# CSS Font Loading Module Level 3 [CSS-FONT-LOADING-3]
+git checkout 2ed60cb4b19a1b1695d38fed4060bb9f62f9f3bb css/css-font-loading 2>/dev/null 1>/dev/null
+mv css/css-font-loading $WPTBASEDIR/css
+
 # CSS Fonts Module Level 3 [CSS-FONTS-3]
 git checkout 3d83b8688bbd6d9e2a7fc31021bc214cbf0ebcb7 css/css-fonts 2>/dev/null 1>/dev/null
 mv css/css-fonts $WPTBASEDIR/css
 
 # CSS Grid Layout Module Level 1 [CSS-GRID-1]
-git checkout 8c317250a78e2bd178373528a1e61d550485159d css/css-grid 2>/dev/null 1>/dev/null
+git checkout 6faff25614baf1cedbb02c92c4b016e952e303b2 css/css-grid 2>/dev/null 1>/dev/null
 mv css/css-grid $WPTBASEDIR/css
 
 # CSS Image Values and Replaced Content Module Level 3 [CSS3-IMAGES]
-git checkout 0624a18c9ebc3cc710d1e54dfd5adb5a0a829c42 css/css-images 2>/dev/null 1>/dev/null
+git checkout 48e3fd2f4d41fa00640d27738bdda07db95594cc css/css-images 2>/dev/null 1>/dev/null
 mv css/css-images $WPTBASEDIR/css
 
 # CSS Multi-column Layout Module [CSS3-MULTICOL]
-git checkout c0b406d151940c4253d59c041d895e763c27e754 css/css-multicol 2>/dev/null 1>/dev/null
+git checkout d625d30d9c6e6634fcac316d094af314accca8a2 css/css-multicol 2>/dev/null 1>/dev/null
 mv css/css-multicol $WPTBASEDIR/css
 
 # CSS Namespaces Module Level 3 [CSS-NAMESPACES-3]
@@ -349,7 +352,7 @@ git checkout 29f50c937e8be8ccf73dbb8b8e74f0668a1cd426 css/css-namespaces 2>/dev/
 mv css/css-namespaces $WPTBASEDIR/css
 
 # CSS Scroll Snap Module Level 1 [CSS-SCROLL-SNAP-1]
-git checkout 546f149c579b3c78422d1f998b56edf73b5cfedc css/css-scroll-snap 2>/dev/null 1>/dev/null
+git checkout 5ff83eee19a770bba7396c0688a265970c6ed342 css/css-scroll-snap 2>/dev/null 1>/dev/null
 mv css/css-scroll-snap $WPTBASEDIR/css
 
 # CSS Shapes Module Level 1 [CSS-SHAPES-1]
@@ -387,7 +390,6 @@ mv css/css-will-change $WPTBASEDIR/css
 
 # CSS Writing Modes Level 3 [CSS-WRITING-MODES-3] 
 git checkout 6085f658ace31a3c962a69d5128cc7e66d79cbb9 css/css-writing-modes 2>/dev/null 1>/dev/null
-rm -rf css/css-writing-modes/**/*text-orientation*
 mv css/css-writing-modes $WPTBASEDIR/css
 
 # CSSOM View Module [CSSOM-VIEW]
@@ -414,14 +416,16 @@ mv css/selectors $WPTBASEDIR/css
 git checkout 5845bba1671bad710561b6b6e5825989878bb44c encrypted-media 2>/dev/null 1>/dev/null
 mv encrypted-media $WPTBASEDIR
 
+# Media Capabilities [MEDIA-CAPABILITIES]
+git checkout 19f945496f5d6f24d81f41b65fcd912e85b323b6 media-capabilities 2>/dev/null 1>/dev/null
+mv media-capabilities $WPTBASEDIR
+
 # Media Source Extensions [MEDIA-SOURCE]
 git checkout e0dc0f1a554ed116efa992a7095def76c58e13ee media-source 2>/dev/null 1>/dev/null
 mv media-source $WPTBASEDIR
 
 # Web Audio API [WEBAUDIO]
 git checkout 6a6a92e48d907b3c5a9b2be2386aecc4e67c8b99 webaudio 2>/dev/null 1>/dev/null
-rm -rf webaudio/**/*mediastreamaudiosourcenode*
-rm -rf webaudio/**/*mediastreamaudiodestinationnode*
 mv webaudio $WPTBASEDIR
 
 ###############################
@@ -429,18 +433,18 @@ mv webaudio $WPTBASEDIR
 ###############################
 
 # Fullscreen API Standard [FULLSCREEN]
-git checkout 87cd9eb2adafed5d4c6ce08a6716927f4d4fb4ea fullscreen 2>/dev/null 1>/dev/null
+git checkout d4beec831b7484382a25bca41b1449b68c235d0a fullscreen 2>/dev/null 1>/dev/null
 mv fullscreen $WPTBASEDIR
 
 # Graphics Interchange Format [GIF]
 echo "No tests specified for Graphics Interchange Format [GIF]"
 
 # HTML Canvas 2D Context [2DCONTEXT]
-git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 html/canvas/element 2>/dev/null 1>/dev/null
+git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 html/canvas/element 2>/dev/null 1>/dev/null
 mv html/canvas/element $WPTBASEDIR/2dcontext
-git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 html/canvas/resources 2>/dev/null 1>/dev/null
+git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 html/canvas/resources 2>/dev/null 1>/dev/null
 mv html/canvas $WPTBASEDIR/html/canvas
-git checkout 178b6bcde9cbb1d8e04076fe59c86ea94f122964 images 2>/dev/null 1>/dev/null
+git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 images 2>/dev/null 1>/dev/null
 mv images $WPTBASEDIR/images
 ln -s $WPTBASEDIR/images $WPTBASEDIR/html/canvas/images
 
@@ -467,11 +471,11 @@ echo "No tests specified for WOFF File Format 1.0 [WOFF]"
 #################################
 
 # Fetch [FETCH]
-git checkout 2f6111ecc1c0bc803a5287e0714f9c715023f5b9 fetch 2>/dev/null 1>/dev/null
+git checkout d3d67f35d9bfe830ccdb0c070cab75ef5b0211c6 fetch 2>/dev/null 1>/dev/null
 mv fetch $WPTBASEDIR
 
 # XMLHttpRequest [XHR]
-git checkout a35aa4089a7498dd4e107828c0925823fe512c97 xhr 2>/dev/null 1>/dev/null
+git checkout 4cf1a9640f6c87c31b21c115d8e4fce2cfffa427 xhr 2>/dev/null 1>/dev/null
 mv xhr $WPTBASEDIR
 
 ###############################
@@ -525,7 +529,7 @@ git checkout df24fb604e2d40528ac1d1b5dd970e32fc5c2978 page-visibility 2>/dev/nul
 mv page-visibility $WPTBASEDIR
 
 # Performance Timeline [PERFORMANCE-TIMELINE]
-git checkout 561f5a515ff8c39d414581ba2906aa980591d539 performance-timeline 2>/dev/null 1>/dev/null
+git checkout 8e4cf682fda6465fb385433640cc0340c80d5a71 performance-timeline 2>/dev/null 1>/dev/null
 mv performance-timeline $WPTBASEDIR
 
 # Resource Timing Level 1 [RESOURCE-TIMING-1]
@@ -545,7 +549,7 @@ git checkout b57479444fa21e2854dfb876f36f14f437ef7e35 IndexedDB 2>/dev/null 1>/d
 mv IndexedDB $WPTBASEDIR
 
 # File API [FILEAPI]
-git checkout 648205dcf15d75c37b7abe7a0c1a2a7128baea36 FileAPI 2>/dev/null 1>/dev/null
+git checkout c02cefef25635e730deb415e2d3a749a46f70402 FileAPI 2>/dev/null 1>/dev/null
 mv FileAPI $WPTBASEDIR
 
 # Notifications API [NOTIFICATIONS] 
@@ -557,7 +561,7 @@ git checkout b26c9dcf86ba2f91e2ea20ad72d67c0ce51b5b5d service-workers 2>/dev/nul
 mv service-workers $WPTBASEDIR
 
 # UI Events [UIEVENTS]
-git checkout 66ec292ee48a9a2bbfa2f556e614926cd07211aa uievents 2>/dev/null 1>/dev/null
+git checkout 393d88d184b7981a9ebcaf49dd38dd253a1f2534 uievents 2>/dev/null 1>/dev/null
 mv uievents $WPTBASEDIR
 
 
@@ -576,7 +580,7 @@ cd $WPTBASEDIR
 echo "Fetching ecmascript test files ..."
 git clone https://github.com/tc39/test262.git $ECMADISTDIR 2>/dev/null 1>/dev/null
 cd $ECMADISTDIR
-git checkout 59f5b4935985ff456a4f3438bffe0dcc60af1294 2>/dev/null 1>/dev/null #this is the Commit ID from 10 Jul 2020. ES2020 was released on 11 June 2020
+git checkout ebb6c34fa5dd76a6bea01c54ed7b182596492176 2>/dev/null 1>/dev/null #this is the Commit ID from Jun 25, 2021. ES2021 was released in June 2021
 cd $WPTBASEDIR
 echo "Generating ecmascript tests ..."
 node tools/wave/ecmascript/generate-tests.js $ECMADISTDIR
@@ -586,10 +590,10 @@ rm -rf ecmascript/tests/**/*sharedarraybuffer*
 rm -rf ecmascript/tests/**/*Atomics*
 rm -rf ecmascript/tests/**/*lookBehind*
 rm -rf ecmascript/tests/**/*lookbehind*
-rm -rf ecmascript/tests/**/*BigInt*
-rm -rf ecmascript/tests/**/*bigint*
-rm -rf ecmascript/tests/**/*BigUint*
-rm -rf ecmascript/tests/**/*biguint*
+find ecmascript/tests/**/*bigint64array* -exec rm -rf {} \; 2>/dev/null 1>/dev/null
+find ecmascript/tests/**/*biguint64array* -exec rm -rf {} \; 2>/dev/null 1>/dev/null
+find ecmascript/tests/**/*getbigint64* -exec rm -rf {} \; 2>/dev/null 1>/dev/null
+find ecmascript/tests/**/*getbiguint64* -exec rm -rf {} \; 2>/dev/null 1>/dev/null
 
 # Integrate webgl tests [WEBGL-103]
 WEBGLDISTDIR=$DISTDIR/webgl
