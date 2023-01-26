@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DISTDIR=dist/wmats2018
+DISTDIR=dist/wmats2021
 BRANCHORCOMMITID=4bdeca6b451519a7f60f592468600e0a6cbfc42b
 
 WPTBASEDIR=`pwd`
