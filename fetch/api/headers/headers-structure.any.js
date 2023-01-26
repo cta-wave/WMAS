@@ -1,8 +1,6 @@
 // META: title=Headers basic
 // META: global=window,worker
 
-"use strict";
-
 var headers = new Headers();
 var methods = ["append",
                 "delete",

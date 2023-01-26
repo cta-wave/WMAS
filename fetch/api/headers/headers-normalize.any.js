@@ -1,8 +1,6 @@
 // META: title=Headers normalize values
 // META: global=window,worker
 
-"use strict";
-
 var headerDictWS = {"name1": " space ",
                     "name2": "\ttab\t",
                     "name3": " spaceAndTab\t",
@@ -13,14 +11,14 @@ var headerDictWS = {"name1": " space ",
 
 test(function() {
   var headers = new Headers(headerDictWS);
-  for (const name in headerDictWS)
+  for (name in headerDictWS)
     assert_equals(headers.get(name), headerDictWS[name].trim(),
       "name: " + name + " has normalized value: " + headerDictWS[name].trim());
 }, "Create headers with not normalized values");
 
 test(function() {
   var headers = new Headers();
-  for (const name in headerDictWS) {
+  for (name in headerDictWS) {
     headers.append(name, headerDictWS[name]);
     assert_equals(headers.get(name), headerDictWS[name].trim(),
       "name: " + name + " has value: " + headerDictWS[name].trim());
@@ -29,7 +27,7 @@ test(function() {
 
 test(function() {
   var headers = new Headers();
-  for (const name in headerDictWS) {
+  for (name in headerDictWS) {
     headers.set(name, headerDictWS[name]);
     assert_equals(headers.get(name), headerDictWS[name].trim(),
       "name: " + name + " has value: " + headerDictWS[name].trim());

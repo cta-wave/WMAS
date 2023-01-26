@@ -1,6 +1,6 @@
 import gzip as gzip_module
 
-from io import BytesIO
+from six import BytesIO
 
 def main(request, response):
     if b"content" in request.GET:

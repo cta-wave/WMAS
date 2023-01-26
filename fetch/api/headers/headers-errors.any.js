@@ -1,8 +1,6 @@
 // META: title=Headers errors
 // META: global=window,worker
 
-"use strict";
-
 test(function() {
   assert_throws_js(TypeError, function() { new Headers([["name"]]); });
 }, "Create headers giving an array having one string as init argument");

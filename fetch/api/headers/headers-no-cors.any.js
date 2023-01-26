@@ -1,7 +1,5 @@
 // META: global=window,worker
 
-"use strict";
-
 promise_test(() => fetch("../cors/resources/not-cors-safelisted.json").then(res => res.json().then(runTests)), "Loading data…");
 
 const longValue = "s".repeat(127);

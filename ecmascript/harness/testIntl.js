@@ -1,5 +1,6 @@
 // Copyright (C) 2011 2012 Norbert Lindenberg. All rights reserved.
 // Copyright (C) 2012 2013 Mozilla Corporation. All rights reserved.
+// Copyright (C) 2020 Apple Inc. All rights reserved.
 // This code is governed by the BSD license found in the LICENSE file.
 /*---
 description: |
@@ -40,7 +41,8 @@ function testWithIntlConstructors(f) {
 
   // Optionally supported Intl constructors.
   // NB: Intl.Locale isn't an Intl service constructor!
-  ["PluralRules", "RelativeTimeFormat", "ListFormat", "DisplayNames"].forEach(function(constructor) {
+  // Intl.DisplayNames cannot be called without type in options.
+  ["PluralRules", "RelativeTimeFormat", "ListFormat"].forEach(function(constructor) {
     if (typeof Intl[constructor] === "function") {
       constructors[constructors.length] = constructor;
     }
@@ -126,12 +128,13 @@ function taintArray() {
  * Gets locale support info for the given constructor object, which must be one
  * of Intl constructors.
  * @param {object} Constructor the constructor for which to get locale support info
+ * @param {object} options the options while calling the constructor
  * @return {object} locale support info with the following properties:
  *   supported: array of fully supported language tags
  *   byFallback: array of language tags that are supported through fallbacks
  *   unsupported: array of unsupported language tags
  */
-function getLocaleSupportInfo(Constructor) {
+function getLocaleSupportInfo(Constructor, options) {
   var languages = ["zh", "es", "en", "hi", "ur", "ar", "ja", "pa"];
   var scripts = ["Latn", "Hans", "Deva", "Arab", "Jpan", "Hant", "Guru"];
   var countries = ["CN", "IN", "US", "PK", "JP", "TW", "HK", "SG", "419"];
@@ -161,7 +164,7 @@ function getLocaleSupportInfo(Constructor) {
   var unsupported = [];
   for (i = 0; i < allTags.length; i++) {
     var request = allTags[i];
-    var result = new Constructor([request], {localeMatcher: "lookup"}).resolvedOptions().locale;
+    var result = new Constructor([request], options).resolvedOptions().locale;
     if (request === result) {
       supported.push(request);
     } else if (request.indexOf(result) === 0) {
@@ -326,7 +329,7 @@ function isCanonicalizedStructurallyValidLanguageTag(locale) {
     // property names must be in lower case; values in canonical form
 
     "art-lojban": "jbo",
-    "cel-gaulish": "xtg-x-cel-gaulish",
+    "cel-gaulish": "xtg",
     "zh-guoyu": "zh",
     "zh-hakka": "hak",
     "zh-xiang": "hsn",
@@ -2000,6 +2003,7 @@ var regExpProperties = ["$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9",
 
 var regExpPropertiesDefaultValues = (function () {
   var values = Object.create(null);
+  (/(?:)/).test("");
   regExpProperties.forEach(function (property) {
     values[property] = RegExp[property];
   });
@@ -2013,9 +2017,7 @@ var regExpPropertiesDefaultValues = (function () {
  * RegExp constructor.
  */
 function testForUnwantedRegExpChanges(testFunc) {
-  regExpProperties.forEach(function (property) {
-    RegExp[property] = regExpPropertiesDefaultValues[property];
-  });
+  (/(?:)/).test("");
   testFunc();
   regExpProperties.forEach(function (property) {
     if (RegExp[property] !== regExpPropertiesDefaultValues[property]) {

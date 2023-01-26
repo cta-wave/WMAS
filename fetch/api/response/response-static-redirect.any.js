@@ -3,7 +3,7 @@
 
 var url = "http://test.url:1234/";
 test(function() {
-  const redirectResponse = Response.redirect(url);
+  redirectResponse = Response.redirect(url);
   assert_equals(redirectResponse.type, "default");
   assert_false(redirectResponse.redirected);
   assert_false(redirectResponse.ok);
@@ -15,7 +15,7 @@ test(function() {
 
 [301, 302, 303, 307, 308].forEach(function(status) {
   test(function() {
-    const redirectResponse = Response.redirect(url, status);
+    redirectResponse = Response.redirect(url, status);
     assert_equals(redirectResponse.type, "default");
     assert_false(redirectResponse.redirected);
     assert_false(redirectResponse.ok);
