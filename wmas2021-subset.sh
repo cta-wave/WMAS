@@ -464,7 +464,7 @@ echo "No tests specified for Graphics Interchange Format [GIF]"
 git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 html/canvas/element 2>/dev/null 1>/dev/null
 mv html/canvas/element $WPTBASEDIR/2dcontext
 git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 html/canvas/resources 2>/dev/null 1>/dev/null
-mv html/canvas $WPTBASEDIR/html/canvas
+mv html/canvas/resources $WPTBASEDIR/html/canvas
 git checkout d3ec3f4e594a902b99c4d0b7ab9122f215e2a543 images 2>/dev/null 1>/dev/null
 mv images $WPTBASEDIR/images
 ln -s $WPTBASEDIR/images $WPTBASEDIR/html/canvas/images
