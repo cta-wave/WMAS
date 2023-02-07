@@ -7,6 +7,8 @@
     <meta name="timeout" content="long">
     <script src="/resources/testharness.js"></script>
     <script src="/resources/testharnessreport.js"></script>
+    <script src="/resources/testdriver.js"></script>
+    <script src="/resources/testdriver-vendor.js"></script>
     <script src="/cookies/resources/cookie-test.js"></script>
   </head>
   <body>
@@ -14,35 +16,46 @@
     <script>
       // Tests for control characters (CTLs) in a cookie's name.
       // CTLs are defined by RFC 5234 to be %x00-1F / %x7F.
-      const {TERMINATING_CTLS, CTLS} = getCtlCharacters();
+      const CTLS = getCtlCharacters();
 
-      // Start with a clean slate.
-      dropAllDomCookies();
-
-      // Test that terminating CTLs truncate the cookie string.
-      for (const ctl of TERMINATING_CTLS) {
-        domCookieTest(
-            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
-            `test${ctl.code}`,
-            `Cookie with %x${ctl.code.toString(16)} in name is truncated.`);
-      }
-
-      // Test that other CTLs result in cookie rejection.
+      // All CTLs, with the exception of %x09 (the tab character), should
+      // cause the cookie to be rejected.
       for (const ctl of CTLS) {
-        domCookieTest(
+        if (ctl.code === 0x09) {
+          domCookieTest(
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            `Cookie with %x${ctl.code.toString(16)} in name is accepted (DOM).`);
+        } else {
+          domCookieTest(
             `test${ctl.code}${ctl.chr}name=${ctl.code}`,
             '',
-            `Cookie with %x${ctl.code.toString(16)} in name is rejected.`);
+            `Cookie with %x${ctl.code.toString(16)} in name is rejected (DOM).`);
+        }
       }
 
-      // Test that truncation due to terminating CTLs occurs first.
-      for (const termCtl of TERMINATING_CTLS) {
-        for (const ctl of CTLS) {
-          domCookieTest(
-              `test${ctl.code}term${termCtl.chr}na${ctl.chr}me=${ctl.code}`,
-              `test${ctl.code}term`,
-              `Cookie with %x${ctl.code.toString(16)} after ` +
-                  `%x${termCtl.code.toString(16)} in name is truncated.`);
+      // Note that per RFC 9110, %x00, %x0A, and %x0D characters in the HTTP
+      // header MUST either cause the HTTP message to be rejected or be
+      // replaced with %x20 (space) characters. Both cases will result in a
+      // passing test here. For more info, see:
+      // https://www.rfc-editor.org/rfc/rfc9110.html#section-5.5
+      for (const ctl of CTLS) {
+        if (ctl.code === 0x09) {
+          httpCookieTest(
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            `Cookie with %x${ctl.code.toString(16)} in name is accepted (HTTP).`);
+        } else if (ctl.code === 0x00 || ctl.code === 0x0A || ctl.code === 0x0D) {
+          httpCookieTest(
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            `test${ctl.code} name=${ctl.code}`,
+            `Cookie with %x${ctl.code.toString(16)} in name is rejected or modified (HTTP).`,
+            /* defaultPath */ true, /* allowFetchFailure */ true);
+        } else {
+          httpCookieTest(
+            `test${ctl.code}${ctl.chr}name=${ctl.code}`,
+            '',
+            `Cookie with %x${ctl.code.toString(16)} in name is rejected (HTTP).`);
         }
       }
     </script>

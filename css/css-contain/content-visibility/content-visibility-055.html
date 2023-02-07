@@ -5,31 +5,31 @@
 <link rel="author" title="Vladimir Levin" href="mailto:vmpstr@chromium.org">
 <link rel="help" href="https://drafts.csswg.org/css-contain/#content-visibility">
 <link rel="match" href="spacer-and-container-scrolled-ref.html">
-<meta name="assert" content="anchor link scroll is not prevented when the target is hidden">
+<meta name="assert" content="anchor link scroll not prevented when the target is hidden and activatable">
 
 <script src="/common/reftest-wait.js"></script>
 
 <style>
 .spacer {
   width: 150px;
-  height: 3000px;
+  height: 300vh;
   background: lightblue;
 }
 #container {
   width: 150px;
   height: 150px;
-  background: lightgreen;
-  content-visibility: hidden;
-}
-#target {
-  width: 100px;
-  height: 100px;
   background: green;
+  content-visibility: auto;
+}
+
+#target {
+  width: 150px;
+  height: 100px;
 }
 </style>
 
 <div class="spacer"></div>
-<div id="container"><div id="target"></div></div>
+<div id="container"><div id="target">Test passes if this is on screen.</div></div>
 
 <script>
 function runTest() {

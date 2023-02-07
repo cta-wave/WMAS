@@ -268,40 +268,56 @@ function assert_rotate3d_equals(actual, expected, description) {
     expected.match(rotationRegExp)[1].split(' ').map(Number);
 
   assert_equals(actualRotationVector.length, expectedRotationVector.length,
-    `dimension of the matrix: ${description}`);
+                `dimension of the matrix: ${description}`);
   for (let i = 0; i < actualRotationVector.length; i++) {
-    assert_approx_equals(actualRotationVector[i], expectedRotationVector[i], 0.0001,
-      `expected ${expected} but got ${actual}: ${description}`);
+    assert_approx_equals(
+        actualRotationVector[i],
+        expectedRotationVector[i],
+        0.0001,
+        `expected ${expected} but got ${actual}: ${description}`);
   }
 }
 
 function assert_phase_at_time(animation, phase, currentTime) {
   animation.currentTime = currentTime;
+  const fillMode = animation.effect.getTiming().fill;
 
   if (phase === 'active') {
     // If the fill mode is 'none', then progress will only be non-null if we
     // are in the active phase.
     animation.effect.updateTiming({ fill: 'none' });
     assert_not_equals(animation.effect.getComputedTiming().progress, null,
-                      'Animation effect is in active phase when current time'
-                      + ` is ${currentTime}ms`);
+                      'Animation effect is in active phase when current time ' +
+                      `is ${currentTime}.`);
   } else {
     // The easiest way to distinguish between the 'before' phase and the 'after'
     // phase is to toggle the fill mode. For example, if the progress is null
-    // will the fill node is 'none' but non-null when the fill mode is
+    // when the fill mode is 'none' but non-null when the fill mode is
     // 'backwards' then we are in the before phase.
     animation.effect.updateTiming({ fill: 'none' });
     assert_equals(animation.effect.getComputedTiming().progress, null,
-                  `Animation effect is in ${phase} phase when current time`
-                  + ` is ${currentTime}ms`
-                  + ' (progress is null with \'none\' fill mode)');
+                  `Animation effect is in ${phase} phase when current time ` +
+                  `is ${currentTime} (progress is null with 'none' fill mode)`);
 
     animation.effect.updateTiming({
       fill: phase === 'before' ? 'backwards' : 'forwards',
     });
     assert_not_equals(animation.effect.getComputedTiming().progress, null,
-                      `Animation effect is in ${phase} phase when current time`
-                      + ` is ${currentTime}ms`
-                      + ' (progress is non-null with appropriate fill mode)');
+                      `Animation effect is in ${phase} phase when current ` +
+                      `time is ${currentTime} (progress is non-null with ` +
+                      `appropriate fill mode)`);
   }
+
+  // Reset fill mode to avoid side-effects.
+  animation.effect.updateTiming({ fill: fillMode });
+}
+
+
+// Use with reftest-wait to wait until compositor commits are no longer deferred
+// before taking the screenshot.
+// crbug.com/1378671
+async function waitForCompositorReady(target) {
+  const animation =
+      document.body.animate({ opacity: [ 1, 1 ] }, {duration: 1 });
+  return animation.finished;
 }

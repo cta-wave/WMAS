@@ -1,6 +1,9 @@
+import pytest
+
+from webdriver import Element
+
 from tests.support.asserts import assert_error, assert_success
 from tests.support.image import png_dimensions
-
 from . import element_dimensions
 
 
@@ -29,10 +32,49 @@ def test_no_browsing_context(session, closed_frame, inline):
     assert png_dimensions(screenshot) == element_dimensions(session, element)
 
 
-def test_stale(session, inline):
-    session.url = inline("<input>")
-    element = session.find.css("input", all=False)
-    session.refresh()
+def test_no_such_element_with_invalid_value(session):
+    element = Element("foo", session)
+
+    response = take_element_screenshot(session, element.id)
+    assert_error(response, "no such element")
+
+
+@pytest.mark.parametrize("closed", [False, True], ids=["open", "closed"])
+def test_no_such_element_from_other_window_handle(session, inline, closed):
+    session.url = inline("<div id='parent'><p/>")
+    element = session.find.css("#parent", all=False)
+
+    new_handle = session.new_window()
+
+    if closed:
+        session.window.close()
+
+    session.window_handle = new_handle
+
+    response = take_element_screenshot(session, element.id)
+    assert_error(response, "no such element")
+
+
+@pytest.mark.parametrize("closed", [False, True], ids=["open", "closed"])
+def test_no_such_element_from_other_frame(session, url, closed):
+    session.url = url("/webdriver/tests/support/html/subframe.html")
+
+    frame = session.find.css("#delete-frame", all=False)
+    session.switch_frame(frame)
+
+    button = session.find.css("#remove-parent", all=False)
+    if closed:
+        button.click()
+
+    session.switch_frame("parent")
+
+    response = take_element_screenshot(session, button.id)
+    assert_error(response, "no such element")
+
+
+@pytest.mark.parametrize("as_frame", [False, True], ids=["top_context", "child_context"])
+def test_stale_element_reference(session, stale_element, as_frame):
+    element = stale_element("<input>", "input", as_frame=as_frame)
 
     result = take_element_screenshot(session, element.id)
     assert_error(result, "stale element reference")

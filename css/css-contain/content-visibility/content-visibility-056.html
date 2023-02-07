@@ -4,8 +4,8 @@
 <title>Content Visibility: scrollIntoView prevented</title>
 <link rel="author" title="Vladimir Levin" href="mailto:vmpstr@chromium.org">
 <link rel="help" href="https://drafts.csswg.org/css-contain/#content-visibility">
-<link rel="match" href="spacer-and-container-scrolled-ref.html">
-<meta name="assert" content="scrollIntoView is not prevented when the target is hidden">
+<link rel="match" href="spacer-and-container-ref.html">
+<meta name="assert" content="scrollIntoView is prevented when the target is hidden">
 
 <script src="/common/reftest-wait.js"></script>
 
@@ -18,18 +18,18 @@
 #container {
   width: 150px;
   height: 150px;
-  background: lightgreen;
+  background: red;
   content-visibility: hidden;
 }
 #target {
   width: 100px;
   height: 100px;
-  background: green;
+  background: pink;
 }
 </style>
 
-<div class="spacer"></div>
-<div id="container"><div id="target"></div></div>
+<div class="spacer">Test passes if there is no red.</div>
+<div id="container"><div id="target">FAIL</div></div>
 
 <script>
 function runTest() {

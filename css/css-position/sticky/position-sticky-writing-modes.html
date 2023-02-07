@@ -20,8 +20,8 @@
   position: relative;
   width: 130px;
   height: 200px;
-  overflow: scroll;
-  font: 25px/1 Ahem;
+  overflow: hidden;
+  font: 30px/1 Ahem;
 }
 
 .contents {
@@ -52,6 +52,8 @@ window.addEventListener('load', function() {
 });
 </script>
 
+<div>You should see two green blocks below. No red or blue should be visible.</div>
+
 <div class="group">
   <div id="scroller1" class="scroller" style="writing-mode: vertical-lr;">
     <div class="indicator" style="left: 40px; top: 100px;">XXX</div>
@@ -63,11 +65,9 @@ window.addEventListener('load', function() {
 
 <div class="group">
   <div id="scroller2" class="scroller" style="writing-mode: vertical-rl;">
-    <div class="indicator" style="left: 45px; top: 100px;">XXX</div>
+    <div class="indicator" style="left: 55px; top: 100px;">XXX</div>
     <div class="contents">
       <div class="sticky" style="right: 20px;">XXX</div>
     </div>
   </div>
 </div>
-
-<div>You should see two green blocks above. No red or blue should be visible.</div>

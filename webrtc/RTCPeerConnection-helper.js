@@ -407,6 +407,15 @@ const trackFactories = {
       ctx.fillStyle = `rgb(${count%255}, ${count*count%255}, ${count%255})`;
       count += 1;
       ctx.fillRect(0, 0, width, height);
+      // Add some bouncing boxes in contrast color to add a little more noise.
+      const contrast = count + 128;
+      ctx.fillStyle = `rgb(${contrast%255}, ${contrast*contrast%255}, ${contrast%255})`;
+      const xpos = count % (width - 20);
+      const ypos = count % (height - 20);
+      ctx.fillRect(xpos, ypos, xpos + 20, ypos + 20);
+      const xpos2 = (count + width / 2) % (width - 20);
+      const ypos2 = (count + height / 2) % (height - 20);
+      ctx.fillRect(xpos2, ypos2, xpos2 + 20, ypos2 + 20);
       // If signal is set (0-255), add a constant-color box of that luminance to
       // the video frame at coordinates 20 to 60 in both X and Y direction.
       // (big enough to avoid color bleed from surrounding video in some codecs,
@@ -704,3 +713,10 @@ const expectNoMoreGatheringStateChanges = async (t, pc) => {
             'Should not get an icegatheringstatechange right now!');
       });
 };
+
+async function queueAWebrtcTask() {
+  const pc = new RTCPeerConnection();
+  pc.addTransceiver('audio');
+  await new Promise(r => pc.onnegotiationneeded = r);
+}
+

@@ -1284,13 +1284,19 @@ const gCSSProperties2 = {
   'text-emphasis-position': {
     // http://dev.w3.org/csswg/css-text-decor-3/#propdef-text-emphasis-position
     types: [
-      { type: 'discrete', options: [ [ 'over right', 'under left' ] ] }
+      { type: 'discrete', options: [ [ 'over', 'under left' ] ] }
     ]
   },
   'text-emphasis-style': {
     // http://dev.w3.org/csswg/css-text-decor-3/#propdef-text-emphasis-style
     types: [
       { type: 'discrete', options: [ [ 'circle', 'open dot' ] ] }
+    ]
+  },
+  'text-group-align': {
+    // https://drafts.csswg.org/css-text-4/#propdef-text-group-align
+    types: [
+      { type: 'discrete', options: [ [ 'none', 'center' ] ] }
     ]
   },
   'text-indent': {
@@ -1323,6 +1329,12 @@ const gCSSProperties2 = {
     // https://drafts.csswg.org/css-text-3/#propdef-text-transform
     types: [
       { type: 'discrete', options: [ [ 'capitalize', 'uppercase' ] ] }
+    ]
+  },
+  'text-wrap': {
+    // https://drafts.csswg.org/css-text-4/#propdef-text-wrap
+    types: [
+      { type: 'discrete', options: [ [ 'wrap', 'nowrap' ] ] }
     ]
   },
   'touch-action': {
@@ -1424,7 +1436,7 @@ function testAnimationSamples(animation, idlName, testSamples) {
   const target = animation.effect.target;
   for (const testSample of testSamples) {
     animation.currentTime = testSample.time;
-    assert_equals(getComputedStyle(target, pseudoType)[idlName],
+    assert_equals(getComputedStyle(target, pseudoType)[idlName].toLowerCase(),
                   testSample.expected,
                   `The value should be ${testSample.expected}` +
                   ` at ${testSample.time}ms`);

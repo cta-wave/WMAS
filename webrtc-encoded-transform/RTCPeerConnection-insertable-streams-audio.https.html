@@ -4,6 +4,9 @@
 <title>RTCPeerConnection Insertable Streams Audio</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
+<script src=/resources/testdriver.js></script>
+<script src=/resources/testdriver-vendor.js></script>
+<script src='../mediacapture-streams/permission-helper.js'></script>
 <script src="../webrtc/RTCPeerConnection-helper.js"></script>
 <script src="./RTCPeerConnection-insertable-streams.js"></script>
 </head>
@@ -15,6 +18,7 @@ async function testAudioFlow(t, negotiationFunction) {
   const callee = new RTCPeerConnection({encodedInsertableStreams:true});
   t.add_cleanup(() => callee.close());
 
+  await setMediaPermission("granted", ["microphone"]);
   const stream = await navigator.mediaDevices.getUserMedia({audio:true});
   const audioTrack = stream.getAudioTracks()[0];
   t.add_cleanup(() => audioTrack.stop());
@@ -52,6 +56,7 @@ async function testAudioFlow(t, negotiationFunction) {
             // frames are not passed correctly between sender and receiver.
             assert_unreached("Incorrect frame received");
           }
+          assert_not_equals(result.value.getMetadata().sequenceNumber, undefined);
 
           if (numVerifiedFrames == numFramesToSend)
             resolve();
@@ -192,49 +197,15 @@ promise_test(async t => {
 }, 'Enqueuing the same frame twice fails');
 
 promise_test(async t => {
-  const caller = new RTCPeerConnection({forceEncodedAudioInsertableStreams:true});
+  const caller = new RTCPeerConnection({encodedInsertableStreams:true});
   t.add_cleanup(() => caller.close());
-  const callee = new RTCPeerConnection({forceEncodedAudioInsertableStreams:true});
-  t.add_cleanup(() => callee.close());
-
   const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-  const audioTrack = stream.getAudioTracks()[0];
-  t.add_cleanup(() => audioTrack.stop());
-
-  const audioSender = caller.addTrack(audioTrack)
-  const senderStreams = audioSender.createEncodedStreams();
-  const senderReader = senderStreams.readable.getReader();
-  const senderWriter = senderStreams.writable.getWriter();
-
-  let sentFrameInfo = null;
-  const ontrackPromise = new Promise(resolve => {
-    callee.ontrack = e => {
-      const audioReceiver = e.receiver;
-
-      const receiverStreams = audioReceiver.createEncodedStreams();
-      const receiverReader = receiverStreams.readable.getReader();
-      receiverReader.read().then(t.step_func(receivedResult => {
-        assert_true(areFrameInfosEqual(receivedResult.value, sentFrameInfo));
-        resolve();
-      }));
-    }
-  });
-
-  exchangeIceCandidates(caller, callee);
-  await exchangeOfferAnswer(caller, callee);
-
-  // Pass frames as they come from the encoder.
-  const result = await senderReader.read()
-  sentFrameInfo = {
-    timestamp: result.value.timestamp,
-    data: result.value.data,
-    metadata: result.value.getMetadata(),
-    getMetadata() { return this.metadata; }
-  }
-  senderWriter.write(result.value);
-
-  return ontrackPromise;
-}, 'Legacy API works');
+  const track = stream.getTracks()[0];
+  t.add_cleanup(() => track.stop());
+  const sender = caller.addTrack(track)
+  sender.createEncodedStreams();
+  assert_throws_dom("InvalidStateError", () => sender.createEncodedStreams());
+}, 'Creating streams twice throws');
 
 </script>
 </body>

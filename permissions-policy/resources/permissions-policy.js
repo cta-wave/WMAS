@@ -14,21 +14,23 @@ function assert_permissions_policy_supported() {
 //        "/permissions-policy/resources/permissions-policy-usb.html".
 //    expect_feature_available: a callback(data, feature_description) to
 //        verify if a feature is available or unavailable as expected.
-//        The file under the path "src" defines what "data" is sent back as a
-//        pistMessage. Inside the callback, some tests (e.g., EXPECT_EQ,
-//        EXPECT_TRUE, etc) are run accordingly to test a feature's
-//        availability.
+//        The file under the path "src" defines what "data" is sent back via
+//        postMessage with type: 'availability-result'.
+//        Inside the callback, some tests (e.g., EXPECT_EQ, EXPECT_TRUE, etc)
+//        are run accordingly to test a feature's availability.
 //        Example: expect_feature_available_default(data, feature_description).
 //    feature_name: Optional argument, only provided when testing iframe allow
 //      attribute. "feature_name" is the feature name of a policy controlled
-//      feature (https://wicg.github.io/permissions-policy/#features).
+//      feature (https://w3c.github.io/webappsec-permissions-policy/#features).
 //      See examples at:
-//      https://github.com/WICG/permissions-policy/blob/master/features.md
+//      https://github.com/w3c/webappsec-permissions-policy/blob/main/features.md
 //    allow_attribute: Optional argument, only used for testing fullscreen or
 //      payment: either "allowfullscreen" or "allowpaymentrequest" is passed.
+//    is_promise_test: Optional argument, true if this call should return a
+//    promise. Used by test_feature_availability_with_post_message_result()
 function test_feature_availability(
     feature_description, test, src, expect_feature_available, feature_name,
-    allow_attribute) {
+    allow_attribute, is_promise_test = false) {
   let frame = document.createElement('iframe');
   frame.src = src;
 
@@ -40,16 +42,26 @@ function test_feature_availability(
     frame.setAttribute(allow_attribute, true);
   }
 
-  window.addEventListener('message', test.step_func(function handler(evt) {
-    if (evt.source === frame.contentWindow) {
+  function expectFeatureAvailable(evt) {
+    if (evt.source === frame.contentWindow &&
+        evt.data.type === 'availability-result') {
       expect_feature_available(evt.data, feature_description);
       document.body.removeChild(frame);
-      window.removeEventListener('message', handler);
       test.done();
     }
-  }));
+  }
 
+  if (!is_promise_test) {
+    window.addEventListener('message', test.step_func(expectFeatureAvailable));
+    document.body.appendChild(frame);
+    return;
+  }
+
+  const promise = new Promise((resolve) => {
+                    window.addEventListener('message', resolve);
+                  }).then(expectFeatureAvailable);
   document.body.appendChild(frame);
+  return promise;
 }
 
 // Default helper functions to test a feature's availability:
@@ -73,35 +85,44 @@ function expect_feature_unavailable_default(data, feature_description) {
 //         attribute should be specified on the iframe.
 function test_feature_availability_with_post_message_result(
     test, src, expected_result, allow_attribute) {
-  var test_result = function(data, feature_description) {
-    assert_equals(data, expected_result);
+  const test_result = ({ name, message }, feature_description) => {
+    assert_equals(name, expected_result, message + '.');
   };
-  test_feature_availability(null, test, src, test_result, allow_attribute);
+  return test_feature_availability(
+      null, test, src, test_result, allow_attribute, undefined, true);
 }
 
 // If this page is intended to test the named feature (according to the URL),
 // tests the feature availability and posts the result back to the parent.
 // Otherwise, does nothing.
-function test_feature_in_iframe(feature_name, feature_promise_factory) {
+async function test_feature_in_iframe(feature_name, feature_promise_factory) {
   if (location.hash.endsWith(`#${feature_name}`)) {
-    feature_promise_factory().then(
-        () => window.parent.postMessage('#OK', '*'),
-        (e) => window.parent.postMessage('#' + e.name, '*'));
+    let message = 'Available';
+    let name = '#OK';
+    try {
+      await feature_promise_factory();
+    } catch (e) {
+      ({ name, message } = e);
+    }
+    window.parent.postMessage(
+      { type: 'availability-result', name, message }, '*');
   }
 }
 
 // Returns true if the URL for this page indicates that it is embedded in an
 // iframe.
 function page_loaded_in_iframe() {
-  return location.hash.startsWith('#iframe');
+  return new URLSearchParams(location.search).get('in-iframe');
 }
 
 // Returns a same-origin (relative) URL suitable for embedding in an iframe for
 // testing the availability of the feature.
 function same_origin_url(feature_name) {
-  // Append #iframe to the URL so we can detect the iframe'd version of the
-  // page.
-  return location.pathname + '#iframe#' + feature_name;
+  // Add an "in-iframe" query parameter so that we can detect the iframe'd
+  // version of the page and testharness script loading can be disabled in
+  // that version, as required for use of testdriver in non-toplevel browsing
+  // contexts.
+  return location.pathname + '?in-iframe=yes#' + feature_name;
 }
 
 // Returns a cross-origin (absolute) URL suitable for embedding in an iframe for
@@ -117,6 +138,8 @@ function cross_origin_url(base_url, feature_name) {
 // 3. Feature usage fails by default in a cross-origin iframe.
 // 4. Feature usage succeeds when an allow attribute is specified on a
 //    cross-origin iframe.
+// 5. Feature usage fails when an allow attribute is specified on a
+//    same-origin iframe with a value of "feature-name 'none'".
 //
 // The same page which called this function will be loaded in the iframe in
 // order to test feature usage there. When this function is called in that
@@ -153,9 +176,9 @@ function run_all_fp_tests_allow_self(
 
   // 2. Allowed in same-origin iframe.
   const same_origin_frame_pathname = same_origin_url(feature_name);
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
+        return test_feature_availability_with_post_message_result(
             t, same_origin_frame_pathname, '#OK');
       },
       'Default "' + feature_name +
@@ -163,22 +186,32 @@ function run_all_fp_tests_allow_self(
 
   // 3. Blocked in cross-origin iframe.
   const cross_origin_frame_url = cross_origin_url(cross_origin, feature_name);
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
-            t, cross_origin_frame_url, '#' + error_name);
+        return test_feature_availability_with_post_message_result(
+            t, cross_origin_frame_url, error_name);
       },
       'Default "' + feature_name +
           '" permissions policy ["self"] disallows cross-origin iframes.');
 
   // 4. Allowed in cross-origin iframe with "allow" attribute.
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
+        return test_feature_availability_with_post_message_result(
             t, cross_origin_frame_url, '#OK', feature_name);
       },
       'permissions policy "' + feature_name +
           '" can be enabled in cross-origin iframes using "allow" attribute.');
+
+  // 5. Blocked in same-origin iframe with "allow" attribute set to 'none'.
+  promise_test(
+      t => {
+        return test_feature_availability_with_post_message_result(
+            t, same_origin_frame_pathname, error_name,
+            feature_name + ' \'none\'');
+      },
+      'permissions policy "' + feature_name +
+          '" can be disabled in same-origin iframes using "allow" attribute.');
 }
 
 // This function runs all permissions policy tests for a particular feature that
@@ -188,6 +221,8 @@ function run_all_fp_tests_allow_self(
 // 3. Feature usage succeeds by default in a cross-origin iframe.
 // 4. Feature usage fails when an allow attribute is specified on a
 //    cross-origin iframe with a value of "feature-name 'none'".
+// 5. Feature usage fails when an allow attribute is specified on a
+//    same-origin iframe with a value of "feature-name 'none'".
 //
 // The same page which called this function will be loaded in the iframe in
 // order to test feature usage there. When this function is called in that
@@ -224,9 +259,9 @@ function run_all_fp_tests_allow_all(
 
   // 2. Allowed in same-origin iframe.
   const same_origin_frame_pathname = same_origin_url(feature_name);
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
+        return test_feature_availability_with_post_message_result(
             t, same_origin_frame_pathname, '#OK');
       },
       'Default "' + feature_name +
@@ -234,30 +269,29 @@ function run_all_fp_tests_allow_all(
 
   // 3. Allowed in cross-origin iframe.
   const cross_origin_frame_url = cross_origin_url(cross_origin, feature_name);
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
+        return test_feature_availability_with_post_message_result(
             t, cross_origin_frame_url, '#OK');
       },
       'Default "' + feature_name +
           '" permissions policy ["*"] allows cross-origin iframes.');
 
   // 4. Blocked in cross-origin iframe with "allow" attribute set to 'none'.
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
-            t, cross_origin_frame_url, '#' + error_name,
-            feature_name + " 'none'");
+        return test_feature_availability_with_post_message_result(
+            t, cross_origin_frame_url, error_name, feature_name + ' \'none\'');
       },
       'permissions policy "' + feature_name +
           '" can be disabled in cross-origin iframes using "allow" attribute.');
 
   // 5. Blocked in same-origin iframe with "allow" attribute set to 'none'.
-  async_test(
+  promise_test(
       t => {
-        test_feature_availability_with_post_message_result(
-            t, same_origin_frame_pathname, '#' + error_name,
-            feature_name + " 'none'");
+        return test_feature_availability_with_post_message_result(
+            t, same_origin_frame_pathname, error_name,
+            feature_name + ' \'none\'');
       },
       'permissions policy "' + feature_name +
           '" can be disabled in same-origin iframes using "allow" attribute.');

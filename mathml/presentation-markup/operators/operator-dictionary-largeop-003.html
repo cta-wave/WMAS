@@ -22,11 +22,7 @@
   window.addEventListener("load", () => { loadAllFonts().then(runTests); });
   async function runTests() {
       let json = await fetchOperatorDictionary();
-<<<<<<< HEAD:mathml/presentation-markup/operators/operator-dictionary-largeop-001.html
-      OperatorDictionaryTests.run(json, "largeop", 0);
-=======
       await OperatorDictionaryTests.run(json, "largeop", 2);
->>>>>>> w3c-master:mathml/presentation-markup/operators/operator-dictionary-largeop-003.html
       done();
   }
 </script>
