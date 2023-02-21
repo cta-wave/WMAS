@@ -628,6 +628,10 @@ echo "Generating webgl tests ..."
 node tools/wave/webgl/prepare-tests.js $WEBGLDISTDIR
 cp $WEBGLDISTDIR/LICENSE.txt $WPTBASEDIR/webgl
 
+# Blacklisted tests
+rm ./content-security-policy/navigate-to/meta-refresh-blocked.sub.html
+rm ./content-security-policy/navigate-to/unsafe-allow-redirects/allowed-end-of-chain-because-of-same-origin.sub.html
+
 # Checkout the wave cookies und url tests
 #DISTDIR=wave-extra
 #cd $WPTBASEDIR
