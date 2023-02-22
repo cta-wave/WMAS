@@ -632,6 +632,7 @@ cp $WEBGLDISTDIR/LICENSE.txt $WPTBASEDIR/webgl
 rm ./content-security-policy/navigate-to/meta-refresh-blocked.sub.html
 rm ./content-security-policy/navigate-to/unsafe-allow-redirects/allowed-end-of-chain-because-of-same-origin.sub.html
 rm ./content-security-policy/navigate-to/anchor-navigation-always-allowed.html
+rm ./content-security-policy/navigate-to/parent-navigates-child-blocked.html
 
 # Checkout the wave cookies und url tests
 #DISTDIR=wave-extra
