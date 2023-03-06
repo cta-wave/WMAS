@@ -633,6 +633,8 @@ rm ./content-security-policy/navigate-to/meta-refresh-blocked.sub.html
 rm ./content-security-policy/navigate-to/unsafe-allow-redirects/allowed-end-of-chain-because-of-same-origin.sub.html
 rm ./content-security-policy/navigate-to/anchor-navigation-always-allowed.html
 rm ./content-security-policy/navigate-to/parent-navigates-child-blocked.html
+rm ./referrer-policy/generic/iframe-upgrade-request-to-cross-origin.sub.html
+rm ./workers/postMessage_block.https.html
 
 # Checkout the wave cookies und url tests
 #DISTDIR=wave-extra
