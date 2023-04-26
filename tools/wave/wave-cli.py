@@ -8,20 +8,20 @@ DOWNLOAD_REFERENCE_BROWSERS = "download-reference-results"
 
 REFERENCE_BROWSERS = {
     "chrome": {
-        "name": "Chromium 89.0.4349.0",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Chromium89-e98c8a96-2aa0-11ec-afc9-0242ac110002.zip"
+        "name": "Chromium 98.0.4740.0",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2021/chromium-98.0.4740.0-0d52d988-b693-11ed-bd24-0242ac110002.zip"
     },
     "edge": {
-        "name": "Edge 88.0.705.56",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Edge88-b486cfac-82d2-11ec-ac19-0242ac110002.zip"
+        "name": "Edge 96.0.1054.57",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2021/edge-96.0.1054.57-40227a4e-e2f8-11ed-86a3-0242ac110002.zip"
     },
     "firefox": {
-        "name": "Firefox 84.0",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Firefox84-da39b02a-2503-11ec-ad8a-6c88140d17f8.zip"
+        "name": "Firefox 91.4esr",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2021/firefox-91.4esr-8cce906a-bc3a-11ed-a230-0242ac110002.zip"
     },
     "safari": {
-        "name": "Safari 14.1",
-        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2020/Safari14-98c868c4-82a6-11ec-8380-0242ac110002.zip"
+        "name": "Safari 15.6.1",
+        "url": "https://wave-browser-snapshots.s3.us-east-2.amazonaws.com/WMAS2021/safari-15.6.1-18315b3c-d91f-11ed-aad7-0242ac110002.zip"
     }
 }
 
