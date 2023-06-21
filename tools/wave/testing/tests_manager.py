@@ -144,7 +144,8 @@ class TestsManager(object):
                 else:
                     micro_test_list[api_a] = [test_a]
                     micro_test_list[api_b] = [test_b]
-                next_test = self.tests_manager._get_next_test_from_list(micro_test_list)
+                next_test = self.tests_manager._get_next_test_from_list(
+                    micro_test_list)
                 return next_test == test_a
 
         sorted_tests.sort(key=lambda test: compare(self, test))
@@ -351,7 +352,8 @@ class TestsManager(object):
 
         session = self._sessions_manager.read_session(token)
         if session is None:
-            raise NotFoundException("Could not find session using token: " + token)
+            raise NotFoundException(
+                "Could not find session using token: " + token)
         if session.is_public:
             return
         session.malfunctioning_tests = tests
