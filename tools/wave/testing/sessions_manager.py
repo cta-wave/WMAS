@@ -73,13 +73,14 @@ class SessionsManager(object):
 
         for test_type in test_types:
             if test_type != "automatic" and test_type != "manual":
-                raise InvalidDataException("Unknown type '{}'".format(test_type))
+                raise InvalidDataException(
+                    "Unknown type '{}'".format(test_type))
 
         if expiration_date is not None and type(expiration_date) != int:
             expiration_date = iso_to_millis(expiration_date)
             if type(expiration_date) != int:
-                raise InvalidDataException("Expected ISO string for expiration date: {}", expiration_date)
-
+                raise InvalidDataException(
+                    "Expected ISO string for expiration date: {}", expiration_date)
 
         token = str(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
@@ -284,7 +285,6 @@ class SessionsManager(object):
         session = self.load_session_info(token)
         if session is None:
             return None
-
 
         if session.test_state is None:
             results = self._results_manager.load_results(token)
