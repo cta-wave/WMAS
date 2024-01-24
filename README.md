@@ -51,7 +51,7 @@ $ python wpt make-hosts-file | Out-File %SystemRoot%\System32\drivers\etc\hosts 
 ```
 Download test files according to WMAS2018 specification, call from WPT root directory:
 ```
-$ ./wmats2018-subset.sh
+$ ./wmas2018-subset.sh
 ```
 []([url](url))
 To download the test results of the four reference browsers (Chromium, Firefox, Safari, Edge):
