@@ -1,4 +1,6 @@
-class NodeVisitor(object):
+# mypy: allow-untyped-defs
+
+class NodeVisitor:
     def visit(self, node):
         # This is ugly as hell, but we don't have multimethods and
         # they aren't trivial to fake without access to the class
@@ -7,11 +9,12 @@ class NodeVisitor(object):
         return func(node)
 
 
-class Node(object):
-    def __init__(self, data=None):
+class Node:
+    def __init__(self, data=None, comments=None):
         self.data = data
         self.parent = None
         self.children = []
+        self.comments = comments or []
 
     def append(self, other):
         other.parent = self
@@ -21,7 +24,7 @@ class Node(object):
         self.parent.children.remove(self)
 
     def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self.data)
+        return f"<{self.__class__.__name__} {self.data}>"
 
     def __str__(self):
         rv = [repr(self)]
@@ -40,7 +43,7 @@ class Node(object):
         return True
 
     def copy(self):
-        new = self.__class__(self.data)
+        new = self.__class__(self.data, self.comments)
         for item in self.children:
             new.append(item.copy())
         return new
@@ -57,8 +60,9 @@ class DataNode(Node):
             index = len(self.children)
             while index > 0 and isinstance(self.children[index - 1], DataNode):
                 index -= 1
-            for i in xrange(index):
-                assert other.data != self.children[i].data
+            for i in range(index):
+                if other.data == self.children[i].data:
+                    raise ValueError("Duplicate key %s" % self.children[i].data)
             self.children.insert(index, other)
 
 
@@ -67,9 +71,11 @@ class KeyValueNode(Node):
         # Append that retains the invariant that conditional nodes
         # come before unconditional nodes
         other.parent = self
-        if isinstance(other, ValueNode):
+        if not isinstance(other, (ListNode, ValueNode, ConditionalNode)):
+            raise TypeError
+        if isinstance(other, (ListNode, ValueNode)):
             if self.children:
-                assert not isinstance(self.children[-1], ValueNode)
+                assert not isinstance(self.children[-1], (ListNode, ValueNode))
             self.children.append(other)
         else:
             if self.children and isinstance(self.children[-1], ValueNode):
@@ -94,7 +100,17 @@ class AtomNode(ValueNode):
 
 
 class ConditionalNode(Node):
-    pass
+    def append(self, other):
+        if not len(self.children):
+            if not isinstance(other, (BinaryExpressionNode, UnaryExpressionNode, VariableNode)):
+                raise TypeError
+        else:
+            if len(self.children) > 1:
+                raise ValueError
+            if not isinstance(other, (ListNode, ValueNode)):
+                raise TypeError
+        other.parent = self
+        self.children.append(other)
 
 
 class UnaryExpressionNode(Node):
