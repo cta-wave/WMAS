@@ -1,4 +1,6 @@
-class PregeneratedSSLEnvironment(object):
+# mypy: allow-untyped-defs
+
+class PregeneratedSSLEnvironment:
     """SSL environment to use with existing key/certificate files
     e.g. when running on a server with a public domain name
     """
@@ -20,7 +22,7 @@ class PregeneratedSSLEnvironment(object):
         """Return the key and certificate paths for the host"""
         return self._host_key_path, self._host_cert_path
 
-    def ca_cert_path(self):
+    def ca_cert_path(self, hosts):
         """Return the certificate path of the CA that signed the
         host certificates, or None if that isn't known"""
         return self._ca_cert_path

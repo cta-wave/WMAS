@@ -1,9 +1,11 @@
 from __future__ import division
 from __future__ import absolute_import
+from __future__ import unicode_literals
 import uuid
 import time
 import os
 import json
+import re
 
 from threading import Timer
 
@@ -16,7 +18,7 @@ from ..data.exceptions.invalid_data_exception import InvalidDataException
 from ..utils.deserializer import deserialize_session
 
 DEFAULT_TEST_TYPES = [AUTOMATIC, MANUAL]
-DEFAULT_TEST_PATHS = [u"/"]
+DEFAULT_TEST_PATHS = ["/"]
 DEFAULT_TEST_AUTOMATIC_TIMEOUT = 60000
 DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
@@ -27,7 +29,8 @@ class SessionsManager(object):
                    event_dispatcher,
                    tests_manager,
                    results_directory,
-                   results_manager):
+                   results_manager,
+                   configuration):
         self._test_loader = test_loader
         self._sessions = {}
         self._expiration_timeout = None
@@ -35,38 +38,57 @@ class SessionsManager(object):
         self._tests_manager = tests_manager
         self._results_directory = results_directory
         self._results_manager = results_manager
+        self._configuration = configuration
 
     def create_session(
         self,
-        tests={},
-        types=None,
-        timeouts={},
-        reference_tokens=[],
-        webhook_urls=[],
-        user_agent=u"",
-        labels=[],
-        expiration_date=None
+        tests=None,
+        test_types=None,
+        timeouts=None,
+        reference_tokens=None,
+        user_agent=None,
+        labels=None,
+        expiration_date=None,
+        type=None
     ):
-        if u"include" not in tests:
-            tests[u"include"] = DEFAULT_TEST_PATHS
-        if u"exclude" not in tests:
-            tests[u"exclude"] = []
-        if u"automatic" not in timeouts:
-            timeouts[u"automatic"] = DEFAULT_TEST_AUTOMATIC_TIMEOUT
-        if u"manual" not in timeouts:
-            timeouts[u"manual"] = DEFAULT_TEST_MANUAL_TIMEOUT
-        if types is None:
-            types = DEFAULT_TEST_TYPES
+        if tests is None:
+            tests = {}
+        if timeouts is None:
+            timeouts = {}
+        if reference_tokens is None:
+            reference_tokens = []
+        if user_agent is None:
+            user_agent = ""
+        if labels is None:
+            labels = []
 
-        for type in types:
-            if type != "automatic" and type != "manual":
-                raise InvalidDataException("Unknown type '{}'".format(type))
+        if "include" not in tests:
+            tests["include"] = DEFAULT_TEST_PATHS
+        if "exclude" not in tests:
+            tests["exclude"] = []
+        if "automatic" not in timeouts:
+            timeouts["automatic"] = self._configuration["timeouts"]["automatic"]
+        if "manual" not in timeouts:
+            timeouts["manual"] = self._configuration["timeouts"]["manual"]
+        if test_types is None:
+            test_types = DEFAULT_TEST_TYPES
+
+        for test_type in test_types:
+            if test_type != "automatic" and test_type != "manual":
+                raise InvalidDataException(
+                    "Unknown type '{}'".format(test_type))
+
+        if expiration_date is not None and type(expiration_date) != int:
+            expiration_date = iso_to_millis(expiration_date)
+            if type(expiration_date) != int:
+                raise InvalidDataException(
+                    "Expected ISO string for expiration date: {}", expiration_date)
 
         token = str(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
-            types,
-            include_list=tests[u"include"],
-            exclude_list=tests[u"exclude"],
+            test_types,
+            include_list=tests["include"],
+            exclude_list=tests["exclude"],
             reference_tokens=reference_tokens)
 
         browser = parse_user_agent(user_agent)
@@ -85,21 +107,24 @@ class SessionsManager(object):
                 "total": test_files_count[api],
                 "complete": 0}
 
+        date_created = int(time.time() * 1000)
+
         session = Session(
             token=token,
             tests=tests,
             user_agent=user_agent,
             browser=browser,
-            types=types,
+            test_types=test_types,
             timeouts=timeouts,
             pending_tests=pending_tests,
             running_tests={},
             test_state=test_state,
             status=PENDING,
             reference_tokens=reference_tokens,
-            webhook_urls=webhook_urls,
             labels=labels,
-            expiration_date=expiration_date
+            type=type,
+            expiration_date=expiration_date,
+            date_created=date_created
         )
 
         self._push_to_cache(session)
@@ -117,6 +142,21 @@ class SessionsManager(object):
         if session is not None:
             self._push_to_cache(session)
         return session
+
+    def read_sessions(self, index=None, count=None):
+        if index is None:
+            index = 0
+        if count is None:
+            count = 10
+        self.load_all_sessions_info()
+        sessions = []
+        for it_index, token in enumerate(self._sessions):
+            if it_index < index:
+                continue
+            if len(sessions) == count:
+                break
+            sessions.append(token)
+        return sessions
 
     def read_session_status(self, token):
         if token is None:
@@ -147,29 +187,29 @@ class SessionsManager(object):
         self._push_to_cache(session)
 
     def update_session_configuration(
-        self, token, tests, types, timeouts, reference_tokens, webhook_urls
+        self, token, tests, test_types, timeouts, reference_tokens, type
     ):
         session = self.read_session(token)
         if session is None:
-            raise NotFoundException(u"Could not find session")
+            raise NotFoundException("Could not find session")
         if session.status != PENDING:
             return
 
         if tests is not None:
-            if u"include" not in tests:
-                tests[u"include"] = session.tests[u"include"]
-            if u"exclude" not in tests:
-                tests[u"exclude"] = session.tests[u"exclude"]
+            if "include" not in tests:
+                tests["include"] = session.tests["include"]
+            if "exclude" not in tests:
+                tests["exclude"] = session.tests["exclude"]
             if reference_tokens is None:
                 reference_tokens = session.reference_tokens
-            if types is None:
-                types = session.types
-            print(tests)
+            if test_types is None:
+                test_types = session.test_types
+
             pending_tests = self._test_loader.get_tests(
-                include_list=tests[u"include"],
-                exclude_list=tests[u"exclude"],
+                include_list=tests["include"],
+                exclude_list=tests["exclude"],
                 reference_tokens=reference_tokens,
-                types=types
+                test_types=test_types
             )
             session.pending_tests = pending_tests
             session.tests = tests
@@ -187,8 +227,8 @@ class SessionsManager(object):
                 }
             session.test_state = test_state
 
-        if types is not None:
-            session.types = types
+        if test_types is not None:
+            session.test_types = test_types
         if timeouts is not None:
             if AUTOMATIC not in timeouts:
                 timeouts[AUTOMATIC] = session.timeouts[AUTOMATIC]
@@ -197,8 +237,8 @@ class SessionsManager(object):
             session.timeouts = timeouts
         if reference_tokens is not None:
             session.reference_tokens = reference_tokens
-        if webhook_urls is not None:
-            session.webhook_urls = webhook_urls
+        if type is not None:
+            session.type = type
 
         self._push_to_cache(session)
         return session
@@ -265,9 +305,9 @@ class SessionsManager(object):
         if not os.path.isfile(info_file):
             return None
 
-        file = open(info_file, "r")
-        info_data = file.read()
-        file.close()
+        info_data = None
+        with open(info_file, "r") as file:
+            info_data = file.read()
         parsed_info_data = json.loads(info_data)
 
         session = deserialize_session(parsed_info_data)
@@ -295,7 +335,7 @@ class SessionsManager(object):
         if self._expiration_timeout is not None:
             self._expiration_timeout.cancel()
 
-        timeout = next_session.expiration_date / 1000.0 - int(time.time())
+        timeout = next_session.expiration_date / 1000 - time.time()
         if timeout < 0:
             timeout = 0
 
@@ -308,10 +348,10 @@ class SessionsManager(object):
 
     def _delete_expired_sessions(self):
         expiring_sessions = self._read_expiring_sessions()
-        now = int(time.time())
+        now = int(time.time() * 1000)
 
         for session in expiring_sessions:
-            if session.expiration_date / 1000.0 < now:
+            if session.expiration_date < now:
                 self.delete_session(session.token)
 
     def _read_expiring_sessions(self):
@@ -333,7 +373,7 @@ class SessionsManager(object):
             return
 
         if session.status == PENDING:
-            session.date_started = int(time.time()) * 1000
+            session.date_started = int(time.time() * 1000)
             session.expiration_date = None
 
         session.status = RUNNING
@@ -363,7 +403,7 @@ class SessionsManager(object):
         if session.status == ABORTED or session.status == COMPLETED:
             return
         session.status = ABORTED
-        session.date_finished = time.time() * 1000
+        session.date_finished = int(time.time() * 1000)
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
             token,
@@ -387,7 +427,7 @@ class SessionsManager(object):
         if session.status == COMPLETED or session.status == ABORTED:
             return
         session.status = COMPLETED
-        session.date_finished = time.time() * 1000
+        session.date_finished = int(time.time() * 1000)
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
             token,
@@ -416,6 +456,20 @@ class SessionsManager(object):
         return api not in session.pending_tests \
             and api not in session.running_tests
 
+    def get_test_path_with_query(self, test, session):
+        query_string = ""
+        include_list = session.tests["include"]
+        for include_test in include_list:
+            split = include_test.split("?")
+            query = ""
+            if len(split) > 1:
+                include_test = split[0]
+                query = split[1]
+            pattern = re.compile("^" + include_test)
+            if pattern.match(test) is not None:
+                query_string += query + "&"
+        return "{}?{}".format(test, query_string)
+
     def find_token(self, fragment):
         if len(fragment) < 8:
             return None
@@ -426,3 +480,6 @@ class SessionsManager(object):
         if len(tokens) != 1:
             return None
         return tokens[0]
+
+    def get_total_sessions(self):
+        return len(self._sessions)

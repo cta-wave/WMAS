@@ -1,38 +1,30 @@
+# mypy: allow-untyped-defs
+
 import os
 
 from .. import metadata, products
 
-from base import Step, StepRunner
+from .base import Step, StepRunner
 
 
 class GetUpdatePropertyList(Step):
-    provides = ["property_order", "boolean_properties"]
+    provides = ["update_properties"]
 
     def create(self, state):
-        property_order, boolean_properties = products.load_product_update(
-            state.config, state.product)
-        state.property_order = property_order + state.extra_properties
-        state.boolean_properties = boolean_properties
+        state.update_properties = products.load_product_update(state.config, state.product)
 
 
 class UpdateExpected(Step):
     """Do the metadata update on the local checkout"""
 
     def create(self, state):
-        if state.sync_tree is not None:
-            sync_root = state.sync_tree.root
-        else:
-            sync_root = None
-
         metadata.update_expected(state.paths,
-                                 state.serve_root,
                                  state.run_log,
-                                 rev_old=None,
-                                 ignore_existing=state.ignore_existing,
-                                 sync_root=sync_root,
-                                 property_order=state.property_order,
-                                 boolean_properties=state.boolean_properties,
-                                 stability=state.stability)
+                                 update_properties=state.update_properties,
+                                 full_update=state.full_update,
+                                 disable_intermittent=state.disable_intermittent,
+                                 update_intermittent=state.update_intermittent,
+                                 remove_intermittent=state.remove_intermittent)
 
 
 class CreateMetadataPatch(Step):
@@ -47,7 +39,7 @@ class CreateMetadataPatch(Step):
 
         if sync_tree is not None:
             name = "web-platform-tests_update_%s_metadata" % sync_tree.rev
-            message = "Update %s expected data to revision %s" % (state.suite_name, sync_tree.rev)
+            message = f"Update {state.suite_name} expected data to revision {sync_tree.rev}"
         else:
             name = "web-platform-tests_update_metadata"
             message = "Update %s expected data" % state.suite_name

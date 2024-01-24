@@ -1,19 +1,18 @@
-from __future__ import absolute_import
-
 import fnmatch as _stdlib_fnmatch
 import os
+from typing import Iterable, List, Text
 
 
 __all__ = ["fnmatch", "fnmatchcase", "filter", "translate"]
 
 
-def fnmatch(name, pat):
+def fnmatch(name: Text, pat: Text) -> bool:
     name = os.path.normcase(name)
     pat = os.path.normcase(pat)
     return fnmatchcase(name, pat)
 
 
-def fnmatchcase(name, pat):
+def fnmatchcase(name: Text, pat: Text) -> bool:
     if '?' not in pat and '[' not in pat:
         wildcards = pat.count("*")
         if wildcards == 0:
@@ -25,7 +24,7 @@ def fnmatchcase(name, pat):
     return _stdlib_fnmatch.fnmatchcase(name, pat)
 
 
-def filter(names, pat):
+def filter(names: Iterable[Text], pat: Text) -> List[Text]:
     return [n for n in names if fnmatch(n, pat)]
 
 
