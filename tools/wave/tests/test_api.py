@@ -40,6 +40,38 @@ def test_import_results():
     assert updated_results != old_results
     
     # CleanUp
+    delete_session(token)
+    
+def test_last_completed_tests():
+    # Arrange
+    token = create_session()
+    print(token)
+    tests = read_available_tests()
+    apis = list(tests.keys())
+    api = apis[0]
+    test = tests[api][0]
+    set_session_tests(token, [test])
+    print(api)
+    print(test)
+    start_session(token)
+    next_test = read_next_test(token)
+    create_timed_out_result(token, test)
+    next_test = read_next_test(token)
+    
+    # Act
+    url = "/".join([get_url(), "api/tests/", token, "/last_completed"])
+    r = requests.get(url)
+    status_code = r.status_code
+    
+    url = "/".join([get_url(), "api/results", token, api, "json"])
+    r = requests.get(url)
+    updated_results = r.json()
+    
+    # Assert
+    assert status_code == 200
+    
+    # CleanUp
+    delete_session(token)
     
 def create_session():
     url = "/".join([get_url(), "api/sessions"])
@@ -104,13 +136,26 @@ def create_positive_result(token, test):
     }
     
     create_result(token, test, result)
+
+def create_timed_out_result(token, test):
+    result = {
+        "test": test,
+        "status": "TIMEOUT",
+        "message": None,
+        "subtests": []
+    }
+    
+    create_result(token, test, result)
     
 def read_session_tests(token):
     url = "/".join([get_url(), "api/tests", token])
     r = requests.get(url)
     tests = r.json()
     return tests
-    
+
+def delete_session(token):
+    url = "/".join([get_url(), "api/sessions", token])
+    r = requests.delete(url)
     
 
 def get_url():
