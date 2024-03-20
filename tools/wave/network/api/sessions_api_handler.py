@@ -65,7 +65,7 @@ class SessionsApiHandler(ApiHandler):
                 user_agent,
                 labels,
                 expiration_date,
-                type
+                session_type=type
             )
 
             return {
