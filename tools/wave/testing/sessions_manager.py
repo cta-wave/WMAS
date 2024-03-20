@@ -49,7 +49,7 @@ class SessionsManager(object):
         user_agent=None,
         labels=None,
         expiration_date=None,
-        type=None
+        session_type=None
     ):
         if tests is None:
             tests = {}
@@ -122,7 +122,7 @@ class SessionsManager(object):
             status=PENDING,
             reference_tokens=reference_tokens,
             labels=labels,
-            type=type,
+            type=session_type,
             expiration_date=expiration_date,
             date_created=date_created
         )
