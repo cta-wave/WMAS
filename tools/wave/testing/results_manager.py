@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import os
 import shutil
 import re
@@ -17,7 +19,7 @@ from .wpt_report import generate_report, generate_multi_report
 from ..data.session import COMPLETED
 
 WAVE_SRC_DIR = "./tools/wave"
-RESULTS_FILE_REGEX = r"^\w\w\d\d\d?\.json$"
+RESULTS_FILE_REGEX = "^\w\w\d\d\d?\.json$"
 RESULTS_FILE_PATTERN = re.compile(RESULTS_FILE_REGEX)
 
 
@@ -29,7 +31,6 @@ class ResultsManager(object):
         tests_manager,
         import_results_enabled,
         reports_enabled,
-        tests_base_url,
         persisting_interval
     ):
         self._results_directory_path = results_directory_path
@@ -37,7 +38,6 @@ class ResultsManager(object):
         self._tests_manager = tests_manager
         self._import_results_enabled = import_results_enabled
         self._reports_enabled = reports_enabled
-        self._tests_base_url = tests_base_url
         self._results = {}
         self._persisting_interval = persisting_interval
 
@@ -65,7 +65,6 @@ class ResultsManager(object):
         if session.recent_completed_count >= self._persisting_interval \
            or self._sessions_manager.is_api_complete(api, session):
             self.persist_session(session)
-            self._flush_results_cache(session)
 
         if not self._sessions_manager.is_api_complete(api, session):
             return
@@ -89,7 +88,8 @@ class ResultsManager(object):
                                if p is not None), None)
         cached_results = self._read_from_cache(token)
         persisted_results = self.load_results(token)
-        results = self._combine_results_by_api(persisted_results, cached_results)
+        results = self._combine_results_by_api(cached_results,
+                                               persisted_results)
 
         filtered_results = {}
 
@@ -213,7 +213,6 @@ class ResultsManager(object):
                         if test in failed_tests[api]:
                             continue
                         failed_tests[api].append(test)
-        return passed_tests
 
     def read_results_wpt_report_uri(self, token, api):
         api_directory = os.path.join(self._results_directory_path, token, api)
@@ -244,7 +243,13 @@ class ResultsManager(object):
         shutil.rmtree(results_directory)
 
     def persist_session(self, session):
-        self.create_info_file(session)
+        token = session.token
+        if token not in self._results:
+            return
+        for api in list(self._results[token].keys())[:]:
+            self.save_api_results(token, api)
+            self.create_info_file(session)
+            self._clear_cache_api(token, api)
         session.recent_completed_count = 0
         self._sessions_manager.update_session(session)
 
@@ -289,20 +294,14 @@ class ResultsManager(object):
             return []
         return self._results[token]
 
-    def _clear_session_cache(self, token):
+    def _clear_cache_api(self, token, api):
         if token is None:
             return
         if token not in self._results:
             return
-        del self._results[token]
-
-    def _flush_results_cache(self, session):
-        token = session.token
-        if token not in self._results:
+        if api not in self._results[token]:
             return
-        for api in list(self._results[token].keys())[:]:
-            self.save_api_results(session, api)
-        self._clear_session_cache(token)
+        del self._results[token][api]
 
     def _combine_results_by_api(self, result_a, result_b):
         combined_result = {}
@@ -370,12 +369,12 @@ class ResultsManager(object):
 
         return os.path.join(api_directory, file_name)
 
-    def save_api_results(self, session, api):
-        token = session.token
+    def save_api_results(self, token, api):
         results = self._read_from_cache(token)
         if api not in results:
             return
         results = results[api]
+        session = self._sessions_manager.read_session(token)
         self._ensure_results_directory_existence(api, token, session)
 
         file_path = self.get_json_path(token, api)
@@ -406,8 +405,7 @@ class ResultsManager(object):
         generate_report(
             input_json_directory_path=dir_path,
             output_html_directory_path=dir_path,
-            spec_name=api,
-            tests_base_url=self._tests_base_url
+            spec_name=api
         )
 
     def generate_multi_report(self, tokens, api):
@@ -459,12 +457,9 @@ class ResultsManager(object):
 
     def create_info_file(self, session):
         token = session.token
-        info_dir_path = os.path.join(
-            self._results_directory_path,
-            token
-        )
         info_file_path = os.path.join(
-            info_dir_path,
+            self._results_directory_path,
+            token,
             "info.json"
         )
         info = serialize_session(session)
@@ -472,9 +467,6 @@ class ResultsManager(object):
         del info["pending_tests"]
 
         file_content = json.dumps(info, indent=2)
-        if not os.path.exists(info_dir_path):
-            os.makedirs(info_dir_path)
-
         with open(info_file_path, "w+") as file:
             file.write(file_content)
 
@@ -626,6 +618,7 @@ class ResultsManager(object):
         os.makedirs(destination_path)
         zip.extractall(destination_path)
         self.remove_tmp_files()
+        self.load_results()
         return token
 
     def import_results_api_json(self, token, api, blob):
@@ -653,7 +646,6 @@ class ResultsManager(object):
         session.test_state = test_state
 
         self._sessions_manager.update_session(session)
-        self.generate_report(token, api)
 
     def remove_tmp_files(self):
         files = os.listdir(".")

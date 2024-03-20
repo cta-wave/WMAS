@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 
 from .api_handler import ApiHandler
@@ -23,13 +25,6 @@ class ResultsApiHandler(ApiHandler):
 
             self._results_manager.create_result(token, data)
 
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to create result")
             response.status = 500

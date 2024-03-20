@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 import os
 from io import open
@@ -81,10 +83,6 @@ def load(configuration_file_path):
     configuration["enable_test_file_selection"] = configuration.get(
         "wave", default_configuration["wave"]).get(
         "enable_test_file_selection", default_configuration["wave"]["enable_test_file_selection"])
-
-    configuration["tests_base_url"] = configuration.get(
-        "wave", default_configuration["wave"]).get(
-        "tests_base_url", default_configuration["wave"]["tests_base_url"])
 
     return configuration
 

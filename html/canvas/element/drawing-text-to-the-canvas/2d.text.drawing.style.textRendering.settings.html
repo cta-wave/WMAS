@@ -20,36 +20,36 @@ var t = async_test("Testing basic functionalities of textRendering in Canvas");
 _addTest(function(canvas, ctx) {
 
 // Setting textRendering with lower cases
-_assertSame(ctx.textRendering, "auto", "ctx.textRendering", "\"auto\"");
+_assertSame(ctx.textRendering, "Auto", "ctx.textRendering", "\"Auto\"");
 
 ctx.textRendering = "auto";
-_assertSame(ctx.textRendering, "auto", "ctx.textRendering", "\"auto\"");
+_assertSame(ctx.textRendering, "Auto", "ctx.textRendering", "\"Auto\"");
 
 ctx.textRendering = "optimizespeed";
-_assertSame(ctx.textRendering, "optimizeSpeed", "ctx.textRendering", "\"optimizeSpeed\"");
+_assertSame(ctx.textRendering, "OptimizeSpeed", "ctx.textRendering", "\"OptimizeSpeed\"");
 
 ctx.textRendering = "optimizelegibility";
-_assertSame(ctx.textRendering, "optimizeLegibility", "ctx.textRendering", "\"optimizeLegibility\"");
+_assertSame(ctx.textRendering, "OptimizeLegibility", "ctx.textRendering", "\"OptimizeLegibility\"");
 
 ctx.textRendering = "geometricprecision";
-_assertSame(ctx.textRendering, "geometricPrecision", "ctx.textRendering", "\"geometricPrecision\"");
+_assertSame(ctx.textRendering, "GeometricPrecision", "ctx.textRendering", "\"GeometricPrecision\"");
 
 // Setting textRendering with lower cases and upper cases word.
 ctx.textRendering = "aUto";
-_assertSame(ctx.textRendering, "auto", "ctx.textRendering", "\"auto\"");
+_assertSame(ctx.textRendering, "Auto", "ctx.textRendering", "\"Auto\"");
 
 ctx.textRendering = "OPtimizeSpeed";
-_assertSame(ctx.textRendering, "optimizeSpeed", "ctx.textRendering", "\"optimizeSpeed\"");
+_assertSame(ctx.textRendering, "OptimizeSpeed", "ctx.textRendering", "\"OptimizeSpeed\"");
 
 ctx.textRendering = "OPtimizELEgibility";
-_assertSame(ctx.textRendering, "optimizeLegibility", "ctx.textRendering", "\"optimizeLegibility\"");
+_assertSame(ctx.textRendering, "OptimizeLegibility", "ctx.textRendering", "\"OptimizeLegibility\"");
 
 ctx.textRendering = "GeometricPrecision";
-_assertSame(ctx.textRendering, "geometricPrecision", "ctx.textRendering", "\"geometricPrecision\"");
+_assertSame(ctx.textRendering, "GeometricPrecision", "ctx.textRendering", "\"GeometricPrecision\"");
 
 // Setting textRendering with non-existing font variant.
 ctx.textRendering = "abcd";
-_assertSame(ctx.textRendering, "geometricPrecision", "ctx.textRendering", "\"geometricPrecision\"");
+_assertSame(ctx.textRendering, "GeometricPrecision", "ctx.textRendering", "\"GeometricPrecision\"");
 
 
 });

@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import re
 from threading import Timer
 
@@ -89,8 +92,7 @@ class TestsManager(object):
                 if potential_result["test"] == test:
                     result = potential_result
                     break
-            if result is None:
-                break
+            if result is None: break
 
             if result["status"] == "ERROR":
                 if len(tests["fail"]) < count:
@@ -124,7 +126,6 @@ class TestsManager(object):
             def __init__(self, tests_manager, test):
                 self.test = test
                 self.tests_manager = tests_manager
-
             def __lt__(self, test_b):
                 test_a = self.test
                 test_b = test_b.test
@@ -223,7 +224,7 @@ class TestsManager(object):
         remaining_tests_by_api = {}
         current_api = "___"
         for test in remaining_tests:
-            if not test.startswith("/" + str(current_api)) and \
+            if not test.startswith("/" + current_api) and \
                not test.startswith(current_api):
                 current_api = next((p for p in test.split("/") if p != ""),
                                    None)

@@ -4,8 +4,11 @@ import socket
 import subprocess
 import time
 
-from urllib.request import urlopen
-from urllib.error import URLError
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen, URLError
 
 from tools.wpt import wpt
 

@@ -48,6 +48,8 @@ typedef (HTMLScriptElement or SVGScriptElement) HTMLOrSVGScriptElement;
 
 [LegacyOverrideBuiltIns]
 partial interface Document {
+  static Document parseHTMLUnsafe(DOMString html);
+
   // resource metadata management
   [PutForwards=href, LegacyUnforgeable] readonly attribute Location? location;
   attribute USVString domain;
@@ -127,6 +129,12 @@ interface HTMLElement : Element {
   [CEReactions] attribute [LegacyNullToEmptyString] DOMString outerText;
 
   ElementInternals attachInternals();
+
+  // The popover API
+  undefined showPopover();
+  undefined hidePopover();
+  boolean togglePopover(optional boolean force);
+  [CEReactions] attribute DOMString? popover;
 };
 
 HTMLElement includes GlobalEventHandlers;
@@ -202,6 +210,7 @@ interface HTMLLinkElement : HTMLElement {
   [CEReactions] attribute DOMString referrerPolicy;
   [SameObject, PutForwards=value] readonly attribute DOMTokenList blocking;
   [CEReactions] attribute boolean disabled;
+  [CEReactions] attribute DOMString fetchPriority;
 
   // also has obsolete members
 };
@@ -430,6 +439,7 @@ interface HTMLImageElement : HTMLElement {
   [CEReactions] attribute DOMString referrerPolicy;
   [CEReactions] attribute DOMString decoding;
   [CEReactions] attribute DOMString loading;
+  [CEReactions] attribute DOMString fetchPriority;
 
   Promise<undefined> decode();
 
@@ -929,6 +939,7 @@ interface HTMLInputElement : HTMLElement {
 
   // also has obsolete members
 };
+HTMLInputElement includes PopoverInvokerElement;
 
 [Exposed=Window]
 interface HTMLButtonElement : HTMLElement {
@@ -954,6 +965,7 @@ interface HTMLButtonElement : HTMLElement {
 
   readonly attribute NodeList labels;
 };
+HTMLButtonElement includes PopoverInvokerElement;
 
 [Exposed=Window]
 interface HTMLSelectElement : HTMLElement {
@@ -988,6 +1000,8 @@ interface HTMLSelectElement : HTMLElement {
   boolean checkValidity();
   boolean reportValidity();
   undefined setCustomValidity(DOMString error);
+
+  undefined showPicker();
 
   readonly attribute NodeList labels;
 };
@@ -1186,6 +1200,7 @@ dictionary FormDataEventInit : EventInit {
 interface HTMLDetailsElement : HTMLElement {
   [HTMLConstructor] constructor();
 
+  [CEReactions] attribute DOMString name;
   [CEReactions] attribute boolean open;
 };
 
@@ -1214,6 +1229,7 @@ interface HTMLScriptElement : HTMLElement {
   [CEReactions] attribute DOMString integrity;
   [CEReactions] attribute DOMString referrerPolicy;
   [SameObject, PutForwards=value] readonly attribute DOMTokenList blocking;
+  [CEReactions] attribute DOMString fetchPriority;
 
   static boolean supports(DOMString type);
 
@@ -1225,6 +1241,8 @@ interface HTMLTemplateElement : HTMLElement {
   [HTMLConstructor] constructor();
 
   readonly attribute DocumentFragment content;
+  [CEReactions] attribute DOMString shadowRootMode;
+  [CEReactions] attribute boolean shadowRootDelegatesFocus;
 };
 
 [Exposed=Window]
@@ -1583,6 +1601,7 @@ OffscreenCanvasRenderingContext2D includes CanvasPath;
 interface CustomElementRegistry {
   [CEReactions] undefined define(DOMString name, CustomElementConstructor constructor, optional ElementDefinitionOptions options = {});
   (CustomElementConstructor or undefined) get(DOMString name);
+  DOMString? getName(CustomElementConstructor constructor);
   Promise<CustomElementConstructor> whenDefined(DOMString name);
   [CEReactions] undefined upgrade(Node root);
 };
@@ -1614,6 +1633,9 @@ interface ElementInternals {
   boolean reportValidity();
 
   readonly attribute NodeList labels;
+
+  // Custom state pseudo-class
+  [SameObject] readonly attribute CustomStateSet states;
 };
 
 // Accessibility semantics
@@ -1633,6 +1655,19 @@ dictionary ValidityStateFlags {
 };
 
 [Exposed=Window]
+interface CustomStateSet {
+  setlike<DOMString>;
+};
+
+[Exposed=(Window)]
+interface VisibilityStateEntry : PerformanceEntry {
+  readonly attribute DOMString name;                 // shadows inherited name
+  readonly attribute DOMString entryType;            // shadows inherited entryType
+  readonly attribute DOMHighResTimeStamp startTime;  // shadows inherited startTime
+  readonly attribute unsigned long duration;         // shadows inherited duration
+};
+
+[Exposed=Window]
 interface UserActivation {
   readonly attribute boolean hasBeenActive;
   readonly attribute boolean isActive;
@@ -1640,6 +1675,18 @@ interface UserActivation {
 
 partial interface Navigator {
   [SameObject] readonly attribute UserActivation userActivation;
+};
+
+[Exposed=Window]
+interface ToggleEvent : Event {
+  constructor(DOMString type, optional ToggleEventInit eventInitDict = {});
+  readonly attribute DOMString oldState;
+  readonly attribute DOMString newState;
+};
+
+dictionary ToggleEventInit : EventInit {
+  DOMString oldState = "";
+  DOMString newState = "";
 };
 
 dictionary FocusOptions {
@@ -1652,6 +1699,22 @@ interface mixin ElementContentEditable {
   [CEReactions] attribute DOMString enterKeyHint;
   readonly attribute boolean isContentEditable;
   [CEReactions] attribute DOMString inputMode;
+};
+
+[Exposed=Window]
+interface CloseWatcher : EventTarget {
+  constructor(optional CloseWatcherOptions options = {});
+
+  undefined requestClose();
+  undefined close();
+  undefined destroy();
+
+  attribute EventHandler oncancel;
+  attribute EventHandler onclose;
+};
+
+dictionary CloseWatcherOptions {
+  AbortSignal signal;
 };
 
 [Exposed=Window]
@@ -1704,6 +1767,11 @@ dictionary DragEventInit : MouseEventInit {
   DataTransfer? dataTransfer = null;
 };
 
+interface mixin PopoverInvokerElement {
+  [CEReactions] attribute Element? popoverTargetElement;
+  [CEReactions] attribute DOMString popoverTargetAction;
+};
+
 [Global=Window,
  Exposed=Window,
  LegacyUnenumerableNamedProperties]
@@ -1715,6 +1783,7 @@ interface Window : EventTarget {
   attribute DOMString name;
   [PutForwards=href, LegacyUnforgeable] readonly attribute Location location;
   readonly attribute History history;
+  readonly attribute Navigation navigation;
   readonly attribute CustomElementRegistry customElements;
   [Replaceable] readonly attribute BarProp locationbar;
   [Replaceable] readonly attribute BarProp menubar;
@@ -1737,14 +1806,15 @@ interface Window : EventTarget {
   [Replaceable] readonly attribute WindowProxy? parent;
   readonly attribute Element? frameElement;
   WindowProxy? open(optional USVString url = "", optional DOMString target = "_blank", optional [LegacyNullToEmptyString] DOMString features = "");
-  getter object (DOMString name);
+
   // Since this is the global object, the IDL named getter adds a NamedPropertiesObject exotic
   // object on the prototype chain. Indeed, this does not make the global object an exotic object.
   // Indexed access is taken care of by the WindowProxy exotic object.
+  getter object (DOMString name);
 
   // the user agent
   readonly attribute Navigator navigator;
-  readonly attribute Navigator clientInformation; // legacy alias of .navigator
+  [Replaceable] readonly attribute Navigator clientInformation; // legacy alias of .navigator
   readonly attribute boolean originAgentCluster;
 
   // user prompts
@@ -1805,14 +1875,176 @@ interface History {
 };
 
 [Exposed=Window]
+interface Navigation : EventTarget {
+  sequence<NavigationHistoryEntry> entries();
+  readonly attribute NavigationHistoryEntry? currentEntry;
+  undefined updateCurrentEntry(NavigationUpdateCurrentEntryOptions options);
+  readonly attribute NavigationTransition? transition;
+  readonly attribute NavigationActivation? activation;
+
+  readonly attribute boolean canGoBack;
+  readonly attribute boolean canGoForward;
+
+  NavigationResult navigate(USVString url, optional NavigationNavigateOptions options = {});
+  NavigationResult reload(optional NavigationReloadOptions options = {});
+
+  NavigationResult traverseTo(DOMString key, optional NavigationOptions options = {});
+  NavigationResult back(optional NavigationOptions options = {});
+  NavigationResult forward(optional NavigationOptions options = {});
+
+  attribute EventHandler onnavigate;
+  attribute EventHandler onnavigatesuccess;
+  attribute EventHandler onnavigateerror;
+  attribute EventHandler oncurrententrychange;
+};
+
+dictionary NavigationUpdateCurrentEntryOptions {
+  required any state;
+};
+
+dictionary NavigationOptions {
+  any info;
+};
+
+dictionary NavigationNavigateOptions : NavigationOptions {
+  any state;
+  NavigationHistoryBehavior history = "auto";
+};
+
+dictionary NavigationReloadOptions : NavigationOptions {
+  any state;
+};
+
+dictionary NavigationResult {
+  Promise<NavigationHistoryEntry> committed;
+  Promise<NavigationHistoryEntry> finished;
+};
+
+enum NavigationHistoryBehavior {
+  "auto",
+  "push",
+  "replace"
+};
+
+enum NavigationType {
+ "push",
+ "replace",
+ "reload",
+ "traverse"
+};
+
+[Exposed=Window]
+interface NavigationHistoryEntry : EventTarget {
+  readonly attribute USVString? url;
+  readonly attribute DOMString key;
+  readonly attribute DOMString id;
+  readonly attribute long long index;
+  readonly attribute boolean sameDocument;
+
+  any getState();
+
+  attribute EventHandler ondispose;
+};
+
+[Exposed=Window]
+interface NavigationTransition {
+  readonly attribute NavigationType navigationType;
+  readonly attribute NavigationHistoryEntry from;
+  readonly attribute Promise<undefined> finished;
+};
+
+[Exposed=Window]
+interface NavigationActivation {
+  readonly attribute NavigationHistoryEntry? from;
+  readonly attribute NavigationHistoryEntry entry;
+  readonly attribute NavigationType navigationType;
+};
+
+[Exposed=Window]
+interface NavigateEvent : Event {
+  constructor(DOMString type, NavigateEventInit eventInitDict);
+
+  readonly attribute NavigationType navigationType;
+  readonly attribute NavigationDestination destination;
+  readonly attribute boolean canIntercept;
+  readonly attribute boolean userInitiated;
+  readonly attribute boolean hashChange;
+  readonly attribute AbortSignal signal;
+  readonly attribute FormData? formData;
+  readonly attribute DOMString? downloadRequest;
+  readonly attribute any info;
+  readonly attribute boolean hasUAVisualTransition;
+
+  undefined intercept(optional NavigationInterceptOptions options = {});
+  undefined scroll();
+};
+
+dictionary NavigateEventInit : EventInit {
+  NavigationType navigationType = "push";
+  required NavigationDestination destination;
+  boolean canIntercept = false;
+  boolean userInitiated = false;
+  boolean hashChange = false;
+  required AbortSignal signal;
+  FormData? formData = null;
+  DOMString? downloadRequest = null;
+  any info;
+  boolean hasUAVisualTransition = false;
+};
+
+dictionary NavigationInterceptOptions {
+  NavigationInterceptHandler handler;
+  NavigationFocusReset focusReset;
+  NavigationScrollBehavior scroll;
+};
+
+enum NavigationFocusReset {
+  "after-transition",
+  "manual"
+};
+
+enum NavigationScrollBehavior {
+  "after-transition",
+  "manual"
+};
+
+callback NavigationInterceptHandler = Promise<undefined> ();
+
+[Exposed=Window]
+interface NavigationDestination {
+  readonly attribute USVString url;
+  readonly attribute DOMString key;
+  readonly attribute DOMString id;
+  readonly attribute long long index;
+  readonly attribute boolean sameDocument;
+
+  any getState();
+};
+
+[Exposed=Window]
+interface NavigationCurrentEntryChangeEvent : Event {
+  constructor(DOMString type, NavigationCurrentEntryChangeEventInit eventInitDict);
+
+  readonly attribute NavigationType? navigationType;
+  readonly attribute NavigationHistoryEntry from;
+};
+
+dictionary NavigationCurrentEntryChangeEventInit : EventInit {
+  NavigationType? navigationType = null;
+  required NavigationHistoryEntry from;
+};
+
+[Exposed=Window]
 interface PopStateEvent : Event {
   constructor(DOMString type, optional PopStateEventInit eventInitDict = {});
 
   readonly attribute any state;
+  readonly attribute boolean hasUAVisualTransition;
 };
 
 dictionary PopStateEventInit : EventInit {
   any state = null;
+  boolean hasUAVisualTransition = false;
 };
 
 [Exposed=Window]
@@ -1826,6 +2058,16 @@ interface HashChangeEvent : Event {
 dictionary HashChangeEventInit : EventInit {
   USVString oldURL = "";
   USVString newURL = "";
+};
+
+[Exposed=Window]
+interface PageRevealEvent : Event {
+  constructor(DOMString type, optional PageRevealEventInit eventInitDict = {});
+  readonly attribute ViewTransition? viewTransition;
+};
+
+dictionary PageRevealEventInit : EventInit {
+  ViewTransition? viewTransition = null;
 };
 
 [Exposed=Window]
@@ -1867,12 +2109,12 @@ dictionary ErrorEventInit : EventInit {
 interface PromiseRejectionEvent : Event {
   constructor(DOMString type, PromiseRejectionEventInit eventInitDict);
 
-  readonly attribute Promise<any> promise;
+  readonly attribute object promise;
   readonly attribute any reason;
 };
 
 dictionary PromiseRejectionEventInit : EventInit {
-  required Promise<any> promise;
+  required object promise;
   any reason;
 };
 
@@ -1893,6 +2135,7 @@ interface mixin GlobalEventHandlers {
   attribute EventHandler onauxclick;
   attribute EventHandler onbeforeinput;
   attribute EventHandler onbeforematch;
+  attribute EventHandler onbeforetoggle;
   attribute EventHandler onblur;
   attribute EventHandler oncancel;
   attribute EventHandler oncanplay;
@@ -1976,6 +2219,7 @@ interface mixin WindowEventHandlers {
   attribute EventHandler onoffline;
   attribute EventHandler ononline;
   attribute EventHandler onpagehide;
+  attribute EventHandler onpagereveal;
   attribute EventHandler onpageshow;
   attribute EventHandler onpopstate;
   attribute EventHandler onrejectionhandled;
@@ -2029,6 +2273,14 @@ enum DOMParserSupportedType {
   "application/xml",
   "application/xhtml+xml",
   "image/svg+xml"
+};
+
+partial interface Element {
+  [CEReactions] undefined setHTMLUnsafe(DOMString html);
+};
+
+partial interface ShadowRoot {
+  [CEReactions] undefined setHTMLUnsafe(DOMString html);
 };
 
 [Exposed=Window]
@@ -2220,6 +2472,7 @@ interface MessagePort : EventTarget {
   // event handlers
   attribute EventHandler onmessage;
   attribute EventHandler onmessageerror;
+  attribute EventHandler onclose;
 };
 
 dictionary StructuredSerializeOptions {

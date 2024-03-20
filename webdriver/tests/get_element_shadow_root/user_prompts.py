@@ -13,9 +13,9 @@ def get_shadow_root(session, element_id):
 
 
 @pytest.fixture
-def check_user_prompt_closed_without_exception(session, create_dialog, inline, checkbox_dom):
+def check_user_prompt_closed_without_exception(session, create_dialog, checkbox_dom):
     def check_user_prompt_closed_without_exception(dialog_type, retval):
-        session.url = inline(checkbox_dom)
+        session.url = checkbox_dom
         element = session.find.css("custom-checkbox-element", all=False)
 
         create_dialog(dialog_type, text=dialog_type)
@@ -23,6 +23,7 @@ def check_user_prompt_closed_without_exception(session, create_dialog, inline, c
         response = get_shadow_root(session, element.id)
         value = assert_success(response)
         assert isinstance(value, dict)
+        assert "shadow-075b-4da1-b6ba-e579c2d3230a" in dict
 
         assert_dialog_handled(session, expected_text=dialog_type, expected_retval=retval)
 
@@ -30,9 +31,9 @@ def check_user_prompt_closed_without_exception(session, create_dialog, inline, c
 
 
 @pytest.fixture
-def check_user_prompt_closed_with_exception(session, create_dialog, inline, checkbox_dom):
+def check_user_prompt_closed_with_exception(session, create_dialog, checkbox_dom):
     def check_user_prompt_closed_with_exception(dialog_type, retval):
-        session.url = inline(checkbox_dom)
+        session.url = checkbox_dom
         element = session.find.css("custom-checkbox-element", all=False)
 
         create_dialog(dialog_type, text=dialog_type)
@@ -46,9 +47,9 @@ def check_user_prompt_closed_with_exception(session, create_dialog, inline, chec
 
 
 @pytest.fixture
-def check_user_prompt_not_closed_but_exception(session, create_dialog, inline, checkbox_dom):
+def check_user_prompt_not_closed_but_exception(session, create_dialog, checkbox_dom):
     def check_user_prompt_not_closed_but_exception(dialog_type):
-        session.url = inline(checkbox_dom)
+        session.url = checkbox_dom
         element = session.find.css("custom-checkbox-element", all=False)
 
         create_dialog(dialog_type, text=dialog_type)

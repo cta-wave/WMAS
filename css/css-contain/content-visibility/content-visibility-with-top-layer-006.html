@@ -7,6 +7,7 @@
 
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
+<script src="/common/rendering-utils.js"></script>
 
 <style>
 #inner {
@@ -23,17 +24,22 @@
 </dialog>
 
 <script>
-test(() => {
+promise_test(async () => {
     dialog.show();
-
+    // It takes at least one frame to determine the proximity to the viewport.
+    await waitForAtLeastOneFrame();
     assert_equals(inner.getBoundingClientRect().height, 100);
 
     dialog.close();
     dialog.showModal();
 
-    // Even though the element with `content-visibility: auto` is offscreen
-    // it should be considered relevant content because it is now in the top
-    // layer.
-    assert_equals(inner.getBoundingClientRect().height, 200);
+    // Even though the element with `content-visibility: auto` has an ancestor
+    // in the top layer, this element is not in the top layer list (although
+    // it's in the top layer stacking context). This means it should not be
+    // relevant to the user, because it is nevertheless not onscreen.
+    // It takes at least one frame to determine the proximity to the viewport.
+    await waitForAtLeastOneFrame();
+    assert_equals(inner.getBoundingClientRect().height, 100);
+    dialog.close();
 });
 </script>

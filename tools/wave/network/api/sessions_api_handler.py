@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 import threading
 
@@ -51,9 +53,9 @@ class SessionsApiHandler(ApiHandler):
             expiration_date = None
             if "expiration_date" in config:
                 expiration_date = config["expiration_date"]
-            session_type = None
+            type = None
             if "type" in config:
-                session_type = config["type"]
+                type = config["type"]
 
             session = self._sessions_manager.create_session(
                 tests,
@@ -63,7 +65,7 @@ class SessionsApiHandler(ApiHandler):
                 user_agent,
                 labels,
                 expiration_date,
-                session_type
+                type
             )
 
             return {
@@ -76,14 +78,6 @@ class SessionsApiHandler(ApiHandler):
             return {
                 "format": "application/json",
                 "data": {"error": "Invalid input data!"},
-                "status": 400
-            }
-
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
                 "status": 400
             }
 
@@ -227,9 +221,9 @@ class SessionsApiHandler(ApiHandler):
             reference_tokens = []
             if "reference_tokens" in config:
                 reference_tokens = config["reference_tokens"]
-            session_type = None
+            type = None
             if "type" in config:
-                session_type = config["type"]
+                type = config["type"]
 
             self._sessions_manager.update_session_configuration(
                 token,
@@ -237,18 +231,11 @@ class SessionsApiHandler(ApiHandler):
                 test_types,
                 timeouts,
                 reference_tokens,
-                session_type
+                type
             )
         except NotFoundException:
             self.handle_exception("Failed to update session configuration")
             response.status = 404
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to update session configuration")
             response.status = 500
@@ -266,13 +253,6 @@ class SessionsApiHandler(ApiHandler):
                     labels = labels["labels"]
 
             self._sessions_manager.update_labels(token=token, labels=labels)
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to update labels")
             response.status = 500
@@ -334,13 +314,6 @@ class SessionsApiHandler(ApiHandler):
                 resume_token = json.loads(body)["resume_token"]
 
             self._sessions_manager.resume_session(token, resume_token)
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to resume session")
             response.status = 500
@@ -394,13 +367,6 @@ class SessionsApiHandler(ApiHandler):
                 token,
                 message["type"],
                 message["data"])
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to push session event")
 

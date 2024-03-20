@@ -26,7 +26,7 @@ body { margin : 0; }
   filter: blur(30px);
 }
 
-html::view-transition-container(root) { animation-duration: 300s; }
+html::view-transition-group(root) { animation-duration: 300s; }
 html::view-transition-old(target) {
   animation: unset;
   opacity: 1;
@@ -42,11 +42,13 @@ html::view-transition-new(target) {
 </div>
 
 <script>
+failIfNot(document.startViewTransition, "Missing document.startViewTransition");
+
 async function runTest() {
   let transition = document.startViewTransition(async () => {
     document.getElementById("target").remove();
   });
   transition.ready.then(() => requestAnimationFrame(takeScreenshot));
 }
-onclick = requestAnimationFrame(() => requestAnimationFrame(runTest));
+onload = () => requestAnimationFrame(() => requestAnimationFrame(runTest));
 </script>
