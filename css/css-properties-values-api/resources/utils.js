@@ -144,7 +144,8 @@ function animation_test(property, values, description) {
     // iterationComposite is set to something other than "replace".
     animation.currentTime = duration * 2.5;
 
-    assert_equals(getComputedStyle(target).getPropertyValue(name), values.expected);
+    const assert_equals_function = values.assert_function || assert_equals;
+    assert_equals_function(getComputedStyle(target).getPropertyValue(name), values.expected);
   }, description);
 };
 
@@ -183,6 +184,8 @@ function transition_test(options, description) {
   promise_test(async () => {
     const customProperty = generate_name();
 
+    options.transitionProperty ??= customProperty;
+
     CSS.registerProperty({
       name: customProperty,
       syntax: options.syntax,
@@ -193,13 +196,18 @@ function transition_test(options, description) {
     assert_equals(getComputedStyle(target).getPropertyValue(customProperty), options.from, "Element has the expected initial value");
 
     const transitionEventPromise = new Promise(resolve => {
-      target.addEventListener("transitionrun", event => {
+      let listener = event => {
+          target.removeEventListener("transitionrun", listener);
           assert_equals(event.propertyName, customProperty, "TransitionEvent has the expected property name");
           resolve();
-      });
+      };
+      target.addEventListener("transitionrun", listener);
     });
 
-    target.style.transition = `${customProperty} 1s -500ms linear`;
+    target.style.transition = `${options.transitionProperty} 1s -500ms linear`;
+    if (options.behavior) {
+      target.style.transitionBehavior = options.behavior;
+    }
     target.style.setProperty(customProperty, options.to);
 
     const animations = target.getAnimations();

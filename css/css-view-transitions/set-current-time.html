@@ -11,7 +11,6 @@
 .target {
   width: 100px;
   height: 100px;
-  contain: layout;
   background: blue;
   view-transition-name: target;
 }
@@ -32,6 +31,8 @@ html::view-transition-new(target) {
 <div id=target></div>
 
 <script>
+failIfNot(document.startViewTransition, "Missing document.startViewTransition");
+
 async function runTest() {
   let transition = document.startViewTransition(() => target.classList.add("target"));
   transition.ready.then(() => {

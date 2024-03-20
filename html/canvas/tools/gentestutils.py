@@ -35,6 +35,7 @@ import importlib
 import os
 import pathlib
 import sys
+import textwrap
 
 try:
     import cairocffi as cairo  # type: ignore
@@ -199,7 +200,8 @@ def _generate_test(test: Mapping[str, str], templates: Mapping[str, str],
             r'@assert pixel .* 0,0,0,0;', test['code']):
         print('Probable incorrect pixel test in %s' % name)
 
-    code = _expand_test_code(test['code'])
+    code = _expand_test_code(test['code'].strip())
+    code = textwrap.indent(code, '  ')
 
     expectation_html = ''
     if 'expected' in test and test['expected'] is not None:
@@ -304,12 +306,12 @@ def _generate_test(test: Mapping[str, str], templates: Mapping[str, str],
 
     if is_offscreen_canvas:
         pathlib.Path(f'{test_path}.html').write_text(
-            templates['w3coffscreencanvas'] % template_params, 'utf-8')
+            templates['offscreen'] % template_params, 'utf-8')
         pathlib.Path(f'{test_path}.worker.js').write_text(
-            templates['w3cworker'] % template_params, 'utf-8')
+            templates['worker'] % template_params, 'utf-8')
     else:
         pathlib.Path(f'{test_path}.html').write_text(
-            templates['w3ccanvas'] % template_params, 'utf-8')
+            templates['element'] % template_params, 'utf-8')
 
 
 def genTestUtils(TESTOUTPUTDIR: str, IMAGEOUTPUTDIR: str, TEMPLATEFILE: str,

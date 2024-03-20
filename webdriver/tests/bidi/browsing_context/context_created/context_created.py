@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 from webdriver.error import TimeoutException
 from webdriver.bidi.modules.script import ContextTarget
@@ -34,12 +32,12 @@ async def test_not_unsubscribed(bidi_session):
 
 
 @pytest.mark.parametrize("type_hint", ["tab", "window"])
-async def test_new_context(bidi_session, wait_for_event, subscribe_events, type_hint):
+async def test_new_context(bidi_session, wait_for_event, wait_for_future_safe, subscribe_events, type_hint):
     await subscribe_events([CONTEXT_CREATED_EVENT])
 
     on_entry = wait_for_event(CONTEXT_CREATED_EVENT)
-    top_level_context = await bidi_session.browsing_context.create(type_hint="tab")
-    context_info = await on_entry
+    top_level_context = await bidi_session.browsing_context.create(type_hint=type_hint)
+    context_info = await wait_for_future_safe(on_entry)
 
     assert_browsing_context(
         context_info,
@@ -47,10 +45,11 @@ async def test_new_context(bidi_session, wait_for_event, subscribe_events, type_
         children=None,
         url="about:blank",
         parent=None,
+        user_context="default"
     )
 
 
-async def test_evaluate_window_open_without_url(bidi_session, subscribe_events, wait_for_event, top_context):
+async def test_evaluate_window_open_without_url(bidi_session, subscribe_events, wait_for_event, wait_for_future_safe, top_context):
     await subscribe_events([CONTEXT_CREATED_EVENT])
 
     on_entry = wait_for_event(CONTEXT_CREATED_EVENT)
@@ -60,7 +59,7 @@ async def test_evaluate_window_open_without_url(bidi_session, subscribe_events, 
         target=ContextTarget(top_context["context"]),
         await_promise=False)
 
-    context_info = await on_entry
+    context_info = await wait_for_future_safe(on_entry)
 
     assert_browsing_context(
         context_info,
@@ -71,7 +70,7 @@ async def test_evaluate_window_open_without_url(bidi_session, subscribe_events, 
     )
 
 
-async def test_evaluate_window_open_with_url(bidi_session, subscribe_events, wait_for_event, inline, top_context):
+async def test_evaluate_window_open_with_url(bidi_session, subscribe_events, wait_for_event, wait_for_future_safe, inline, top_context):
     url = inline("<div>foo</div>")
 
     await subscribe_events([CONTEXT_CREATED_EVENT])
@@ -82,7 +81,7 @@ async def test_evaluate_window_open_with_url(bidi_session, subscribe_events, wai
         expression=f"""window.open("{url}");""",
         target=ContextTarget(top_context["context"]),
         await_promise=False)
-    context_info = await on_entry
+    context_info = await wait_for_future_safe(on_entry)
 
     assert_browsing_context(
         context_info,
@@ -221,5 +220,46 @@ async def test_subscribe_to_one_context(
     # Make sure we received the event for the iframe
     await wait.until(lambda _: len(events) >= 1)
     assert len(events) == 1
+
+    remove_listener()
+
+
+@pytest.mark.parametrize("type_hint", ["tab", "window"])
+async def test_new_user_context(
+    bidi_session,
+    wait_for_event,
+    wait_for_future_safe,
+    subscribe_events,
+    create_user_context,
+    type_hint,
+):
+    events = []
+
+    async def on_event(method, data):
+        events.append(data)
+
+    remove_listener = bidi_session.add_event_listener(CONTEXT_CREATED_EVENT, on_event)
+
+    await subscribe_events([CONTEXT_CREATED_EVENT])
+
+    user_context = await create_user_context()
+    assert len(events) == 0
+
+    on_entry = wait_for_event(CONTEXT_CREATED_EVENT)
+    context = await bidi_session.browsing_context.create(
+        type_hint=type_hint, user_context=user_context
+    )
+    context_info = await wait_for_future_safe(on_entry)
+
+    assert len(events) == 1
+
+    assert_browsing_context(
+        context_info,
+        context["context"],
+        children=None,
+        url="about:blank",
+        parent=None,
+        user_context=user_context,
+    )
 
     remove_listener()

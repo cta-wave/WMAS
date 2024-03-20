@@ -1,5 +1,7 @@
 - name: 2d.state.saverestore.transformation
   desc: save()/restore() affects the current transformation matrix
+  testing:
+  - 2d.state.transformation
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);
@@ -13,6 +15,8 @@
 
 - name: 2d.state.saverestore.clip
   desc: save()/restore() affects the clipping path
+  testing:
+  - 2d.state.clip
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -27,6 +31,8 @@
 
 - name: 2d.state.saverestore.path
   desc: save()/restore() does not affect the current path
+  testing:
+  - 2d.state.path
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -40,6 +46,8 @@
 
 - name: 2d.state.saverestore.bitmap
   desc: save()/restore() does not affect the current bitmap
+  testing:
+  - 2d.state.bitmap
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -52,6 +60,9 @@
 
 - name: 2d.state.saverestore.stack
   desc: save()/restore() can be nested as a stack
+  testing:
+  - 2d.state.save
+  - 2d.state.restore
   code: |
     ctx.lineWidth = 1;
     ctx.save();
@@ -67,6 +78,9 @@
 
 - name: 2d.state.saverestore.stackdepth
   desc: save()/restore() stack depth is not unreasonably limited
+  testing:
+  - 2d.state.save
+  - 2d.state.restore
   code: |
     var limit = 512;
     for (var i = 1; i < limit; ++i)
@@ -83,6 +97,8 @@
 
 - name: 2d.state.saverestore.underflow
   desc: restore() with an empty stack has no effect
+  testing:
+  - 2d.state.restore.underflow
   code: |
     for (var i = 0; i < 16; ++i)
         ctx.restore();
@@ -90,3 +106,4 @@
     ctx.restore();
     @assert ctx.lineWidth === 0.5;
     t.done();
+

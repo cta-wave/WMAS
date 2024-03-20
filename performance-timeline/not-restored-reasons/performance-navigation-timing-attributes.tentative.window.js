@@ -6,6 +6,7 @@
 // META: script=/html/browsers/browsing-the-web/back-forward-cache/resources/rc-helper.js
 // META: script=/html/browsers/browsing-the-web/remote-context-helper/resources/remote-context-helper.js
 // META: script=/websockets/constants.sub.js
+// META: timeout=long
 
 'use strict';
 
@@ -19,7 +20,7 @@ promise_test(async t => {
   const rc1_url = await rc1.executeScript(() => {
     return location.href;
   });
-  // Add a cross-origin iframe and use BroadcastChannel.
+  // Add a cross-origin iframe.
   const rc1_child = await rc1.addIframe(
       /*extraConfig=*/ {
         origin: 'HTTP_REMOTE_ORIGIN',
@@ -37,20 +38,18 @@ promise_test(async t => {
   await assertBFCacheEligibility(rc1, /*shouldRestoreFromBFCache=*/ false);
   await assertNotRestoredReasonsEquals(
       rc1,
-      /*blocked=*/ true,
       /*url=*/ rc1_url,
       /*src=*/ null,
       /*id=*/ null,
       /*name=*/ null,
-      /*reasons=*/['WebSocket'],
+      /*reasons=*/[{'reason': 'websocket'}],
       /*children=*/[{
-        'blocked': false,
         'url': null,
         'src': rc1_child_url,
         // Id and name should be empty.
         'id': '',
         'name': '',
-        'reasons': [],
-        'children': []
+        'reasons': null,
+        'children': null
       }]);
 });

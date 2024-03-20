@@ -8,16 +8,15 @@ parameters and what they are used for.
 
 1. [Location and structure](#1-location-and-structure)
 2. [Parameters](#2-parameters)
-   1.  [Results directory](#21-results-directory)
-   2.  [Test Timeouts](#22-test-timeouts)
-   3.  [Enable import of results](#23-enable-import-of-results)
-   4.  [Web namespace](#24-web-namespace)
-   5.  [Persisting interval](#25-persisting-interval)
-   6.  [API titles](#26-api-titles)
-   7.  [Enable listing all sessions](#27-enable-listing-all-sessions)
-   8.  [Event caching duration](#28-event-caching-duration)
-   9.  [Enable test type selection](#29-enable-test-type-selection)
-   10. [Tests base URL](#210-tests-base-url)
+   1. [Results directory](#21-results-directory)
+   2. [Test Timeouts](#22-test-timeouts)
+   3. [Enable import of results](#23-enable-import-of-results)
+   4. [Web namespace](#24-web-namespace)
+   5. [Persisting interval](#25-persisting-interval)
+   6. [API titles](#26-api-titles)
+   7. [Enable listing all sessions](#27-enable-listing-all-sessions)
+   8. [Event caching duration](#28-event-caching-duration)
+   9. [Enable test type selection](#29-enable-test-type-selection)
 
 ## 1. Location and structure
 
@@ -323,25 +322,5 @@ Sets display of test type configuration UI elements.
 **Default**:
 
 False
-
-[🠑 top](#configuration---wave-test-runner)
-
-### 2.10 Tests base URL
-
-Sets the base URL for links to test implementation URLs in generated reports
-
-**Parameters**:
-
-```json
-{
-  "tests_base_url": "<String>"
-}
-```
-
-- **tests_base_url**: String to prepend to relative test urls
-
-**Default**:
-
-Empty String
 
 [🠑 top](#configuration---wave-test-runner)

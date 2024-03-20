@@ -130,13 +130,6 @@ class DevicesApiHandler(ApiHandler):
                 data = event["data"]
             self._devices_manager.post_global_event(event_type, data)
 
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to post global event")
             response.status = 500
@@ -163,13 +156,6 @@ class DevicesApiHandler(ApiHandler):
                 data = event["data"]
             self._devices_manager.post_event(token, event_type, data)
 
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to post event")
             response.status = 500

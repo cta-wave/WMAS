@@ -22,8 +22,7 @@ The `create` method of the sessions API creates a new session. If provided with 
   },
   "reference_tokens": "Array<String>",
   "labels": "Array<String>",
-  "type": "String",
-  "expiration_date": "String"
+  "type": "String"
 }
 ```
 
@@ -40,7 +39,6 @@ The `create` method of the sessions API creates a new session. If provided with 
 - **reference_tokens** specifies a set of completed sessions that is used to filter out all tests that have not passed in all those sessions from the session that is going to be created.
 - **labels** specifies the initial set of labels for the session.
 - **type** specifies the session type to trigger type specific behaviour like different control pages.
-- **expiration_date** specifies the point in time the session will be deleted if not started.
 
 ### Default
 

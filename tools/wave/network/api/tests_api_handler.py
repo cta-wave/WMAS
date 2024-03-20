@@ -1,6 +1,11 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 
-from urllib.parse import urlunsplit
+try:
+    from urllib.parse import urlunsplit
+except ImportError:
+    from urlparse import urlunsplit
 
 from .api_handler import ApiHandler
 from ...utils.serializer import serialize_session
@@ -188,13 +193,6 @@ class TestsApiHandler(ApiHandler):
                 data = json.loads(body)
 
             self._tests_manager.update_malfunctioning_tests(token, data)
-        except json.JSONDecodeError:
-            self.handle_exception("Failed to create session")
-            return {
-                "format": "application/json",
-                "data": {"error": "Invalid json data!"},
-                "status": 400
-            }
         except Exception:
             self.handle_exception("Failed to update malfunctioning tests")
             response.status = 500

@@ -1,9 +1,15 @@
 - name: 2d.shadow.attributes.shadowBlur.initial
+  testing:
+  - 2d.shadow.blur.get
+  - 2d.shadow.blur.initial
   code: |
     @assert ctx.shadowBlur === 0;
     t.done();
 
 - name: 2d.shadow.attributes.shadowBlur.valid
+  testing:
+  - 2d.shadow.blur.get
+  - 2d.shadow.blur.set
   code: |
     ctx.shadowBlur = 1;
     @assert ctx.shadowBlur === 1;
@@ -16,6 +22,8 @@
     t.done();
 
 - name: 2d.shadow.attributes.shadowBlur.invalid
+  testing:
+  - 2d.shadow.blur.invalid
   code: |
     ctx.shadowBlur = 1;
     ctx.shadowBlur = -2;
@@ -32,12 +40,17 @@
     t.done();
 
 - name: 2d.shadow.attributes.shadowOffset.initial
+  testing:
+  - 2d.shadow.offset.initial
   code: |
     @assert ctx.shadowOffsetX === 0;
     @assert ctx.shadowOffsetY === 0;
     t.done();
 
 - name: 2d.shadow.attributes.shadowOffset.valid
+  testing:
+  - 2d.shadow.offset.get
+  - 2d.shadow.offset.set
   code: |
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 2;
@@ -62,6 +75,8 @@
     t.done();
 
 - name: 2d.shadow.attributes.shadowOffset.invalid
+  testing:
+  - 2d.shadow.offset.invalid
   code: |
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 2;
@@ -84,11 +99,16 @@
     t.done();
 
 - name: 2d.shadow.attributes.shadowColor.initial
+  testing:
+  - 2d.shadow.color.initial
   code: |
     @assert ctx.shadowColor === 'rgba(0, 0, 0, 0)';
     t.done();
 
 - name: 2d.shadow.attributes.shadowColor.valid
+  testing:
+  - 2d.shadow.color.get
+  - 2d.shadow.color.set
   code: |
     ctx.shadowColor = 'lime';
     @assert ctx.shadowColor === '#00ff00';
@@ -97,6 +117,8 @@
     t.done();
 
 - name: 2d.shadow.attributes.shadowColor.invalid
+  testing:
+  - 2d.shadow.color.invalid
   code: |
     ctx.shadowColor = '#00ff00';
     ctx.shadowColor = 'bogus';
@@ -114,6 +136,9 @@
 
 - name: 2d.shadow.enable.off.1
   desc: Shadows are not drawn when only shadowColor is set
+  testing:
+  - 2d.shadow.enable
+  - 2d.shadow.render
   code: |
     ctx.shadowColor = '#f00';
     ctx.fillStyle = '#0f0';
@@ -123,6 +148,9 @@
 
 - name: 2d.shadow.enable.off.2
   desc: Shadows are not drawn when only shadowColor is set
+  testing:
+  - 2d.shadow.enable
+  - 2d.shadow.render
   code: |
     ctx.globalCompositeOperation = 'destination-atop';
     ctx.shadowColor = '#f00';
@@ -133,6 +161,9 @@
 
 - name: 2d.shadow.enable.blur
   desc: Shadows are drawn if shadowBlur is set
+  testing:
+  - 2d.shadow.enable
+  - 2d.shadow.render
   code: |
     ctx.globalCompositeOperation = 'destination-atop';
     ctx.shadowColor = '#0f0';
@@ -144,6 +175,9 @@
 
 - name: 2d.shadow.enable.x
   desc: Shadows are drawn if shadowOffsetX is set
+  testing:
+  - 2d.shadow.enable
+  - 2d.shadow.render
   code: |
     ctx.globalCompositeOperation = 'destination-atop';
     ctx.shadowColor = '#0f0';
@@ -155,6 +189,9 @@
 
 - name: 2d.shadow.enable.y
   desc: Shadows are drawn if shadowOffsetY is set
+  testing:
+  - 2d.shadow.enable
+  - 2d.shadow.render
   code: |
     ctx.globalCompositeOperation = 'destination-atop';
     ctx.shadowColor = '#0f0';
@@ -166,6 +203,8 @@
 
 - name: 2d.shadow.offset.positiveX
   desc: Shadows can be offset with positive x
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -179,6 +218,8 @@
 
 - name: 2d.shadow.offset.negativeX
   desc: Shadows can be offset with negative x
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -192,6 +233,8 @@
 
 - name: 2d.shadow.offset.positiveY
   desc: Shadows can be offset with positive y
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -205,6 +248,8 @@
 
 - name: 2d.shadow.offset.negativeY
   desc: Shadows can be offset with negative y
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -219,6 +264,8 @@
 - name: 2d.shadow.outside
   desc: Shadows of shapes outside the visible area can be offset onto the visible
     area
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -240,6 +287,8 @@
 
 - name: 2d.shadow.clip.1
   desc: Shadows of clipped shapes are still drawn within the clipping region
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 50, 50);
@@ -259,6 +308,8 @@
 
 - name: 2d.shadow.clip.2
   desc: Shadows are not drawn outside the clipping region
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 50, 50);
@@ -278,6 +329,8 @@
 
 - name: 2d.shadow.clip.3
   desc: Shadows of clipped shapes are still drawn within the clipping region
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 50, 50);
@@ -298,6 +351,8 @@
 
 - name: 2d.shadow.stroke.basic
   desc: Shadows are drawn for strokes
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -316,6 +371,8 @@
 
 - name: 2d.shadow.stroke.cap.1
   desc: Shadows are not drawn for areas outside stroke caps
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);
@@ -337,6 +394,8 @@
 
 - name: 2d.shadow.stroke.cap.2
   desc: Shadows are drawn for stroke caps
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -356,6 +415,8 @@
 
 - name: 2d.shadow.stroke.join.1
   desc: Shadows are not drawn for areas outside stroke joins
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);
@@ -377,6 +438,8 @@
 
 - name: 2d.shadow.stroke.join.2
   desc: Shadows are drawn for stroke joins
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 50, 50);
@@ -400,6 +463,8 @@
 
 - name: 2d.shadow.stroke.join.3
   desc: Shadows are drawn for stroke joins respecting miter limit
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);
@@ -422,6 +487,8 @@
 
 - name: 2d.shadow.image.basic
   desc: Shadows are drawn for images
+  testing:
+  - 2d.shadow.render
   images:
   - red.png
   code: |
@@ -447,6 +514,8 @@
 
 - name: 2d.shadow.image.transparent.1
   desc: Shadows are not drawn for transparent images
+  testing:
+  - 2d.shadow.render
   images:
   - transparent.png
   code: |
@@ -472,6 +541,8 @@
 
 - name: 2d.shadow.image.transparent.2
   desc: Shadows are not drawn for transparent parts of images
+  testing:
+  - 2d.shadow.render
   images:
   - redtransparent.png
   code: |
@@ -503,6 +574,8 @@
 
 - name: 2d.shadow.image.alpha
   desc: Shadows are drawn correctly for partially-transparent images
+  testing:
+  - 2d.shadow.render
   images:
   - transparent50.png
   code: |
@@ -528,6 +601,8 @@
 
 - name: 2d.shadow.image.section
   desc: Shadows are not drawn for areas outside image source rectangles
+  testing:
+  - 2d.shadow.render
   images:
   - redtransparent.png
   code: |
@@ -555,6 +630,8 @@
 
 - name: 2d.shadow.image.scale
   desc: Shadows are drawn correctly for scaled images
+  testing:
+  - 2d.shadow.render
   images:
   - redtransparent.png
   code: |
@@ -582,6 +659,8 @@
 
 - name: 2d.shadow.canvas.basic
   desc: Shadows are drawn for canvases
+  testing:
+  - 2d.shadow.render
   code: |
     var offscreenCanvas2 = new OffscreenCanvas(100, 50);
     var ctx2 = offscreenCanvas2.getContext('2d');
@@ -597,6 +676,8 @@
 
 - name: 2d.shadow.canvas.transparent.1
   desc: Shadows are not drawn for transparent canvases
+  testing:
+  - 2d.shadow.render
   code: |
     var offscreenCanvas2 = new OffscreenCanvas(100, 50);
     var ctx2 = offscreenCanvas2.getContext('2d');
@@ -610,6 +691,8 @@
 
 - name: 2d.shadow.canvas.transparent.2
   desc: Shadows are not drawn for transparent parts of canvases
+  testing:
+  - 2d.shadow.render
   code: |
     var offscreenCanvas2 = new OffscreenCanvas(100, 50);
     var ctx2 = offscreenCanvas2.getContext('2d');
@@ -631,6 +714,8 @@
 
 - name: 2d.shadow.canvas.alpha
   desc: Shadows are drawn correctly for partially-transparent canvases
+  testing:
+  - 2d.shadow.render
   code: |
     var offscreenCanvas2 = new OffscreenCanvas(100, 50);
     var ctx2 = offscreenCanvas2.getContext('2d');
@@ -646,6 +731,8 @@
 
 - name: 2d.shadow.pattern.basic
   desc: Shadows are drawn for fill patterns
+  testing:
+  - 2d.shadow.render
   images:
   - red.png
   code: |
@@ -672,6 +759,8 @@
 
 - name: 2d.shadow.pattern.transparent.1
   desc: Shadows are not drawn for transparent fill patterns
+  testing:
+  - 2d.shadow.render
   # http://bugs.webkit.org/show_bug.cgi?id=15266
   images:
   - transparent.png
@@ -699,6 +788,8 @@
 
 - name: 2d.shadow.pattern.transparent.2
   desc: Shadows are not drawn for transparent parts of fill patterns
+  testing:
+  - 2d.shadow.render
   images:
   - redtransparent.png
   code: |
@@ -730,6 +821,8 @@
 
 - name: 2d.shadow.pattern.alpha
   desc: Shadows are drawn correctly for partially-transparent fill patterns
+  testing:
+  - 2d.shadow.render
   images:
   - transparent50.png
   code: |
@@ -756,6 +849,8 @@
 
 - name: 2d.shadow.gradient.basic
   desc: Shadows are drawn for gradient fills
+  testing:
+  - 2d.shadow.render
   # http://bugs.webkit.org/show_bug.cgi?id=15266
   code: |
     var gradient = ctx.createLinearGradient(0, 0, 100, 0);
@@ -772,6 +867,8 @@
 
 - name: 2d.shadow.gradient.transparent.1
   desc: Shadows are not drawn for transparent gradient fills
+  testing:
+  - 2d.shadow.render
   # http://bugs.webkit.org/show_bug.cgi?id=15266
   code: |
     var gradient = ctx.createLinearGradient(0, 0, 100, 0);
@@ -788,6 +885,8 @@
 
 - name: 2d.shadow.gradient.transparent.2
   desc: Shadows are not drawn for transparent parts of gradient fills
+  testing:
+  - 2d.shadow.render
   code: |
     var gradient = ctx.createLinearGradient(0, 0, 100, 0);
     gradient.addColorStop(0, '#f00');
@@ -809,6 +908,8 @@
 
 - name: 2d.shadow.gradient.alpha
   desc: Shadows are drawn correctly for partially-transparent gradient fills
+  testing:
+  - 2d.shadow.render
   code: |
     var gradient = ctx.createLinearGradient(0, 0, 100, 0);
     gradient.addColorStop(0, 'rgba(255,0,0,0.5)');
@@ -824,6 +925,8 @@
 
 - name: 2d.shadow.transform.1
   desc: Shadows take account of transformations
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -836,6 +939,8 @@
 
 - name: 2d.shadow.transform.2
   desc: Shadow offsets are not affected by transformations
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -847,7 +952,9 @@
     t.done();
 
 - name: 2d.shadow.alpha.1
-  desc: Shadow color alpha components are used
+  desc: Shadow colour alpha components are used
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);
@@ -858,7 +965,9 @@
     t.done();
 
 - name: 2d.shadow.alpha.2
-  desc: Shadow color alpha components are used
+  desc: Shadow colour alpha components are used
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -870,6 +979,8 @@
 
 - name: 2d.shadow.alpha.3
   desc: Shadows are affected by globalAlpha
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -883,6 +994,8 @@
 
 - name: 2d.shadow.alpha.4
   desc: Shadows with alpha components are correctly affected by globalAlpha
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -896,6 +1009,8 @@
 
 - name: 2d.shadow.alpha.5
   desc: Shadows of shapes with alpha components are drawn correctly
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -908,6 +1023,8 @@
 
 - name: 2d.shadow.composite.1
   desc: Shadows are drawn using globalCompositeOperation
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -921,6 +1038,8 @@
 
 - name: 2d.shadow.composite.2
   desc: Shadows are drawn using globalCompositeOperation
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -934,6 +1053,8 @@
 
 - name: 2d.shadow.composite.3
   desc: Areas outside shadows are drawn correctly with destination-out
+  testing:
+  - 2d.shadow.render
   code: |
     ctx.fillStyle = '#0f0';
     ctx.fillRect(0, 0, 100, 50);

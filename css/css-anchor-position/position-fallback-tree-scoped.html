@@ -4,7 +4,6 @@
 <link rel="help" href="https://drafts.csswg.org/css-scoping/#shadow-names">
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
-<script src="/resources/declarative-shadow-dom-polyfill.js"></script>
 
 <style>
   body { margin: 0; }
@@ -26,7 +25,7 @@
 <div id="doc_pf_outer" class="abs"></div>
 <div id="doc_pf_inner" class="abs"></div>
 <div id="outer_host">
-  <template shadowroot="open">
+  <template shadowrootmode="open">
     <style>
       @position-fallback --outer {
         @try {
@@ -44,7 +43,7 @@
     <div id="outer_pf_outer" class="abs"></div>
     <div id="outer_pf_inner" class="abs"></div>
     <div id="inner_host">
-      <template shadowroot="open">
+      <template shadowrootmode="open">
         <style>
           @position-fallback --inner {
             @try {
@@ -78,7 +77,7 @@
   }
 </style>
 <div id="host_slotted_part">
-  <template shadowroot="open">
+  <template shadowrootmode="open">
     <style>
       @position-fallback --host-slot-part {
         @try {
@@ -101,11 +100,6 @@
 
 
 <script>
-  setup(() => {
-    polyfill_declarative_shadow_dom(outer_host);
-    polyfill_declarative_shadow_dom(host_slotted_part);
-  });
-
   test(() => {
     assert_equals(doc_pf_doc.offsetLeft, 100);
   }, "Document position-fallback matches @position-fallback in document scope");
