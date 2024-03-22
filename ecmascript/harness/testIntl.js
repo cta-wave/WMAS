@@ -19,7 +19,12 @@ defines:
   - getInvalidLocaleArguments
   - testOption
   - testForUnwantedRegExpChanges
+  - allCalendars
+  - allCollations
+  - allNumberingSystems
   - isValidNumberingSystem
+  - numberingSystemDigits
+  - allSimpleSanctionedUnits
   - testNumberFormat
   - getDateTimeComponents
   - getDateTimeComponentValues
@@ -69,7 +74,7 @@ function testWithIntlConstructors(f) {
 function taintDataProperty(obj, property) {
   Object.defineProperty(obj, property, {
     set: function(value) {
-      $ERROR("Client code can adversely affect behavior: setter for " + property + ".");
+      throw new Test262Error("Client code can adversely affect behavior: setter for " + property + ".");
     },
     enumerable: false,
     configurable: true
@@ -86,7 +91,7 @@ function taintDataProperty(obj, property) {
 function taintMethod(obj, property) {
   Object.defineProperty(obj, property, {
     value: function() {
-      $ERROR("Client code can adversely affect behavior: method " + property + ".");
+      throw new Test262Error("Client code can adversely affect behavior: method " + property + ".");
     },
     writable: true,
     enumerable: false,
@@ -1920,13 +1925,13 @@ function testOption(Constructor, property, type, values, fallback, testOptions) 
     obj = new Constructor(undefined, options);
     if (noReturn) {
       if (obj.resolvedOptions().hasOwnProperty(property)) {
-        $ERROR("Option property " + property + " is returned, but shouldn't be.");
+        throw new Test262Error("Option property " + property + " is returned, but shouldn't be.");
       }
     } else {
       actual = obj.resolvedOptions()[property];
       if (isILD) {
         if (actual !== undefined && values.indexOf(actual) === -1) {
-          $ERROR("Invalid value " + actual + " returned for property " + property + ".");
+          throw new Test262Error("Invalid value " + actual + " returned for property " + property + ".");
         }
       } else {
         if (type === "boolean") {
@@ -1935,7 +1940,7 @@ function testOption(Constructor, property, type, values, fallback, testOptions) 
           expected = String(value);
         }
         if (actual !== expected && !(isOptional && actual === undefined)) {
-          $ERROR("Option value " + value + " for property " + property +
+          throw new Test262Error("Option value " + value + " for property " + property +
             " was not accepted; got " + actual + " instead.");
         }
       }
@@ -1962,9 +1967,9 @@ function testOption(Constructor, property, type, values, fallback, testOptions) 
         error = e;
       }
       if (error === undefined) {
-        $ERROR("Invalid option value " + value + " for property " + property + " was not rejected.");
+        throw new Test262Error("Invalid option value " + value + " for property " + property + " was not rejected.");
       } else if (error.name !== "RangeError") {
-        $ERROR("Invalid option value " + value + " for property " + property + " was rejected with wrong error " + error.name + ".");
+        throw new Test262Error("Invalid option value " + value + " for property " + property + " was rejected with wrong error " + error.name + ".");
       }
     });
   }
@@ -1978,12 +1983,12 @@ function testOption(Constructor, property, type, values, fallback, testOptions) 
     if (!(isOptional && actual === undefined)) {
       if (fallback !== undefined) {
         if (actual !== fallback) {
-          $ERROR("Option fallback value " + fallback + " for property " + property +
+          throw new Test262Error("Option fallback value " + fallback + " for property " + property +
             " was not used; got " + actual + " instead.");
         }
       } else {
         if (values.indexOf(actual) === -1 && !(isILD && actual === undefined)) {
-          $ERROR("Invalid value " + actual + " returned for property " + property + ".");
+          throw new Test262Error("Invalid value " + actual + " returned for property " + property + ".");
         }
       }
     }
@@ -2021,7 +2026,7 @@ function testForUnwantedRegExpChanges(testFunc) {
   testFunc();
   regExpProperties.forEach(function (property) {
     if (RegExp[property] !== regExpPropertiesDefaultValues[property]) {
-      $ERROR("RegExp has unexpected property " + property + " with value " +
+      throw new Test262Error("RegExp has unexpected property " + property + " with value " +
         RegExp[property] + ".");
     }
   });
@@ -2029,17 +2034,71 @@ function testForUnwantedRegExpChanges(testFunc) {
 
 
 /**
- * Tests whether name is a valid BCP 47 numbering system name
- * and not excluded from use in the ECMAScript Internationalization API.
- * @param {string} name the name to be tested.
- * @return {boolean} whether name is a valid BCP 47 numbering system name and
- *   allowed for use in the ECMAScript Internationalization API.
+ * Returns an array of all known calendars.
  */
+function allCalendars() {
+  // source: CLDR file common/bcp47/number.xml; version CLDR 39.
+  // https://github.com/unicode-org/cldr/blob/master/common/bcp47/calendar.xml
+  return [
+    "buddhist",
+    "chinese",
+    "coptic",
+    "dangi",
+    "ethioaa",
+    "ethiopic",
+    "gregory",
+    "hebrew",
+    "indian",
+    "islamic",
+    "islamic-umalqura",
+    "islamic-tbla",
+    "islamic-civil",
+    "islamic-rgsa",
+    "iso8601",
+    "japanese",
+    "persian",
+    "roc",
+  ];
+}
 
-function isValidNumberingSystem(name) {
 
-  // source: CLDR file common/bcp47/number.xml; version CLDR 36.1.
-  var numberingSystems = [
+/**
+ * Returns an array of all known collations.
+ */
+function allCollations() {
+  // source: CLDR file common/bcp47/collation.xml; version CLDR 39.
+  // https://github.com/unicode-org/cldr/blob/master/common/bcp47/collation.xml
+  return [
+    "big5han",
+    "compat",
+    "dict",
+    "direct",
+    "ducet",
+    "emoji",
+    "eor",
+    "gb2312",
+    "phonebk",
+    "phonetic",
+    "pinyin",
+    "reformed",
+    "search",
+    "searchjl",
+    "standard",
+    "stroke",
+    "trad",
+    "unihan",
+    "zhuyin",
+  ];
+}
+
+
+/**
+ * Returns an array of all known numbering systems.
+ */
+function allNumberingSystems() {
+  // source: CLDR file common/bcp47/number.xml; version CLDR 40 & new in Unicode 14.0
+  // https://github.com/unicode-org/cldr/blob/master/common/bcp47/number.xml
+  return [
     "adlm",
     "ahom",
     "arab",
@@ -2119,6 +2178,7 @@ function isValidNumberingSystem(name) {
     "talu",
     "taml",
     "tamldec",
+    "tnsa",
     "telu",
     "thai",
     "tirh",
@@ -2128,6 +2188,20 @@ function isValidNumberingSystem(name) {
     "wara",
     "wcho",
   ];
+}
+
+
+/**
+ * Tests whether name is a valid BCP 47 numbering system name
+ * and not excluded from use in the ECMAScript Internationalization API.
+ * @param {string} name the name to be tested.
+ * @return {boolean} whether name is a valid BCP 47 numbering system name and
+ *   allowed for use in the ECMAScript Internationalization API.
+ */
+
+function isValidNumberingSystem(name) {
+
+  var numberingSystems = allNumberingSystems();
 
   var excluded = [
     "finance",
@@ -2205,6 +2279,7 @@ var numberingSystemDigits = {
   takr: "𑛀𑛁𑛂𑛃𑛄𑛅𑛆𑛇𑛈𑛉",
   talu: "᧐᧑᧒᧓᧔᧕᧖᧗᧘᧙",
   tamldec: "௦௧௨௩௪௫௬௭௮௯",
+  tnsa: "\u{16AC0}\u{16AC1}\u{16AC2}\u{16AC3}\u{16AC4}\u{16AC5}\u{16AC6}\u{16AC7}\u{16AC8}\u{16AC9}",
   telu: "౦౧౨౩౪౫౬౭౮౯",
   thai: "๐๑๒๓๔๕๖๗๘๙",
   tibt: "༠༡༢༣༤༥༦༧༨༩",
@@ -2213,6 +2288,59 @@ var numberingSystemDigits = {
   wara: "𑣠𑣡𑣢𑣣𑣤𑣥𑣦𑣧𑣨𑣩",
   wcho: "𞋰𞋱𞋲𞋳𞋴𞋵𞋶𞋷𞋸𞋹",
 };
+
+
+/**
+ * Returns an array of all simple, sanctioned unit identifiers.
+ */
+function allSimpleSanctionedUnits() {
+  // https://tc39.es/ecma402/#table-sanctioned-simple-unit-identifiers
+  return [
+    "acre",
+    "bit",
+    "byte",
+    "celsius",
+    "centimeter",
+    "day",
+    "degree",
+    "fahrenheit",
+    "fluid-ounce",
+    "foot",
+    "gallon",
+    "gigabit",
+    "gigabyte",
+    "gram",
+    "hectare",
+    "hour",
+    "inch",
+    "kilobit",
+    "kilobyte",
+    "kilogram",
+    "kilometer",
+    "liter",
+    "megabit",
+    "megabyte",
+    "meter",
+    "mile",
+    "mile-scandinavian",
+    "milliliter",
+    "millimeter",
+    "millisecond",
+    "minute",
+    "month",
+    "ounce",
+    "percent",
+    "petabyte",
+    "pound",
+    "second",
+    "stone",
+    "terabit",
+    "terabyte",
+    "week",
+    "yard",
+    "year",
+  ];
+}
 
 
 /**
@@ -2240,7 +2368,7 @@ function testNumberFormat(locales, numberingSystems, options, testData) {
         var oneoneRE = "([^" + digits + "]*)[" + digits + "]+([^" + digits + "]+)[" + digits + "]+([^" + digits + "]*)";
         var match = formatted.match(new RegExp(oneoneRE));
         if (match === null) {
-          $ERROR("Unexpected formatted " + n + " for " +
+          throw new Test262Error("Unexpected formatted " + n + " for " +
             format.resolvedOptions().locale + " and options " +
             JSON.stringify(options) + ": " + formatted);
         }
@@ -2283,7 +2411,7 @@ function testNumberFormat(locales, numberingSystems, options, testData) {
           var expected = buildExpected(rawExpected, patternParts);
           var actual = format.format(input);
           if (actual !== expected) {
-            $ERROR("Formatted value for " + input + ", " +
+            throw new Test262Error("Formatted value for " + input + ", " +
             format.resolvedOptions().locale + " and options " +
             JSON.stringify(options) + " is " + actual + "; expected " + expected + ".");
           }
@@ -2327,7 +2455,7 @@ function getDateTimeComponentValues(component) {
 
   var result = components[component];
   if (result === undefined) {
-    $ERROR("Internal error: No values defined for date-time component " + component + ".");
+    throw new Test262Error("Internal error: No values defined for date-time component " + component + ".");
   }
   return result;
 }

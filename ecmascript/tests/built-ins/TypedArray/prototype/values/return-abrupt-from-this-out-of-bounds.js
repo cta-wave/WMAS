@@ -4,7 +4,7 @@
 esid: sec-%typedarray%.prototype.values
 description: Return abrupt when "this" value fails buffer boundary checks
 includes: [testTypedArray.js]
-features: [TypedArray, resizable-arraybuffer]
+features: [ArrayBuffer, TypedArray, arrow-function, resizable-arraybuffer]
 ---*/
 
 assert.sameValue(
@@ -40,7 +40,10 @@ testWithTypedArrayConstructors(TA => {
 
   var expectedError;
   try {
-    ab.resize(BPE * 3);
+    ab.resize(BPE * 2);
+    // If the preceding "resize" operation is successful, the typed array will
+    // be out out of bounds, so the subsequent prototype method should produce
+    // a TypeError due to the semantics of ValidateTypedArray.
     expectedError = TypeError;
   } catch (_) {
     // The host is permitted to fail any "resize" operation at its own

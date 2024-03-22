@@ -6,13 +6,13 @@ description: |
     property descriptors.
 defines:
   - verifyProperty
-  - verifyEqualTo
-  - verifyWritable
-  - verifyNotWritable
-  - verifyEnumerable
-  - verifyNotEnumerable
-  - verifyConfigurable
-  - verifyNotConfigurable
+  - verifyEqualTo # deprecated
+  - verifyWritable # deprecated
+  - verifyNotWritable # deprecated
+  - verifyEnumerable # deprecated
+  - verifyNotEnumerable # deprecated
+  - verifyConfigurable # deprecated
+  - verifyNotConfigurable # deprecated
 ---*/
 
 // @ts-check
@@ -106,7 +106,7 @@ function isConfigurable(obj, name) {
     delete obj[name];
   } catch (e) {
     if (!(e instanceof TypeError)) {
-      $ERROR("Expected TypeError, got " + e);
+      throw new Test262Error("Expected TypeError, got " + e);
     }
   }
   return !hasOwnProperty.call(obj, name);
@@ -153,7 +153,7 @@ function isWritable(obj, name, verifyProp, value) {
     obj[name] = newValue;
   } catch (e) {
     if (!(e instanceof TypeError)) {
-      $ERROR("Expected TypeError, got " + e);
+      throw new Test262Error("Expected TypeError, got " + e);
     }
   }
 
@@ -173,61 +173,82 @@ function isWritable(obj, name, verifyProp, value) {
   return writeSucceeded;
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyEqualTo(obj, name, value) {
   if (!isSameValue(obj[name], value)) {
-    $ERROR("Expected obj[" + String(name) + "] to equal " + value +
+    throw new Test262Error("Expected obj[" + String(name) + "] to equal " + value +
            ", actually " + obj[name]);
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyWritable(obj, name, verifyProp, value) {
   if (!verifyProp) {
     assert(Object.getOwnPropertyDescriptor(obj, name).writable,
          "Expected obj[" + String(name) + "] to have writable:true.");
   }
   if (!isWritable(obj, name, verifyProp, value)) {
-    $ERROR("Expected obj[" + String(name) + "] to be writable, but was not.");
+    throw new Test262Error("Expected obj[" + String(name) + "] to be writable, but was not.");
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyNotWritable(obj, name, verifyProp, value) {
   if (!verifyProp) {
     assert(!Object.getOwnPropertyDescriptor(obj, name).writable,
          "Expected obj[" + String(name) + "] to have writable:false.");
   }
   if (isWritable(obj, name, verifyProp)) {
-    $ERROR("Expected obj[" + String(name) + "] NOT to be writable, but was.");
+    throw new Test262Error("Expected obj[" + String(name) + "] NOT to be writable, but was.");
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyEnumerable(obj, name) {
   assert(Object.getOwnPropertyDescriptor(obj, name).enumerable,
        "Expected obj[" + String(name) + "] to have enumerable:true.");
   if (!isEnumerable(obj, name)) {
-    $ERROR("Expected obj[" + String(name) + "] to be enumerable, but was not.");
+    throw new Test262Error("Expected obj[" + String(name) + "] to be enumerable, but was not.");
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyNotEnumerable(obj, name) {
   assert(!Object.getOwnPropertyDescriptor(obj, name).enumerable,
        "Expected obj[" + String(name) + "] to have enumerable:false.");
   if (isEnumerable(obj, name)) {
-    $ERROR("Expected obj[" + String(name) + "] NOT to be enumerable, but was.");
+    throw new Test262Error("Expected obj[" + String(name) + "] NOT to be enumerable, but was.");
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyConfigurable(obj, name) {
   assert(Object.getOwnPropertyDescriptor(obj, name).configurable,
        "Expected obj[" + String(name) + "] to have configurable:true.");
   if (!isConfigurable(obj, name)) {
-    $ERROR("Expected obj[" + String(name) + "] to be configurable, but was not.");
+    throw new Test262Error("Expected obj[" + String(name) + "] to be configurable, but was not.");
   }
 }
 
+/**
+ * Deprecated; please use `verifyProperty` in new tests.
+ */
 function verifyNotConfigurable(obj, name) {
   assert(!Object.getOwnPropertyDescriptor(obj, name).configurable,
        "Expected obj[" + String(name) + "] to have configurable:false.");
   if (isConfigurable(obj, name)) {
-    $ERROR("Expected obj[" + String(name) + "] NOT to be configurable, but was.");
+    throw new Test262Error("Expected obj[" + String(name) + "] NOT to be configurable, but was.");
   }
 }

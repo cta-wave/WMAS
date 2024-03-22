@@ -29,18 +29,21 @@ testWithTypedArrayConstructors(TA => {
   } catch (_) {}
 
   // no error following grow:
-  array.copyWithin(new TA(), 0);
+  array.copyWithin(0, 0);
 
   try {
     ab.resize(BPE * 3);
   } catch (_) {}
 
   // no error following shrink (within bounds):
-  array.copyWithin(new TA(), 0);
+  array.copyWithin(0, 0);
 
   var expectedError;
   try {
-    ab.resize(BPE * 3);
+    ab.resize(BPE * 2);
+    // If the preceding "resize" operation is successful, the typed array will
+    // be out out of bounds, so the subsequent prototype method should produce
+    // a TypeError due to the semantics of ValidateTypedArray.
     expectedError = TypeError;
   } catch (_) {
     // The host is permitted to fail any "resize" operation at its own
@@ -50,7 +53,7 @@ testWithTypedArrayConstructors(TA => {
   }
 
   assert.throws(expectedError, () => {
-    array.copyWithin(new TA(), 0);
+    array.copyWithin(0, 0);
     throw new Test262Error('copyWithin completed successfully');
   });
 });
