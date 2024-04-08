@@ -97,7 +97,10 @@ class HttpHandler(object):
         port = str(self._http_port)
         uri = request.url_parts.path
         uri = uri + "?" + request.url_parts.query
-        data = request.raw_input.read(request.headers.get('Content-Length'))
+        content_length = request.headers.get('Content-Length')
+        data = ""
+        if content_length is not None:
+            data = request.raw_input.read(int(content_length))
         method = request.method
 
         try:
