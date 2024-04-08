@@ -546,7 +546,7 @@ class ResultsManager(object):
                 zip.write(file_path, file_name, zipfile.ZIP_DEFLATED)
         zip.close()
 
-        with open(zip_file_name, "r") as file:
+        with open(zip_file_name, "rb") as file:
             blob = file.read()
             os.remove(zip_file_name)
 
