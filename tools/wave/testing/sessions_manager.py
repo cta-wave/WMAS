@@ -22,13 +22,15 @@ DEFAULT_TEST_MANUAL_TIMEOUT = 300000
 
 
 class SessionsManager(object):
-    def initialize(self,
-                   test_loader,
-                   event_dispatcher,
-                   tests_manager,
-                   results_directory,
-                   results_manager,
-                   configuration):
+    def initialize(
+        self,
+        test_loader,
+        event_dispatcher,
+        tests_manager,
+        results_directory,
+        results_manager,
+        configuration,
+    ):
         self._test_loader = test_loader
         self._sessions = {}
         self._expiration_timeout = None
@@ -47,7 +49,6 @@ class SessionsManager(object):
         user_agent=None,
         labels=None,
         expiration_date=None,
-        session_type=None
     ):
         if tests is None:
             tests = {}
@@ -73,27 +74,26 @@ class SessionsManager(object):
 
         for test_type in test_types:
             if test_type != "automatic" and test_type != "manual":
-                raise InvalidDataException(
-                    "Unknown type '{}'".format(test_type))
+                raise InvalidDataException("Unknown type '{}'".format(test_type))
 
         if expiration_date is not None and type(expiration_date) != int:
             expiration_date = iso_to_millis(expiration_date)
             if type(expiration_date) != int:
                 raise InvalidDataException(
-                    "Expected ISO string for expiration date: {}", expiration_date)
+                    "Expected ISO string for expiration date: {}", expiration_date
+                )
 
         token = str(uuid.uuid1())
         pending_tests = self._test_loader.get_tests(
             test_types,
             include_list=tests["include"],
             exclude_list=tests["exclude"],
-            reference_tokens=reference_tokens)
+            reference_tokens=reference_tokens,
+        )
 
         browser = parse_user_agent(user_agent)
 
-        test_files_count = self._tests_manager.calculate_test_files_count(
-            pending_tests
-        )
+        test_files_count = self._tests_manager.calculate_test_files_count(pending_tests)
 
         test_state = {}
         for api in test_files_count:
@@ -103,7 +103,8 @@ class SessionsManager(object):
                 "timeout": 0,
                 "not_run": 0,
                 "total": test_files_count[api],
-                "complete": 0}
+                "complete": 0,
+            }
 
         date_created = int(time.time() * 1000)
 
@@ -120,9 +121,8 @@ class SessionsManager(object):
             status=PENDING,
             reference_tokens=reference_tokens,
             labels=labels,
-            session_type=session_type,
             expiration_date=expiration_date,
-            date_created=date_created
+            date_created=date_created,
         )
 
         self._push_to_cache(session)
@@ -185,7 +185,7 @@ class SessionsManager(object):
         self._push_to_cache(session)
 
     def update_session_configuration(
-        self, token, tests, test_types, timeouts, reference_tokens, session_type
+        self, token, tests, test_types, timeouts, reference_tokens
     ):
         session = self.read_session(token)
         if session is None:
@@ -207,12 +207,13 @@ class SessionsManager(object):
                 include_list=tests["include"],
                 exclude_list=tests["exclude"],
                 reference_tokens=reference_tokens,
-                test_types=test_types
+                test_types=test_types,
             )
             session.pending_tests = pending_tests
             session.tests = tests
             test_files_count = self._tests_manager.calculate_test_files_count(
-                pending_tests)
+                pending_tests
+            )
             test_state = {}
             for api in test_files_count:
                 test_state[api] = {
@@ -235,8 +236,6 @@ class SessionsManager(object):
             session.timeouts = timeouts
         if reference_tokens is not None:
             session.reference_tokens = reference_tokens
-        if session_type is not None:
-            session.session_type = session_type
 
         self._push_to_cache(session)
         return session
@@ -378,9 +377,7 @@ class SessionsManager(object):
         self.update_session(session)
 
         self._event_dispatcher.dispatch_event(
-            token,
-            event_type=STATUS_EVENT,
-            data=session.status
+            token, event_type=STATUS_EVENT, data=session.status
         )
 
     def pause_session(self, token):
@@ -390,9 +387,7 @@ class SessionsManager(object):
         session.status = PAUSED
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
-            token,
-            event_type=STATUS_EVENT,
-            data=session.status
+            token, event_type=STATUS_EVENT, data=session.status
         )
         self._results_manager.persist_session(session)
 
@@ -404,9 +399,7 @@ class SessionsManager(object):
         session.date_finished = int(time.time() * 1000)
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
-            token,
-            event_type=STATUS_EVENT,
-            data=session.status
+            token, event_type=STATUS_EVENT, data=session.status
         )
 
     def resume_session(self, token, resume_token):
@@ -414,9 +407,7 @@ class SessionsManager(object):
         if session.status != PENDING:
             return
         self._event_dispatcher.dispatch_event(
-            token,
-            event_type=RESUME_EVENT,
-            data=resume_token
+            token, event_type=RESUME_EVENT, data=resume_token
         )
         self.delete_session(token)
 
@@ -428,18 +419,18 @@ class SessionsManager(object):
         session.date_finished = int(time.time() * 1000)
         self.update_session(session)
         self._event_dispatcher.dispatch_event(
-            token,
-            event_type=STATUS_EVENT,
-            data=session.status
+            token, event_type=STATUS_EVENT, data=session.status
         )
 
     def test_in_session(self, test, session):
-        return self._test_list_contains_test(test, session.pending_tests) \
-            or self._test_list_contains_test(test, session.running_tests)
+        return self._test_list_contains_test(
+            test, session.pending_tests
+        ) or self._test_list_contains_test(test, session.running_tests)
 
     def is_test_complete(self, test, session):
-        return not self._test_list_contains_test(test, session.pending_tests) \
-            and not self._test_list_contains_test(test, session.running_tests)
+        return not self._test_list_contains_test(
+            test, session.pending_tests
+        ) and not self._test_list_contains_test(test, session.running_tests)
 
     def is_test_running(self, test, session):
         return self._test_list_contains_test(test, session.running_tests)
@@ -451,8 +442,7 @@ class SessionsManager(object):
         return False
 
     def is_api_complete(self, api, session):
-        return api not in session.pending_tests \
-            and api not in session.running_tests
+        return api not in session.pending_tests and api not in session.running_tests
 
     def get_test_path_with_query(self, test, session):
         query_string = ""

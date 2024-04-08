@@ -30,7 +30,6 @@ class Session(object):
             reference_tokens=None,
             browser=None,
             expiration_date=None,
-            session_type=None,
             malfunctioning_tests=None
     ):
         if token is None:
@@ -70,7 +69,6 @@ class Session(object):
         self.reference_tokens = reference_tokens
         self.browser = browser
         self.expiration_date = expiration_date
-        self.session_type = session_type
         if malfunctioning_tests is None:
             malfunctioning_tests = []
         self.malfunctioning_tests = malfunctioning_tests
