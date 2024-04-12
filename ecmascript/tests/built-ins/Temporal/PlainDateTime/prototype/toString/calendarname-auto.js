@@ -3,33 +3,43 @@
 
 /*---
 esid: sec-temporal.plaindatetime.prototype.tostring
-description: Possibly display calendar when calendarName is "auto"
+description: If calendarName is "auto", "iso8601" should be omitted.
 features: [Temporal]
 ---*/
 
-
-const dt = new Temporal.PlainDateTime(1976, 11, 18, 15, 23);
-const customCal = {
-  toString() { return "bogus"; }
+const calendarMethods = {
+  dateAdd() {},
+  dateFromFields() {},
+  dateUntil() {},
+  day() {},
+  dayOfWeek() {},
+  dayOfYear() {},
+  daysInMonth() {},
+  daysInWeek() {},
+  daysInYear() {},
+  fields() {},
+  inLeapYear() {},
+  mergeFields() {},
+  month() {},
+  monthCode() {},
+  monthDayFromFields() {},
+  monthsInYear() {},
+  weekOfYear() {},
+  year() {},
+  yearMonthFromFields() {},
+  yearOfWeek() {},
 };
-const fakeISO8601Cal = {
-  toString() { return "iso8601"; }
-};
-const expected = "1976-11-18T15:23:00";
 
-assert.sameValue(dt.toString(), expected, "default is calendar = auto (zero arguments)");
-assert.sameValue(dt.toString({ calendarName: "auto" }), expected, "shows only non-ISO calendar if calendarName = auto");
+const tests = [
+  [[], "1976-11-18T15:23:00", "built-in ISO"],
+  [[{ id: "custom", ...calendarMethods }], "1976-11-18T15:23:00[u-ca=custom]", "custom"],
+  [[{ id: "iso8601", ...calendarMethods }], "1976-11-18T15:23:00", "custom with iso8601 id"],
+  [[{ id: "ISO8601", ...calendarMethods }], "1976-11-18T15:23:00[u-ca=ISO8601]", "custom with caps id"],
+  [[{ id: "\u0131so8601", ...calendarMethods }], "1976-11-18T15:23:00[u-ca=\u0131so8601]", "custom with dotless i id"],
+];
 
-assert.sameValue(
-  dt.withCalendar(fakeISO8601Cal).toString({ calendarName: "auto" }),
-  expected,
-  "Don't show ISO calendar even if calendarName = auto"
-);
-
-const dt2 = new Temporal.PlainDateTime(1976, 11, 18, 15, 23, 0, 0, 0, 0, customCal);
-
-assert.sameValue(
-  dt2.toString({ calendarName: "auto" }),
-  "1976-11-18T15:23:00[u-ca=bogus]",
-  "Don't show calendar if calendarName = auto & PlainDateTime has non-ISO calendar"
-);
+for (const [args, expected, description] of tests) {
+  const date = new Temporal.PlainDateTime(1976, 11, 18, 15, 23, 0, 0, 0, 0, ...args);
+  const result = date.toString({ calendarName: "auto" });
+  assert.sameValue(result, expected, `${description} calendar for calendarName = auto`);
+}

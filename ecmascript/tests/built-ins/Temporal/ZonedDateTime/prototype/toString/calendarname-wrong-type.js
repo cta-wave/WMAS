@@ -8,7 +8,7 @@ info: |
     sec-getoption step 9.a:
       a. Set _value_ to ? ToString(_value_).
     sec-temporal-toshowcalendaroption step 1:
-      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « String », « *"auto"*, *"always"*, *"never"* », *"auto"*).
+      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « *"string"* », « *"auto"*, *"always"*, *"never"*, *"critical"* », *"auto"*).
     sec-temporal.zoneddatetime.protoype.tostring step 6:
       6. Let _showCalendar_ be ? ToShowCalendarOption(_options_).
 includes: [compareArray.js, temporalHelpers.js]
@@ -16,7 +16,27 @@ features: [Temporal]
 ---*/
 
 const calendar = {
-  toString() { return "custom"; }
+  id: "custom",
+  dateAdd() {},
+  dateFromFields() {},
+  dateUntil() {},
+  day() {},
+  dayOfWeek() {},
+  dayOfYear() {},
+  daysInMonth() {},
+  daysInWeek() {},
+  daysInYear() {},
+  fields() {},
+  inLeapYear() {},
+  mergeFields() {},
+  month() {},
+  monthCode() {},
+  monthDayFromFields() {},
+  monthsInYear() {},
+  weekOfYear() {},
+  year() {},
+  yearMonthFromFields() {},
+  yearOfWeek() {},
 };
 const datetime = new Temporal.ZonedDateTime(1_000_000_000_987_654_321n, "UTC", calendar);
 

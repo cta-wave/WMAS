@@ -4,13 +4,15 @@
 /*---
 esid: sec-temporal.now.plaintimeiso
 description: PlainDateTime.toPlainTime is not observably called
-includes: [compareArray.js]
+includes: [compareArray.js, temporalHelpers.js]
 features: [Temporal]
 ---*/
 
 const actual = [];
 const expected = [
-  "has timeZone.timeZone",
+  "has timeZone.getOffsetNanosecondsFor",
+  "has timeZone.getPossibleInstantsFor",
+  "has timeZone.id",
   "get timeZone.getOffsetNanosecondsFor",
   "call timeZone.getOffsetNanosecondsFor",
 ];
@@ -24,20 +26,10 @@ Object.defineProperty(Temporal.PlainDateTime.prototype, "toPlainTime", {
   },
 });
 
-const timeZone = new Proxy({
+const timeZone = TemporalHelpers.timeZoneObserver(actual, "timeZone", {
   getOffsetNanosecondsFor(instant) {
-    actual.push("call timeZone.getOffsetNanosecondsFor");
     assert.sameValue(instant instanceof Temporal.Instant, true, "Instant");
     return -Number(instant.epochNanoseconds % 86400_000_000_000n);
-  },
-}, {
-  has(target, property) {
-    actual.push(`has timeZone.${property}`);
-    return property in target;
-  },
-  get(target, property) {
-    actual.push(`get timeZone.${property}`);
-    return target[property];
   },
 });
 

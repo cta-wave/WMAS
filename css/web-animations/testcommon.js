@@ -164,6 +164,14 @@ function waitForAnimationFramesWithDelay(minDelay) {
   });
 }
 
+function runAndWaitForFrameUpdate(callback) {
+  return new Promise(resolve => {
+    window.requestAnimationFrame(() => {
+      callback();
+      window.requestAnimationFrame(resolve);
+    });
+  });
+}
 
 // Waits for a requestAnimationFrame callback in the next refresh driver tick.
 function waitForNextFrame() {
@@ -311,3 +319,14 @@ function assert_phase_at_time(animation, phase, currentTime) {
   // Reset fill mode to avoid side-effects.
   animation.effect.updateTiming({ fill: fillMode });
 }
+
+
+// Use with reftest-wait to wait until compositor commits are no longer deferred
+// before taking the screenshot.
+// crbug.com/1378671
+async function waitForCompositorReady(target) {
+  const animation =
+      document.body.animate({ opacity: [ 1, 1 ] }, {duration: 1 });
+  return animation.finished;
+}
+

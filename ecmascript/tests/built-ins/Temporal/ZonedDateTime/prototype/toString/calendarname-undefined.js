@@ -8,25 +8,46 @@ info: |
     sec-getoption step 3:
       3. If _value_ is *undefined*, return _fallback_.
     sec-temporal-toshowcalendaroption step 1:
-      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « String », « *"auto"*, *"always"*, *"never"* », *"auto"*).
+      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « *"string"* », « *"auto"*, *"always"*, *"never"*, *"critical"* », *"auto"*).
     sec-temporal.zoneddatetime.protoype.tostring step 6:
       6. Let _showCalendar_ be ? ToShowCalendarOption(_options_).
 features: [Temporal]
 ---*/
 
-const calendar = {
-  toString() { return "custom"; }
+const calendarMethods = {
+  dateAdd() {},
+  dateFromFields() {},
+  dateUntil() {},
+  day() {},
+  dayOfWeek() {},
+  dayOfYear() {},
+  daysInMonth() {},
+  daysInWeek() {},
+  daysInYear() {},
+  fields() {},
+  inLeapYear() {},
+  mergeFields() {},
+  month() {},
+  monthCode() {},
+  monthDayFromFields() {},
+  monthsInYear() {},
+  weekOfYear() {},
+  year() {},
+  yearMonthFromFields() {},
+  yearOfWeek() {},
 };
-const datetime1 = new Temporal.ZonedDateTime(1_000_000_000_987_654_321n, "UTC");
-const datetime2 = new Temporal.ZonedDateTime(1_000_000_000_987_654_321n, "UTC", calendar);
 
-[
-  [datetime1, "2001-09-09T01:46:40.987654321+00:00[UTC]"],
-  [datetime2, "2001-09-09T01:46:40.987654321+00:00[UTC][u-ca=custom]"],
-].forEach(([datetime, expected]) => {
-  const explicit = datetime.toString({ calendarName: undefined });
-  assert.sameValue(explicit, expected, "default calendarName option is auto");
+const tests = [
+  [[], "1970-01-01T01:01:01.987654321+00:00[UTC]", "built-in ISO"],
+  [[{ id: "custom", ...calendarMethods }], "1970-01-01T01:01:01.987654321+00:00[UTC][u-ca=custom]", "custom"],
+  [[{ id: "iso8601", ...calendarMethods }], "1970-01-01T01:01:01.987654321+00:00[UTC]", "custom with iso8601 id"],
+  [[{ id: "ISO8601", ...calendarMethods }], "1970-01-01T01:01:01.987654321+00:00[UTC][u-ca=ISO8601]", "custom with caps id"],
+  [[{ id: "\u0131so8601", ...calendarMethods }], "1970-01-01T01:01:01.987654321+00:00[UTC][u-ca=\u0131so8601]", "custom with dotless i id"],
+];
 
-  // See options-undefined.js for {}
-});
-
+for (const [args, expected, description] of tests) {
+  const datetime = new Temporal.ZonedDateTime(3661_987_654_321n, "UTC", ...args);
+  const result = datetime.toString({ calendarName: undefined });
+  assert.sameValue(result, expected, `default calendarName option is auto with ${description} calendar`);
+  // See options-object.js for {} and options-undefined.js for absent options arg
+}

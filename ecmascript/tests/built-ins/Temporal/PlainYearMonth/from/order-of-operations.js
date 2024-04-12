@@ -9,36 +9,60 @@ features: [Temporal]
 ---*/
 
 const expected = [
-  "get calendar",
-  "get month",
-  "get month.valueOf",
-  "call month.valueOf",
-  "get monthCode",
-  "get monthCode.toString",
-  "call monthCode.toString",
-  "get year",
-  "get year.valueOf",
-  "call year.valueOf",
+  // GetTemporalCalendarSlotValueWithISODefault
+  "get fields.calendar",
+  "has fields.calendar.dateAdd",
+  "has fields.calendar.dateFromFields",
+  "has fields.calendar.dateUntil",
+  "has fields.calendar.day",
+  "has fields.calendar.dayOfWeek",
+  "has fields.calendar.dayOfYear",
+  "has fields.calendar.daysInMonth",
+  "has fields.calendar.daysInWeek",
+  "has fields.calendar.daysInYear",
+  "has fields.calendar.fields",
+  "has fields.calendar.id",
+  "has fields.calendar.inLeapYear",
+  "has fields.calendar.mergeFields",
+  "has fields.calendar.month",
+  "has fields.calendar.monthCode",
+  "has fields.calendar.monthDayFromFields",
+  "has fields.calendar.monthsInYear",
+  "has fields.calendar.weekOfYear",
+  "has fields.calendar.year",
+  "has fields.calendar.yearMonthFromFields",
+  "has fields.calendar.yearOfWeek",
+  // CalendarFields
+  "get fields.calendar.fields",
+  "call fields.calendar.fields",
+  // PrepareTemporalFields
+  "get fields.month",
+  "get fields.month.valueOf",
+  "call fields.month.valueOf",
+  "get fields.monthCode",
+  "get fields.monthCode.toString",
+  "call fields.monthCode.toString",
+  "get fields.year",
+  "get fields.year.valueOf",
+  "call fields.year.valueOf",
+  // CalendarYearMonthFromFields
+  "get fields.calendar.yearMonthFromFields",
+  "call fields.calendar.yearMonthFromFields",
+  // inside Calendar.p.yearMonthFromFields
+  "get options.overflow",
+  "get options.overflow.toString",
+  "call options.overflow.toString",
 ];
 const actual = [];
-const fields = {
+
+const fields = TemporalHelpers.propertyBagObserver(actual, {
   year: 1.7,
   month: 1.7,
   monthCode: "M01",
-};
-const argument = new Proxy(fields, {
-  get(target, key) {
-    actual.push(`get ${key}`);
-    if (key === "calendar") return Temporal.Calendar.from("iso8601");
-    const result = target[key];
-    return TemporalHelpers.toPrimitiveObserver(actual, result, key);
-  },
-  has(target, key) {
-    actual.push(`has ${key}`);
-    return key in target;
-  },
-});
-const result = Temporal.PlainYearMonth.from(argument);
-TemporalHelpers.assertPlainYearMonth(result, 1, 1, "M01");
-assert.sameValue(result.calendar.id, "iso8601", "calendar result");
+  calendar: TemporalHelpers.calendarObserver(actual, "fields.calendar"),
+}, "fields");
+
+const options = TemporalHelpers.propertyBagObserver(actual, { overflow: "constrain" }, "options");
+
+Temporal.PlainYearMonth.from(fields, options);
 assert.compareArray(actual, expected, "order of operations");

@@ -3,31 +3,42 @@
 /*---
 esid: sec-temporal.now.zoneddatetime
 description: Behavior when provided calendar value is a function
-includes: [compareArray.js]
+includes: [compareArray.js, temporalHelpers.js]
 features: [BigInt, Proxy, Temporal]
 ---*/
 const actual = [];
-
 const expected = [
-  'has timeZone.timeZone'
+  "has timeZone.getOffsetNanosecondsFor",
+  "has timeZone.getPossibleInstantsFor",
+  "has timeZone.id",
 ];
 
 const calendar = function() {};
+calendar.dateAdd = () => {};
+calendar.dateFromFields = () => {};
+calendar.dateUntil = () => {};
+calendar.day = () => {};
+calendar.dayOfWeek = () => {};
+calendar.dayOfYear = () => {};
+calendar.daysInMonth = () => {};
+calendar.daysInWeek = () => {};
+calendar.daysInYear = () => {};
+calendar.fields = () => {};
+calendar.id = "test-calendar";
+calendar.inLeapYear = () => {};
+calendar.mergeFields = () => {};
+calendar.month = () => {};
+calendar.monthCode = () => {};
+calendar.monthDayFromFields = () => {};
+calendar.monthsInYear = () => {};
+calendar.weekOfYear = () => {};
+calendar.year = () => {};
+calendar.yearMonthFromFields = () => {};
+calendar.yearOfWeek = () => {};
 
-const timeZone = new Proxy({
+const timeZone = TemporalHelpers.timeZoneObserver(actual, "timeZone", {
   getOffsetNanosecondsFor(instant) {
-    actual.push('call timeZone.getOffsetNanosecondsFor');
     return -Number(instant.epochNanoseconds % 86400000000000n);
-  }
-}, {
-  has(target, property) {
-    actual.push(`has timeZone.${property}`);
-    return property in target;
-  },
-
-  get(target, property) {
-    actual.push(`get timeZone.${property}`);
-    return target[property];
   }
 });
 
@@ -40,7 +51,7 @@ Object.defineProperty(Temporal.Calendar, 'from', {
 
 const result = Temporal.Now.zonedDateTime(calendar, timeZone);
 
-assert.compareArray(actual, expected, 'The value of actual is expected to equal the value of expected');
+assert.compareArray(actual, expected, 'order of observable operations');
 
 for (const property of ['hour', 'minute', 'second', 'millisecond', 'microsecond', 'nanosecond']) {
   assert.sameValue(result[property], 0, 'The value of result[property] is expected to be 0');

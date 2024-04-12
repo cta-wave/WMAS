@@ -14,35 +14,32 @@ features: [Temporal]
 
 const actual = [];
 const expected = [
-  "get overflow",
-  "get overflow",
-  "get overflow.toString",
-  "call overflow.toString",
-  "get overflow.toString",
-  "call overflow.toString",
+  // CopyDataProperties
+  "ownKeys options",
+  "getOwnPropertyDescriptor options.overflow",
+  "get options.overflow",
+  // Temporal.Calendar.prototype.dateAdd
+  "get options.overflow",
+  "get options.overflow.toString",
+  "call options.overflow.toString",
+  // overwriting property in custom calendar dateAdd
+  "getOwnPropertyDescriptor options.overflow",
+  // Temporal.Calendar.prototype.yearMonthFromFields (toPrimitiveObserver copied but not options object)
+  "get options.overflow.toString",
+  "call options.overflow.toString",
 ];
-const options = new Proxy({ overflow: "constrain" }, {
-  get(target, key) {
-    actual.push(`get ${key}`);
-    const result = target[key];
-    if (result === undefined) {
-      return undefined;
-    }
-    return TemporalHelpers.toPrimitiveObserver(actual, result, key);
-  },
-  has(target, key) {
-    actual.push(`has ${key}`);
-    return key in target;
-  },
-});
+const options = TemporalHelpers.propertyBagObserver(actual, { overflow: "constrain" }, "options");
 
+let dateAddCalls = 0;
 class CustomCalendar extends Temporal.Calendar {
   constructor() {
     super("iso8601");
   }
   dateAdd(date, duration, options) {
     const result = super.dateAdd(date, duration, options);
-    options.overflow = 'meatloaf';
+    dateAddCalls++;
+    if (dateAddCalls == 3)
+      options.overflow = 'meatloaf';
     return result;
   }
   yearMonthFromFields(...args) {

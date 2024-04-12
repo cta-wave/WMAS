@@ -8,7 +8,7 @@ info: |
     sec-getoption step 9.a:
       a. Set _value_ to ? ToString(_value_).
     sec-temporal-toshowcalendaroption step 1:
-      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « String », « *"auto"*, *"always"*, *"never"* », *"auto"*).
+      1. Return ? GetOption(_normalizedOptions_, *"calendarName"*, « *"string"* », « *"auto"*, *"always"*, *"never"*, *"critical"* », *"auto"*).
     sec-temporal.plainyearmonth.protoype.tostring step 4:
       4. Let _showCalendar_ be ? ToShowCalendarOption(_options_).
 includes: [compareArray.js, temporalHelpers.js]
@@ -16,7 +16,27 @@ features: [Temporal]
 ---*/
 
 const calendar = {
-  toString() { return "custom"; }
+  id: "custom",
+  dateAdd() {},
+  dateFromFields() {},
+  dateUntil() {},
+  day() {},
+  dayOfWeek() {},
+  dayOfYear() {},
+  daysInMonth() {},
+  daysInWeek() {},
+  daysInYear() {},
+  fields() {},
+  inLeapYear() {},
+  mergeFields() {},
+  month() {},
+  monthCode() {},
+  monthDayFromFields() {},
+  monthsInYear() {},
+  weekOfYear() {},
+  year() {},
+  yearMonthFromFields() {},
+  yearOfWeek() {},
 };
 const yearmonth = new Temporal.PlainYearMonth(2000, 5, calendar);
 

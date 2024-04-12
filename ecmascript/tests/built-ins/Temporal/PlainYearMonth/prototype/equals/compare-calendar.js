@@ -4,7 +4,7 @@
 /*---
 esid: sec-temporal.plainyearmonth.prototype.equals
 description: equals() takes the calendar into account
-includes: [compareArray.js]
+includes: [compareArray.js, temporalHelpers.js]
 features: [Temporal]
 ---*/
 
@@ -14,9 +14,12 @@ class CustomCalendar extends Temporal.Calendar {
     super("iso8601");
     this._id = id;
   }
-  toString() {
+  get id() {
     actual.push(this._id);
     return this._id;
+  }
+  toString() {
+    TemporalHelpers.assertUnreachable("should not call toString");
   }
 }
 
@@ -36,7 +39,7 @@ const ym6 = new Temporal.PlainYearMonth(2000, 1, new CustomCalendar("e"), 1);
 assert.sameValue(ym5.equals(ym6), false);
 assert.compareArray(actual, ["d", "e"], "order of operations");
 
-actual.splice(0, actual.length); // empty it for the next check
+actual.splice(0); // empty it for the next check
 const ym7 = new Temporal.PlainYearMonth(2000, 1, new CustomCalendar("f"), 1);
 const ym8 = new Temporal.PlainYearMonth(2000, 1, new CustomCalendar("f"), 1);
 assert.sameValue(ym7.equals(ym8), true);
