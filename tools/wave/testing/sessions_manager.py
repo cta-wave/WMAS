@@ -436,6 +436,8 @@ class SessionsManager(object):
         return self._test_list_contains_test(test, session.running_tests)
 
     def _test_list_contains_test(self, test, test_list):
+        if test_list is None:
+            return False
         for api in list(test_list.keys()):
             if test in test_list[api]:
                 return True
