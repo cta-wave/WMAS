@@ -7,6 +7,7 @@ import json
 import hashlib
 import zipfile
 import time
+from threading import Lock
 
 from ..utils.user_agent_parser import parse_user_agent, abbreviate_browser_name
 from ..utils.serializer import serialize_session
@@ -21,6 +22,8 @@ from ..data.session import COMPLETED
 WAVE_SRC_DIR = "./tools/wave"
 RESULTS_FILE_REGEX = "^\w\w\d\d\d?\.json$"
 RESULTS_FILE_PATTERN = re.compile(RESULTS_FILE_REGEX)
+
+api_result_lock = Lock()
 
 
 class ResultsManager(object):
@@ -269,8 +272,9 @@ class ResultsManager(object):
                     continue
                 file_path = os.path.join(api_directory, file_name)
                 data = None
-                with open(file_path, "r") as file:
-                    data = file.read()
+                with api_result_lock:
+                    with open(file_path, "r") as file:
+                        data = file.read()
                 result = json.loads(data)
                 results[api] = result["results"]
                 break
@@ -380,19 +384,20 @@ class ResultsManager(object):
         file_path = self.get_json_path(token, api)
         file_exists = os.path.isfile(file_path)
 
-        with open(file_path, "r+" if file_exists else "w") as file:
-            api_results = None
-            if file_exists:
-                data = file.read()
-                api_results = json.loads(data)
-            else:
-                api_results = {"results": []}
+        with api_result_lock:
+            with open(file_path, "r+" if file_exists else "w") as file:
+                api_results = None
+                if file_exists:
+                    data = file.read()
+                    api_results = json.loads(data)
+                else:
+                    api_results = {"results": []}
 
-            api_results["results"] = api_results["results"] + results
+                api_results["results"] = api_results["results"] + results
 
-            file.seek(0)
-            file.truncate()
-            file.write(json.dumps(api_results, indent=4, separators=(',', ': ')))
+                file.seek(0)
+                file.truncate()
+                file.write(json.dumps(api_results, indent=4, separators=(',', ': ')))
 
     def _ensure_results_directory_existence(self, api, token, session):
         directory = os.path.join(self._results_directory_path, token, api)
