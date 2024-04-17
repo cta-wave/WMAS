@@ -91,7 +91,6 @@ class HttpHandler(object):
             path = path[len(self._web_root):]
         return path
 
-
     def _proxy(self, request, response):
         host = 'localhost'
         port = str(self._http_port)
@@ -102,10 +101,14 @@ class HttpHandler(object):
         if content_length is not None:
             data = request.raw_input.read(int(content_length))
         method = request.method
+        headers = {}
+
+        for header in request.headers:
+            headers[header] = request.headers[header]
 
         try:
             proxy_connection = httplib.HTTPConnection(host, port)
-            proxy_connection.request(method, uri, data, request.headers)
+            proxy_connection.request(method, uri, data, headers)
             proxy_response = proxy_connection.getresponse()
             response.content = proxy_response.read()
             response.headers = proxy_response.getheaders()
