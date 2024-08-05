@@ -33,9 +33,9 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 <td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2023/tools/wave/docs">2023 docs</a></td>
 </tr>
 <tr>
-<td>WMAS 2023 v0.1.0 (prerelease)</td>
-<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2023-v0.1.0">wmas2023-v0.1.0</a></td>
-<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2023-v0.1.0">wmas2023-deploy-v0.1.0</a></td>
+<td>WMAS 2023 v1.0.0</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2023-v1.0.0">wmas2023-v1.0.0</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2023-v1.0.0">wmas2023-deploy-v1.0.0</a></td>
 </tr>
 <tr>
 <th>WMAS 2022</th>
@@ -46,9 +46,9 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 <td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2022/tools/wave/docs">2022 docs</a></td>
 </tr>
 <tr>
-<td>WMAS 2022 v0.1.0 (prerelease)</td>
-<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2022-v0.1.0">wmas2022-v0.1.0</a></td>
-<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2022-v0.1.0">wmas2022-deploy-v0.1.0</a></td>
+<td>WMAS 2022 v1.0.0</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2022-v1.0.0">wmas2022-v1.0.0</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2022-v1.0.0">wmas2022-deploy-v1.0.0</a></td>
 </tr>
 <tr>
 <th>WMAS 2021</th>
