@@ -1,7 +1,7 @@
 # The Web Media API Test Suite
 
 The Web Media API Snapshot Test Suite (WMATS) is a test suite for
-the [Web Media API Snapshot](https://www.w3.org/webmediaapi.html) specification.
+the [Web Media API Snapshot](https://github.com/w3c/webmediaapi) specification.
 The test suite and specification are being developed as part of
 the [CTA WAVE Project](http://cta.tech/WAVE).
 
