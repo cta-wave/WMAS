@@ -86,6 +86,7 @@ const parseFrontmatter = (src) => {
       });
     }
   }
+  includes = includes.concat(["sta.js", "assert.js"]);
 
   match = frontmatter.match(/(?:^|\n)\s*flags:\s*\[([^\]]*)\]/);
   if (match) {
@@ -116,6 +117,7 @@ const parseFrontmatter = (src) => {
             break;
           case "async":
             flags.async = true;
+            includes.push("doneprintHandle.js");
             break;
           case "generated":
           case "non-deterministic":
