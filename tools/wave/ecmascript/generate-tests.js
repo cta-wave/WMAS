@@ -1,7 +1,7 @@
 const fs = require("fs-extra");
 const path = require("path");
 
-const readDirectory = async directoryPath => {
+const readDirectory = async (directoryPath) => {
   return new Promise((resolve, reject) => {
     fs.readdir(directoryPath, (error, files) => {
       if (error) {
@@ -12,9 +12,9 @@ const readDirectory = async directoryPath => {
   });
 };
 
-const makeDirectory = async directoryPath => {
+const makeDirectory = async (directoryPath) => {
   return new Promise((resolve, reject) => {
-    fs.mkdir(directoryPath, error => {
+    fs.mkdir(directoryPath, (error) => {
       if (error) {
         reject(error);
       }
@@ -23,7 +23,7 @@ const makeDirectory = async directoryPath => {
   });
 };
 
-const readStats = async path => {
+const readStats = async (path) => {
   return new Promise((resolve, reject) => {
     fs.stat(path, (error, stats) => {
       if (error) {
@@ -34,12 +34,12 @@ const readStats = async path => {
   });
 };
 
-const readFile = async path => {
+const readFile = async (path) => {
   return new Promise((resolve, reject) => {
     fs.readFile(
       path,
       {
-        encoding: "UTF-8"
+        encoding: "UTF-8",
       },
       (error, data) => {
         if (error) {
@@ -53,7 +53,7 @@ const readFile = async path => {
 
 const writeFile = async (path, data) => {
   return new Promise((resolve, reject) => {
-    fs.writeFile(path, data, error => {
+    fs.writeFile(path, data, (error) => {
       if (error) {
         reject(error);
       }
@@ -62,7 +62,7 @@ const writeFile = async (path, data) => {
   });
 };
 
-const parseFrontmatter = src => {
+const parseFrontmatter = (src) => {
   var start = src.indexOf("/*---");
   var end = src.indexOf("---*/");
   if (start === -1 || end === -1) return null;
@@ -94,7 +94,7 @@ const parseFrontmatter = src => {
       .map(function f(s) {
         return s.replace(/^\s+|\s+$/g, "");
       })
-      .forEach(function(flag) {
+      .forEach(function (flag) {
         switch (flag) {
           case "onlyStrict":
             if (flags.strict) {
@@ -136,7 +136,7 @@ const parseFrontmatter = src => {
     frontmatter
       .substr(match.index + 9)
       .split("\n")
-      .forEach(function(line) {
+      .forEach(function (line) {
         var match = line.match(/\s+phase:\s*(\S+)/);
         if (match) {
           phase = match[1];
@@ -149,7 +149,7 @@ const parseFrontmatter = src => {
     if (!phase || !type) return null;
     negative = {
       phase: phase,
-      type: type
+      type: type,
     };
   }
 
@@ -157,7 +157,7 @@ const parseFrontmatter = src => {
     includes: includes,
     flags: flags,
     negative: negative,
-    isDynamic: /dynamic-import/.test(frontmatter)
+    isDynamic: /dynamic-import/.test(frontmatter),
   }; // lol, do better
 };
 
@@ -176,7 +176,7 @@ const excludedTests = [
   /15\.4\.4\.18-3-14\.js/,
   /15\.4\.4\.20-3-14\.js/,
   /15\.4\.4\.21-3-14\.js/,
-  /15\.4\.4\.22-3-14\.js/
+  /15\.4\.4\.22-3-14\.js/,
 ];
 
 let testCount = 0;
@@ -186,7 +186,7 @@ const generateTest = async ({
   outputPath,
   currentPath,
   templateContent,
-  iframeTemplateContent
+  iframeTemplateContent,
 }) => {
   if (!currentPath) currentPath = testsPath;
   let stats = await readStats(currentPath);
@@ -194,7 +194,7 @@ const generateTest = async ({
     const outputDir = getOutputPath({
       testsPath,
       outputPath,
-      currentPath
+      currentPath,
     });
     if (!(await readStats(outputDir))) await makeDirectory(outputDir);
     let files = await readDirectory(currentPath);
@@ -204,13 +204,13 @@ const generateTest = async ({
         outputPath,
         testsPath,
         templateContent,
-        iframeTemplateContent
+        iframeTemplateContent,
       });
     }
   } else {
     if (
       currentPath.indexOf(".js") === -1 ||
-      excludedTests.some(regex => regex.test(currentPath))
+      excludedTests.some((regex) => regex.test(currentPath))
     ) {
       return;
     }
@@ -227,13 +227,13 @@ const generateTest = async ({
     const testContent = replacePlaceholders(templateContent, {
       jsRelativePath,
       includes,
-      iframeTestPath: `/${iframeHtmlOutputPath}`
+      iframeTestPath: `/${iframeHtmlOutputPath}`,
     });
 
     const iframeTestContent = replacePlaceholders(iframeTemplateContent, {
       jsRelativePath,
       includes,
-      iframeTestPath: `/${iframeHtmlOutputPath}`
+      iframeTestPath: `/${iframeHtmlOutputPath}`,
     });
 
     await writeFile(htmlOutputPath, testContent);
@@ -259,7 +259,7 @@ function replacePlaceholders(
   content = content.replace(
     "{{ INCLUDES }}",
     includes
-      .map(function(src) {
+      .map(function (src) {
         return "<script src='/ecmascript/harness/" + src + "'></script>";
       })
       .join("\n")
@@ -298,7 +298,7 @@ function replacePlaceholders(
     testsPath,
     outputPath: testsOutputPath,
     templateContent,
-    iframeTemplateContent
+    iframeTemplateContent,
   });
   await fs.copy(adapterSourcePath, adapterDestinationPath);
   await fs.copy(harnessDir, harnessOutputDir);
