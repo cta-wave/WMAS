@@ -127,6 +127,15 @@ function installAPI(global) {
         */
       }
     },
+    gc: function() {
+      if (gc) {
+        return gc();
+      }
+      if (window.gc) {
+        return window.gc();
+      }
+      throw new Test262Error('gc() not yet supported.');
+    },
     global: global,
     IsHTMLDDA: global.document.all,
   };
