@@ -7,6 +7,11 @@
 <!-- <script charset="UTF-8" src="/ecmascript/harness/jquery-1.4.2.min.js"></script> -->
 {{ INCLUDES }}
 <body>
+  <script>
+    print = function (msg) {
+      console.log(msg);
+    };
+  </script>
   <script id="test" charset="UTF-8" src="{{ TEST_URL }}"></script>
   <script>
     parent.$TEST_COMPLETED();
