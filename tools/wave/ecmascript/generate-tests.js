@@ -63,9 +63,18 @@ const writeFile = async (path, data) => {
 };
 
 const parseFrontmatter = (src) => {
+  let sharedArrayBufferTest = false;
+
+  var sharedArrayBuffer = src.indexOf("sharedarraybuffer");
+  if (sharedArrayBuffer === -1) {
+    sharedArrayBufferTest = false;
+  } else {
+    sharedArrayBufferTest = true;
+  }
+
   var start = src.indexOf("/*---");
   var end = src.indexOf("---*/");
-  if (start === -1 || end === -1) return null;
+  if (start === -1 || end === -1) return sharedArrayBufferTest;
 
   var match,
     includes = [],
@@ -160,6 +169,7 @@ const parseFrontmatter = (src) => {
     flags: flags,
     negative: negative,
     isDynamic: /dynamic-import/.test(frontmatter),
+    sharedArrayBufferTest: sharedArrayBufferTest
   }; // lol, do better
 };
 
@@ -189,6 +199,8 @@ const generateTest = async ({
   currentPath,
   templateContent,
   iframeTemplateContent,
+  headerContent,
+  headerIFrameContent,
 }) => {
   if (!currentPath) currentPath = testsPath;
   let stats = await readStats(currentPath);
@@ -207,6 +219,8 @@ const generateTest = async ({
         testsPath,
         templateContent,
         iframeTemplateContent,
+        headerContent,
+        headerIFrameContent,
       });
     }
   } else {
@@ -217,13 +231,19 @@ const generateTest = async ({
       return;
     }
 
+    const jsSrc = await readFile(currentPath);
+    const meta = parseFrontmatter(jsSrc);
+    let isSharedArrayBufferTest = meta.sharedArrayBufferTest;
+
     const jsRelativePath = path.relative(testsPath, currentPath);
     // console.log(jsRelativePath.replace('.js', ''))
     const jsOutputPath = path.join(outputPath, jsRelativePath);
-    const htmlOutputPath = jsOutputPath.replace(".js", ".html");
-    const iframeHtmlOutputPath = jsOutputPath.replace(".js", ".iframe.html");
-    const jsSrc = await readFile(currentPath);
-    const meta = parseFrontmatter(jsSrc);
+    const htmlOutputPath = jsOutputPath.replace(".js", isSharedArrayBufferTest == true ? ".https.html" : ".html");
+    const iframeHtmlOutputPath = jsOutputPath.replace(".js", isSharedArrayBufferTest == true ? ".htttps.iframe.html" : ".iframe.html");
+	
+	  const htmlOutputHeadersPath = jsOutputPath.replace(".js", ".https.html.headers");
+    const iframeHtmlOutputHeadersPath = jsOutputPath.replace(".js", ".https.iframe.html.headers");
+	
     const includes = (meta && meta.includes) || [];
     //console.log(includes);
     const testContent = replacePlaceholders(templateContent, {
@@ -240,6 +260,8 @@ const generateTest = async ({
 
     await writeFile(htmlOutputPath, testContent);
     await writeFile(iframeHtmlOutputPath, iframeTestContent);
+    await writeFile(htmlOutputHeadersPath, headerContent);
+    await writeFile(iframeHtmlOutputHeadersPath, headerIFrameContent);
     await fs.copy(currentPath, jsOutputPath);
     testCount++;
   }
@@ -276,6 +298,8 @@ function replacePlaceholders(
     __dirname,
     "test-template.iframe.html"
   );
+  const HEADER_TEMPLATE_NAME = path.join(__dirname, "header-template.html");
+  const IFRAME_HEADER_TEMPLATE_NAME = path.join(__dirname, "header-template.html");
   const DEFAULT_TEST_DIR = "./test262";
   const DEFAULT_OUTPUT_DIR = ".";
   const SUB_DIR_NAME = "ecmascript";
@@ -295,12 +319,16 @@ function replacePlaceholders(
   console.log("Reading test templates ...");
   const templateContent = await readFile(HTML_TEMPLATE_NAME);
   const iframeTemplateContent = await readFile(IFRAME_HTML_TEMPLATE_NAME);
+  const headerContent = await readFile(HEADER_TEMPLATE_NAME);
+  const headerIFrameContent = await readFile(IFRAME_HEADER_TEMPLATE_NAME);
   console.log("Generating tests ...");
   await generateTest({
     testsPath,
     outputPath: testsOutputPath,
     templateContent,
     iframeTemplateContent,
+    headerContent,
+    headerIFrameContent,
   });
   await fs.copy(adapterSourcePath, adapterDestinationPath);
   await fs.copy(harnessDir, harnessOutputDir);
