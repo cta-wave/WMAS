@@ -647,6 +647,9 @@ node tools/wave/ecmascript/generate-tests.js $ECMADISTDIR
 cp $ECMADISTDIR/LICENSE $WPTBASEDIR/ecmascript
 rm -rf ecmascript/tests/**/*lookBehind*
 rm -rf ecmascript/tests/**/*lookbehind*
+rm -rf ecmascript/tests/**/*Temporal*
+rm -rf ecmascript/tests/**/*temporal*
+rm -rf ecmascript/tests/staging
 
 # Integrate webgl tests [WEBGL-103]
 WEBGLDISTDIR=$DISTDIR/webgl
