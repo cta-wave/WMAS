@@ -239,10 +239,10 @@ const generateTest = async ({
     // console.log(jsRelativePath.replace('.js', ''))
     const jsOutputPath = path.join(outputPath, jsRelativePath);
     const htmlOutputPath = jsOutputPath.replace(".js", isSharedArrayBufferTest == true ? ".https.html" : ".html");
-    const iframeHtmlOutputPath = jsOutputPath.replace(".js", isSharedArrayBufferTest == true ? ".htttps.iframe.html" : ".iframe.html");
+    const iframeHtmlOutputPath = jsOutputPath.replace(".js", isSharedArrayBufferTest == true ? ".iframe.https.html" : ".iframe.html");
 	
 	  const htmlOutputHeadersPath = jsOutputPath.replace(".js", ".https.html.headers");
-    const iframeHtmlOutputHeadersPath = jsOutputPath.replace(".js", ".https.iframe.html.headers");
+    const iframeHtmlOutputHeadersPath = jsOutputPath.replace(".js", ".iframe.https.html.headers");
 	
     const includes = (meta && meta.includes) || [];
     //console.log(includes);
@@ -260,8 +260,10 @@ const generateTest = async ({
 
     await writeFile(htmlOutputPath, testContent);
     await writeFile(iframeHtmlOutputPath, iframeTestContent);
-    await writeFile(htmlOutputHeadersPath, headerContent);
-    await writeFile(iframeHtmlOutputHeadersPath, headerIFrameContent);
+    if (isSharedArrayBufferTest) {
+      await writeFile(htmlOutputHeadersPath, headerContent);
+      await writeFile(iframeHtmlOutputHeadersPath, headerIFrameContent);
+    }
     await fs.copy(currentPath, jsOutputPath);
     testCount++;
   }
