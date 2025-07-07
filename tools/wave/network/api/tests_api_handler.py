@@ -103,7 +103,6 @@ class TestsApiHandler(ApiHandler):
                     token=token
                 )
                 self.send_json({"next_test": url}, response)
-                self._sessions_manager.complete_session(token)
                 return
 
             test_timeout = self._tests_manager.get_test_timeout(
