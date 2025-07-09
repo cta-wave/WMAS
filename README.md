@@ -26,11 +26,16 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 <tbody>
 <tr>
 <th>WMAS 2023</th>
-<td rowspan="2"><a href="https://www.w3.org/2023/11/webmediaapi.html" rel="nofollow">WMAS2023</a></td>
+<td rowspan="3"><a href="https://www.w3.org/2023/11/webmediaapi.html" rel="nofollow">WMAS2023</a></td>
 <td><a href="https://github.com/cta-wave/WMAS/tree/wmas2023">latest 2023 source</a></td>
 <td><a href="https://github.com/cta-wave/WMAS-deploy/tree/wmas2023">latest 2023 deploy</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2023-tests">2023 tests</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2023/tools/wave/docs">2023 docs</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2023-tests">2023 tests</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2023/tools/wave/docs">2023 docs</a></td>
+</tr>
+<tr>
+<td>WMAS 2023 v1.0.1</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2023-v1.0.1">wmas2023-v1.0.1</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2023-v1.0.1">wmas2023-deploy-v1.0.1</a></td>
 </tr>
 <tr>
 <td>WMAS 2023 v1.0.0</td>
@@ -39,11 +44,16 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 </tr>
 <tr>
 <th>WMAS 2022</th>
-<td rowspan="2"><a href="https://www.w3.org/2022/12/webmediaapi.html" rel="nofollow">WMAS2022</a></td>
+<td rowspan="3"><a href="https://www.w3.org/2022/12/webmediaapi.html" rel="nofollow">WMAS2022</a></td>
 <td><a href="https://github.com/cta-wave/WMAS/tree/wmas2022">latest 2022 source</a></td>
 <td><a href="https://github.com/cta-wave/WMAS-deploy/tree/wmas2022">latest 2022 deploy</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2022-tests">2022 tests</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2022/tools/wave/docs">2022 docs</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2022-tests">2022 tests</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2022/tools/wave/docs">2022 docs</a></td>
+</tr>
+<tr>
+<td>WMAS 2022 v1.0.1</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2022-v1.0.1">wmas2022-v1.0.1</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2022-v1.0.1">wmas2022-deploy-v1.0.1</a></td>
 </tr>
 <tr>
 <td>WMAS 2022 v1.0.0</td>
@@ -52,11 +62,16 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 </tr>
 <tr>
 <th>WMAS 2021</th>
-<td rowspan="2"><a href="https://www.w3.org/2021/12/webmediaapi.html" rel="nofollow">WMAS2021</a></td>
+<td rowspan="3"><a href="https://www.w3.org/2021/12/webmediaapi.html" rel="nofollow">WMAS2021</a></td>
 <td><a href="https://github.com/cta-wave/WMAS/tree/wmas2021">latest 2021 source</a></td>
 <td><a href="https://github.com/cta-wave/WMAS-deploy/tree/wmas2021">latest 2021 deploy</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2021-tests">2021 tests</a></td>
-<td rowspan="2"><a href="https://github.com/cta-wave/WMAS/tree/wmas2021/tools/wave/docs">2021 docs</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2021-tests">2021 tests</a></td>
+<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2021/tools/wave/docs">2021 docs</a></td>
+</tr>
+<tr>
+<td>WMAS 2021 v1.0.1</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2021-v1.0.1">wmas2021-v1.0.1</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2021-v1.0.1">wmas2021-deploy-v1.0.1</a></td>
 </tr>
 <tr>
 <td>WMAS 2021 v1.0.0</td>
@@ -65,11 +80,16 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 </tr>
 <tr>
 <th>WMAS 2020</th>
-<td rowspan="3"><a href="https://www.w3.org/2020/12/webmediaapi.html" rel="nofollow">WMAS2020</a></td>
+<td rowspan="4"><a href="https://www.w3.org/2020/12/webmediaapi.html" rel="nofollow">WMAS2020</a></td>
 <td><a href="https://github.com/cta-wave/WMAS/tree/wmas2020">latest 2020 source</a></td>
 <td><a href="https://github.com/cta-wave/WMAS-deploy/tree/wmas2020">latest 2020 deploy</a></td>
-<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2020-tests">2020 tests</a></td>
-<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2020/tools/wave/docs">2020 docs</a></td>
+<td rowspan="4"><a href="https://github.com/cta-wave/WMAS/tree/wmas2020-tests">2020 tests</a></td>
+<td rowspan="4"><a href="https://github.com/cta-wave/WMAS/tree/wmas2020/tools/wave/docs">2020 docs</a></td>
+</tr>
+<tr>
+<td>WMAS 2020 v1.1.1</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2020-v1.1.1">wmas2020-v1.1.1</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2020-v1.1.1">wmas2020-deploy-v1.1.1</a></td>
 </tr>
 <tr>
 <td>WMAS 2020 v1.1.0</td>
@@ -83,11 +103,21 @@ This repository contains source code and tests of all WMAS Test Runner versions.
 </tr>
 <tr>
 <th>WMAS 2019</th>
-<td rowspan="3"><a href="https://www.w3.org/2019/12/webmediaapi.html" rel="nofollow">WMAS2019</a></td>
+<td rowspan="5"><a href="https://www.w3.org/2019/12/webmediaapi.html" rel="nofollow">WMAS2019</a></td>
 <td><a href="https://github.com/cta-wave/WMAS/tree/wmas2019">latest 2019 source</a></td>
 <td><a href="https://github.com/cta-wave/WMAS-deploy/tree/wmas2019">latest 2019 deploy</a></td>
-<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2019-tests">2019 tests</a></td>
-<td rowspan="3"><a href="https://github.com/cta-wave/WMAS/tree/wmas2019/tools/wave/docs">2019 docs</a></td>
+<td rowspan="5"><a href="https://github.com/cta-wave/WMAS/tree/wmas2019-tests">2019 tests</a></td>
+<td rowspan="5"><a href="https://github.com/cta-wave/WMAS/tree/wmas2019/tools/wave/docs">2019 docs</a></td>
+</tr>
+<tr>
+<td>WMAS 2019 v1.1.2</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2019-v1.1.2">wmas2019-v1.1.2</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2019-v1.1.2">wmas2019-deploy-v1.1.2</a></td>
+</tr>
+<tr>
+<td>WMAS 2019 v1.1.1</td>
+<td><a href="https://github.com/cta-wave/WMAS/releases/tag/wmas2019-v1.1.1">wmas2019-v1.1.1</a></td>
+<td><a href="https://github.com/cta-wave/WMAS-deploy/releases/tag/wmas2019-v1.1.1">wmas2019-deploy-v1.1.1</a></td>
 </tr>
 <tr>
 <td>WMAS 2019 v1.1.0</td>
