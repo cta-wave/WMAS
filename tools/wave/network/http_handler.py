@@ -1,7 +1,15 @@
-import httplib
+from __future__ import unicode_literals
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
 import sys
+import logging
 import traceback
 
+
+global logger
+logger = logging.getLogger("wave-api-handler")
 
 class HttpHandler(object):
     def __init__(
@@ -10,13 +18,19 @@ class HttpHandler(object):
         sessions_api_handler=None,
         tests_api_handler=None,
         results_api_handler=None,
-        http_port=None
+        devices_api_handler=None,
+        general_api_handler=None,
+        http_port=None,
+        web_root=None
     ):
         self.static_handler = static_handler
         self.sessions_api_handler = sessions_api_handler
         self.tests_api_handler = tests_api_handler
         self.results_api_handler = results_api_handler
+        self.general_api_handler = general_api_handler
+        self.devices_api_handler = devices_api_handler
         self._http_port = http_port
+        self._web_root = web_root
 
     def handle_request(self, request, response):
         response.headers = [
@@ -27,14 +41,13 @@ class HttpHandler(object):
         if request.method == "OPTIONS":
             return
 
-        is_api_call = False
+        path = self._remove_web_root(request.request_path)
 
-        for index, part in enumerate(request.request_path.split(u"/")):
+        is_api_call = False
+        for index, part in enumerate(path.split("/")):
             if index > 2:
                 break
-            if part == u"" or part is None or index != 2:
-                continue
-            if part != u"api":
+            if part != "api":
                 continue
 
             is_api_call = True
@@ -48,50 +61,62 @@ class HttpHandler(object):
             self.handle_static_file(request, response)
 
     def handle_api(self, request, response):
-        api_name = None
-
-        for index, part in enumerate(request.request_path.split(u"/")):
-            if index > 3:
-                break
-            if part == u"" or part is None or index != 3:
-                continue
-            api_name = part.replace("?", "")
+        path = self._remove_web_root(request.request_path)
+        path = path.split("?")[0]
+        api_name = path.split("/")[1]
 
         if api_name is None:
             return
 
-        if api_name == u"sessions":
+        if api_name == "sessions":
             self.sessions_api_handler.handle_request(request, response)
             return
-        if api_name == u"tests":
+        if api_name == "tests":
             self.tests_api_handler.handle_request(request, response)
             return
-        if api_name == u"results":
+        if api_name == "results":
             self.results_api_handler.handle_request(request, response)
             return
+        if api_name == "devices":
+            self.devices_api_handler.handle_request(request, response)
+            return
+
+        self.general_api_handler.handle_request(request, response)
 
     def handle_static_file(self, request, response):
         self.static_handler.handle_request(request, response)
+
+    def _remove_web_root(self, path):
+        if self._web_root is not None:
+            path = path[len(self._web_root):]
+        return path
 
     def _proxy(self, request, response):
         host = 'localhost'
         port = str(self._http_port)
         uri = request.url_parts.path
         uri = uri + "?" + request.url_parts.query
-        data = request.raw_input.read(request.headers.get('Content-Length'))
+        content_length = request.headers.get('Content-Length')
+        data = ""
+        if content_length is not None:
+            data = request.raw_input.read(int(content_length))
         method = request.method
+        headers = {}
+
+        for header in request.headers:
+            headers[header] = request.headers[header]
 
         try:
             proxy_connection = httplib.HTTPConnection(host, port)
-            proxy_connection.request(method, uri, data, request.headers)
+            proxy_connection.request(method, uri, data, headers)
             proxy_response = proxy_connection.getresponse()
             response.content = proxy_response.read()
             response.headers = proxy_response.getheaders()
             response.status = proxy_response.status
 
         except IOError:
+            message = "Failed to perform proxy request"
             info = sys.exc_info()
             traceback.print_tb(info[2])
-            print(u"Failed to perform proxy request: ")
-            + info[0].__name__ + u": " + str(info[1].args[0])
+            logger.error("{}: {}: {}".format(message, info[0].__name__, info[1].args[0]))
             response.status = 500

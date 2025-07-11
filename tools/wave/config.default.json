@@ -31,40 +31,19 @@
     "none": {}
   },
   "aliases": [],
-  "results": "./results",
-  "timeouts": {
-    "automatic": 60000,
-    "manual": 300000
-  },
-  "enable_results_import": false,
-  "web_root": "/wave",
-  "persisting_interval": 20,
-  "api_titles": [
-    { "title": "2D Context", "path": "/2dcontext" },
-    { "title": "Content Security Policy", "path": "/content-security-policy" },
-    { "title": "CSS", "path": "/css" },
-    { "title": "DOM", "path": "/dom" },
-    { "title": "ECMAScript", "path": "/ecmascript" },
-    { "title": "Encrypted media", "path": "/encrypted-media" },
-    { "title": "Fetch", "path": "/fetch" },
-    { "title": "FileAPI", "path": "/FileAPI" },
-    { "title": "Fullscreen", "path": "/fullscreen" },
-    { "title": "WebGL", "path": "/webgl" },
-    { "title": "HTML", "path": "/html" },
-    { "title": "IndexedDB", "path": "/IndexedDB" },
-    { "title": "Media Source", "path": "/media-source" },
-    { "title": "Notifications", "path": "/notifications" },
-    { "title": "Page Visibility", "path": "/page-visibility" },
-    { "title": "Service Workers", "path": "/service-workers" },
-    { "title": "UI Events", "path": "/uievents" },
-    { "title": "WAVE Extra", "path": "/wave-extra" },
-    { "title": "Webaudio", "path": "/webaudio" },
-    { "title": "WebCryptoAPI", "path": "/WebCryptoAPI" },
-    { "title": "Webmessaging", "path": "/webmessaging" },
-    { "title": "Websockets", "path": "/websockets" },
-    { "title": "Webstorage", "path": "/webstorage" },
-    { "title": "Workers", "path": "/workers" },
-    { "title": "XHR", "path": "/xhr" }
-  ],
-  "tests_base_url": "https://github.com/cta-wave/WMAS/blob/wmas2018-tests"
+  "wave": {
+    "results": "./results",
+    "timeouts": {
+      "automatic": 60000,
+      "manual": 300000
+    },
+    "enable_import_results": false,
+    "web_root": "/_wave",
+    "persisting_interval": 20,
+    "api_titles": [],
+    "enable_read_sessions": false,
+    "event_cache_duration": 60000,
+    "enable_test_type_selection": false,
+    "enable_test_file_selection": false
+  }
 }

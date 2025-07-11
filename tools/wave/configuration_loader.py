@@ -1,9 +1,12 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 import json
 import os
 from io import open
 
-DEFAULT_CONFIGURATION_FILE_PATH = u"./tools/wave/config.default.json"
+from tools.wpt import wpt
+
+DEFAULT_CONFIGURATION_FILE_PATH = os.path.join(wpt.localpaths.repo_root, "./tools/wave/config.default.json")
 
 
 def load(configuration_file_path):
@@ -13,55 +16,73 @@ def load(configuration_file_path):
     default_configuration = load_configuration_file(
         DEFAULT_CONFIGURATION_FILE_PATH)
 
-    configuration[u"wpt_port"] = configuration.get(
-        u"ports", default_configuration[u"ports"]).get(
-        u"http", default_configuration[u"ports"][u"http"])[0]
-    configuration[u"wpt_ssl_port"] = configuration.get(
-        u"ports", default_configuration[u"ports"]).get(
-        u"https", default_configuration[u"ports"][u"https"])[0]
+    configuration["wpt_port"] = configuration.get(
+        "ports", default_configuration["ports"]).get(
+        "http", default_configuration["ports"]["http"])[0]
+    configuration["wpt_ssl_port"] = configuration.get(
+        "ports", default_configuration["ports"]).get(
+        "https", default_configuration["ports"]["https"])[0]
 
     web_root = configuration.get(
-        "web_root", default_configuration["web_root"])
+        "wave", default_configuration["wave"]).get(
+        "web_root", default_configuration["wave"]["web_root"])
     if not web_root.startswith("/"):
-        web_root = web_root + "/"
+        web_root = "/" + web_root
     if not web_root.endswith("/"):
         web_root += "/"
     configuration["web_root"] = web_root
 
-    configuration[u"results_directory_path"] = configuration.get(
-        u"results", default_configuration[u"results"])
+    configuration["results_directory_path"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "results", default_configuration["wave"]["results"])
 
-    configuration[u"timeouts"] = {}
-    configuration[u"timeouts"][u"automatic"] = configuration.get(
-        u"timeouts", default_configuration[u"timeouts"]).get(
-        u"automatic", default_configuration[u"timeouts"][u"automatic"])
-    configuration[u"timeouts"][u"manual"] = configuration.get(
-        u"timeouts", default_configuration[u"timeouts"]).get(
-        u"manual", default_configuration[u"timeouts"][u"manual"])
+    configuration["timeouts"] = {}
+    configuration["timeouts"]["automatic"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "timeouts", default_configuration["wave"]["timeouts"]).get(
+        "automatic", default_configuration["wave"]["timeouts"]["automatic"])
+    configuration["timeouts"]["manual"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "timeouts", default_configuration["wave"]["timeouts"]).get(
+        "manual", default_configuration["wave"]["timeouts"]["manual"])
 
-    configuration[u"hostname"] = configuration.get(
-        u"browser_host", default_configuration[u"browser_host"])
+    configuration["hostname"] = configuration.get(
+        "browser_host", default_configuration["browser_host"])
 
-    configuration[u"import_enabled"] = configuration.get(
-        u"enable_results_import",
-        default_configuration[u"enable_results_import"])
+    configuration["import_results_enabled"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_import_results",
+        default_configuration["wave"]["enable_import_results"])
 
-    configuration[u"persisting_interval"] = configuration.get(
-        u"persisting_interval", default_configuration[u"persisting_interval"])
+    configuration["read_sessions_enabled"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_read_sessions",
+        default_configuration["wave"]["enable_read_sessions"])
 
-    configuration[u"tests_directory_path"] = os.getcwdu()
+    configuration["persisting_interval"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "persisting_interval", default_configuration["wave"]["persisting_interval"])
 
-    configuration[u"manifest_file_path"] = os.path.join(
-        os.getcwdu(), u"MANIFEST.json")
+    configuration["event_cache_duration"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "event_cache_duration", default_configuration["wave"]["event_cache_duration"])
 
-    configuration[u"database_directory_path"] = os.path.join(
-        os.getcwdu(), u"tools/wave/data")
+    configuration["tests_directory_path"] = os.getcwd()
 
-    configuration[u"api_titles"] = configuration.get(
-        u"api_titles", default_configuration[u"api_titles"])
+    configuration["manifest_file_path"] = os.path.join(
+        os.getcwd(), "MANIFEST.json")
 
-    configuration[u"tests_base_url"] = configuration.get(
-        u"tests_base_url", default_configuration[u"tests_base_url"])
+    configuration["api_titles"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "api_titles", default_configuration["wave"]["api_titles"])
+
+    configuration["enable_test_type_selection"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_test_type_selection", default_configuration["wave"]["enable_test_type_selection"])
+
+    configuration["enable_test_file_selection"] = configuration.get(
+        "wave", default_configuration["wave"]).get(
+        "enable_test_file_selection", default_configuration["wave"]["enable_test_file_selection"])
 
     return configuration
 
@@ -69,7 +90,9 @@ def load(configuration_file_path):
 def load_configuration_file(path):
     if not os.path.isfile(path):
         return {}
-    configuration_file = open(path, u"r")
-    configuration_file_content = configuration_file.read()
-    configuration = json.loads(configuration_file_content)
+
+    configuration = None
+    with open(path, "r") as configuration_file:
+        configuration_file_content = configuration_file.read()
+        configuration = json.loads(configuration_file_content)
     return configuration

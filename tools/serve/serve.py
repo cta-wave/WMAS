@@ -13,6 +13,8 @@ import sys
 import threading
 import time
 import traceback
+import localpaths
+from manifest import manifest
 from six.moves import urllib
 import uuid
 from collections import defaultdict, OrderedDict
@@ -814,16 +816,21 @@ class ConfigBuilder(config.ConfigBuilder):
         },
         "aliases": [],
         # wave specific configuration parameters
-        "results": "./results",
-        "timeouts": {
-            "automatic": 60000,
-            "manual": 300000
-        },
-        "enable_results_import": False,
-        "web_root": "/wave",
-        "persisting_interval": 20,
-        "api_titles": [],
-        "tests_base_url": ""
+        "wave": {
+            "results": "./results",
+            "timeouts": {
+                "automatic": 60000,
+                "manual": 300000
+            },
+            "enable_import_results": False,
+            "web_root": "/_wave",
+            "persisting_interval": 20,
+            "api_titles": [],
+            "enable_read_sessions": False,
+            "event_cache_duration": 60000,
+            "enable_test_type_selection": False,
+            "enable_test_file_selection": False
+        }
     }
 
     computed_properties = ["ws_doc_root"] + config.ConfigBuilder.computed_properties
