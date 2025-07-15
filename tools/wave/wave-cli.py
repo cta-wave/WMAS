@@ -6,7 +6,26 @@ import requests
 START = "start"
 DOWNLOAD_REFERENCE_BROWSERS = "download-reference-results"
 
-REFERENCE_BROWSERS = {}
+REFERENCE_BROWSERS = {
+    "chrome": {
+        "name": "Chromium 73.0.3640.0",
+        "url": "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Chromium73-a50c6db0-6a94-11e9-8d1b-e23fc4555885.zip"
+    },
+    "edge": {
+        "name": "Edge 44.17763",
+        "url": "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Edge44-b2924d20-6a93-11e9-98b4-a11fb92a6d1c.zip"
+    },
+    "firefox": {
+        "name": "Firefox 64.0",
+        "url":
+        "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/Firefox64-bb7aafa0-6a92-11e9-8ec2-04f58dad2e4f.zip"
+    },
+    "webkit": {
+        "name": "WebKit r239158",
+        "url":
+        "https://s3.us-east-2.amazonaws.com/wave-browser-snapshots/wave-reference-browser-results/WMAS+2018/WebKitr239158-caf823e0-6a92-11e9-b732-3188d0065ebc.zip"
+    }
+}
 
 
 def main():
