@@ -96,7 +96,9 @@
         var state = {};
         loadServerStatus();
         loadSessionData(token, function () {
-          loadPublicSessionData();
+          loadPublicSessionData(function () {
+            renderReferencesField();
+          });
         });
         render();
 
@@ -157,7 +159,7 @@
           );
         }
 
-        function loadPublicSessionData() {
+        function loadPublicSessionData(callback) {
           WaveService.readPublicSessions(function (tokens) {
             WaveService.readMultipleSessions(tokens, function (configurations) {
               referenceSessions = configurations
@@ -195,6 +197,7 @@
                     engine: configuration.browser.engine || "",
                   };
                 });
+              callback();
             });
           });
         }
