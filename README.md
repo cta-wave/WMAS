@@ -7,7 +7,7 @@ the [CTA WAVE Project](http://cta.tech/WAVE).
 
 This project is forked from
 [W3C Web Platform Tests](https://github.com/web-platform-tests/wpt) and is customized
-to automate test runs on web browsers for embedded devices and appliances suchs as TV sets,
+to automate test runs on web browsers for embedded devices and appliances such as TV sets,
 set-top boxes, consoles, etc.
 
 This repository contains source code and tests of all WMAS Test Runner versions. See the table below for an overview of all important links for each version.
