@@ -26,6 +26,6 @@
     "parser": "get_parser",
     "help": "Run wptserve server for WAVE",
     "virtualenv": true,
-    "requirements": ["requirements.txt", "../wave/requirements.txt"]
+    "requirements": ["requirements.txt", "../wave/requirements.txt", "../manifest/requirements.txt"]
   }
 }
