@@ -13,12 +13,12 @@
 //    Its length should match |readings|'.
 // |verificationFunction| is called to verify that a given reading matches a
 // value in |expectedReadings|.
-// |featurePolicies| represents |sensorName|'s associated sensor feature name.
+// |permissionsPolicyNames| represents |sensorName|'s associated sensor permissions policy names.
 function runGenericSensorTests(sensorData, readingData) {
   validate_sensor_data(sensorData);
   validate_reading_data(readingData);
 
-  const {sensorName, permissionName, testDriverName, featurePolicyNames} =
+  const {sensorName, permissionName, testDriverName, permissionsPolicyNames} =
       sensorData;
   const sensorType = self[sensorName];
 
@@ -36,8 +36,15 @@ function runGenericSensorTests(sensorData, readingData) {
     }, name, properties);
   }
 
+  promise_setup(async () => {
+    // Ensure window's document has focus so that the global under test can
+    // receive data.
+    await test_driver.click(document.documentElement);
+  });
+
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'denied');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'denied'});
 
     await test_driver.create_virtual_sensor(testDriverName);
     const sensor = new sensorType;
@@ -56,7 +63,8 @@ function runGenericSensorTests(sensorData, readingData) {
  granted.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName, {connected: false});
     const sensor = new sensorType;
@@ -75,7 +83,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: Test that onerror is send when start() call has failed.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -95,7 +104,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: Test that frequency is capped to allowed maximum.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     const maxSupportedFrequency = 5;
     await test_driver.create_virtual_sensor(
@@ -119,7 +129,8 @@ function runGenericSensorTests(sensorData, readingData) {
  frequency.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     const minSupportedFrequency = 2;
     await test_driver.create_virtual_sensor(
@@ -144,7 +155,7 @@ function runGenericSensorTests(sensorData, readingData) {
 
   sensor_test(async t => {
     const iframe = document.createElement('iframe');
-    iframe.allow = featurePolicyNames.join(' \'none\'; ') + ' \'none\';';
+    iframe.allow = permissionsPolicyNames.join(' \'none\'; ') + ' \'none\';';
     iframe.srcdoc = '<script>' +
         '  window.onmessage = message => {' +
         '    if (message.data === "LOADED") {' +
@@ -166,11 +177,11 @@ function runGenericSensorTests(sensorData, readingData) {
     const message = await windowWatcher.wait_for('message');
     assert_equals(message.data, 'PASS: got SecurityError');
   }, `${sensorName}: Test that sensor cannot be constructed within iframe\
- disallowed to use feature policy.`);
+ disallowed to use permissions policy.`);
 
   sensor_test(async t => {
     const iframe = document.createElement('iframe');
-    iframe.allow = featurePolicyNames.join(';') + ';';
+    iframe.allow = permissionsPolicyNames.join(';') + ';';
     iframe.srcdoc = '<script>' +
         '  window.onmessage = message => {' +
         '    if (message.data === "LOADED") {' +
@@ -192,10 +203,11 @@ function runGenericSensorTests(sensorData, readingData) {
     const message = await windowWatcher.wait_for('message');
     assert_equals(message.data, 'PASS');
   }, `${sensorName}: Test that sensor can be constructed within an iframe\
- allowed to use feature policy.`);
+ allowed to use permissions policy.`);
 
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -228,7 +240,8 @@ function runGenericSensorTests(sensorData, readingData) {
  valid.`);
 
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -273,7 +286,8 @@ function runGenericSensorTests(sensorData, readingData) {
   // Tests that readings maps to expectedReadings correctly. Due to threshold
   // check and rounding some values might be discarded or changed.
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -303,7 +317,8 @@ function runGenericSensorTests(sensorData, readingData) {
  correctly.`);
 
   sensor_test(async (t, readings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -337,7 +352,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: sensor timestamp is updated when time passes.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -360,7 +376,8 @@ function runGenericSensorTests(sensorData, readingData) {
  states are correct.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -379,7 +396,8 @@ function runGenericSensorTests(sensorData, readingData) {
  started sensor.`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -399,7 +417,8 @@ function runGenericSensorTests(sensorData, readingData) {
  stopped sensor.`);
 
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -448,7 +467,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: Test that fresh reading is fetched on start().`);
 
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -510,7 +530,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: Readings are not delivered when the page has no visibility`);
 
   sensor_test(async t => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -561,7 +582,8 @@ function runGenericSensorTests(sensorData, readingData) {
   }, `${sensorName}: frequency hint works.`);
 
   sensor_test(async (t, readings, expectedReadings) => {
-    await test_driver.set_permission({name: permissionName}, 'granted');
+    await test_driver.bidi.permissions.set_permission(
+        {descriptor: {name: permissionName}, state: 'granted'});
 
     await test_driver.create_virtual_sensor(testDriverName);
 
@@ -614,7 +636,7 @@ function runGenericSensorTests(sensorData, readingData) {
  immediately accessible to all sensors.`);
 
   //  Re-enable after https://github.com/w3c/sensors/issues/361 is fixed.
-  //  test(() => {
+  //  promise_test(async () => {
   //     assert_throws_dom("NotSupportedError",
   //         () => { new sensorType({invalid: 1}) });
   //     assert_throws_dom("NotSupportedError",
@@ -626,7 +648,7 @@ function runGenericSensorTests(sensorData, readingData) {
   //  }, `${sensorName}: throw 'NotSupportedError' for an unsupported sensor\
   // option.`);
 
-  test(() => {
+  promise_test(async () => {
     const invalidFreqs = ['invalid', NaN, Infinity, -Infinity, {}];
     invalidFreqs.map(freq => {
       assert_throws_js(
@@ -640,57 +662,61 @@ function runGenericSensorTests(sensorData, readingData) {
     return;
   }
 
-  // TODO(https://github.com/web-platform-tests/wpt/issues/42724): Re-enable
-  // when there is a cross-platform way to set an orientation angle.
-  // sensor_test(
-  //     async (t, readings, expectedReadings, expectedRemappedReadings) => {
-  //       assert_implements_optional(screen.orientation.angle == 270,
-  //         'Remapped values expect a specific screen rotation.');
-  //       await test_driver.set_permission({name: permissionName}, 'granted');
+  sensor_test(
+      async (t, readings, expectedReadings, expectedRemappedReadings) => {
+        await test_driver.bidi.emulation.set_screen_orientation_override({
+          screenOrientation: {natural: 'portrait', type: 'landscape-secondary'}
+        });
+        t.add_cleanup(
+            () => test_driver.bidi.emulation.set_screen_orientation_override(
+                {}));
+        assert_equals(screen.orientation.angle, 270,
+            'Remapped values expect a specific screen rotation.');
+        await test_driver.bidi.permissions.set_permission(
+            {descriptor: {name: permissionName}, state: 'granted'});
 
-  //       await test_driver.create_virtual_sensor(testDriverName);
+        await test_driver.create_virtual_sensor(testDriverName);
 
-  //       const sensor1 = new sensorType({frequency: 60});
-  //       const sensor2 =
-  //           new sensorType({frequency: 60, referenceFrame: 'screen'});
-  //       t.add_cleanup(async () => {
-  //         sensor1.stop();
-  //         sensor2.stop();
-  //         await test_driver.remove_virtual_sensor(testDriverName);
-  //       });
-  //       const sensorWatcher1 =
-  //           new EventWatcher(t, sensor1, ['activate', 'reading', 'error']);
-  //       const sensorWatcher2 =
-  //           new EventWatcher(t, sensor1, ['activate', 'reading', 'error']);
+        const sensor1 = new sensorType({frequency: 60});
+        const sensor2 =
+            new sensorType({frequency: 60, referenceFrame: 'screen'});
+        t.add_cleanup(async () => {
+          sensor1.stop();
+          sensor2.stop();
+          await test_driver.remove_virtual_sensor(testDriverName);
+        });
+        const sensorWatcher1 =
+            new EventWatcher(t, sensor1, ['activate', 'reading', 'error']);
+        const sensorWatcher2 =
+            new EventWatcher(t, sensor2, ['activate', 'reading', 'error']);
 
-  //       sensor1.start();
-  //       sensor2.start();
+        sensor1.start();
+        sensor2.start();
 
-  //       await Promise.all([
-  //         sensorWatcher1.wait_for('activate'),
-  //         sensorWatcher2.wait_for('activate')
-  //       ]);
+        await Promise.all([
+          sensorWatcher1.wait_for('activate'),
+          sensorWatcher2.wait_for('activate')
+        ]);
 
-  //       await Promise.all([
-  //         test_driver.update_virtual_sensor(testDriverName,
-  //         readings.next().value), sensorWatcher1.wait_for('reading'),
-  //         sensorWatcher2.wait_for('reading')
-  //       ]);
+        await Promise.all([
+          test_driver.update_virtual_sensor(testDriverName, readings.next().value),
+          sensorWatcher1.wait_for('reading'),
+          sensorWatcher2.wait_for('reading')
+        ]);
 
-  //       const expected = expectedReadings.next().value;
-  //       const expectedRemapped = expectedRemappedReadings.next().value;
-  //       assert_sensor_reading_equals(sensor1, expected);
-  //       assert_sensor_reading_equals(sensor2, expectedRemapped);
+        const expected = expectedReadings.next().value;
+        const expectedRemapped = expectedRemappedReadings.next().value;
+        assert_sensor_reading_equals(sensor1, expected);
+        assert_sensor_reading_equals(sensor2, expectedRemapped);
 
-  //       sensor1.stop();
-  //       assert_sensor_reading_is_null(sensor1);
-  //       assert_sensor_reading_equals(sensor2, expectedRemapped);
+        sensor1.stop();
+        assert_sensor_reading_is_null(sensor1);
+        assert_sensor_reading_equals(sensor2, expectedRemapped);
 
-  //       sensor2.stop();
-  //       assert_sensor_reading_is_null(sensor2);
-  //     },
-  //     `${sensorName}: sensor reading is correct when options.referenceFrame\
-  // is 'screen'.`);
+        sensor2.stop();
+        assert_sensor_reading_is_null(sensor2);
+      },
+      `${sensorName}: sensor reading is correct when options.referenceFrame is 'screen'.`);
 }
 
 function runGenericSensorInsecureContext(sensorName) {

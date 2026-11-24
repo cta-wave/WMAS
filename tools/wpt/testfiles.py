@@ -5,8 +5,6 @@ import re
 import subprocess
 import sys
 
-from collections import OrderedDict
-
 try:
     from ..manifest import manifest
     from ..manifest.utils import git as get_git_cmd
@@ -73,7 +71,7 @@ def branch_point() -> Optional[Text]:
                                                 cmd,
                                                 commits_bytes)
 
-        commit_parents: Dict[Text, List[Text]] = OrderedDict()
+        commit_parents: Dict[Text, List[Text]] = {}
         commits = commits_bytes.decode("ascii")
         if commits:
             for line in commits.split("\n"):
@@ -147,7 +145,7 @@ def repo_files_changed(revish: Text, include_uncommitted: bool = False, include_
         # gives us that (via the merge-base)
         revish = revish.replace("..", "...")
 
-    files_list = git("diff", "--no-renames", "--name-only", "-z", revish).split("\0")
+    files_list = git("diff", "--no-renames", "--name-only", "--diff-filter=d", "-z", revish).split("\0")
     assert not files_list[-1], f"final item should be empty, got: {files_list[-1]!r}"
     files = set(files_list[:-1])
 
@@ -238,7 +236,7 @@ def affected_testfiles(files_changed: Iterable[Text],
     nontests_changed = set(files_changed)
     wpt_manifest = load_manifest(manifest_path, manifest_update)
 
-    test_types = ["crashtest", "print-reftest", "reftest", "testharness", "wdspec"]
+    test_types = ["crashtest", "print-reftest", "reftest", "test262", "testharness", "wdspec", "aamtest"]
     support_files = {os.path.join(wpt_root, path)
                      for _, path, _ in wpt_manifest.itertypes("support")}
     wdspec_test_files = {os.path.join(wpt_root, path)
@@ -330,8 +328,9 @@ def affected_testfiles(files_changed: Iterable[Text],
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("revish", default=None, help="Commits to consider. Defaults to the "
-                        "commits on the current branch", nargs="?")
+    parser.add_argument("revish", nargs="?",
+                        help="Commits to consider. Defaults to the "
+                        "commits on the current branch")
     parser.add_argument("--ignore-rule", action="append",
                         help="Override the rules for paths to exclude from lists of changes. "
                         "Rules are paths relative to the test root, with * before a separator "
@@ -355,7 +354,6 @@ def get_parser_affected() -> argparse.ArgumentParser:
     parser = get_parser()
     parser.add_argument("--metadata",
                         dest="metadata_root",
-                        action="store",
                         default=wpt_root,
                         help="Directory that will contain MANIFEST.json")
     return parser

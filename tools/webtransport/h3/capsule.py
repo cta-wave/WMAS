@@ -1,11 +1,7 @@
-# mypy: no-warn-return-any
-
 from enum import IntEnum
 from typing import Iterator, Optional
 
-# TODO(bashi): Remove import check suppressions once aioquic dependency is
-# resolved.
-from aioquic.buffer import UINT_VAR_MAX_SIZE, Buffer, BufferReadError  # type: ignore
+from aioquic.buffer import UINT_VAR_MAX_SIZE, Buffer, BufferReadError
 
 
 class CapsuleType(IntEnum):
@@ -21,6 +17,9 @@ class CapsuleType(IntEnum):
     # Defined in
     # https://www.ietf.org/archive/id/draft-ietf-webtrans-http3-01.html.
     CLOSE_WEBTRANSPORT_SESSION = 0x2843
+    # Defined in
+    # https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3-14#section-4.7
+    WT_DRAIN_SESSION = 0x78ae
 
 
 class H3Capsule:
@@ -108,7 +107,7 @@ class H3CapsuleDecoder:
             if self._final:
                 raise e
             if not self._buffer:
-                return 0
+                return
             size = self._buffer.capacity - self._buffer.tell()
             if size >= UINT_VAR_MAX_SIZE:
                 raise e

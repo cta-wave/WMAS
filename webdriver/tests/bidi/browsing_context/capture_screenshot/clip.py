@@ -210,6 +210,56 @@ async def test_clip_box_scroll_to(bidi_session, top_context, inline, compare_png
     assert comparison.equal()
 
 
+async def test_clip_element_scroll_to(
+    bidi_session, top_context, inline, compare_png_bidi
+):
+    element_styles = "background-color: black; width: 50px; height:50px;"
+
+    # Render an element inside of viewport for the reference.
+    reference_data = await get_reference_screenshot(
+        bidi_session,
+        inline,
+        top_context["context"],
+        f"""<div style="{element_styles}"></div>""",
+    )
+
+    viewport_dimensions = await get_viewport_dimensions(bidi_session, top_context)
+
+    # Render the same element outside of viewport.
+    url = inline(
+        f"""<div style="{element_styles} margin-top: {viewport_dimensions["height"]}px"></div>"""
+    )
+    await bidi_session.browsing_context.navigate(
+        context=top_context["context"], url=url, wait="complete"
+    )
+
+    element = await bidi_session.script.call_function(
+        await_promise=False,
+        function_declaration="""() => {
+            const element = document.querySelector('div');
+
+            const rect = element.getBoundingClientRect();
+            // Scroll to have the element in the viewport.
+            window.scrollTo(0, rect.y);
+
+            return element;
+        }""",
+        target=ContextTarget(top_context["context"]),
+    )
+    element_dimensions = await get_physical_element_dimensions(
+        bidi_session, top_context, element
+    )
+    new_data = await bidi_session.browsing_context.capture_screenshot(
+        context=top_context["context"],
+        clip=ElementOptions(element=element),
+    )
+
+    assert png_dimensions(new_data) == element_dimensions
+
+    comparison = await compare_png_bidi(reference_data, new_data)
+    assert comparison.equal()
+
+
 async def test_clip_box_partially_visible(
     bidi_session, top_context, inline, compare_png_bidi
 ):
@@ -221,14 +271,20 @@ async def test_clip_box_partially_visible(
         bidi_session,
         inline,
         top_context["context"],
-        f"""<div style="{element_styles}"></div>""",
+        f"""
+            <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+            <div style="{element_styles}"></div>
+        """,
     )
 
     reference_data_dimensions = png_dimensions(reference_data)
 
     element_styles = f"background-color: black; width: {viewport_dimensions['width'] + 100}px; height: 50px;"
 
-    url = inline(f"""<div style="{element_styles}"></div>""")
+    url = inline(f"""
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+        <div style="{element_styles}"></div>
+    """)
     await bidi_session.browsing_context.navigate(
         context=top_context["context"], url=url, wait="complete"
     )
@@ -373,3 +429,42 @@ async def test_clip_element_outside_of_window_viewport(
 
         comparison = await compare_png_bidi(reference_data, data)
         assert comparison.equal()
+
+
+@pytest.mark.parametrize("dpr", [0.5, 2])
+async def test_clip_with_different_dpr(bidi_session, new_tab, inline, compare_png_bidi, dpr):
+    div_size = {"width": 100, "height": 100}
+
+    reference_page = inline(f"""<div style='background-color: black; width: {div_size["width"]*dpr}px; height: {div_size["height"]*dpr}px;'></div>""")
+    await bidi_session.browsing_context.navigate(
+        context=new_tab["context"], url=reference_page, wait="complete"
+    )
+    element = await bidi_session.script.evaluate(
+        await_promise=False,
+        expression="document.querySelector('div')",
+        target=ContextTarget(new_tab["context"]),
+    )
+    reference_data = await bidi_session.browsing_context.capture_screenshot(
+        context=new_tab["context"], clip=ElementOptions(element=element)
+    )
+
+    page = inline(f"""<div style='background-color: black; width: {div_size["width"]}px; height: {div_size["height"]}px;'></div>""")
+    await bidi_session.browsing_context.navigate(
+        context=new_tab["context"], url=page, wait="complete"
+    )
+
+    await bidi_session.browsing_context.set_viewport(
+        context=new_tab["context"],
+        device_pixel_ratio=dpr)
+
+    element = await bidi_session.script.evaluate(
+        await_promise=False,
+        expression="document.querySelector('div')",
+        target=ContextTarget(new_tab["context"]),
+    )
+    data = await bidi_session.browsing_context.capture_screenshot(
+        context=new_tab["context"], clip=ElementOptions(element=element)
+    )
+
+    comparison = await compare_png_bidi(data, reference_data)
+    assert comparison.equal()

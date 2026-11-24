@@ -306,3 +306,124 @@ promise_test(async t => {
   assert_equals(output_chunks[0].timestamp, -10000, "first chunk timestamp");
   assert_greater_than(output_chunks[0].byteLength, 0);
 }, 'Encode video with negative timestamp');
+
+promise_test(async t => {
+  let output_chunks = [];
+  let codecInit = getDefaultCodecInit(t);
+  codecInit.output = chunk => output_chunks.push(chunk);
+
+  let encoder = new VideoEncoder(codecInit);
+  encoder.configure(defaultConfig);
+
+  let frame_unset = createFrame(640, 480, 0, {duration: undefined});
+  let frame_zero = createFrame(640, 480, 10000, {duration: 0});
+  let frame_dup1 = createFrame(640, 480, 20000, {duration: 111});
+  let frame_dup2 = createFrame(640, 480, 20000, {duration: 222});
+  t.add_cleanup(() => {
+    frame_unset.close();
+    frame_zero.close();
+    frame_dup1.close();
+    frame_dup2.close();
+  });
+
+  assert_equals(frame_unset.duration, null);
+  assert_equals(frame_zero.duration, 0);
+  assert_equals(frame_dup1.duration, 111);
+  assert_equals(frame_dup2.duration, 222);
+
+  encoder.encode(frame_unset);
+  encoder.encode(frame_zero);
+  encoder.encode(frame_dup1);
+  encoder.encode(frame_dup2);
+
+  await encoder.flush();
+  encoder.close();
+
+  assert_equals(output_chunks.length, 4);
+  assert_equals(output_chunks[0].timestamp, 0);
+  assert_equals(output_chunks[0].duration, null);
+  assert_equals(output_chunks[1].timestamp, 10000);
+  assert_equals(output_chunks[1].duration, 0);
+  assert_equals(output_chunks[2].timestamp, 20000);
+  assert_equals(output_chunks[2].duration, 111);
+  assert_equals(output_chunks[3].timestamp, 20000);
+  assert_equals(output_chunks[3].duration, 222);
+}, 'Encode video preserves unset, zero, and duplicate-timestamp durations');
+
+promise_test(async t => {
+  let outputs = 0;
+  let resolveError;
+  let gotError = new Promise(resolve => {
+    resolveError = resolve;
+  });
+  let encoder = new VideoEncoder({
+    output: () => {
+      outputs++;
+    },
+    error: e => resolveError(e),
+  });
+  t.add_cleanup(() => {
+    if (encoder.state !== 'closed') {
+      encoder.close();
+    }
+  });
+
+  const config = {
+    codec: 'vp8',
+    width: 64,
+    height: 64,
+  };
+  encoder.configure(config);
+  await encoder.flush();
+
+  // Reconfigure with the same codec ('vp8') but an unsupported width so
+  // ProcessReconfigure() queues a NotSupportedError and blocks subsequent
+  // requests.
+  encoder.configure({...config, width: 1000000});
+
+  let frame = createFrame(64, 64, 0);
+  encoder.encode(frame);
+  assert_equals(encoder.encodeQueueSize, 1);
+  frame.close();
+
+  let err = await gotError;
+  assert_equals(err.name, 'NotSupportedError');
+  assert_equals(encoder.state, 'closed');
+  assert_equals(encoder.encodeQueueSize, 0);
+  assert_equals(outputs, 0);
+}, 'Reconfiguring VideoEncoder with unsupported config blocks subsequent encodes and closes encoder');
+
+promise_test(async t => {
+  let outputs = 0;
+  let encoder = new VideoEncoder({
+    output: () => {
+      outputs++;
+    },
+    error: t.unreached_func('Unexpected error after reset()'),
+  });
+  t.add_cleanup(() => {
+    if (encoder.state !== 'closed') {
+      encoder.close();
+    }
+  });
+
+  encoder.configure({
+    codec: 'bogus-codec',
+    width: 64,
+    height: 64,
+  });
+  encoder.reset();
+
+  encoder.configure({
+    codec: 'vp8',
+    width: 64,
+    height: 64,
+  });
+  let frame = createFrame(64, 64, 0);
+  encoder.encode(frame);
+  frame.close();
+
+  await encoder.flush();
+  assert_greater_than(outputs, 0);
+  encoder.close();
+}, 'reset() cancels queued configure() error and allows subsequent configuration');

@@ -3,8 +3,7 @@
 import json
 import uuid
 import traceback
-from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 
 from hpack.struct import HeaderTuple
@@ -135,7 +134,7 @@ class Response:
                                                     "oct", "nov", "dec"])}
 
         if isinstance(expires, timedelta):
-            expires = datetime.utcnow() + expires
+            expires = datetime.now(timezone.utc) + expires
 
         if expires is not None:
             expires_str = expires.strftime("%d %%s %Y %H:%M:%S GMT")
@@ -350,7 +349,7 @@ def _maybe_encode(s):
 class ResponseHeaders:
     """Dictionary-like object holding the headers for the response"""
     def __init__(self):
-        self.data = OrderedDict()
+        self.data = {}
 
     def set(self, key, value):
         """Set a header to a specific value, overwriting any previous header

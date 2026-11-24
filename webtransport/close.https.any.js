@@ -1,5 +1,4 @@
 // META: global=window,worker
-// META: script=/common/get-host-info.sub.js
 // META: script=resources/webtransport-test-helpers.sub.js
 // META: script=/common/utils.js
 
@@ -156,10 +155,33 @@ promise_test(async t => {
 
 promise_test(async t => {
   const wt = new WebTransport(webtransport_url('server-close.py'));
-  promise_rejects_dom(t, "InvalidStateError", wt.createUnidirectionalStream());
+  await promise_rejects_dom(t, "InvalidStateError",
+                            wt.createUnidirectionalStream());
 }, 'server initiated closure while opening unidirectional stream before ready');
 
 promise_test(async t => {
   const wt = new WebTransport(webtransport_url('server-close.py'));
-  promise_rejects_dom(t, "InvalidStateError", wt.createBidirectionalStream());
+  await promise_rejects_dom(t, "InvalidStateError",
+                            wt.createBidirectionalStream());
 }, 'server initiated closure while opening bidirectional stream before ready');
+
+// Regression test for https://crbug.com/347710668.
+promise_test(async t => {
+  const wt = new WebTransport(webtransport_url('server-read-then-close.py'));
+  add_completion_callback(() => wt.close());
+  await wt.ready;
+
+  const bidi_reader = wt.incomingBidirectionalStreams.getReader();
+  const { value: bidi } = await bidi_reader.read();
+
+  bidi.writable.getWriter().write(new TextEncoder().encode('some data'));
+  const reader = bidi.readable.getReader();
+  await reader.closed.catch(t.step_func(
+      e => assert_true(e instanceof WebTransportError)));
+
+  // The WebTransport session will already be closed.
+  const {reason, closeCode} = await wt.closed;
+
+  assert_equals(reason, '', 'reason should be default');
+  assert_equals(closeCode, 0, 'closeCode should be default');
+}, 'reading closed property after close should work');

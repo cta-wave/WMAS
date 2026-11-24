@@ -42,7 +42,7 @@ const tests = [
     selector: "colgroup",
     initial: "<div><table><colgroup><col></colgroup><tbody><tr><td>abc</td></tr></tbody></table></div>",
     // <colgroup> and its table parents cannot have paragraphs nor <br>,
-    // therefore, it should be handled outside <table> or the the first cell
+    // therefore, it should be handled outside <table> or the first cell
     // in the table.
     expected: [
       "<div><table><colgroup><col></colgroup><tbody><tr><td><br>abc</td></tr></tbody></table></div>", // handled with the first cell case
@@ -81,7 +81,7 @@ const tests = [
     initial: "<div><select><option>abc</option></select></div>",
     // <option> is a part of <select> and they are replaced so that it should
     // be handled outside of it.
-    expected: "<div><select><option>abc</option></select></div>",
+    expected: "<div><br></div><div><select><option>abc</option></select></div>",
   },
   {
     selector: "progress",

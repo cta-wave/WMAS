@@ -859,6 +859,23 @@ def test_spec_links_complex(input, expected):
     assert s.spec_links == set(expected)
 
 
+@pytest.mark.parametrize("input,expected", [
+    (b"""// META: spec=https://example.com/\ntest()""",
+     ["https://example.com/"]),
+    (b"""// META: spec=https://example.com/a/\n// META: spec=https://example.com/b/\ntest()""",
+     ["https://example.com/a/", "https://example.com/b/"]),
+    (b"""// META: global=window,worker\n// META: spec=https://example.com/\n// META: script=/resources/testharness.js\ntest()""",
+     ["https://example.com/"]),
+    (b"""// META: global=window,worker\ntest()""",
+     []),
+    (b"""test()""",
+     []),
+])
+def test_spec_links_script_metadata(input, expected):
+    s = create("html/test.any.js", contents=input)
+    assert s.spec_links == set(expected)
+
+
 def test_url_base():
     contents = b"""// META: global=window,worker
 // META: variant=?default
@@ -918,6 +935,22 @@ def test_reftest_fuzzy_multi(fuzzy, expected):
     assert s.content_is_ref_node
     assert s.fuzzy == expected
 
+@pytest.mark.parametrize("fuzzy", [
+    [b"0-1;100-200", b"0-55;0-8"],
+    [b"ref-1.html:0-1;100-200", b"ref-1.html:0-55;0-8"],
+])
+def test_reftest_fuzzy_duplicate_key(fuzzy):
+    content = b"""<link rel=match href=ref-1.html>
+"""
+    for item in fuzzy:
+        content += b'\n<meta name=fuzzy content="%s">' % item
+
+    s = create("foo/test.html", content)
+
+    with pytest.raises(ValueError):
+        s.fuzzy
+
+
 @pytest.mark.parametrize("pac, expected", [
     (b"proxy.pac", "proxy.pac")])
 def test_pac(pac, expected):
@@ -960,3 +993,92 @@ def test_page_ranges_invalid(page_ranges):
 def test_hash():
     s = SourceFile("/", "foo", "/", contents=b"Hello, World!")
     assert "b45ef6fec89518d314f546fd6c3025367b721684" == s.hash
+
+
+@pytest.mark.parametrize("file_name",
+                         ["html/test.worker.js", "html/test.window.js"])
+def test_script_testdriver_missing_features(file_name):
+    contents = """// META: title=TEST_TITLE
+// META: script=/resources/testdriver.js
+    test()""".encode("utf-8")
+
+    s = create(file_name, contents=contents)
+    item_type, items = s.manifest_items()
+    for item in items:
+        assert item.testdriver_features is None
+
+
+@pytest.mark.parametrize("features",
+                         [[], ['feature_1'], ['feature_1', 'feature_2']])
+@pytest.mark.parametrize("file_name",
+                         ["html/test.worker.js", "html/test.window.js"])
+def test_script_testdriver_features(file_name, features):
+    contents = f"""// META: title=TEST_TITLE
+// META: script=/resources/testdriver.js?{"&".join('feature=' + f for f in features)}
+    test()""".encode("utf-8")
+
+    s = create(file_name, contents=contents)
+    item_type, items = s.manifest_items()
+    for item in items:
+        assert item.testdriver_features == (
+            features if len(features) > 0 else None)
+
+
+def test_html_testdriver_missing_features():
+    contents = """
+<!--Required to make test type `testharness` -->
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testdriver.js"></script>
+    """.encode("utf-8")
+
+    s = create("html/test.html", contents=contents)
+    assert s.testdriver_features is None
+
+
+@pytest.mark.parametrize("features",
+                         [['feature_1'], ['feature_1', 'feature_2']])
+def test_html_testdriver_features(features):
+    contents = f"""
+<script src="/resources/testdriver.js?{"&".join('feature=' + f for f in features)}"></script>
+<!--Required to make test type `testharness` -->
+<script src="/resources/testharness.js?feature=bidi"></script>
+    """.encode("utf-8")
+
+    s = create("html/test.html", contents=contents)
+    assert s.testdriver_features == features
+
+@pytest.mark.parametrize("rel_path, is_test262", [
+    ("test262/test.js", True),
+    ("other/test.js", False),
+])
+def test_name_is_test262(rel_path, is_test262):
+    tests_root = "/tmp"
+    url_base = "/"
+    sf = SourceFile(tests_root, rel_path, url_base)
+    assert sf.name_is_test262 == is_test262
+
+def test_test262_test_record():
+    contents = b"""/*---
+description: A simple test
+---*/"""
+    sf = create("test262/test.js", contents=contents)
+    record = sf.test262_test_record
+    assert record is not None
+
+@pytest.mark.parametrize("rel_path, contents, expected_url", [
+    ("test262/test.js",
+     b"/*---\ndescription: A simple test\n---*/",
+     "/test262/test.test262.html"),
+    ("test262/module.js",
+     b"/*---\ndescription: A module test\nflags: [module]\n---*/",
+     "/test262/module.test262-module.html"),
+    ("test262/strict.js",
+     b"/*---\ndescription: A strict mode test\nflags: [onlyStrict]\n---*/",
+     "/test262/strict.test262.strict.html"),
+])
+def test_manifest_items_test262(rel_path, contents, expected_url):
+    sf = create(rel_path, contents=contents)
+    item_type, items = sf.manifest_items()
+    assert item_type == "test262"
+    assert len(items) == 1
+    assert items[0].url == expected_url

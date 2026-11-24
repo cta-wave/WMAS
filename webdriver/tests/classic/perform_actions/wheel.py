@@ -1,9 +1,8 @@
 import pytest
 
-from webdriver.error import NoSuchWindowException
+from webdriver.error import MoveTargetOutOfBoundsException, NoSuchWindowException
 
-
-from tests.classic.perform_actions.support.refine import get_events
+from . import assert_scroll_position
 
 
 def test_null_response_value(session, wheel_chain):
@@ -16,98 +15,77 @@ def test_no_top_browsing_context(session, closed_window, wheel_chain):
         wheel_chain.scroll(0, 0, 0, 10).perform()
 
 
-def test_no_browsing_context(session, closed_window, wheel_chain):
+def test_no_browsing_context(session, closed_frame, wheel_chain):
     with pytest.raises(NoSuchWindowException):
         wheel_chain.scroll(0, 0, 0, 10).perform()
 
 
-def test_scroll_not_scrollable(session, test_actions_scroll_page, wheel_chain):
-    target = session.find.css("#not-scrollable", all=False)
+@pytest.mark.parametrize("origin", ["element", "viewport"])
+def test_params_actions_origin_outside_viewport(
+    session, test_actions_wheel_page, wheel_chain, origin
+):
+    session.url = test_actions_wheel_page()
 
-    wheel_chain.scroll(0, 0, 5, 10, origin=target).perform()
+    if origin == "element":
+        origin = session.find.css("#not-scrollable", all=False)
 
-    events = get_events(session)
-    assert len(events) == 1
-    assert events[0]["type"] == "wheel"
-    assert events[0]["deltaX"] == 5
-    assert events[0]["deltaY"] == 10
-    assert events[0]["deltaZ"] == 0
-    assert events[0]["target"] == "not-scrollable-content"
+    with pytest.raises(MoveTargetOutOfBoundsException):
+        wheel_chain.scroll(-100, -100, 10, 20, origin=origin).perform()
 
 
-def test_scroll_scrollable_overflow(session, test_actions_scroll_page, wheel_chain):
+@pytest.mark.parametrize(
+    "delta_x, delta_y",
+    [
+        (50, 0),
+        (0, 60),
+        (70, 80),
+    ],
+    ids=[
+        "delta-x",
+        "delta-y",
+        "delta-x-and-y",
+    ],
+)
+def test_scroll_direction(
+    session, test_actions_wheel_page, wheel_chain, delta_x, delta_y
+):
+    session.url = test_actions_wheel_page()
+
     target = session.find.css("#scrollable", all=False)
 
-    wheel_chain.scroll(0, 0, 5, 10, origin=target).perform()
+    wheel_chain.scroll(0, 0, delta_x, delta_y, origin=target).perform()
 
-    events = get_events(session)
-    assert len(events) == 1
-    assert events[0]["type"] == "wheel"
-    assert events[0]["deltaX"] == 5
-    assert events[0]["deltaY"] == 10
-    assert events[0]["deltaZ"] == 0
-    assert events[0]["target"] == "scrollable-content"
-
-
-def test_scroll_iframe(session, test_actions_scroll_page, wheel_chain):
-    target = session.find.css("#iframe", all=False)
-
-    wheel_chain.scroll(0, 0, 5, 10, origin=target).perform()
-
-    events = get_events(session)
-    assert len(events) == 1
-    assert events[0]["type"] == "wheel"
-    assert events[0]["deltaX"] == 5
-    assert events[0]["deltaY"] == 10
-    assert events[0]["deltaZ"] == 0
-    assert events[0]["target"] == "iframeContent"
+    assert_scroll_position(session, target, delta_x, delta_y)
 
 
 @pytest.mark.parametrize("mode", ["open", "closed"])
-@pytest.mark.parametrize("nested", [False, True], ids=["outer", "inner"])
-def test_scroll_shadow_tree(session, get_test_page, wheel_chain, mode, nested):
-    session.url = get_test_page(
-        shadow_doc="""
-        <div id="scrollableShadowTree"
-             style="width: 100px; height: 100px; overflow: auto;">
-            <div
-                id="scrollableShadowTreeContent"
-                style="width: 600px; height: 1000px; background-color:blue"></div>
-        </div>""",
-        shadow_root_mode=mode,
-        nested_shadow_dom=nested,
-    )
+def test_scroll_element_in_shadow_tree(
+    session, new_tab_classic, test_actions_wheel_page, wheel_chain, mode
+):
+    session.url = test_actions_wheel_page(shadow=mode)
 
-    shadow_root = session.find.css("custom-element", all=False).shadow_root
+    shadow_root = session.find.css("#custom-element", all=False).shadow_root
+    scrollable = shadow_root.find_element("css selector", "#shadow-scrollable")
 
-    if nested:
-        shadow_root = shadow_root.find_element(
-            "css selector", "inner-custom-element"
-        ).shadow_root
+    wheel_chain.scroll(0, 0, 55, 75, origin=scrollable).perform()
 
-    scrollable = shadow_root.find_element("css selector", "#scrollableShadowTree")
+    assert_scroll_position(session, scrollable, 55, 75)
 
-    # Add a simplified event recorder to track events in the test ShadowRoot.
-    session.execute_script(
-        """
-        window.wheelEvents = [];
-        arguments[0].addEventListener("wheel",
-            function(event) {
-                window.wheelEvents.push({
-                    "deltaX": event.deltaX,
-                    "deltaY": event.deltaY,
-                    "target": event.target.id
-                });
-            }
-        );
-    """,
-        args=(scrollable,),
-    )
 
-    wheel_chain.scroll(0, 0, 5, 10, origin=scrollable).perform()
+@pytest.mark.parametrize("scale", ["0.5", "1.0", "1.5"])
+def test_scroll_position_for_scaled_layout_viewport(
+    session, new_tab_classic, inline, wheel_chain, scale
+):
+    session.url = inline(f"""
+        <meta name="viewport" content="width=device-width,initial-scale={scale}">
+        <div id="scroller" style="overflow: auto; width: 250px; height: 150px">
+          <iframe srcdoc="foo" style="width: 200px; height: 100px"></iframe>
+          <div style="height: 2000px; width: 2000px"></div>
+        </div>
+    """)
 
-    events = session.execute_script("return window.wheelEvents;") or []
-    assert len(events) == 1
-    assert events[0]["deltaX"] == 5
-    assert events[0]["deltaY"] == 10
-    assert events[0]["target"] == "scrollableShadowTreeContent"
+    target = session.find.css("iframe", all=False)
+    wheel_chain.scroll(0, 0, 60, 80, origin=target, duration=100).perform()
+
+    scroller = session.find.css("#scroller", all=False)
+    assert_scroll_position(session, scroller, 60, 80)

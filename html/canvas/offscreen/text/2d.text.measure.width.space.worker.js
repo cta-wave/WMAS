@@ -7,7 +7,6 @@ importScripts("/resources/testharness.js");
 importScripts("/html/canvas/resources/canvas-tests.js");
 
 promise_test(async t => {
-
   var canvas = new OffscreenCanvas(100, 50);
   var ctx = canvas.getContext('2d');
 
@@ -23,6 +22,10 @@ promise_test(async t => {
 
   _assertSame(ctx.measureText(' AB').width, 150, "ctx.measureText(' AB').width", "150");
   _assertSame(ctx.measureText('AB ').width, 150, "ctx.measureText('AB ').width", "150");
-  t.done();
+
+  _assertSame(ctx.measureText('AB\x09').width, 150, "ctx.measureText('AB\\x09').width", "150");
+  _assertSame(ctx.measureText('AB\x0d').width, 150, "ctx.measureText('AB\\x0d').width", "150");
+  _assertSame(ctx.measureText('\x09').width, 50, "ctx.measureText('\\x09').width", "50");
+  _assertSame(ctx.measureText('あ\x09').width, ctx.measureText('あ ').width, "ctx.measureText('あ\\x09').width", "ctx.measureText('あ ').width");
 }, "Space characters are converted to U+0020 and NOT collapsed");
 done();

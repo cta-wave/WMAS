@@ -1,33 +1,29 @@
+import base64
+import random
+import urllib
+from datetime import datetime, timedelta, timezone
+
+from webdriver.bidi.modules.network import (
+    NetworkStringValue,
+    SetCookieHeader,
+)
+
 from .. import (
     any_bool,
     any_dict,
     any_int,
+    any_number,
     any_int_or_null,
     any_list,
     any_string,
     any_string_or_null,
+    assert_bytes_value,
+    assert_cookie,
+    assert_cookies,
+    int_interval,
+    number_interval,
     recursive_compare,
 )
-
-
-def assert_bytes_value(bytes_value):
-    assert bytes_value["type"] in ["string", "base64"]
-    any_string(bytes_value["value"])
-
-
-def assert_cookies(event_cookies, expected_cookies):
-    assert len(event_cookies) == len(expected_cookies)
-
-    # Simple helper to find a cookie by key and value only.
-    def match_cookie(cookie, expected):
-        for key in expected:
-            if cookie[key] != expected[key]:
-                return False
-
-        return True
-
-    for cookie in expected_cookies:
-        assert next(c for c in event_cookies if match_cookie(c, cookie)) is not None
 
 
 def assert_headers(event_headers, expected_headers):
@@ -38,34 +34,53 @@ def assert_headers(event_headers, expected_headers):
         assert next(h for h in event_headers if header == h) is not None
 
 
-def assert_timing_info(timing_info):
+def assert_timing_info(timing_info, expected_time_range=None):
+    # First assert time origin, which is reused to assert the following values.
+    time_origin = timing_info.get("timeOrigin")
+    any_number(time_origin)
+
+    def assert_timing(actual):
+        # Check that the timing is a number
+        any_number(actual)
+
+        # If a time range was provided, assert that the time is within the
+        # provided bounds.
+        # Unless timing is 0, which means the timing is not relevant for the
+        # current network event, or is not known yet.
+        if expected_time_range is not None and actual != 0:
+            # Add time_origin to actual to get the absolute time corresponding
+            # to the timing.
+            expected_time_range(actual + time_origin)
+
+    # Assert all other timings.
     recursive_compare(
         {
-            "timeOrigin": any_int,
-            "requestTime": any_int,
-            "redirectStart": any_int,
-            "redirectEnd": any_int,
-            "fetchStart": any_int,
-            "dnsStart": any_int,
-            "dnsEnd": any_int,
-            "connectStart": any_int,
-            "connectEnd": any_int,
-            "tlsStart": any_int,
-            "requestStart": any_int,
-            "responseStart": any_int,
-            "responseEnd": any_int,
+            "requestTime": assert_timing,
+            "redirectStart": assert_timing,
+            "redirectEnd": assert_timing,
+            "fetchStart": assert_timing,
+            "dnsStart": assert_timing,
+            "dnsEnd": assert_timing,
+            "connectStart": assert_timing,
+            "connectEnd": assert_timing,
+            "tlsStart": assert_timing,
+            "requestStart": assert_timing,
+            "responseStart": assert_timing,
+            "responseEnd": assert_timing,
         },
         timing_info,
     )
 
 
-def assert_request_data(request_data, expected_request):
+def assert_request_data(request_data, expected_request, expected_time_range):
     recursive_compare(
         {
             "bodySize": any_int_or_null,
             "cookies": any_list,
+            "destination": any_string,
             "headers": any_list,
             "headersSize": any_int,
+            "initiatorType": any_string_or_null,
             "method": any_string,
             "request": any_string,
             "timings": any_dict,
@@ -74,10 +89,6 @@ def assert_request_data(request_data, expected_request):
         request_data,
     )
 
-    assert_timing_info(request_data["timings"])
-
-    for cookie in request_data["cookies"]:
-        assert_bytes_value(cookie["value"])
 
     if "cookies" in expected_request:
         assert_cookies(request_data["cookies"], expected_request["cookies"])
@@ -86,6 +97,10 @@ def assert_request_data(request_data, expected_request):
         # We don't want to assert all headers and cookies, so we do a custom
         # assert for each and then delete it before using recursive_compare.
         del expected_request["cookies"]
+    else:
+        # Otherwise still check the cookies have the expected shape.
+        for cookie in request_data["cookies"]:
+            assert_cookie(cookie)
 
     for header in request_data["headers"]:
         assert_bytes_value(header["value"])
@@ -95,18 +110,12 @@ def assert_request_data(request_data, expected_request):
         # Remove headers before using recursive_compare, see comment for cookies
         del expected_request["headers"]
 
+    assert_timing_info(request_data["timings"], expected_time_range)
+
     recursive_compare(expected_request, request_data)
 
 
-def assert_base_parameters(
-    event,
-    context=None,
-    intercepts=None,
-    is_blocked=None,
-    navigation=None,
-    redirect_count=None,
-    expected_request=None,
-):
+def assert_base_parameters(event, expected_event):
     recursive_compare(
         {
             "context": any_string_or_null,
@@ -115,15 +124,16 @@ def assert_base_parameters(
             "redirectCount": any_int,
             "request": any_dict,
             "timestamp": any_int,
+            **({"userContext": any_string_or_null} if "userContext" in event else {}),
         },
         event,
     )
 
-    if context is not None:
-        assert event["context"] == context
+    if "context" in expected_event:
+        assert event["context"] == expected_event["context"]
 
-    if is_blocked is not None:
-        assert event["isBlocked"] == is_blocked
+    if "isBlocked" in expected_event:
+        assert event["isBlocked"] == expected_event["isBlocked"]
 
     if event["isBlocked"]:
         assert isinstance(event["intercepts"], list)
@@ -133,70 +143,50 @@ def assert_base_parameters(
     else:
         assert "intercepts" not in event
 
-    if intercepts is not None:
-        assert event["intercepts"] == intercepts
+    if "intercepts" in expected_event:
+        assert event["intercepts"] == expected_event["intercepts"]
 
-    if navigation is not None:
-        assert event["navigation"] == navigation
+    if "navigation" in expected_event:
+        assert event["navigation"] == expected_event["navigation"]
 
-    if redirect_count is not None:
-        assert event["redirectCount"] == redirect_count
+    if "redirectCount" in expected_event:
+        assert event["redirectCount"] == expected_event["redirectCount"]
 
-    # Assert request data
-    if expected_request is not None:
-        assert_request_data(event["request"], expected_request)
+    # Assert request data (expected_time_range is optional)
+    if "request" in expected_event:
+        assert_request_data(
+            event["request"],
+            expected_event["request"],
+            expected_event.get("timestamp"),
+        )
+
+    if "userContext" in expected_event and "userContext" in event:
+        assert event["userContext"] == expected_event["userContext"]
 
 
-def assert_before_request_sent_event(
-    event,
-    context=None,
-    intercepts=None,
-    is_blocked=None,
-    navigation=None,
-    redirect_count=None,
-    expected_request=None,
-):
+def assert_before_request_sent_event(event, expected_event):
     # Assert initiator
-    assert isinstance(event["initiator"], dict)
-    assert isinstance(event["initiator"]["type"], str)
+    if "initiator" in event:
+        assert isinstance(event["initiator"], dict)
 
     # Assert base parameters
     assert_base_parameters(
         event,
-        context=context,
-        intercepts=intercepts,
-        is_blocked=is_blocked,
-        navigation=navigation,
-        redirect_count=redirect_count,
-        expected_request=expected_request,
+        expected_event
     )
 
 
-def assert_fetch_error_event(
-    event,
-    context=None,
-    errorText=None,
-    intercepts=None,
-    is_blocked=None,
-    navigation=None,
-    redirect_count=None,
-    expected_request=None,
-):
+def assert_fetch_error_event(event, expected_event):
     # Assert errorText
     assert isinstance(event["errorText"], str)
 
-    if errorText is not None:
-        assert event["errorText"] == errorText
+    if "errorText" in expected_event:
+        assert event["errorText"] == expected_event["errorText"]
 
     # Assert base parameters
     assert_base_parameters(
         event,
-        context=context,
-        intercepts=intercepts,
-        is_blocked=is_blocked,
-        navigation=navigation,
-        redirect_count=redirect_count,
-        expected_request=expected_request,
+        expected_event
     )
 
 
@@ -238,30 +228,16 @@ def assert_response_data(response_data, expected_response):
     recursive_compare(expected_response, response_data)
 
 
-def assert_response_event(
-    event,
-    context=None,
-    intercepts=None,
-    is_blocked=None,
-    navigation=None,
-    redirect_count=None,
-    expected_request=None,
-    expected_response=None,
-):
+def assert_response_event(event, expected_event):
     # Assert response data
     any_dict(event["response"])
-    if expected_response is not None:
-        assert_response_data(event["response"], expected_response)
+    if "response" in expected_event:
+        assert_response_data(event["response"], expected_event["response"])
 
     # Assert base parameters
     assert_base_parameters(
         event,
-        context=context,
-        intercepts=intercepts,
-        is_blocked=is_blocked,
-        navigation=navigation,
-        redirect_count=redirect_count,
-        expected_request=expected_request,
+        expected_event
     )
 
 
@@ -293,9 +269,53 @@ def create_header(overrides=None, value_overrides=None):
     return header
 
 
-# Array of status and status text expected to be available in network events
+def get_cached_url(content_type, response):
+    """
+    Build a URL for a resource which will be fully cached.
+
+    :param content_type: Response content type eg "text/css".
+    :param response: Response body>
+
+    :return: Relative URL as a string, typically should be used with the
+        `url` fixture.
+    """
+    # `nocache` is not used in cached.py, it is here to bypass the browser cache
+    # from previous tests accessing the same URL.
+    query_string = f"status=200&contenttype={content_type}&response={response}&nocache={random.random()}"
+    return f"/webdriver/tests/support/http_handlers/cached.py?{query_string}"
+
+
+def get_network_event_timerange(start, end, bidi_session):
+    """
+    Compute a number_interval to be used for timing comparisons in BiDi network
+    events.
+
+    NOTE: This would ideally be just `number_interval(start - 1, end + 1)`,
+    however on Firefox Windows CI builds, there have been relatively frequent
+    intermittent failures where the values are a few ms off the expected time.
+    See https://bugzilla.mozilla.org/show_bug.cgi?id=1921712
+    """
+    if bidi_session.capabilities.get("browserName") == "firefox":
+        return number_interval(start - 100, end + 1)
+
+    return number_interval(start - 1, end + 1)
+
+
+def get_next_event_for_url(network_events, url):
+    """
+    Retrieve the next network event in the network_events list matching the
+    provided url.
+    """
+    return next(
+        e for e in network_events if e["request"]["url"] == url
+    )
+
+
+# Array of status and status text expected to be available in network events.
+# 101 is an interim response for non-WebSocket requests and 407 triggers proxy
+# authentication, so fetch() cannot receive either of them as a final response
+# from an origin server: https://fetch.spec.whatwg.org/#http-network-fetch
 HTTP_STATUS_AND_STATUS_TEXT = [
-    (101, "Switching Protocols"),
     (200, "OK"),
     (201, "Created"),
     (202, "Accepted"),
@@ -316,7 +336,6 @@ HTTP_STATUS_AND_STATUS_TEXT = [
     (404, "Not Found"),
     (405, "Method Not Allowed"),
     (406, "Not Acceptable"),
-    (407, "Proxy Authentication Required"),
     (408, "Request Timeout"),
     (409, "Conflict"),
     (410, "Gone"),
@@ -332,20 +351,298 @@ HTTP_STATUS_AND_STATUS_TEXT = [
     (505, "HTTP Version Not Supported"),
 ]
 
-PAGE_EMPTY_HTML = "/webdriver/tests/bidi/network/support/empty.html"
-PAGE_EMPTY_IMAGE = "/webdriver/tests/bidi/network/support/empty.png"
-PAGE_EMPTY_SCRIPT = "/webdriver/tests/bidi/network/support/empty.js"
-PAGE_EMPTY_SVG = "/webdriver/tests/bidi/network/support/empty.svg"
-PAGE_EMPTY_TEXT = "/webdriver/tests/bidi/network/support/empty.txt"
+BASE_URL = "/webdriver/tests/bidi/network/support"
+PAGE_DATA_URL_HTML = "data:text/html,<div>foo</div>"
+PAGE_DATA_URL_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII="
+PAGE_EMPTY_HTML = f"{BASE_URL}/empty.html"
+PAGE_EMPTY_IMAGE = f"{BASE_URL}/empty.png"
+PAGE_EMPTY_SCRIPT = f"{BASE_URL}/empty.js"
+PAGE_EMPTY_SVG = f"{BASE_URL}/empty.svg"
+PAGE_EMPTY_TEXT = f"{BASE_URL}/empty.txt"
 PAGE_INVALID_URL = "https://not_a_valid_url.test/"
-PAGE_OTHER_TEXT = "/webdriver/tests/bidi/network/support/other.txt"
+PAGE_INITIATOR = {
+    "HTML": f"{BASE_URL}/initiator/simple-initiator.html",
+    "SCRIPT": f"{BASE_URL}/initiator/simple-initiator-script.js",
+    "STYLESHEET": f"{BASE_URL}/initiator/simple-initiator-style.css",
+    "IMAGE": f"{BASE_URL}/initiator/simple-initiator-img.png",
+    "BACKGROUND": f"{BASE_URL}/initiator/simple-initiator-bg.png",
+}
+PAGE_OTHER_TEXT = f"{BASE_URL}/other.txt"
+PAGE_PROVIDE_RESPONSE_HTML = f"{BASE_URL}/provide_response.html"
+PAGE_PROVIDE_RESPONSE_SCRIPT = f"{BASE_URL}/provide_response.js"
+PAGE_PROVIDE_RESPONSE_STYLESHEET = f"{BASE_URL}/provide_response.css"
 PAGE_REDIRECT_HTTP_EQUIV = (
     "/webdriver/tests/bidi/network/support/redirect_http_equiv.html"
 )
 PAGE_REDIRECTED_HTML = "/webdriver/tests/bidi/network/support/redirected.html"
+PAGE_SERVICEWORKER_HTML = "/webdriver/tests/bidi/network/support/serviceworker.html"
+
+IMAGE_RESPONSE_DATA = b"iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+IMAGE_RESPONSE_BODY = urllib.parse.quote_plus(base64.b64decode(IMAGE_RESPONSE_DATA))
+
+SCRIPT_CONSOLE_LOG = urllib.parse.quote_plus("console.log('test')")
+SCRIPT_CONSOLE_LOG_IN_MODULE = urllib.parse.quote_plus("export default function foo() { console.log('from module') }")
+
+STYLESHEET_GREY_BACKGROUND = urllib.parse.quote_plus("html, body { background-color: #ccc; }")
+STYLESHEET_RED_COLOR = urllib.parse.quote_plus("html, body { color: red; }")
 
 AUTH_REQUIRED_EVENT = "network.authRequired"
 BEFORE_REQUEST_SENT_EVENT = "network.beforeRequestSent"
 FETCH_ERROR_EVENT = "network.fetchError"
 RESPONSE_COMPLETED_EVENT = "network.responseCompleted"
 RESPONSE_STARTED_EVENT = "network.responseStarted"
+
+PHASE_TO_EVENT_MAP = {
+    "authRequired": [AUTH_REQUIRED_EVENT, assert_response_event],
+    "beforeRequestSent": [BEFORE_REQUEST_SENT_EVENT, assert_before_request_sent_event],
+    "responseStarted": [RESPONSE_STARTED_EVENT, assert_response_event],
+}
+
+expires_a_day_from_now = datetime.now(timezone.utc) + timedelta(days=1)
+expires_a_day_from_now_timestamp = int(expires_a_day_from_now.timestamp())
+expires_interval = int_interval(
+    expires_a_day_from_now_timestamp - 5,
+    expires_a_day_from_now_timestamp + 5,
+)
+
+# Common parameters for Set-Cookie headers tests used for network interception
+# commands.
+#
+# Note that the domain needs to be handled separately because the actual
+# value will be retrieved via the domain_value fixture.
+# with_domain can either be :
+#  - "default": domain will be set to domain_value() and the page will be
+#    loaded on domain_value().
+#  - "alt": domain will be set to domain_value(alt) and the page will be
+#    loaded on domain_value(alt).
+#  - None (or any other value): domain will not be set and the page will be
+#    loaded on domain_value() (which is the default).
+SET_COOKIE_TEST_PARAMETERS = [
+    (
+        SetCookieHeader(
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        "default domain",
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        "alt domain",
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            name="foo",
+            path="/some/other/path",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/some/other/path",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            http_only=True,
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        None,
+        {
+            "httpOnly": True,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            name="foo",
+            path="/",
+            secure=True,
+            value=NetworkStringValue("bar"),
+            same_site="none",
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            expiry=expires_a_day_from_now.strftime("%a, %d %b %Y %H:%M:%S"),
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        None,
+        {
+            "expiry": expires_interval,
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            max_age=3600,
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+            same_site="none",
+            secure=True
+        ),
+        None,
+        {
+            "expiry": any_int,
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            same_site="none",
+            # SameSite None requires Secure to set the cookie correctly.
+            secure=True,
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "none",
+            "secure": True,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            same_site="lax",
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "lax",
+            "secure": False,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+    (
+        SetCookieHeader(
+            same_site="strict",
+            name="foo",
+            path="/",
+            value=NetworkStringValue("bar"),
+        ),
+        None,
+        {
+            "httpOnly": False,
+            "name": "foo",
+            "path": "/",
+            "sameSite": "strict",
+            "secure": False,
+            "size": 6,
+            "value": {"type": "string", "value": "bar"},
+        },
+    ),
+]
+
+SET_COOKIE_TEST_IDS=[
+    "no domain",
+    "default domain",
+    "alt domain",
+    "custom path",
+    "http only",
+    "secure",
+    "expiry",
+    "max age",
+    "same site none",
+    "same site lax",
+    "same site strict",
+]

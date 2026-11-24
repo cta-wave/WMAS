@@ -1,0 +1,5 @@
+rules:
+- hyphens-*: [hyphens]
+- hyphenate-character-*: [hyphenate-character]
+- hyphenate-limit-chars-*: [hyphenate-limit-chars]
+- hyphenate-limit-lines-*: [hyphenate-limit-lines]

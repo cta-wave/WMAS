@@ -3,7 +3,7 @@
 // (https://github.com/w3c/webref)
 // Source: JS Self-Profiling API (https://wicg.github.io/js-self-profiling/)
 
-[Exposed=Window]
+[Exposed=(Window, Worker)]
 interface Profiler : EventTarget {
   readonly attribute DOMHighResTimeStamp sampleInterval;
   readonly attribute boolean stopped;
@@ -21,9 +21,12 @@ dictionary ProfilerTrace {
   required sequence<ProfilerSample> samples;
 };
 
+enum ProfilerMarker { "script", "gc", "style", "layout", "paint", "other" };
+
 dictionary ProfilerSample {
   required DOMHighResTimeStamp timestamp;
   unsigned long long stackId;
+  ProfilerMarker? marker;
 };
 
 dictionary ProfilerStack {

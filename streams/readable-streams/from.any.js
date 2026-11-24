@@ -1,4 +1,4 @@
-// META: global=window,worker,shadowrealm
+// META: global=window,worker
 // META: script=../resources/test-utils.js
 'use strict';
 
@@ -16,11 +16,6 @@ const iterableFactories = [
 
   ['an array iterator', () => {
     return ['a', 'b'][Symbol.iterator]();
-  }],
-
-  ['a string', () => {
-    // This iterates over the code points of the string.
-    return 'ab';
   }],
 
   ['a Set', () => {
@@ -51,44 +46,76 @@ const iterableFactories = [
 
   ['a sync iterable of values', () => {
     const chunks = ['a', 'b'];
-    const it = {
+    const iterator = {
       next() {
         return {
           done: chunks.length === 0,
           value: chunks.shift()
         };
-      },
-      [Symbol.iterator]: () => it
+      }
     };
-    return it;
+    const iterable = {
+      [Symbol.iterator]: () => iterator
+    };
+    return iterable;
   }],
 
   ['a sync iterable of promises', () => {
     const chunks = ['a', 'b'];
-    const it = {
+    const iterator = {
       next() {
         return chunks.length === 0 ? { done: true } : {
           done: false,
           value: Promise.resolve(chunks.shift())
         };
-      },
-      [Symbol.iterator]: () => it
+      }
     };
-    return it;
+    const iterable = {
+      [Symbol.iterator]: () => iterator
+    };
+    return iterable;
+  }],
+
+  ['a sync iterable with a function iterator', () => {
+    const chunks = ['a', 'b'];
+    function functionIterator() {}
+    functionIterator.next = () => ({
+      done: chunks.length === 0,
+      value: chunks.shift()
+    });
+    const iterable = {
+      [Symbol.iterator]: () => functionIterator
+    };
+    return iterable;
   }],
 
   ['an async iterable', () => {
     const chunks = ['a', 'b'];
-    const it = {
+    const asyncIterator = {
       next() {
         return Promise.resolve({
           done: chunks.length === 0,
           value: chunks.shift()
         })
-      },
-      [Symbol.asyncIterator]: () => it
+      }
     };
-    return it;
+    const asyncIterable = {
+      [Symbol.asyncIterator]: () => asyncIterator
+    };
+    return asyncIterable;
+  }],
+
+  ['an async iterable with a function iterator', () => {
+    const chunks = ['a', 'b'];
+    function functionAsyncIterator() {}
+    functionAsyncIterator.next = () => Promise.resolve({
+      done: chunks.length === 0,
+      value: chunks.shift()
+    });
+    const asyncIterable = {
+      [Symbol.asyncIterator]: () => functionAsyncIterator
+    };
+    return asyncIterable;
   }],
 
   ['a ReadableStream', () => {
@@ -138,11 +165,18 @@ const badIterables = [
   ['Object.create(null)', Object.create(null)],
   ['a function', () => 42],
   ['a symbol', Symbol()],
+  ['a string', 'ab'],
   ['an object with a non-callable @@iterator method', {
     [Symbol.iterator]: 42
   }],
   ['an object with a non-callable @@asyncIterator method', {
     [Symbol.asyncIterator]: 42
+  }],
+  ['an object with an @@iterator method returning a non-object', {
+    [Symbol.iterator]: () => 42
+  }],
+  ['an object with an @@asyncIterator method returning a non-object', {
+    [Symbol.asyncIterator]: () => 42
   }],
 ];
 
@@ -186,6 +220,18 @@ test(t => {
   assert_throws_exactly(theError, () => ReadableStream.from(iterable), 'from() should re-throw the error');
 }, `ReadableStream.from ignores @@iterator if @@asyncIterator exists`);
 
+test(() => {
+  const theError = new Error('a unique string');
+  const iterable = {
+    [Symbol.asyncIterator]: null,
+    [Symbol.iterator]() {
+      throw theError
+    }
+  };
+
+  assert_throws_exactly(theError, () => ReadableStream.from(iterable), 'from() should re-throw the error');
+}, `ReadableStream.from ignores a null @@asyncIterator`);
+
 promise_test(async () => {
 
   const iterable = {
@@ -225,6 +271,64 @@ promise_test(async t => {
   ]);
 
 }, `ReadableStream.from: stream errors when next() rejects`);
+
+promise_test(async t => {
+  const theError = new Error('a unique string');
+
+  const iterable = {
+    next() {
+      throw theError;
+    },
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await Promise.all([
+    promise_rejects_exactly(t, theError, reader.read()),
+    promise_rejects_exactly(t, theError, reader.closed)
+  ]);
+
+}, 'ReadableStream.from: stream errors when next() throws synchronously');
+
+promise_test(async t => {
+
+  const iterable = {
+    next() {
+      return 42; // not a promise or an iterator result
+    },
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await Promise.all([
+    promise_rejects_js(t, TypeError, reader.read()),
+    promise_rejects_js(t, TypeError, reader.closed)
+  ]);
+
+}, 'ReadableStream.from: stream errors when next() returns a non-object');
+
+promise_test(async t => {
+
+  const iterable = {
+    next() {
+      return Promise.resolve(42); // not an iterator result
+    },
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await Promise.all([
+    promise_rejects_js(t, TypeError, reader.read()),
+    promise_rejects_js(t, TypeError, reader.closed)
+  ]);
+
+}, 'ReadableStream.from: stream errors when next() fulfills with a non-object');
 
 promise_test(async t => {
 
@@ -316,7 +420,6 @@ promise_test(async t => {
 promise_test(async t => {
 
   let nextCalls = 0;
-  let returnCalls = 0;
 
   const iterable = {
     async next() {
@@ -324,9 +427,7 @@ promise_test(async t => {
       return { value: undefined, done: true };
     },
     throw: t.unreached_func('throw() should not be called'),
-    async return() {
-      returnCalls += 1;
-    },
+    return: t.unreached_func('return() should not be called'),
     [Symbol.asyncIterator]: () => iterable
   };
 
@@ -338,9 +439,95 @@ promise_test(async t => {
   assert_equals(nextCalls, 1, 'next() should be called once');
 
   await reader.closed;
-  assert_equals(returnCalls, 0, 'return() should not be called');
 
 }, `ReadableStream.from: return() is not called when iterator completes normally`);
+
+promise_test(async t => {
+
+  const theError = new Error('a unique string');
+
+  const iterable = {
+    next: t.unreached_func('next() should not be called'),
+    throw: t.unreached_func('throw() should not be called'),
+    // no return method
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await Promise.all([
+    reader.cancel(theError),
+    reader.closed
+  ]);
+
+}, `ReadableStream.from: cancel() resolves when return() method is missing`);
+
+promise_test(async t => {
+
+  const theError = new Error('a unique string');
+
+  const iterable = {
+    next: t.unreached_func('next() should not be called'),
+    throw: t.unreached_func('throw() should not be called'),
+    return: 42,
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await promise_rejects_js(t, TypeError, reader.cancel(theError), 'cancel() should reject with a TypeError');
+
+  await reader.closed;
+
+}, `ReadableStream.from: cancel() rejects when return() is not a method`);
+
+promise_test(async t => {
+
+  const cancelReason = new Error('cancel reason');
+  const rejectError = new Error('reject error');
+
+  const iterable = {
+    next: t.unreached_func('next() should not be called'),
+    throw: t.unreached_func('throw() should not be called'),
+    async return() {
+      throw rejectError;
+    },
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await promise_rejects_exactly(t, rejectError, reader.cancel(cancelReason), 'cancel() should reject with error from return()');
+
+  await reader.closed;
+
+}, `ReadableStream.from: cancel() rejects when return() rejects`);
+
+promise_test(async t => {
+
+  const cancelReason = new Error('cancel reason');
+  const rejectError = new Error('reject error');
+
+  const iterable = {
+    next: t.unreached_func('next() should not be called'),
+    throw: t.unreached_func('throw() should not be called'),
+    return() {
+      throw rejectError;
+    },
+    [Symbol.asyncIterator]: () => iterable
+  };
+
+  const rs = ReadableStream.from(iterable);
+  const reader = rs.getReader();
+
+  await promise_rejects_exactly(t, rejectError, reader.cancel(cancelReason), 'cancel() should reject with error from return()');
+
+  await reader.closed;
+
+}, `ReadableStream.from: cancel() rejects when return() throws synchronously`);
 
 promise_test(async t => {
 
@@ -395,7 +582,7 @@ promise_test(async () => {
 
 }, `ReadableStream.from: reader.read() inside next()`);
 
-promise_test(async () => {
+promise_test(async t => {
 
   let nextCalls = 0;
   let returnCalls = 0;
@@ -404,12 +591,12 @@ promise_test(async () => {
   const iterable = {
     async next() {
       nextCalls++;
-      await reader.cancel();
-      assert_equals(returnCalls, 1, 'return() should be called once');
+      await reader.cancel().catch(t.unreached_func('cancel() should not reject'));
       return { value: 'something else', done: false };
     },
     async return() {
       returnCalls++;
+      return { done: true };
     },
     [Symbol.asyncIterator]: () => iterable
   };
@@ -420,8 +607,10 @@ promise_test(async () => {
   const read = await reader.read();
   assert_object_equals(read, { value: undefined, done: true }, 'first read should be done');
   assert_equals(nextCalls, 1, 'next() should be called once');
+  assert_equals(returnCalls, 1, 'return() should be called once');
 
   await reader.closed;
+  await flushAsyncEvents(); // wait for next() to settle
 
 }, `ReadableStream.from: reader.cancel() inside next()`);
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<title>Tests pageswap dispatch on hidden Documents</title>
+<link rel="author" title="Khushal Sagar"  href="mailto:khushalsagar@chromium.org">
+<link rel="author" href="mailto:khushalsagar@chromium.org">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+<script>
+const popupUrl = "resources/pageswap-push-navigation-hidden-document-popup.html";
+const expectedUrl = new URL(popupUrl + "?new", location.href).href;
+const expectedEvents =
+    ["hidden", "pageswap", expectedUrl, "push", "from", "pagehide"];
+
+const channel = new BroadcastChannel("testchannel");
+
+promise_test(async t => {
+  let popup;
+  onload = async () => {
+    window.events = [];
+    popup = window.open(popupUrl + "?popup");
+  };
+
+  await new Promise(resolve => {
+    channel.addEventListener(
+      "message", t.step_func(async (e) => {
+        if (e.data === "nav") {
+          assert_array_equals(window.events, expectedEvents, 'incorrect event order');
+          popup.close();
+          resolve();
+        }
+    }));
+  });
+}, `pageswap on navigation from script`);
+</script>

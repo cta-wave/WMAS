@@ -1,3 +1,3 @@
-features:
-- name: text-indent
-  files: "**"
+rules:
+- text-indent-each-line-hanging.html: [text-indent-each-line, text-indent-hanging]
+- "*": [text-indent]

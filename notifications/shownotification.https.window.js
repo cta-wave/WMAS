@@ -10,7 +10,7 @@ let registration;
 
 promise_setup(async () => {
   await test_driver.set_permission({ name: "notifications" }, "granted");
-  registration = await getActiveServiceWorker("noop-sw.js");
+  registration = await prepareActiveServiceWorker("noop-sw.js");
 });
 
 promise_test(async () => {
@@ -42,6 +42,20 @@ promise_test(async t => {
   assert_equals(notifications[0].title, "supernova", "title should match");
   assert_equals(notifications[0].tag, "quantum", "tag should match");
 }, "fetching notification by tag filter");
+
+promise_test(async t => {
+  t.add_cleanup(closeAllNotifications);
+  await Promise.all([
+    registration.showNotification("thunder", { tag: "moz" }),
+    registration.showNotification("bird", { tag: "moz" }),
+  ]);
+  const notifications = await registration.getNotifications({ tag: "moz" });
+  assert_equals(
+    notifications.length,
+    1,
+    "Should return only the latest notification"
+  );
+}, "fetching same-tagged notification by tag filter");
 
 promise_test(async t => {
   t.add_cleanup(closeAllNotifications);
@@ -85,3 +99,32 @@ promise_test(async t => {
   assert_equals(notifications.length, 1, "Should return a notification");
   assert_custom_data(notifications[0].data);
 }, "fetching a notification with custom data")
+
+promise_test(async t => {
+  t.add_cleanup(closeAllNotifications);
+  await registration.showNotification("Hello", { navigate: "https://example.com" });
+  const notifications = await registration.getNotifications();
+  assert_equals(notifications.length, 1, "Should return a notification");
+  // Trailing slash is added here since the URL is parsed (in showNotification)
+  // and then serialized again (in navigate getter steps).
+  assert_equals(notifications[0].navigate, "https://example.com/",
+                "Should keep track of Notification.navigate.");
+}, "fetching a notification with navigate URL");
+
+promise_test(async t => {
+  t.add_cleanup(closeAllNotifications);
+  await registration.showNotification("Hello", {});
+  const notifications = await registration.getNotifications();
+  assert_equals(notifications.length, 1, "Should return a notification");
+  assert_equals(notifications[0].navigate, "",
+                "Should return an empty string for Notification.navigate if URL is not set.");
+}, "fetching a notification with no navigate URL");
+
+promise_test(async t => {
+  t.add_cleanup(closeAllNotifications);
+  await registration.showNotification("Hello", { navigate: "http://999.999" });
+  const notifications = await registration.getNotifications();
+  assert_equals(notifications.length, 1, "Should return a notification");
+  assert_equals(notifications[0].navigate, "",
+                "Should return an empty string for Notification.navigate if URL is invalid.");
+}, "fetching a notification with invalid navigate URL");

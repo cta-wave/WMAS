@@ -1,0 +1,23 @@
+// GENERATED CONTENT - DO NOT EDIT
+// Content was automatically extracted by Reffy into webref
+// (https://github.com/w3c/webref)
+// Source: Autofill Event (https://wicg.github.io/autofill-event/)
+
+[Exposed=Window]
+interface AutofillEvent : Event {
+  constructor(DOMString type, optional AutofillEventInit eventInitDict = {});
+  readonly attribute FrozenArray<AutofillValueEntry> autofillValues;
+  readonly attribute RefillCallback? refill;
+};
+
+callback RefillCallback = Promise<undefined> ();
+
+dictionary AutofillEventInit : EventInit {
+  sequence<AutofillValueEntry> autofillValues = [];
+  boolean allowRefill = true;
+};
+
+dictionary AutofillValueEntry {
+  required HTMLElement field;
+  required DOMString value;
+};

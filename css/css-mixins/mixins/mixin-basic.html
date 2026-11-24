@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSS Mixins: Basic test</title>
+    <link rel="help" href="https://drafts.csswg.org/css-mixins-1/#defining-mixins">
+    <script src="/resources/testharness.js"></script>
+    <script src="/resources/testharnessreport.js"></script>
+    <style>
+      @mixin --m1() {  /* Will be overwritten. */
+        .cls {
+          color: red;
+        }
+      }
+      @mixin --m1() {
+        .cls {
+          color: green;
+        }
+      }
+      @mixin invalid-name() {
+        .cls {
+          color: red;
+        }
+      }
+      @mixin --no-parameter-list {
+        .cls {
+          border: 1px solid green;
+        }
+      }
+      @mixin --nested-body() {
+        .cls {
+          color: green;
+        }
+      }
+      @mixin --declarations-body() {
+        color: green;
+      }
+      @mixin --empty1() {}
+      @mixin --empty2() {  }
+      div {
+        @apply --m1;
+        @apply invalid-name;
+        @apply --no-parameter-list;
+        @apply --nested-body;
+        @apply --declarations-body;
+        @apply --empty1;
+        @apply --empty2;
+      }
+    </style>
+  </head>
+  <body>
+    <div><div class="cls" id="target">This text should be green with a green border.</div></div>
+  <script>
+    test(() => {
+      let target = document.getElementById('target');
+      assert_equals(getComputedStyle(target).color, 'rgb(0, 128, 0)');
+      assert_equals(getComputedStyle(target).borderTopColor, 'rgb(0, 128, 0)');
+      assert_equals(getComputedStyle(target).borderTopWidth, '1px');
+      assert_equals(getComputedStyle(target).borderTopStyle, 'solid');
+    });
+  </script>
+  </body>
+</html>

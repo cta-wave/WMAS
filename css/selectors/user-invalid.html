@@ -29,6 +29,11 @@
   <input placeholder="Required field" required id="required-input"><br>
   <textarea placeholder="Required field" required id="required-textarea"></textarea><br>
   <input type="checkbox" required id="required-checkbox"><br>
+  <!-- Radio buttons with the same name will also have the same state of :user-valid and :user-invalid -->
+  <input type="radio" required id="required-radio" name="required-radio"><br>
+  <input type="radio" required id="required-radio-same-name" name="required-radio"><br>
+  <input type="radio" required id="required-radio-different-name" name="required-radio-different-name"><br>
+  <input type="date" required id="required-date"><br>
   <input type="submit" id="submit-button">
   <input type="reset" id="reset-button">
 </form>
@@ -60,6 +65,19 @@ promise_test(async () => {
   assert_false(input.matches(":user-invalid"), "Programatically cleared value, :user-invalid should not match");
 
   await test_driver.click(input);
+  input.value = "not an email";
+
+  assert_false(input.matches(":user-valid"), "Programatically set value with the element focused, :user-valid should not match");
+  assert_false(input.matches(":user-invalid"), "Programatically set value with the element focused, :user-invalid should not match");
+
+  input.value = "";
+
+  assert_false(input.matches(":user-valid"), "Programatically cleared value with the element focused, :user-valid should not match");
+  assert_false(input.matches(":user-invalid"), "Programatically cleared value with the element focused, :user-invalid should not match");
+
+  input.blur();
+
+  await test_driver.click(input);
   await test_driver.send_keys(input, "not an email");
   input.blur();
 
@@ -80,15 +98,32 @@ promise_test(async () => {
   const requiredInput = document.querySelector("#required-input");
   const requiredTextarea = document.querySelector("#required-textarea");
   const requiredCheckbox = document.querySelector("#required-checkbox");
+  const requiredRadio = document.querySelector("#required-radio");
+  const requiredRadioWithSameName = document.querySelector("#required-radio-same-name");
+  const requiredRadioWithDifferentName = document.querySelector("#required-radio-different-name");
+  const requiredDate = document.querySelector("#required-date");
   const submitButton = document.querySelector("#submit-button");
   const resetButton = document.querySelector("#reset-button");
 
   assert_false(requiredInput.validity.valid);
   assert_false(requiredTextarea.validity.valid);
   assert_false(requiredCheckbox.validity.valid);
+  assert_false(requiredRadio.validity.valid);
+  assert_false(requiredRadioWithSameName.validity.valid);
+  assert_false(requiredRadioWithDifferentName.validity.valid);
+  assert_false(requiredDate.validity.valid);
   // The selector can't match because no interaction has happened.
   assert_false(requiredInput.matches(":user-valid"), "Initially does not match :user-valid");
   assert_false(requiredInput.matches(":user-invalid"), "Initially does not match :user-invalid");
+
+  assert_false(requiredRadio.matches(":user-valid"), "Initially does not match :user-valid");
+  assert_false(requiredRadio.matches(":user-invalid"), "Initially does not match :user-invalid");
+
+  assert_false(requiredRadioWithSameName.matches(":user-valid"), "Initially does not match :user-valid");
+  assert_false(requiredRadioWithSameName.matches(":user-invalid"), "Initially does not match :user-invalid");
+
+  assert_false(requiredRadioWithDifferentName.matches(":user-valid"), "Initially does not match :user-valid");
+  assert_false(requiredRadioWithDifferentName.matches(":user-invalid"), "Initially does not match :user-invalid");
 
   assert_false(requiredTextarea.matches(":user-valid"), "Initially does not match :user-valid");
   assert_false(requiredTextarea.matches(":user-invalid"), "Initially does not match :user-invalid");
@@ -96,10 +131,22 @@ promise_test(async () => {
   assert_false(requiredCheckbox.matches(":user-valid"), "Initially does not match :user-valid");
   assert_false(requiredCheckbox.matches(":user-invalid"), "Initially does not match :user-invalid");
 
+  assert_false(requiredDate.matches(":user-valid"), "Initially does not match :user-valid");
+  assert_false(requiredDate.matches(":user-invalid"), "Initially does not match :user-invalid");
+
   submitButton.click();
 
   assert_true(requiredInput.matches(":user-invalid"), "Submitted the form, input is validated");
   assert_false(requiredInput.matches(":user-valid"), "Submitted the form, input is validated");
+
+  assert_true(requiredRadio.matches(":user-invalid"), "Submitted the form, radio is validated");
+  assert_false(requiredRadio.matches(":user-valid"), "Submitted the form, radio is validated");
+
+  assert_true(requiredRadioWithSameName.matches(":user-invalid"), "Submitted the form, radio is validated");
+  assert_false(requiredRadioWithSameName.matches(":user-valid"), "Submitted the form, radio is validated");
+
+  assert_true(requiredRadioWithDifferentName.matches(":user-invalid"), "Submitted the form, radio is validated");
+  assert_false(requiredRadioWithDifferentName.matches(":user-valid"), "Submitted the form, radio is validated");
 
   assert_true(requiredTextarea.matches(":user-invalid"), "Submitted the form, textarea is validated");
   assert_false(requiredTextarea.matches(":user-valid"), "Submitted the form, textarea is validated");
@@ -107,10 +154,22 @@ promise_test(async () => {
   assert_true(requiredCheckbox.matches(":user-invalid"), "Submitted the form, checkbox is validated");
   assert_false(requiredCheckbox.matches(":user-valid"), "Submitted the form, checkbox is validated");
 
+  assert_true(requiredDate.matches(":user-invalid"), "Submitted the form, date input is validated");
+  assert_false(requiredDate.matches(":user-valid"), "Submitted the form, date input is validated");
+
   resetButton.click();
 
   assert_false(requiredInput.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
   assert_false(requiredInput.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
+
+  assert_false(requiredRadio.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
+  assert_false(requiredRadio.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
+
+  assert_false(requiredRadioWithSameName.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
+  assert_false(requiredRadioWithSameName.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
+
+  assert_false(requiredRadioWithDifferentName.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
+  assert_false(requiredRadioWithDifferentName.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
 
   assert_false(requiredTextarea.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
   assert_false(requiredTextarea.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
@@ -118,17 +177,32 @@ promise_test(async () => {
   assert_false(requiredCheckbox.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
   assert_false(requiredCheckbox.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
 
+  assert_false(requiredDate.matches(":user-valid"), "Reset the form, user-interacted flag is reset");
+  assert_false(requiredDate.matches(":user-invalid"), "Reset the form, user-interacted flag is reset");
+
   // Test programmatic form submission with constraint validation.
   form.requestSubmit();
 
   assert_true(requiredInput.matches(":user-invalid"), "Called form.requestSubmit(), input is validated");
   assert_false(requiredInput.matches(":user-valid"), "Called form.requestSubmit(), input is validated");
 
+  assert_true(requiredRadio.matches(":user-invalid"), "Called form.requestSubmit(), radio is validated");
+  assert_false(requiredRadio.matches(":user-valid"), "Called form.requestSubmit(), radio is validated");
+
+  assert_true(requiredRadioWithSameName.matches(":user-invalid"), "Called form.requestSubmit(), radio is validated");
+  assert_false(requiredRadioWithSameName.matches(":user-valid"), "Called form.requestSubmit(), radio is validated");
+
+  assert_true(requiredRadioWithDifferentName.matches(":user-invalid"), "Called form.requestSubmit(), radio is validated");
+  assert_false(requiredRadioWithDifferentName.matches(":user-valid"), "Called form.requestSubmit(), radio is validated");
+
   assert_true(requiredTextarea.matches(":user-invalid"), "Called form.requestSubmit(), textarea is validated");
   assert_false(requiredTextarea.matches(":user-valid"), "Called form.requestSubmit(), textarea is validated");
 
   assert_true(requiredCheckbox.matches(":user-invalid"), "Called form.requestSubmit(), checkbox is validated");
   assert_false(requiredCheckbox.matches(":user-valid"), "Called form.requestSubmit(), checkbox is validated");
+
+  assert_true(requiredDate.matches(":user-invalid"), "Called form.requestSubmit(), date input is validated");
+  assert_false(requiredDate.matches(":user-valid"), "Called form.requestSubmit(), date input is validated");
 }, ":user-invalid selector properly interacts with submit & reset buttons");
 
 // historical: https://github.com/w3c/csswg-drafts/issues/1329
@@ -193,4 +267,102 @@ promise_test(async () => {
   assert_true(checkbox.matches(':user-invalid'),
     'Checkbox should match :user-invalid after clicking twice.');
 }, 'A required checkbox should match :user-invalid if the user unchecks it and blurs.');
+
+promise_test(async () => {
+  const radio = document.getElementById('required-radio');
+  const radioWithSameName = document.getElementById('required-radio-same-name');
+  const radioWithDifferentName = document.getElementById('required-radio-different-name');
+  const submitButton = document.getElementById("submit-button");
+
+  const resetButton = document.getElementById('reset-button');
+  resetButton.click();
+  assert_false(radio.matches(':user-invalid'),
+    'Radio should not match :user-invalid at the start of the test.');
+  assert_false(radioWithSameName.matches(':user-invalid'),
+    'Radio should not match :user-invalid at the start of the test.');
+  assert_false(radioWithDifferentName.matches(':user-invalid'),
+    'Radio should not match :user-invalid at the start of the test.');
+  assert_false(radio.checked,
+    'Radio should not be checked at the start of the test.');
+  assert_false(radioWithSameName.checked,
+    'Radio should not be checked at the start of the test.');
+  assert_false(radioWithDifferentName.checked,
+    'Radio should not be checked at the start of the test.');
+
+  radio.checked = true;
+  assert_false(radio.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+  assert_false(radioWithSameName.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+  assert_false(radioWithDifferentName.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+  radio.checked = false;
+  assert_false(radio.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+  assert_false(radioWithSameName.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+  assert_false(radioWithDifferentName.matches(':user-invalid'),
+    'Radio should not match :user-invalid after programatically changing value.');
+
+  await test_driver.click(radio);
+  assert_true(radio.checked, 'Radio should be checked after clicking once.');
+  assert_false(radio.matches(':user-invalid'),
+    'Radio should not match :user-invalid after checking it.');
+
+  // Test radios with the same name and different name
+  resetButton.click();
+  submitButton.click();
+  assert_true(radio.matches(":user-invalid"), "Submitted the form, radio is validated");
+  assert_false(radio.matches(":user-valid"), "Submitted the form, radio is validated");
+  assert_true(radioWithSameName.matches(":user-invalid"), "Submitted the form, radioWithSameName is validated");
+  assert_false(radioWithSameName.matches(":user-valid"), "Submitted the form, radioWithSameName is validated");
+  assert_true(radioWithDifferentName.matches(":user-invalid"), "Submitted the form, radioWithDifferentName is validated");
+  assert_false(radioWithDifferentName.matches(":user-valid"), "Submitted the form, radioWithDifferentName is validated");
+
+  await test_driver.click(radioWithSameName);
+  assert_false(radioWithSameName.matches(":user-invalid"), "Submitted the form, radioWithSameName is validated");
+  assert_true(radioWithSameName.matches(":user-valid"), "Submitted the form, radioWithSameName is validated");
+
+  // Since radio has the same name as radioWithSameName, it should be has the same validation result as radioWithSameName.
+  assert_false(radio.matches(":user-invalid"), "Submitted the form, radio is validated");
+  assert_true(radio.matches(":user-valid"), "Submitted the form, radio is validated");
+
+  // Since radioWithDifferentName has a different name, its validation result won't change.
+  assert_true(radioWithDifferentName.matches(":user-invalid"), "Submitted the form, radioWithDifferentName is validated");
+  assert_false(radioWithDifferentName.matches(":user-valid"), "Submitted the form, radioWithDifferentName is validated");
+}, 'A required radio should match :user-invalid if it is not checked.');
+
+promise_test(async () => {
+  const date = document.getElementById('required-date');
+
+  const resetButton = document.getElementById('reset-button');
+  resetButton.click();
+  assert_false(date.matches(':user-invalid'),
+    'date input should not match :user-invalid at the start of the test.');
+  assert_equals(date.value, '',
+    'date input should not have a value at the start of the test.');
+
+  date.value = '2024-04-15';
+  assert_false(date.matches(':user-invalid'),
+    'date should not match :user-invalid after programatically changing value.');
+  date.value = '';
+  assert_false(date.matches(':user-invalid'),
+    'date should not match :user-invalid after programatically changing value.');
+
+  const tabKey = '\uE004';
+  const backspace = '\uE003';
+  date.focus();
+  // Press tab twice at the end to make sure that focus has left the input.
+  await test_driver.send_keys(date, `1${tabKey}1${tabKey}1234${tabKey}${tabKey}`);
+  assert_not_equals(document.activeElement, date,
+    'Pressing tab twice after typing in the date should have blurred the input.');
+  assert_equals(date.value, '1234-01-01',
+    'Date input value should match the testdriver input.');
+  date.focus();
+  await test_driver.send_keys(date, backspace);
+  assert_equals(date.value, '',
+    'Date input value should be cleared when deleting one of the sub-values.');
+  assert_true(date.matches(':user-invalid'),
+    'Date input should match :user-invalid after typing in an invalid value.');
+}, 'A required date should match :user-invalid if the user unchecks it and blurs.');
 </script>

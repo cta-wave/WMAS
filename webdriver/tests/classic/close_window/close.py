@@ -1,7 +1,7 @@
 import pytest
 from webdriver import error
 
-from tests.support.asserts import assert_error, assert_success
+from tests.support.classic.asserts import assert_error, assert_success
 
 
 def close(session):
@@ -20,10 +20,10 @@ def test_no_browsing_context(session, url):
     session.url = url("/webdriver/tests/support/html/frames.html")
 
     subframe = session.find.css("#sub-frame", all=False)
-    session.switch_frame(subframe)
+    session.switch_to_frame(subframe)
 
     frame = session.find.css("#delete-frame", all=False)
-    session.switch_frame(frame)
+    session.switch_to_frame(frame)
 
     button = session.find.css("#remove-parent", all=False)
     button.click()
@@ -45,29 +45,24 @@ def test_close_browsing_context(session):
     assert new_handle not in handles
 
 
-def test_close_browsing_context_with_dismissed_beforeunload_prompt(session, inline):
+@pytest.mark.parametrize("type", ["tab", "window"])
+def test_close_browsing_context_with_accepted_beforeunload_prompt(session, url, type):
     original_handles = session.handles
 
-    new_handle = session.new_window()
+    new_handle = session.new_window(type_hint=type)
     session.window_handle = new_handle
 
-    session.url = inline("""
-      <input type="text">
-      <script>
-        window.addEventListener("beforeunload", function (event) {
-          event.preventDefault();
-        });
-      </script>
-    """)
+    session.url = url("/webdriver/tests/support/html/beforeunload.html")
 
-    session.find.css("input", all=False).send_keys("foo")
+    element = session.find.css("input", all=False)
+    element.send_keys("bar")
 
     response = close(session)
     handles = assert_success(response, original_handles)
     assert session.handles == original_handles
     assert new_handle not in handles
 
-    # A beforeunload prompt has to be automatically dismissed
+    # A beforeunload prompt has to be automatically accepted
     with pytest.raises(error.NoSuchWindowException):
         session.alert.text
 
@@ -78,8 +73,15 @@ def test_close_last_browsing_context(session):
 
     assert_success(response, [])
 
-    # With no more open top-level browsing contexts, the session is closed.
-    session.session_id = None
+    try:
+        # The session should've been deleted by closing the last context.
+        with pytest.raises(error.InvalidSessionIdException):
+            session.handles
+
+    finally:
+        # Need an explicit call to session.end() to notify the test harness
+        # that a new session needs to be created for subsequent tests.
+        session.end()
 
 
 def test_element_usage_after_closing_browsing_context(session, inline):

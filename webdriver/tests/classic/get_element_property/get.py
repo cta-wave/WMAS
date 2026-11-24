@@ -1,8 +1,12 @@
+# META: timeout=long
+
+# Longer timeout required due to a large number of element lookup and DOM inspection subtests.
+
 import pytest
 
 from webdriver import WebElement, WebFrame, ShadowRoot, WebWindow
 
-from tests.support.asserts import assert_error, assert_success
+from tests.support.classic.asserts import assert_error, assert_success
 
 
 def get_element_property(session, element_id, prop):
@@ -67,11 +71,11 @@ def test_no_such_element_from_other_frame(session, get_test_page, closed):
     session.url = get_test_page(as_frame=True)
 
     frame = session.find.css("iframe", all=False)
-    session.switch_frame(frame)
+    session.switch_to_frame(frame)
 
     element = session.find.css("div", all=False)
 
-    session.switch_frame("parent")
+    session.switch_to_parent_frame()
 
     if closed:
         session.execute_script("arguments[0].remove();", args=[frame])

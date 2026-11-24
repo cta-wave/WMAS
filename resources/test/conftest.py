@@ -1,13 +1,17 @@
 import copy
+import errno
 import json
+import logging
 import os
+import socket
 import ssl
-import sys
 import subprocess
+import sys
+import time
 import urllib
+from typing import Optional
 
 import html5lib
-import py
 import pytest
 
 from wptserver import WPTServer
@@ -18,10 +22,12 @@ HARNESS = os.path.join(HERE, 'harness.html')
 TEST_TYPES = ('functional', 'unit')
 
 sys.path.insert(0, os.path.normpath(os.path.join(WPT_ROOT, "tools")))
-import localpaths
+import localpaths  # noqa: F401
 
 sys.path.insert(0, os.path.normpath(os.path.join(WPT_ROOT, "tools", "webdriver")))
 import webdriver
+
+logger = logging.getLogger(__name__)
 
 
 def pytest_addoption(parser):
@@ -40,11 +46,46 @@ def pytest_collect_file(file_path, path, parent):
         return
     test_type = test_type.split(os.path.sep)[1]
 
-    # Handle the deprecation of Node construction in pytest6
-    # https://docs.pytest.org/en/stable/deprecations.html#node-construction-changed-to-node-from-parent
-    if hasattr(HTMLItem, "from_parent"):
-        return HTMLItem.from_parent(parent, filename=str(file_path), test_type=test_type)
-    return HTMLItem(parent, str(file_path), test_type)
+    return HTMLFile.from_parent(parent, path=file_path, test_type=test_type)
+
+
+def wait_for_service(
+    host: str,
+    port: int,
+    timeout: float = 60,
+    server_process: Optional[subprocess.Popen] = None,
+) -> bool:
+    """Waits until network service given as a tuple of (host, port) becomes
+    available, `timeout` duration is reached, or the `server_process` exits at
+    which point ``socket.error`` is raised."""
+    addr = (host, port)
+    logger.debug("Trying to connect to %s:%d", host, port)
+    end = time.time() + timeout
+    while end > time.time():
+        if server_process is not None and server_process.poll() is not None:
+            returncode = server_process.poll()
+            logger.debug(
+                "Server process %d exited with %d, giving up trying to connect",
+                server_process.pid,
+                returncode,
+            )
+            break
+
+        so = socket.socket()
+        try:
+            so.connect(addr)
+        except socket.timeout:
+            pass
+        except OSError as e:
+            if e.errno != errno.ECONNREFUSED:
+                raise
+        else:
+            logger.debug("Connected to %s:%d", host, port)
+            return True
+        finally:
+            so.close()
+        time.sleep(0.5)
+    raise OSError("Service is unavailable: %s:%i" % addr)
 
 
 def pytest_configure(config):
@@ -57,8 +98,10 @@ def pytest_configure(config):
     if config.getoption("--headless"):
         capabilities["alwaysMatch"]["moz:firefoxOptions"]["args"] = ["--headless"]
 
+    wait_for_service("localhost", 4444, server_process=config.proc)
     config.driver = webdriver.Session("localhost", 4444,
                                       capabilities=capabilities)
+    config.driver.start()
     config.add_cleanup(config.driver.end)
 
     # Although the name of the `_create_unverified_context` method suggests
@@ -144,26 +187,29 @@ def _summarize(actual):
     return summarized
 
 
-class HTMLItem(pytest.Item, pytest.Collector):
-    def __init__(self, parent, filename, test_type):
-        self.url = parent.session.config.server.url(filename)
-        self.type = test_type
+class HTMLFile(pytest.File):
+    def __init__(self, test_type=None, **kwargs):
+        super().__init__(**kwargs)
+        self.test_type = test_type
+
+    def collect(self):
+        url = self.session.config.server.url(self.path)
         # Some tests are reliant on the WPT servers substitution functionality,
         # so tests must be retrieved from the server rather than read from the
         # file system directly.
-        handle = urllib.request.urlopen(self.url,
-                                        context=parent.session.config.ssl_context)
+        handle = urllib.request.urlopen(url,
+                                        context=self.parent.session.config.ssl_context)
         try:
             markup = handle.read()
         finally:
             handle.close()
 
-        if test_type not in TEST_TYPES:
-            raise ValueError('Unrecognized test type: "%s"' % test_type)
+        if self.test_type not in TEST_TYPES:
+            raise ValueError('Unrecognized test type: "%s"' % self.test_type)
 
         parsed = html5lib.parse(markup, namespaceHTMLElements=False)
         name = None
-        self.expected = None
+        expected = None
 
         for element in parsed.iter():
             if not name and element.tag == 'title':
@@ -172,39 +218,37 @@ class HTMLItem(pytest.Item, pytest.Collector):
             if element.tag == 'script':
                 if element.attrib.get('id') == 'expected':
                     try:
-                        self.expected = json.loads(element.text)
+                        expected = json.loads(element.text)
                     except ValueError:
-                        print("Failed parsing JSON in %s" % filename)
+                        print("Failed parsing JSON in %s" % self.path)
                         raise
 
         if not name:
-            raise ValueError('No name found in %s add a <title> element' % filename)
-        elif self.type == 'functional':
-            if not self.expected:
+            raise ValueError('No name found in %s add a <title> element' % self.path)
+        elif self.test_type == 'functional':
+            if not expected:
                 raise ValueError('Functional tests must specify expected report data')
-        elif self.type == 'unit' and self.expected:
+        elif self.test_type == 'unit' and expected:
             raise ValueError('Unit tests must not specify expected report data')
 
-        # Ensure that distinct items have distinct fspath attributes.
-        # This is necessary because pytest has an internal cache keyed on it,
-        # and only the first test with any given fspath will be run.
-        #
-        # This cannot use super(HTMLItem, self).__init__(..) because only the
-        # Collector constructor takes the fspath argument.
-        pytest.Item.__init__(self, name, parent)
-        pytest.Collector.__init__(self, name, parent, fspath=py.path.local(filename))
+        yield HTMLItem.from_parent(self, name=name, url=url, expected=expected)
 
+
+class HTMLItem(pytest.Item):
+    def __init__(self, name, parent=None, config=None, session=None, nodeid=None, test_type=None, url=None, expected=None, **kwargs):
+        super().__init__(name, parent, config, session, nodeid, **kwargs)
+
+        self.test_type = self.parent.test_type
+        self.url = url
+        self.expected = expected
 
     def reportinfo(self):
         return self.fspath, None, self.url
 
-    def repr_failure(self, excinfo):
-        return pytest.Collector.repr_failure(self, excinfo)
-
     def runtest(self):
-        if self.type == 'unit':
+        if self.test_type == 'unit':
             self._run_unit_test()
-        elif self.type == 'functional':
+        elif self.test_type == 'functional':
             self._run_functional_test()
         else:
             raise NotImplementedError
@@ -266,4 +310,4 @@ class HTMLItem(pytest.Item, pytest.Collector):
     @staticmethod
     def _assert_sequence(nums):
         if nums and len(nums) > 0:
-            assert nums == list(range(1, nums[-1] + 1))
+            assert nums == list(range(nums[-1] + 1))

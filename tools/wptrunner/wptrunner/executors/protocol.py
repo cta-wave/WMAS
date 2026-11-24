@@ -1,10 +1,15 @@
 # mypy: allow-untyped-defs
 
+import collections
 import traceback
 from http.client import HTTPConnection
 
 from abc import ABCMeta, abstractmethod
-from typing import ClassVar, List, Type
+from typing import Any, Awaitable, Callable, ClassVar, Dict, List, Literal, Mapping, Optional, \
+    Tuple, Type, TYPE_CHECKING, Union
+
+if TYPE_CHECKING:
+    from webdriver.bidi.undefined import Undefined
 
 
 def merge_dicts(target, source):
@@ -69,6 +74,8 @@ class Protocol:
 
             msg = "Post-connection steps failed"
             self.after_connect()
+            for cls in self.implements:
+                getattr(self, cls.name).after_connect()
         except Exception:
             message = "Protocol.setup caught an exception:\n"
             message += f"{msg}\n" if msg is not None else ""
@@ -103,6 +110,7 @@ class ProtocolPart:
 
     def __init__(self, parent):
         self.parent = parent
+        self.test_path = None
 
     @property
     def logger(self):
@@ -111,6 +119,11 @@ class ProtocolPart:
 
     def setup(self):
         """Run any setup steps required for the ProtocolPart."""
+        pass
+
+    def after_connect(self):
+        """Run any post-connection steps. This happens after the ProtocolParts are
+        initalized so can depend on a fully-populated object."""
         pass
 
     def teardown(self):
@@ -150,6 +163,14 @@ class BaseProtocolPart(ProtocolPart):
         :returns: True to re-run the test, or False to continue with the next test"""
         pass
 
+    @abstractmethod
+    def create_window(self, type="tab", **kwargs):
+        """Return a handle identifying a freshly created top level browsing context
+
+        :param type: - Type hint, either "tab" or "window"
+        :returns: A protocol-specific handle"""
+        pass
+
     @property
     def current_window(self):
         """Return a handle identifying the current top level browsing context
@@ -177,6 +198,11 @@ class BaseProtocolPart(ProtocolPart):
         :param url: The url to load"""
         pass
 
+    @abstractmethod
+    def refresh(self):
+        """Reload the document of the current top-level browsing context"""
+        pass
+
 
 class TestharnessProtocolPart(ProtocolPart):
     """Protocol part required to run testharness tests."""
@@ -199,18 +225,7 @@ class TestharnessProtocolPart(ProtocolPart):
         contains the initial runner page.
 
         :param str url_protocol: "https" or "http" depending on the test metadata.
-        """
-        pass
-
-    @abstractmethod
-    def get_test_window(self, window_id, parent):
-        """Get the window handle dorresponding to the window containing the
-        currently active test.
-
-        :param window_id: A string containing the DOM name of the Window that
-        contains the test, or None.
-        :param parent: The handle of the runner window.
-        :returns: A protocol-specific window handle.
+        :returns: A browser-specific handle to the runner page.
         """
         pass
 
@@ -262,12 +277,36 @@ class StorageProtocolPart(ProtocolPart):
         :param url: A url belonging to the origin"""
         pass
 
+    @abstractmethod
+    def run_bounce_tracking_mitigations(self):
+        """Run the Bounce Tracking Mitigations deletion/enforcement algorithm
+
+        :returns: A list of sites corresponding to bounce trackers whose state was removed"""
+        pass
 
 class SelectorProtocolPart(ProtocolPart):
     """Protocol part for selecting elements on the page."""
     __metaclass__ = ABCMeta
 
     name = "select"
+
+    def element_by_selector_array(self, element_selectors):
+        elements = self.elements_by_selector_array(element_selectors)
+        if len(elements) == 0:
+            raise ValueError(f"Selector array '{element_selectors}' matches no elements")
+        elif len(elements) > 1:
+            raise ValueError(f"Selector array '{element_selectors}' matches multiple elements")
+        return elements[0]
+
+    @abstractmethod
+    def elements_by_selector_array(self, selectors):
+        """Select elements matching an array of selectors, such that the first
+        selector matches an element in the document root, and each successive
+        selector matches an element inside the shadow root of the previous.
+
+        :param List[str] selectors: The CSS selectors
+        :returns: A list of protocol-specific handles to elements"""
+        pass
 
     def element_by_selector(self, element_selector):
         elements = self.elements_by_selector(element_selector)
@@ -300,7 +339,6 @@ class ClickProtocolPart(ProtocolPart):
         pass
 
 
-
 class AccessibilityProtocolPart(ProtocolPart):
     """Protocol part for accessibility introspection"""
     __metaclass__ = ABCMeta
@@ -318,6 +356,410 @@ class AccessibilityProtocolPart(ProtocolPart):
         """Return the computed accessibility role for a specific element.
 
         :param element: A protocol-specific handle to an element."""
+        pass
+
+    def get_accessibility_properties_for_element(self, element):
+        """Return the accessibility properties for a specific element.
+
+        :param element: A protocol-specific handle to an element."""
+        raise NotImplementedError
+
+    def get_accessibility_properties_for_accessibility_node(self, id):
+        """Return the properties for a specific accessibility node.
+
+        :param id: The id of the accessibility node."""
+        raise NotImplementedError
+
+
+class WebExtensionsProtocolPart(ProtocolPart):
+    """Protocol part for managing WebExtensions"""
+    __metaclass__ = ABCMeta
+
+    name = "web_extensions"
+
+    @abstractmethod
+    def install_web_extension(self, type, path, value):
+        pass
+
+    @abstractmethod
+    def uninstall_web_extension(self, extension_id):
+        pass
+
+
+class BidiBluetoothProtocolPart(ProtocolPart):
+    """Protocol part for managing BiDi events"""
+    __metaclass__ = ABCMeta
+    name = "bidi_bluetooth"
+
+    @abstractmethod
+    async def handle_request_device_prompt(self,
+                                           context: str,
+                                           prompt: str,
+                                           accept: bool,
+                                           device: str
+                                           ) -> None:
+        """
+        Handles a bluetooth device prompt.
+        :param context: Browsing context to set the simulated adapter to.
+        :param prompt: The id of a bluetooth device prompt.
+        :param accept: Whether to accept a bluetooth device prompt.
+        :param device: The device id from a bluetooth device prompt to be accepted.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_adapter(self,
+                               context: str,
+                               state: str) -> None:
+        """
+        Creates a simulated bluetooth adapter.
+        :param context: Browsing context to set the simulated adapter to.
+        :param state: The state of the simulated bluetooth adapter.
+        """
+        pass
+
+    @abstractmethod
+    async def disable_simulation(self,
+                                 context: str) -> None:
+        """
+        Disables bluetooth simulation.
+        :param context: Browsing context to disable the simulation for.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_preconnected_peripheral(self,
+                               context: str,
+                               address: str,
+                               name: str,
+                               manufacturer_data: List[Any],
+                               known_service_uuids: List[str]) -> None:
+        """
+        Creates a simulated bluetooth peripheral.
+        :param context: Browsing context to set the simulated peripheral to.
+        :param address: The address of the simulated bluetooth peripheral.
+        :param name: The name of the simulated bluetooth peripheral.
+        :param manufacturer_data: The manufacturer data of the simulated bluetooth peripheral.
+        :param known_service_uuids: The known service uuids of the simulated bluetooth peripheral.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_gatt_connection_response(self,
+                               context: str,
+                               address: str,
+                               code: int) -> None:
+        """
+        Simulates a GATT connection response from simulated bluetooth peripheral.
+        :param context: Browsing context to set the simulated peripheral to.
+        :param address: The address of the simulated bluetooth peripheral.
+        :param code: The GATT connection response code of the simulated bluetooth peripheral.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_gatt_disconnection(self,
+                               context: str,
+                               address: str) -> None:
+        """
+        Simulates a GATT disconnection from simulated bluetooth peripheral.
+        :param context: Browsing context to set the simulated peripheral to.
+        :param address: The address of the simulated bluetooth peripheral.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_gatt_mtu_change(self,
+                               context: str,
+                               address: str,
+                               mtu: int) -> None:
+        """
+        Simulates an ATT MTU exchange with a simulated bluetooth peripheral.
+        :param context: Browsing context to set the simulated peripheral to.
+        :param address: The address of the simulated bluetooth peripheral.
+        :param mtu: The new ATT MTU in octets.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_service(self,
+                               context: str,
+                               address: str,
+                               uuid: str,
+                               type: str) -> None:
+        """
+        Simulates a GATT service.
+        :param context: Browsing context to set the simulated service to.
+        :param address: The address of the simulated bluetooth peripheral this service belongs to.
+        :param uuid: The uuid of the simulated GATT service.
+        :param type: The type of the GATT service simulation, either add or remove.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_characteristic(self,
+                               context: str,
+                               address: str,
+                               service_uuid: str,
+                               characteristic_uuid: str,
+                               characteristic_properties: Dict[str, bool],
+                               type: str) -> None:
+        """
+        Simulates a GATT characteristic.
+        :param context: Browsing context to set the simulated characteristic to.
+        :param address: The address of the simulated bluetooth peripheral the characterisitc belongs to.
+        :param service_uuid: The uuid of the simulated GATT service the characterisitc belongs to.
+        :param characteristic_uuid: The uuid of the simulated GATT characterisitc.
+        :param characteristic_properties: The properties of the simulated GATT characteristic.
+        :param type: The type of the GATT characterisitc simulation, either add or remove.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_characteristic_response(self,
+                               context: str,
+                               address: str,
+                               service_uuid: str,
+                               characteristic_uuid: str,
+                               type: str,
+                               code: int,
+                               data: List[int]) -> None:
+        """
+        Simulates a GATT characteristic response.
+        :param context: Browsing context the simulated characteristic belongs to.
+        :param address: The address of the simulated bluetooth peripheral the characterisitc belongs to.
+        :param service_uuid: The uuid of the simulated GATT service the characterisitc belongs to.
+        :param characteristic_uuid: The uuid of the simulated GATT characterisitc.
+        :param type: The type of the simulated GATT characteristic operation.
+        :param code: The simulated GATT characteristic response code.
+        :param data: The data along with the simulated GATT characteristic response.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_descriptor(self,
+                               context: str,
+                               address: str,
+                               service_uuid: str,
+                               characteristic_uuid: str,
+                               descriptor_uuid: str,
+                               type: str) -> None:
+        """
+        Simulates a GATT descriptor.
+        :param context: Browsing context to set the simulated descriptor to.
+        :param address: The address of the simulated bluetooth peripheral the descriptor belongs to.
+        :param service_uuid: The uuid of the simulated GATT service the descriptor belongs to.
+        :param characteristic_uuid: The uuid of the simulated GATT characterisitc the descriptor belongs to.
+        :param descriptor_uuid: The uuid of the simulated GATT descriptor.
+        :param type: The type of the GATT descriptor simulation, either add or remove.
+        """
+        pass
+
+    @abstractmethod
+    async def simulate_descriptor_response(self,
+                               context: str,
+                               address: str,
+                               service_uuid: str,
+                               characteristic_uuid: str,
+                               descriptor_uuid: str,
+                               type: str,
+                               code: int,
+                               data: List[int]) -> None:
+        """
+        Simulates a GATT descriptor response.
+        :param context: Browsing context to set the simulated descriptor to.
+        :param address: The address of the simulated bluetooth peripheral the descriptor belongs to.
+        :param service_uuid: The uuid of the simulated GATT service the descriptor belongs to.
+        :param characteristic_uuid: The uuid of the simulated GATT characterisitc the descriptor belongs to.
+        :param descriptor_uuid: The uuid of the simulated GATT descriptor.
+        :param type: The type of the simulated GATT descriptor operation.
+        :param code: The simulated GATT descriptor response code.
+        :param data: The data along with the simulated GATT descriptor response.
+        """
+        pass
+
+class BidiBrowsingContextProtocolPart(ProtocolPart):
+    """Protocol part for managing BiDi events"""
+    __metaclass__ = ABCMeta
+    name = "bidi_browsing_context"
+
+    @abstractmethod
+    async def handle_user_prompt(self,
+                                 context: str,
+                                 accept: Optional[bool] = None,
+                                 user_text: Optional[str] = None) -> None:
+        """
+        Allows closing an open prompt.
+        :param context: The context of the prompt.
+        :param accept: Whether to accept or dismiss the prompt.
+        :param user_text: The text to input in the prompt.
+        """
+        pass
+
+    @abstractmethod
+    async def set_viewport(self,
+                           context: Optional[str],
+                           viewport: Union[Optional[Mapping[str, Any]], "Undefined"],
+                           device_pixel_ratio: Union[Optional[float], "Undefined"],
+                           user_contexts: Optional[List[str]]) -> None:
+        """
+        Modifies specific viewport characteristics for a browsing context or
+        user contexts.
+
+        `viewport=None` or `device_pixel_ratio=None` clears the corresponding
+        override.
+        Passing `UNDEFINED` means the corresponding field is omitted from the
+        BiDi command.
+        """
+        pass
+
+class BidiEventsProtocolPart(ProtocolPart):
+    """Protocol part for managing BiDi events"""
+    __metaclass__ = ABCMeta
+    name = "bidi_events"
+
+    @abstractmethod
+    async def subscribe(self,
+                        events: List[str],
+                        contexts: Optional[List[str]]) -> Mapping[str, Any]:
+        """
+        Subscribes to the given events in the given contexts.
+        :param events: The events to subscribe to.
+        :param contexts: The contexts to subscribe to. If None, the function will subscribe to all contexts.
+        """
+        pass
+
+    @abstractmethod
+    async def unsubscribe(self, subscriptions: List[str]) -> Mapping[str, Any]:
+        """
+        Unsubscribes from the subscriptions with the given IDs.
+        :param subscriptions: The list of subscription ids to unsubscribe from.
+        """
+        pass
+
+    @abstractmethod
+    async def unsubscribe_all(self):
+        """Cleans up the subscription state. Removes all the previously added subscriptions."""
+        pass
+
+    @abstractmethod
+    def add_event_listener(
+            self,
+            name: Optional[str],
+            fn: Callable[[str, Mapping[str, Any]], Awaitable[Any]]
+    ) -> Callable[[], None]:
+        """Add an event listener. The callback will be called with the event name and the event data.
+
+        :param name: The name of the event to listen for. If None, the function will be called for all events.
+        :param fn: The function to call when the event is received.
+        :return: Function to remove the added listener."""
+        pass
+
+
+class BidiPermissionsProtocolPart(ProtocolPart):
+    """Protocol part for managing BiDi events"""
+    __metaclass__ = ABCMeta
+    name = "bidi_permissions"
+
+    @abstractmethod
+    async def set_permission(
+        self,
+        descriptor: Dict[str, Any],
+        state: str,
+        origin: str,
+        embedded_origin: Optional[str] = None,
+    ) -> Any:
+        pass
+
+
+class BidiEmulationProtocolPart(ProtocolPart):
+    """Protocol part for emulation"""
+    __metaclass__ = ABCMeta
+    name = "bidi_emulation"
+
+    @abstractmethod
+    async def set_geolocation_override(self,
+            coordinates: Optional[Union[Mapping[str, Any], "Undefined"]],
+            error: Optional[Mapping[str, Any]],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_locale_override(self, locale: Optional[str],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_media_features_override(self,
+            features: Optional[Mapping[str, Any]],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_screen_orientation_override(self,
+            screen_orientation: Optional[Mapping[str, Any]],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_scrollbar_type_override(self,
+            scrollbar_type: Optional[Literal["classic", "overlay"]],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_text_layout_mode_override(self,
+            text_layout_mode: Optional[Literal["mobile"]],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_touch_override(self,
+            max_touch_points: Optional[int],
+            contexts: List[str]) -> None:
+        pass
+
+    @abstractmethod
+    async def set_viewport_meta_override(self,
+            viewport_meta: Optional[Literal[True]],
+            contexts: List[str]) -> None:
+        pass
+
+
+class BidiUserAgentClientHintsProtocolPart(ProtocolPart):
+    """Protocol part for User Agent Client Hints"""
+    __metaclass__ = ABCMeta
+    name = "bidi_user_agent_client_hints"
+
+    @abstractmethod
+    async def set_client_hints_override(
+            self,
+            client_hints: Optional[Mapping[str, Any]],
+            contexts: Optional[List[str]],
+            user_contexts: Optional[List[str]]) -> None:
+        pass
+
+
+class BidiScriptProtocolPart(ProtocolPart):
+    """Protocol part for executing BiDi scripts"""
+    __metaclass__ = ABCMeta
+
+    name = "bidi_script"
+
+    @abstractmethod
+    async def call_function(
+            self,
+            function_declaration: str,
+            target: Mapping[str, Any],
+            arguments: Optional[List[Mapping[str, Any]]] = None
+    ) -> Mapping[str, Any]:
+        """
+        Executes the provided script in the given target in asynchronous mode.
+
+        :param str function_declaration: The js source of the function to execute.
+        :param script.Target target: The target in which to execute the script.
+        :param list[script.LocalValue] arguments: The arguments to pass to the script.
+        """
         pass
 
 
@@ -366,6 +808,15 @@ class WindowProtocolPart(ProtocolPart):
     name = "window"
 
     @abstractmethod
+    def create(self, type_hint=None):
+        """Create a new top-level browsing context without switching to it.
+
+        :param type_hint: Optional hint, either "tab" or "window", for the
+                          type of top-level browsing context to create.
+        :returns: A handle string identifying the new top-level browsing context."""
+        pass
+
+    @abstractmethod
     def set_rect(self, rect):
         """Restores the window to the given rect."""
         pass
@@ -409,6 +860,20 @@ class SetPermissionProtocolPart(ProtocolPart):
         pass
 
 
+class GlobalPrivacyControlProtocolPart(ProtocolPart):
+    """Protocol part for reading and writing the GPC signal"""
+    __metaclass__ = ABCMeta
+
+    name = "global_privacy_control"
+
+    @abstractmethod
+    def set_global_privacy_control(self, value):
+        pass
+
+    @abstractmethod
+    def get_global_privacy_control(self):
+        pass
+
 class ActionSequenceProtocolPart(ProtocolPart):
     """Protocol part for performing trusted clicks"""
     __metaclass__ = ABCMeta
@@ -434,6 +899,29 @@ class TestDriverProtocolPart(ProtocolPart):
     name = "testdriver"
 
     @abstractmethod
+    def run(self, url, script_resume, test_window=None):
+        """Run a test using the testdriver protocol
+
+        :param str url: URL of the test
+        :param str script_resume: Script to run implementing the browser
+                                  side of the protocol
+        :param test_window: Optional test window handle, otherwise the
+                            current active window is used.
+        :returns: Test result data"""
+        pass
+
+    @abstractmethod
+    def get_next_message(self, url, script_resume, test_window):
+        """Get the next message from the browser
+
+        :param str url: URL of the current test
+        :param str script_resume: Script implementing the browsr
+                                  side of the protocol.
+        :param test_window: Window handle of the test window
+        :returns: Testdriver message dict"""
+        pass
+
+    @abstractmethod
     def send_message(self, cmd_id, message_type, status, message=None):
         """Send a testdriver message to the browser.
 
@@ -445,9 +933,12 @@ class TestDriverProtocolPart(ProtocolPart):
         pass
 
     def switch_to_window(self, wptrunner_id, initial_window=None):
-        """Switch to a window given a wptrunner window id
+        """Switch to a window given a wptrunner window id or a WebDriver
+        window handle
 
-        :param str wptrunner_id: Testdriver-specific id for the target window
+        :param str wptrunner_id: Testdriver-specific id for the target window,
+                                 or the WebDriver window handle of a top-level
+                                 browsing context
         :param str initial_window: WebDriver window id for the test window"""
         if wptrunner_id is None:
             return
@@ -456,6 +947,14 @@ class TestDriverProtocolPart(ProtocolPart):
             initial_window = self.parent.base.current_window
 
         stack = [str(item) for item in self.parent.base.window_handles()]
+
+        if wptrunner_id in stack:
+            # A WebDriver window handle is a direct identification of
+            # a top-level browsing context, so search is not needed
+            if wptrunner_id != initial_window:
+                self.parent.base.set_window(wptrunner_id)
+            return
+
         first = True
         while stack:
             item = stack.pop()
@@ -467,7 +966,13 @@ class TestDriverProtocolPart(ProtocolPart):
 
             if isinstance(item, str):
                 if not first or item != initial_window:
-                    self.parent.base.set_window(item)
+                    try:
+                        self.parent.base.set_window(item)
+                    except Exception as e:
+                        if e.__class__.__name__ == "NoSuchWindowException":
+                            # This window has been closed since we got the handles, so continue
+                            continue
+                        raise
                 first = False
             else:
                 assert first is False
@@ -529,6 +1034,37 @@ class AssertsProtocolPart(ProtocolPart):
     def get(self):
         """Get a count of assertions since the last browser start"""
         pass
+
+
+class LeakProtocolPart(ProtocolPart):
+    """Protocol part that checks for leaked DOM objects."""
+    __metaclass__ = ABCMeta
+
+    name = "leak"
+
+    def after_connect(self):
+        self.parent.base.load("about:blank")
+        self.expected_counters = collections.Counter(self.get_counters())
+
+    @abstractmethod
+    def get_counters(self) -> Mapping[str, int]:
+        """Get counts of types of live objects (names are browser-dependent)."""
+
+    def check(self) -> Optional[Mapping[str, Tuple[int, int]]]:
+        """Check for DOM objects that outlive the current page.
+
+        Returns:
+            A map from object type to (expected, actual) counts, if one or more
+            types leaked. Otherwise, `None`.
+        """
+        self.parent.base.load("about:blank")
+        counters = collections.Counter(self.get_counters())
+        if counters - self.expected_counters:
+            return {
+                name: (self.expected_counters[name], counters[name])
+                for name in set(counters) | set(self.expected_counters)
+            }
+        return None
 
 
 class CoverageProtocolPart(ProtocolPart):
@@ -605,6 +1141,15 @@ class VirtualAuthenticatorProtocolPart(ProtocolPart):
 
         :param str authenticator_id: The ID of the authenticator
         :param bool uv: the user verified flag"""
+        pass
+
+    @abstractmethod
+    def set_credential_properties(self, authenticator_id, credential_id, props):
+        """Sets credential properties on an authenticator
+
+        :param str authenticator_id: The ID of the authenticator
+        :param str credential_id: The ID of the credential
+        :param props: The credential properties to set"""
         pass
 
 
@@ -687,6 +1232,22 @@ class FedCMProtocolPart(ProtocolPart):
         pass
 
 
+class DigitalCredentialsProtocolPart(ProtocolPart):
+    """Protocol part for Digital Credentials"""
+    __metaclass__ = ABCMeta
+
+    name = "digital_credentials"
+
+    @abstractmethod
+    async def set_virtual_wallet_behavior(self, action, protocol=None, response=None, context=None):
+        """Set the virtual wallet behavior
+
+        :param str action: The action to take ("decline", "respond", "wait", "clear")
+        :param str protocol: The protocol requested (required for "respond")
+        :param dict response: The response data (optional for "respond")"""
+        pass
+
+
 class PrintProtocolPart(ProtocolPart):
     """Protocol part for rendering to a PDF."""
     __metaclass__ = ABCMeta
@@ -758,7 +1319,7 @@ class ConnectionlessProtocol(Protocol):
         pass
 
 
-class WdspecProtocol(ConnectionlessProtocol):
+class PytestProtocol(ConnectionlessProtocol):
     implements = [ConnectionlessBaseProtocolPart]
 
     def __init__(self, executor, browser):
@@ -776,9 +1337,12 @@ class WdspecProtocol(ConnectionlessProtocol):
         proof enough to us that the server is alive and kicking.
         """
         conn = HTTPConnection(self.browser.host, self.browser.port)
-        conn.request("HEAD", "/invalid")
-        res = conn.getresponse()
-        return res.status == 404
+        try:
+            conn.request("HEAD", "/invalid")
+            res = conn.getresponse()
+            return res.status == 404
+        except OSError:
+            return False
 
 
 class VirtualSensorProtocolPart(ProtocolPart):
@@ -801,4 +1365,60 @@ class VirtualSensorProtocolPart(ProtocolPart):
 
     @abstractmethod
     def get_virtual_sensor_information(self, sensor_type):
+        pass
+
+class DevicePostureProtocolPart(ProtocolPart):
+    """Protocol part for Device Posture"""
+    __metaclass__ = ABCMeta
+
+    name = "device_posture"
+
+    @abstractmethod
+    def set_device_posture(self, posture):
+        pass
+
+    @abstractmethod
+    def clear_device_posture(self):
+        pass
+
+class VirtualPressureSourceProtocolPart(ProtocolPart):
+    """Protocol part for Virtual Pressure Source"""
+    __metaclass__ = ABCMeta
+
+    name = "pressure"
+
+    @abstractmethod
+    def create_virtual_pressure_source(self, source_type, metadata):
+        pass
+
+    @abstractmethod
+    def update_virtual_pressure_source(self, source_type, sample, own_contribution_estimate):
+        pass
+
+    @abstractmethod
+    def remove_virtual_pressure_source(self, source_type):
+        pass
+
+class ProtectedAudienceProtocolPart(ProtocolPart):
+    """Protocol part for Protected Audience"""
+    __metaclass__ = ABCMeta
+
+    name = "protected_audience"
+
+    @abstractmethod
+    def set_k_anonymity(self, owner, name, hashes):
+        pass
+
+class DisplayFeaturesProtocolPart(ProtocolPart):
+    """Protocol part for Display Features/Viewport Segments"""
+    __metaclass__ = ABCMeta
+
+    name = "display_features"
+
+    @abstractmethod
+    def set_display_features(self, features):
+        pass
+
+    @abstractmethod
+    def clear_display_features(self):
         pass

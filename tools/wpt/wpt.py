@@ -6,6 +6,7 @@ import logging
 import multiprocessing
 import os
 import sys
+import traceback
 
 from tools import localpaths  # noqa: F401
 
@@ -71,11 +72,11 @@ def load_commands():
 
 def parse_args(argv, commands=load_commands()):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--venv", action="store", help="Path to an existing virtualenv to use")
+    parser.add_argument("--venv", help="Path to an existing virtualenv to use")
     parser.add_argument("--skip-venv-setup", action="store_true",
-                        dest="skip_venv_setup",
                         help="Whether to use the virtualenv as-is. Must set --venv as well")
-    parser.add_argument("--debug", action="store_true", help="Run the debugger in case of an exception")
+    parser.add_argument("--debug", action="store_true",
+                        help="Run the debugger in case of an exception")
     subparsers = parser.add_subparsers(dest="command")
     for command, props in commands.items():
         subparsers.add_parser(command, help=props["help"], add_help=False)
@@ -238,7 +239,8 @@ def main(prog=None, argv=None):
                 import pdb
                 pdb.post_mortem()
             else:
-                raise
+                traceback.print_exc()
+                sys.exit(getattr(os, "EX_SOFTWARE", 70))
     sys.exit(0)
 
 

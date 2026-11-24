@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>CSS Selectors: slotted pseudo selectors</title>
-<link rel="help" href="https://drafts.csswg.org/css-scoping/#slotted-pseudo" />
+<link rel="help" href="https://drafts.csswg.org/css-shadow/#slotted-pseudo" />
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 <script src="/css/support/parsing-testcommon.js"></script>
@@ -14,6 +14,7 @@
   test_valid_selector('::slotted(:not(:nth-last-of-type(2)):not([slot="foo"]))');
   test_valid_selector("::slotted(:first-child)");
   test_valid_selector("::slotted(:hover)");
+  test_valid_selector("::slotted(:has(:first-child:last-child))");
   test_invalid_selector("::slotted");
   test_invalid_selector("::slotted()");
   test_invalid_selector("::slotted(0)");

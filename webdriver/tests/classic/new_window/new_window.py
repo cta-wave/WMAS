@@ -1,4 +1,5 @@
-from tests.support.asserts import assert_success
+from tests.support.classic.asserts import assert_success
+from tests.support.sync import Poll
 
 from . import opener, window_name
 
@@ -49,6 +50,20 @@ def test_opens_about_blank_in_new_window(session, inline):
     assert session.url == "about:blank"
 
 
+# The new window's active document is the initial about:blank document, so the
+# first navigation replaces its session history entry instead of appending one.
+# https://html.spec.whatwg.org/#is-initial-about:blank
+def test_first_navigation_replaces_about_blank(session, inline):
+    response = new_window(session, type_hint="window")
+    value = assert_success(response)
+
+    session.window_handle = value["handle"]
+    url = inline("<p>foo")
+    session.url = url
+    assert session.url == url
+    assert session.execute_script("return history.length") == 1
+
+
 def test_sets_no_window_name(session):
     response = new_window(session, type_hint="window")
     value = assert_success(response)
@@ -65,26 +80,34 @@ def test_sets_no_opener(session):
     assert opener(session) is None
 
 
-def test_focus_content(session, inline):
+def test_initial_selection_for_contenteditable(session, inline):
     response = new_window(session, type_hint="window")
     value = assert_success(response)
 
     session.window_handle = value["handle"]
 
     session.url = inline("""
-        <span contenteditable="true"> abc </span>
+        <div contenteditable>abc</div>
         <script>
-            const selection = getSelection();
-            window.onload = async() => {
-                const initial = document.querySelector("span");
-                initial.focus();
+            const initial = document.querySelector("div");
+
+            document.onselectionchange = () => {
+                const selection = document.getSelection();
                 initial.setAttribute(
                     "_focused",
                     selection.anchorNode == initial.firstChild
                 );
-            }
+            };
+
+            initial.focus();
         </script>
     """)
 
-    elem = session.find.css("span", all=False)
-    assert elem.attribute("_focused") == "true"
+    elem = session.find.css("div", all=False)
+
+    def assert_initial_selection(s):
+        assert elem.attribute(
+            "_focused") == "true", "Initial selection for contenteditable not set"
+
+    wait = Poll(session, timeout=5)
+    wait.until(assert_initial_selection)

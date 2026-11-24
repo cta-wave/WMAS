@@ -332,6 +332,61 @@ test(t => {
 }, 'Test visibleRect metadata override where source display size = 2 * visible size for both width and height');
 
 test(t => {
+  const hdAnamorphic = new VideoFrame(new Uint8Array(1.5 * 1440 * 1080), {
+    format: 'I420',
+    timestamp: 1234,
+    codedWidth: 1440,
+    codedHeight: 1080,
+    displayWidth: 1920,
+    displayHeight: 1080,
+  });
+  t.add_cleanup(() => hdAnamorphic.close());
+
+  const croppedHd = new VideoFrame(
+      hdAnamorphic, {visibleRect: {x: 0, y: 0, width: 720, height: 540}});
+  t.add_cleanup(() => croppedHd.close());
+  assert_equals(croppedHd.displayWidth, 960, 'croppedHd.displayWidth');
+  assert_equals(croppedHd.displayHeight, 540, 'croppedHd.displayHeight');
+
+  const narrowAnamorphic = new VideoFrame(new Uint8Array(1.5 * 640 * 480), {
+    format: 'I420',
+    timestamp: 1234,
+    codedWidth: 640,
+    codedHeight: 480,
+    displayWidth: 160,
+    displayHeight: 480,
+  });
+  t.add_cleanup(() => narrowAnamorphic.close());
+
+  const croppedNarrow = new VideoFrame(
+      narrowAnamorphic, {visibleRect: {x: 0, y: 0, width: 320, height: 240}});
+  t.add_cleanup(() => croppedNarrow.close());
+  assert_equals(croppedNarrow.displayWidth, 80, 'croppedNarrow.displayWidth');
+  assert_equals(croppedNarrow.displayHeight, 240,
+                'croppedNarrow.displayHeight');
+}, 'Test visibleRect metadata override with fractional display size scale');
+
+test(t => {
+  const init = {
+    format: 'I420',
+    timestamp: 1234,
+    codedWidth: 300,
+    codedHeight: 150,
+    displayWidth: 1280,
+    displayHeight: 1
+  };
+  const data = new Uint8Array(1.5 * init.codedWidth * init.codedHeight);
+  const tinyDisplayFrame = new VideoFrame(data, init);
+  t.add_cleanup(() => tinyDisplayFrame.close());
+
+  // heightScale = 1/150, so round(1/150 * 40) = round(0.267) = 0: TypeError
+  assert_throws_js(
+      TypeError,
+      () => new VideoFrame(tinyDisplayFrame, {visibleRect: {width: 187, height: 40}}),
+      'computed display height rounds to zero');
+}, 'Test that a visibleRect override throwing when computed display size rounds to zero');
+
+test(t => {
   let image = makeImageBitmap(32, 16);
 
   let scaledFrame = new VideoFrame(image, {
@@ -368,6 +423,20 @@ test(t => {
   assert_equals(scaledFrame.displayHeight, 20, 'scaledFrame.displayHeight');
 }, 'Test display size metadata override');
 
+promise_test(async t => {
+  let image = makeImageBitmap(64, 64);
+  let cropped = await createImageBitmap(image, 10, 10, 30, 40);
+  let frame = new VideoFrame(cropped, { timestamp: 0 });
+  assert_equals(frame.codedWidth, 30);
+  assert_equals(frame.codedHeight, 40);
+  assert_equals(frame.visibleRect.x, 0);
+  assert_equals(frame.visibleRect.y, 0);
+  assert_equals(frame.visibleRect.width, 30);
+  assert_equals(frame.visibleRect.height, 40);
+  assert_equals(frame.displayWidth, 30, 'frame.displayWidth');
+  assert_equals(frame.displayHeight, 40, 'frame.displayHeight');
+}, 'Test constructing from cropped ImageBitmap');
+
 test(t => {
   assert_throws_js(
       TypeError,
@@ -390,6 +459,7 @@ test(t => {
     ]);
     return new VideoFrame(data, {...init, format: 'I420'});
   }
+
 
   assert_throws_js(
       TypeError, () => constructFrame({
@@ -456,6 +526,20 @@ test(t => {
                  }),
       'invalid display height');
 }, 'Test invalid buffer constructed VideoFrames');
+
+test(() => {
+  assert_throws_js(
+      TypeError, () => new VideoFrame(new Uint8Array(36), {
+                   timestamp: 10,
+                   codedWidth: 3,
+                   codedHeight: 3,
+                   visibleRect: {x: 0, y: 0, width: 1, height: 1},
+                   format: 'RGBA',
+                   layout: [{offset: 0, stride: 16}],
+                 }),
+      'buffer must hold the whole coded size, not just the visible rect');
+
+}, 'VideoFrame buffer must cover the coded size with an explicit layout');
 
 test(t => {
   testBufferConstructedI420Frame('Uint8Array(ArrayBuffer)');
@@ -643,6 +727,14 @@ test(t => {
   assert_equals(frame_copy.duration, 456);
   frame_copy.close();
 
+  let frame_override = new VideoFrame(frame, {timestamp: 1234});
+  assert_equals(frame_override.timestamp, 1234);
+
+  let frame_chain = new VideoFrame(frame_override);
+  assert_equals(frame_chain.timestamp, 1234);
+  frame_chain.close();
+  frame_override.close();
+
   frame.close();
 }, 'Test VideoFrame constructed VideoFrame');
 
@@ -751,3 +843,265 @@ test(t => {
   frame.close();
 }, 'Test a VideoFrame constructed from canvas can drop the alpha channel.');
 
+function testAllYUVPixelFormats() {
+  const YUVs = [
+    {
+      init: {
+        format: 'I420',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2,                    // u
+        1, 2,                    // v
+      ])
+    },
+    {
+      init: {
+        format: 'I420P10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4,                                             // u
+        1, 2, 3, 4,                                             // v
+      ])
+    },
+    {
+      init: {
+        format: 'I420P12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4,                                             // u
+        1, 2, 3, 4,                                             // v
+      ])
+    },
+    {
+      init: {
+        format: 'I420A',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2,                    // u
+        1, 2,                    // v
+        1, 2, 3, 4, 5, 6, 7, 8,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I420AP10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4,                                             // u
+        1, 2, 3, 4,                                             // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I420AP12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4,                                             // u
+        1, 2, 3, 4,                                             // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I422',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2, 3, 4,              // u
+        1, 2, 3, 4,              // v
+      ])
+    },
+    {
+      init: {
+        format: 'I422P10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // u
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // v
+      ])
+    },
+    {
+      init: {
+        format: 'I422P12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // u
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // v
+      ])
+    },
+    {
+      init: {
+        format: 'I422A',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2, 3, 4,              // u
+        1, 2, 3, 4,              // v
+        1, 2, 3, 4, 5, 6, 7, 8,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I422AP10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // u
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+
+      ])
+    },
+    {
+      init: {
+        format: 'I422AP12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // u
+        1, 2, 3, 4, 5, 6, 7, 8,                                 // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+
+      ])
+    },
+    {
+      init: {
+        format: 'I444',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,  // u
+        1, 2, 3, 4, 5, 6, 7, 8,  // v
+      ])
+    },
+    {
+      init: {
+        format: 'I444P10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // u
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // v
+      ])
+    },
+    {
+      init: {
+        format: 'I444P12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // u
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // v
+      ])
+    },
+    {
+      init: {
+        format: 'I444A',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([     // 1 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8,  // y
+        1, 2, 3, 4, 5, 6, 7, 8,  // u
+        1, 2, 3, 4, 5, 6, 7, 8,  // v
+        1, 2, 3, 4, 5, 6, 7, 8,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I444AP10',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // u
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+      ])
+    },
+    {
+      init: {
+        format: 'I444AP12',
+        timestamp: 1234,
+        codedWidth: 4,
+        codedHeight: 2
+      },
+      data: new Uint8Array([                                    // 2 byte per sample
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // y
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // u
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // v
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,  // a
+      ])
+    },
+  ];
+
+  for (let yuv of YUVs) {
+    test(t => {
+      const frame = new VideoFrame(yuv.data, yuv.init);
+      assert_equals(frame.format, yuv.init.format);
+      assert_equals(frame.timestamp, yuv.init.timestamp);
+      // User Agent may choose more optimal coded size allocations.
+      assert_less_than_equal(yuv.init.codedWidth, frame.codedWidth);
+      assert_less_than_equal(yuv.init.codedHeight, frame.codedHeight);
+      frame.close();
+    }, `Test we can construct a ${yuv.init.format} VideoFrame`);
+  }
+}
+testAllYUVPixelFormats();

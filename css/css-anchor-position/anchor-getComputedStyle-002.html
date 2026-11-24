@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Tests getComputedStyle() resolving anchor() in fragmentation context</title>
-<link rel="help" href="https://drafts4.csswg.org/css-anchor-position-1">
+<link rel="help" href="https://drafts.csswg.org/css-anchor-position-1">
 <link rel="help" href="https://drafts.csswg.org/cssom/#resolved-value">
 <link rel="author" href="mailto:xiaochengh@chromium.org">
 <link rel="stylesheet" href="/fonts/ahem.css">
@@ -13,7 +13,7 @@ body {
   margin: 0;
 }
 
-.cb {
+.rel {
   position: relative;
   background: lightgray;
 }
@@ -36,7 +36,7 @@ body {
 
 <!-- anchor is fragmented in second and third columns -->
 <div class="multicol" id="test1">
-  <div class="cb">
+  <div class="rel">
     <div class="spacer"></div>
     <div class="anchor"></div>
     <div class="target"></div>
@@ -51,7 +51,7 @@ body {
   height: 100px;
 }
 
-#test1 .cb {
+#test1 .rel{
   width: 100px;
   height: 300px;
 }
@@ -67,46 +67,57 @@ body {
 }
 </style>
 <script>
+setup({ explicit_done: true });
+
 test(() => {
   const target = test1.querySelector('.target');
   const style = getComputedStyle(target);
   assert_equals(style.left, '25px');
-  assert_equals(style.right, '-85px');
-  assert_equals(style.top, '100px');
-  assert_equals(style.bottom, '100px');
+  assert_equals(style.right, '25px');
+  assert_equals(style.top, '175px');
+  assert_equals(style.bottom, '75px');
 }, 'getComputedStyle() with fragmented containing block in multicolumn layout');
 </script>
 
 
 <div id="test2" style="font: 20px/1 Ahem; width: 11em">
-  Lorem
-  <span class="cb">
-    ipsum <span class="anchor">dolor</span> sit
-    <span class="target"></span>
-  </span>
-  amet.<br>
+  <div>
+    Lorem
+    <span class="rel">
+      ipsum <span class="anchor">dolor</span> sit
+      <span class="target"></span>
+    </span>
+    amet.
+  </div>
 
-  Lorem
-  <span class="cb">
-    ipsum dolor <span class="anchor">sit</span>
-    <span class="target"></span>
-  </span>
-  amet.<br>
+  <div>
+    Lorem
+    <span class="rel">
+      ipsum dolor <span class="anchor">sit</span>
+      <span class="target"></span>
+    </span>
+    amet.
+  </div>
 </div>
 <script>
-test(() => {
-  const targets = test2.querySelectorAll('.target');
+// Ensure Ahem font has a chance to load before examining layout.
+document.fonts.ready.then(() => {
+  test(() => {
+    const targets = test2.querySelectorAll('.target');
 
-  const style1 = getComputedStyle(targets[0]);
-  assert_equals(style1.top, '20px');
-  assert_equals(style1.bottom, '0px');
-  assert_equals(style1.left, '-120px');
-  assert_equals(style1.right, '80px');
+    const style1 = getComputedStyle(targets[0]);
+    assert_equals(style1.top, '20px');
+    assert_equals(style1.bottom, '0px');
+    assert_equals(style1.left, '-120px');
+    assert_equals(style1.right, '80px');
 
-  const style2 = getComputedStyle(targets[1]);
-  assert_equals(style2.top, '20px');
-  assert_equals(style2.bottom, '0px');
-  assert_equals(style2.left, '0px');
-  assert_equals(style2.right, '0px');
-}, 'getComputedStyle() with fragmented containing block in inline layout');
+    const style2 = getComputedStyle(targets[1]);
+    assert_equals(style2.top, '20px');
+    assert_equals(style2.bottom, '0px');
+    assert_equals(style2.left, '0px');
+    assert_equals(style2.right, '0px');
+  }, 'getComputedStyle() with fragmented containing block in inline layout');
+
+  done();
+})
 </script>

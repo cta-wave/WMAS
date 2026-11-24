@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="reftest-wait">
 <head>
     <title>CSS Test: left float, url(png), real negative offset image + shape-margin (px)</title>
     <link rel="author" title="Brad Werth" href="mailto:bwerth@mozilla.com"/>
@@ -12,6 +12,10 @@
                                  + the shape-margin when shape-outside is given a png file.
                                  Additionally, the shape-outside: image element is given a negative
                                  left offset relative to its containing block."/>
+    <script src="/common/reftest-wait.js"></script>
+    <!-- Wait for the shape image using the same CORS mode as shape-outside. -->
+    <link rel="preload" as="image" crossorigin="anonymous"
+          href="support/left-half-rectangle.png" onload="takeScreenshot()">
     <link rel="stylesheet" type="text/css" href="/fonts/ahem.css" />
     <style type="text/css">
         body {

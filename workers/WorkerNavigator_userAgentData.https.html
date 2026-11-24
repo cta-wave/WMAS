@@ -21,7 +21,7 @@
     assert_equals(e.data.platform, navigator.userAgentData.platform);
     const highEntropyValues = await navigator.userAgentData.getHighEntropyValues([
       "architecture", "bitness", "fullVersionList", "model",
-      "platformVersion", "uaFullVersion", "wow64", "formFactor",
+      "platformVersion", "uaFullVersion", "wow64", "formFactors",
     ]);
 
     assert_equals(e.data.fullVersionList.length,
@@ -39,10 +39,27 @@
     assert_equals(e.data.platformVersion, highEntropyValues.platformVersion);
     assert_equals(e.data.uaFullVersion, highEntropyValues.uaFullVersion);
     assert_equals(e.data.wow64, highEntropyValues.wow64);
-    assert_equals(e.data.formFactor.join(','), highEntropyValues.formFactor.join(','));
+    assert_equals(e.data.formFactors.join(','), highEntropyValues.formFactors.join(','));
     assert_equals(e.data.NavigatorUADataExposed, true);
 
     // Architecture should be one of two permitted values.
     assert_true(["x86", "arm"].some(arch => arch == e.data.architecture))
   }, "Test that userAgentData is available in workers in secure contexts");
+
+  promise_test(async () => {
+    const e = await new Promise((resolve) => {
+      const worker = new Worker("./support/WorkerNavigator.js");
+      worker.onmessage = resolve;
+    });
+    const highEntropyValues = await navigator.userAgentData.getHighEntropyValues([
+      "platformVersion", "wow64"
+    ]);
+
+    if (["Fuchsia", "Linux"].includes(navigator.userAgentData.platform)) {
+      assert_true(e.data.platformVersion === "");
+      assert_equals(e.data.wow64, false);
+      assert_true(highEntropyValues.platformVersion === "");
+      assert_equals(highEntropyValues.wow64, false);
+    }
+  }, "Platform version and wow64-ness on Linux and Fuchsia should contain fixed values");
 </script>

@@ -2,9 +2,12 @@
 <title>Prefetch with the referrer policy specified in speculation rules</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js?feature=bidi"></script>
+<script src="/resources/testdriver-vendor.js"></script>
 <script src="/common/dispatcher/dispatcher.js"></script>
 <script src="/common/subset-tests.js"></script>
 <script src="/common/utils.js"></script>
+<script src="/common/get-host-info.sub.js"></script>
 <script src="../resources/utils.js"></script>
 <script src="resources/utils.sub.js"></script>
 
@@ -15,7 +18,8 @@
 <meta name="variant" content="?4-4">
 <meta name="variant" content="?5-5">
 <meta name="variant" content="?6-6">
-<meta name="variant" content="?7-last">
+<meta name="variant" content="?7-7">
+<meta name="variant" content="?8-last">
 
 <script>
 "use strict";
@@ -28,7 +32,8 @@ subsetTest(promise_test, async t => {
   const expectedReferrer = agent.getExecutorURL().origin + "/";
 
   const nextURL = agent.getExecutorURL({ page: 2 });
-  await agent.forceSinglePrefetch(nextURL, { referrer_policy: "strict-origin" });
+  await agent.forceSinglePrefetchAndWaitForStatus(
+      nextURL, { referrer_policy: "strict-origin" });
   await agent.navigate(nextURL);
 
   const headers = await agent.getRequestHeaders();
@@ -37,14 +42,23 @@ subsetTest(promise_test, async t => {
 }, 'with "strict-origin" referrer policy in rule set overriding "strict-origin-when-cross-origin" of referring page');
 
 subsetTest(promise_test, async t => {
+  const unsubscribe = await subscribePrefetchStatusUpdated();
+  if (unsubscribe) {
+    t.add_cleanup(() => unsubscribe());
+  }
   const agent = await spawnWindow(t);
   const next_url = agent.getExecutorURL({ page: 2 });
+  const statusReached = unsubscribe ? waitForPrefetchStatus(next_url) : null;
   await agent.execute_script((url) => {
     const a = addLink(url);
     a.referrerPolicy = 'no-referrer';
     insertDocumentRule(undefined, { referrer_policy: 'strict-origin' });
   }, [next_url]);
-  await new Promise(resolve => t.step_timeout(resolve, 2000));
+  if (statusReached) {
+    await statusReached;
+  } else {
+    await new Promise(resolve => t.step_timeout(resolve, 2000));
+  }
   await agent.navigate(next_url);
 
   const headers = await agent.getRequestHeaders();
@@ -57,9 +71,9 @@ subsetTest(promise_test, async t => {
   const agent = await spawnWindow(t);
   await agent.setReferrerPolicy("unsafe-url");
 
-  const nextURL = agent.getExecutorURL({ hostname: PREFETCH_PROXY_BYPASS_HOST, page: 2 });
-  await agent.forceSinglePrefetch(
-      nextURL, { referrer_policy: "no-referrer", requires: ["anonymous-client-ip-when-cross-origin"] });
+  const nextURL = agent.getExecutorURL({ hostname: get_host_info().NOTSAMESITE_HOST, page: 2 });
+  await agent.forceSinglePrefetchAndWaitForStatus(
+      nextURL, { referrer_policy: "no-referrer" });
   await agent.navigate(nextURL);
 
   // This referring page's referrer policy would not be eligible for
@@ -67,7 +81,7 @@ subsetTest(promise_test, async t => {
   // rule allows for prefetching.
   const headers = await agent.getRequestHeaders();
   assert_prefetched(headers, "must be prefetched");
-  assert_equals(headers.referer, '', "must send no referrer");
+  assert_equals(headers.referer, undefined, "must send no referrer");
 }, 'with "no-referrer" referrer policy in rule set overriding "unsafe-url" of cross-site referring page');
 
 subsetTest(promise_test, async t => {
@@ -81,6 +95,34 @@ subsetTest(promise_test, async t => {
   const headers = await agent.getRequestHeaders();
   assert_not_prefetched(headers, "must not be prefetched");
 }, 'unrecognized policies invalidate the rule');
+
+subsetTest(promise_test, async t => {
+  const unsubscribe = await subscribePrefetchStatusUpdated();
+  if (unsubscribe) {
+    t.add_cleanup(() => unsubscribe());
+  }
+  const agent = await spawnWindow(t);
+  await agent.setReferrerPolicy("strict-origin");
+  const expectedReferrer = agent.getExecutorURL().origin + "/";
+
+  const nextURL = agent.getExecutorURL({ page: 2 });
+  const statusReached = unsubscribe ? waitForPrefetchStatus(nextURL) : null;
+  await agent.execute_script((url) => {
+    const a = addLink(url);
+    a.referrerPolicy = 'no-referrrrrrrer';
+    insertDocumentRule();
+  }, [nextURL]);
+  if (statusReached) {
+    await statusReached;
+  } else {
+    await new Promise(resolve => t.step_timeout(resolve, 2000));
+  }
+  await agent.navigate(nextURL);
+
+  const headers = await agent.getRequestHeaders();
+  assert_prefetched(headers, "must be prefetched");
+  assert_equals(headers.referer, expectedReferrer, "must send the origin as the referrer");
+}, 'unrecognized policies in link referrerpolicy attribute are ignored');
 
 subsetTest(promise_test, async t => {
   const agent = await spawnWindow(t);
@@ -99,9 +141,8 @@ subsetTest(promise_test, async t => {
   await agent.setReferrerPolicy("strict-origin");
   const expectedReferrer = agent.getExecutorURL().origin + "/";
 
-  const nextURL = agent.getExecutorURL({ hostname: PREFETCH_PROXY_BYPASS_HOST, page: 2 });
-  await agent.forceSinglePrefetch(
-      nextURL, { referrer_policy: "unsafe-url", requires: ["anonymous-client-ip-when-cross-origin"] });
+  const nextURL = agent.getExecutorURL({ hostname: get_host_info().NOTSAMESITE_HOST, page: 2 });
+  await agent.forceSinglePrefetch(nextURL, { referrer_policy: "unsafe-url" });
   await agent.navigate(nextURL);
 
   // This referring page's referrer policy would normally make it eligible for
@@ -120,7 +161,8 @@ subsetTest(promise_test, async t => {
   const nextURL = agent.getExecutorURL({ page: 2 });
   // The empty string is a valid value for "referrer_policy" and will be
   // treated as if the key were omitted.
-  await agent.forceSinglePrefetch(nextURL, { referrer_policy: "" });
+  await agent.forceSinglePrefetchAndWaitForStatus(
+      nextURL, { referrer_policy: "" });
   await agent.navigate(nextURL);
 
   const headers = await agent.getRequestHeaders();

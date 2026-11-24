@@ -1,9 +1,11 @@
 import pytest
+from webdriver.bidi.modules.script import ContextTarget
 
 from ... import get_device_pixel_ratio, get_viewport_dimensions
 
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 @pytest.mark.parametrize("device_pixel_ratio", [0.5, 2])
 async def test_device_pixel_ratio_only(bidi_session, inline, new_tab, device_pixel_ratio):
     viewport = await get_viewport_dimensions(bidi_session, new_tab)
@@ -21,8 +23,16 @@ async def test_device_pixel_ratio_only(bidi_session, inline, new_tab, device_pix
     assert await get_device_pixel_ratio(bidi_session, new_tab) == device_pixel_ratio
     assert await get_viewport_dimensions(bidi_session, new_tab) == viewport
 
+    url = inline("<div>foo</div>", domain="alt")
+    await bidi_session.browsing_context.navigate(
+        context=new_tab["context"], url=url, wait="complete"
+    )
 
-@pytest.mark.asyncio
+    # Make sure that overrides are applied after cross-origin navigation.
+    assert await get_device_pixel_ratio(bidi_session, new_tab) == device_pixel_ratio
+    assert await get_viewport_dimensions(bidi_session, new_tab) == viewport
+
+
 @pytest.mark.parametrize("device_pixel_ratio", [0.5, 2])
 async def test_device_pixel_ratio_with_viewport(
     bidi_session, inline, new_tab, device_pixel_ratio
@@ -46,7 +56,6 @@ async def test_device_pixel_ratio_with_viewport(
     assert await get_device_pixel_ratio(bidi_session, new_tab) == device_pixel_ratio
 
 
-@pytest.mark.asyncio
 async def test_reset_device_pixel_ratio(bidi_session, inline, new_tab):
     original_dpr = await get_device_pixel_ratio(bidi_session, new_tab)
     test_dpr = original_dpr + 1
@@ -68,3 +77,46 @@ async def test_reset_device_pixel_ratio(bidi_session, inline, new_tab):
         device_pixel_ratio=None)
 
     assert await get_device_pixel_ratio(bidi_session, new_tab) == original_dpr
+
+
+@pytest.mark.parametrize("device_pixel_ratio", [0.5, 2])
+@pytest.mark.parametrize(
+    "use_horizontal_scrollbar, use_vertical_scrollbar",
+    [
+        (True, False),
+        (False, True),
+        (True, True),
+    ],
+    ids=["horizontal", "vertical", "both"],
+)
+async def test_device_pixel_ratio_with_scrollbar(
+    bidi_session,
+    inline,
+    new_tab,
+    device_pixel_ratio,
+    use_horizontal_scrollbar,
+    use_vertical_scrollbar,
+):
+    viewport_dimensions = await get_viewport_dimensions(bidi_session, new_tab)
+
+    width = 100
+    if use_horizontal_scrollbar:
+        width = viewport_dimensions["width"] + 100
+
+    height = 100
+    if use_vertical_scrollbar:
+        height = viewport_dimensions["height"] + 100
+
+    html = f"""<div style="width: {width}px; height: {height}px;">foo</div>"""
+    page_url = inline(html)
+
+    await bidi_session.browsing_context.navigate(
+        context=new_tab["context"], url=page_url, wait="complete"
+    )
+
+    await bidi_session.browsing_context.set_viewport(
+        context=new_tab["context"], device_pixel_ratio=device_pixel_ratio
+    )
+
+    assert await get_device_pixel_ratio(bidi_session, new_tab) == device_pixel_ratio
+    assert await get_viewport_dimensions(bidi_session, new_tab) == viewport_dimensions

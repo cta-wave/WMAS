@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<title>CSS: AccentColor and AccentColorText animation</title>
+<link rel="help" href="https://drafts.csswg.org/css-ui-4/#widget-accent">
+<link rel="help" href="https://www.w3.org/TR/css-color-4/#css-system-colors">
+<meta name="assert" content="AccentColor and AccentColorText resolve against the computed accent-color property during color interpolation, and animated values update when accent-color changes.">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<div id="ancestor">
+  <div id="descendant"></div>
+</div>
+
+<script>
+  const ancestor = document.getElementById("ancestor");
+  const descendant = document.getElementById("descendant");
+
+  test(() => {
+    ancestor.style.accentColor = "rgb(255, 165, 0)";
+    const anim = descendant.animate(
+        [{ backgroundColor: "AccentColor" },
+         { backgroundColor: "AccentColor" }],
+        { duration: 1000 });
+    anim.pause();
+    anim.currentTime = anim.effect.getComputedTiming().duration / 2;
+    assert_equals(getComputedStyle(descendant).backgroundColor,
+                  "rgb(255, 165, 0)");
+    anim.cancel();
+  }, "AccentColor mirrors accent-color while animating");
+
+  test(() => {
+    ancestor.style.accentColor = "rgb(1, 2, 3)";
+    const anim = descendant.animate(
+        [{ backgroundColor: "rgb(0, 0, 0)" },
+         { backgroundColor: "AccentColor" }],
+        { duration: 1000, fill: "both" });
+    anim.pause();
+    anim.currentTime = anim.effect.getComputedTiming().duration;
+    assert_equals(getComputedStyle(descendant).backgroundColor,
+                  "rgb(1, 2, 3)");
+    ancestor.style.accentColor = "rgb(4, 5, 6)";
+    assert_equals(getComputedStyle(descendant).backgroundColor,
+                  "rgb(4, 5, 6)");
+    anim.cancel();
+  }, "Animated AccentColor updates when accent-color changes");
+
+  test(() => {
+    ancestor.style.accentColor = "rgb(240, 240, 240)";
+    const anim = descendant.animate(
+        [{ color: "rgb(128, 128, 128)" },
+         { color: "AccentColorText" }],
+        { duration: 1000, fill: "both" });
+    anim.pause();
+    anim.currentTime = anim.effect.getComputedTiming().duration;
+    assert_equals(getComputedStyle(descendant).color, "rgb(0, 0, 0)");
+    ancestor.style.accentColor = "rgb(10, 10, 10)";
+    assert_equals(getComputedStyle(descendant).color, "rgb(255, 255, 255)");
+    anim.cancel();
+  }, "Animated AccentColorText updates when accent-color changes");
+
+  // Animate literal colors so the reference uses the same interpolation
+  // and serialization as the expression containing AccentColor.
+  function getReferenceAnimatedColor(t, expression, accentColor) {
+    const reference = document.createElement("div");
+    document.body.append(reference);
+    t.add_cleanup(() => reference.remove());
+    const value = expression.replaceAll("AccentColor", accentColor);
+    const animation = reference.animate(
+        [{ backgroundColor: value }, { backgroundColor: value }],
+        { duration: 1000, fill: "both" });
+    t.add_cleanup(() => animation.cancel());
+    animation.pause();
+    animation.currentTime = 500;
+    return getComputedStyle(reference).backgroundColor;
+  }
+
+  for (const expression of [
+    "light-dark(AccentColor, AccentColor)",
+    "color-mix(in srgb, AccentColor 50%, blue)",
+    "rgb(from AccentColor r g b)",
+    "contrast-color(AccentColor)",
+    "alpha(from AccentColor / 0.5)",
+  ]) {
+    test(t => {
+      const initial = getReferenceAnimatedColor(t, expression, "black");
+      const updated = getReferenceAnimatedColor(t, expression, "white");
+      assert_not_equals(initial, updated,
+                        "Changing the accent must change the expected output");
+
+      ancestor.style.accentColor = "black";
+      const anim = descendant.animate(
+          [{ backgroundColor: expression }, { backgroundColor: expression }],
+          { duration: 1000, fill: "both" });
+      t.add_cleanup(() => anim.cancel());
+      anim.pause();
+      anim.currentTime = 500;
+      assert_equals(getComputedStyle(descendant).backgroundColor, initial);
+      ancestor.style.accentColor = "white";
+      assert_equals(getComputedStyle(descendant).backgroundColor, updated);
+    }, `Animated ${expression} updates when accent-color changes`);
+  }
+
+  for (const property of ["boxShadow", "filter"]) {
+    for (const color of ["AccentColor",
+                         "light-dark(AccentColor, AccentColor)"]) {
+      test(t => {
+        ancestor.style.accentColor = "rgb(1, 2, 3)";
+        const shadow = `1px 1px ${color}`;
+        const value = property === "filter" ? `drop-shadow(${shadow})` : shadow;
+        const expected = rgb => property === "filter"
+            ? `drop-shadow(${rgb} 1px 1px 0px)`
+            : `${rgb} 1px 1px 0px 0px`;
+        const anim = descendant.animate(
+            [{ [property]: value }, { [property]: value }],
+            { duration: 1000, fill: "both" });
+        t.add_cleanup(() => anim.cancel());
+        anim.pause();
+        anim.currentTime = 500;
+        assert_equals(getComputedStyle(descendant)[property],
+                      expected("rgb(1, 2, 3)"));
+        ancestor.style.accentColor = "rgb(4, 5, 6)";
+        assert_equals(getComputedStyle(descendant)[property],
+                      expected("rgb(4, 5, 6)"));
+      }, `Animated ${property} with ${color} updates when accent-color changes`);
+    }
+  }
+</script>

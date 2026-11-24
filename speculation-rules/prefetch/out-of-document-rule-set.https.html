@@ -4,6 +4,7 @@
 <script src="/common/dispatcher/dispatcher.js"></script>
 <script src="/common/subset-tests-by-key.js"></script>
 <script src="/common/utils.js"></script>
+<script src="/common/get-host-info.sub.js"></script>
 <script src="../resources/utils.js"></script>
 <script src="resources/utils.sub.js"></script>
 
@@ -12,6 +13,7 @@
 <meta name="variant" content="?include=RelativeUrlForSpeculationRulesSet">
 <meta name="variant" content="?include=RelativeUrlForCandidate">
 <meta name="variant" content="?include=UseNonUTF8EncodingForSpeculationRulesSet">
+<meta name="variant" content="?include=OmitCharsetFromSpeculationRulesSet">
 <meta name="variant" content="?include=FailCORS">
 <meta name="variant" content="?include=FailToParseSpeculationRulesHeader">
 <meta name="variant" content="?include=InnerListInSpeculationRulesHeader">
@@ -21,6 +23,7 @@
 <meta name="variant" content="?include=StatusCode199">
 <meta name="variant" content="?include=StatusCode404">
 <meta name="variant" content="?include=InvalidMimeType">
+<meta name="variant" content="?include=CSPExemption">
 
 <script>
   setup(() => assertSpeculationRulesIsSupported());
@@ -39,6 +42,8 @@
       useRelativeUrlForSpeculationRulesSet: false,
       // Whether to use UTF-8 encoding for the rule set.
       useUtf8EncodingForSpeculationRulesSet: true,
+      // Whether to omit the charset from the Content-Type header.
+      omitCharsetFromSpeculationRulesSet: false,
       // Whether to force the response to cause a CORS failure.
       failCors: false,
       // Whether to use a valid SpeculationRules header format.
@@ -53,6 +58,8 @@
       useValidUrlForSpeculationRulesSet: true,
       // Wheter to use the valid "application/speculationrules-json" MIME type for the rule set.
       useValidMimeTypeForSpeculationRulesSet: true,
+      // Whether to use a strict CSP for the main page.
+      strictCSP: false,
       ...options
     };
 
@@ -62,10 +69,10 @@
     if (options.useRelativeUrlForCandidate) {
       executor_url = `executor.sub.html`;
     }
-    let speculation_rule_set_url = `ruleset.py?url=${executor_url}&uuid=${uuid}&page=${page}&status=${options.status}&valid_mime=${options.useValidMimeTypeForSpeculationRulesSet}&valid_json=${options.useValidJsonForSpeculationRulesSet}&empty_json=${options.useEmptySpeculationRulesSet}&fail_cors=${options.failCors}&valid_encoding=${options.useUtf8EncodingForSpeculationRulesSet}&redirect=${options.redirect}`;
+    let speculation_rule_set_url = `ruleset.py?url=${executor_url}&uuid=${uuid}&page=${page}&status=${options.status}&valid_mime=${options.useValidMimeTypeForSpeculationRulesSet}&valid_json=${options.useValidJsonForSpeculationRulesSet}&empty_json=${options.useEmptySpeculationRulesSet}&fail_cors=${options.failCors}&valid_encoding=${options.useUtf8EncodingForSpeculationRulesSet}&omit_charset=${options.omitCharsetFromSpeculationRulesSet}&redirect=${options.redirect}`;
     if (!options.useRelativeUrlForSpeculationRulesSet) {
       let base_url = new URL(SR_PREFETCH_UTILS_URL);
-      base_url.hostname = PREFETCH_PROXY_BYPASS_HOST;
+      base_url.hostname = get_host_info().NOTSAMESITE_HOST;
       speculation_rule_set_url = new URL(speculation_rule_set_url, base_url).toString();
     }
     if (!options.useValidUrlForSpeculationRulesSet) {
@@ -78,6 +85,9 @@
     }
     else if (options.useInnerListInSpeculationRulesHeaderValue) {
       speculation_rules_header =  `header(Speculation-Rules, \\("${speculation_rule_set_url}" "xyz.com/rule-set.json"\\))`;
+    }
+    if (options.strictCSP) {
+      speculation_rules_header = speculation_rules_header + `|header(Content-Security-Policy, script-src 'strict-dynamic' 'nonce-abc' 'unsafe-eval')`;
     }
 
     let agent = await spawnWindow(t, {pipe: speculation_rules_header}, uuid);
@@ -115,6 +125,10 @@
     return runSpeculationRulesFetchTest(t, {useUtf8EncodingForSpeculationRulesSet: false, shouldPrefetch: false});
   }, "The speculation rules set should always be encoded using UTF-8.");
 
+  subsetTestByKey('OmitCharsetFromSpeculationRulesSet', promise_test, async t => {
+    return runSpeculationRulesFetchTest(t, {omitCharsetFromSpeculationRulesSet: true, shouldPrefetch: true});
+  }, "The speculation rules set should be decoded as UTF-8 even when no charset is declared.");
+
   subsetTestByKey('FailCORS', promise_test, async t => {
     return runSpeculationRulesFetchTest(t, {failCors: true, shouldPrefetch: false});
   }, "It should reject the speculation rules set if CORS fails.");
@@ -150,5 +164,9 @@
   subsetTestByKey('InvalidMimeType', promise_test, async t => {
     return runSpeculationRulesFetchTest(t, {useValidMimeTypeForSpeculationRulesSet: false, shouldPrefetch: false});
   }, "It should reject the speculation rules set with invalid MIME type.");
+
+  subsetTestByKey('CSPExemption', promise_test, async t => {
+    return runSpeculationRulesFetchTest(t, {shouldPrefetch: true, strictCSP: true});
+  }, "It should accept the speculation rules when the main page has strict CSP.");
 
 </script>

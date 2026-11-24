@@ -3,8 +3,9 @@ import webdriver.bidi.error as error
 
 from webdriver.bidi.modules.script import ContextTarget
 
+pytestmark = pytest.mark.asyncio
 
-@pytest.mark.asyncio
+
 @pytest.mark.parametrize("type_hint", ["tab", "window"])
 async def test_remove_preload_script(bidi_session, type_hint):
     script = await bidi_session.script.add_preload_script(
@@ -33,7 +34,6 @@ async def test_remove_preload_script(bidi_session, type_hint):
     assert result_2 == {"type": "undefined"}
 
 
-@pytest.mark.asyncio
 async def test_remove_preload_script_twice(bidi_session):
     script = await bidi_session.script.add_preload_script(
         function_declaration="() => { window.foo='bar'; }"
@@ -46,7 +46,6 @@ async def test_remove_preload_script_twice(bidi_session):
         await bidi_session.script.remove_preload_script(script=script)
 
 
-@pytest.mark.asyncio
 async def test_remove_one_of_preload_scripts(bidi_session):
     script_1 = await bidi_session.script.add_preload_script(
         function_declaration="() => { window.bar='foo'; }"
@@ -80,7 +79,6 @@ async def test_remove_one_of_preload_scripts(bidi_session):
     await bidi_session.script.remove_preload_script(script=script_2)
 
 
-@pytest.mark.asyncio
 async def test_remove_script_set_up_for_one_context(
     bidi_session, add_preload_script, new_tab, test_page, test_page_cross_origin
 ):
@@ -118,3 +116,56 @@ async def test_remove_script_set_up_for_one_context(
         await_promise=True,
     )
     assert result == {"type": "undefined"}
+
+
+async def test_remove_script_set_up_for_user_context(
+    bidi_session, add_preload_script, new_tab, create_user_context, inline
+):
+    user_context = await create_user_context()
+    script = await add_preload_script(
+        function_declaration="() => { window.foo='bar'; }", user_contexts=[user_context]
+    )
+
+    new_context_1 = await bidi_session.browsing_context.create(
+        user_context=user_context, type_hint="tab"
+    )
+
+    # Check that preload script applied the changes to the context
+    result = await bidi_session.script.evaluate(
+        expression="window.foo",
+        target=ContextTarget(new_context_1["context"]),
+        await_promise=True,
+    )
+    assert result == {"type": "string", "value": "bar"}
+
+    await bidi_session.script.remove_preload_script(script=script)
+
+    # Navigate to see that preload script didn't run
+    await bidi_session.browsing_context.navigate(
+        context=new_context_1["context"],
+        url=inline("<div>test</div>"),
+        wait="complete",
+    )
+
+    result = await bidi_session.script.evaluate(
+        expression="window.foo",
+        target=ContextTarget(new_tab["context"]),
+        await_promise=True,
+    )
+    assert result == {"type": "undefined"}
+
+    # Check that another context created in the user context
+    # doesn't run preload script.
+    new_context_2 = await bidi_session.browsing_context.create(
+        user_context=user_context, type_hint="tab"
+    )
+
+    result = await bidi_session.script.evaluate(
+        expression="window.foo",
+        target=ContextTarget(new_context_2["context"]),
+        await_promise=True,
+    )
+    assert result == {"type": "undefined"}
+
+    await bidi_session.browsing_context.close(context=new_context_1["context"])
+    await bidi_session.browsing_context.close(context=new_context_2["context"])

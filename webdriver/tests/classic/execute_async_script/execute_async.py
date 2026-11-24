@@ -3,7 +3,7 @@ import pytest
 from webdriver.error import NoSuchAlertException
 from webdriver.transport import Response
 
-from tests.support.asserts import assert_error, assert_success
+from tests.support.classic.asserts import assert_error, assert_success
 from tests.support.sync import Poll
 from . import execute_async_script
 
@@ -45,6 +45,21 @@ def test_primitive_serialization(session, expression, expected):
     assert value == expected
 
 
+@pytest.mark.parametrize("expression", [
+    "null",
+    "undefined",
+    "true",
+    "23",
+    "'foo'",
+    "42n",
+    "Symbol('foo')",
+    "{ message: Symbol('foo') }",
+])
+def test_thrown_value(session, expression):
+    response = execute_async_script(session, "throw {};".format(expression))
+    assert_error(response, "javascript error")
+
+
 @pytest.mark.parametrize("dialog_type", ["alert", "confirm", "prompt"])
 def test_abort_by_user_prompt(session, dialog_type):
     response = execute_async_script(
@@ -66,14 +81,10 @@ def test_abort_by_user_prompt_twice(session, dialog_type):
 
     # The first alert has been accepted by the user prompt handler, the second
     # alert will still be opened because the current step isn't aborted.
-    wait = Poll(
-        session,
-        timeout=5,
-        message="Second alert has not been opened",
-        ignored_exceptions=NoSuchAlertException
-    )
-    text = wait.until(lambda s: s.alert.text)
+    def assert_alert_text(s):
+        assert s.alert.text == "Bye", "Second alert was not opened"
 
-    assert text == "Bye"
+    wait = Poll(session, timeout=5, ignored_exceptions=NoSuchAlertException)
+    wait.until(assert_alert_text)
 
     session.alert.accept()

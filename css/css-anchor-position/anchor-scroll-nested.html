@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html class="reftest-wait">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
 <title>Tests anchor positioning with nested scroll containers</title>
 <link rel="author" href="mailto:xiaochengh@chromium.org">
 <link rel="help" href="https://drafts.csswg.org/css-anchor-1/">
@@ -40,17 +41,17 @@ body {
   position: absolute;
   width: 50px;
   height: 50px;
-  left: anchor(--anchor left);
-  anchor-default: --anchor;
+  left: anchor(left);
+  position-anchor: --anchor;
 }
 
 .above {
-  bottom: anchor(--anchor top);
+  bottom: anchor(top);
   background-color: red;
 }
 
 .below {
-  top: anchor(--anchor bottom);
+  top: anchor(bottom);
   background-color: yellow;
 }
 </style>

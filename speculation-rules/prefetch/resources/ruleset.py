@@ -6,6 +6,7 @@ def main(request, response):
     empty_json = request.GET[b"empty_json"].decode("utf-8")
     fail_cors = request.GET[b"fail_cors"].decode("utf-8")
     valid_encoding = request.GET[b"valid_encoding"].decode("utf-8")
+    omit_charset = request.GET.get(b"omit_charset", b"false").decode("utf-8")
     redirect = request.GET[b"redirect"].decode("utf-8")
     sec_fetch_dest = request.headers[b"Sec-Fetch-Dest"].decode(
         "utf-8").lower() if b"Sec-Fetch-Dest" in request.headers else None
@@ -20,7 +21,8 @@ def main(request, response):
                      (b'Access-Control-Allow-Origin', b'*')], b""
 
     encoding = "utf-8" if valid_encoding == "true" else "windows-1250"
-    content_type += f'; charset={encoding}'.encode('utf-8')
+    if omit_charset != "true":
+        content_type += f'; charset={encoding}'.encode('utf-8')
     strparam = b'\xc3\xb7'.decode('utf-8')
 
     content = f'''
@@ -28,8 +30,7 @@ def main(request, response):
         "prefetch": [
           {{
             "source":"list",
-            "urls":["{url}?uuid={uuid}&page={page}&str={strparam}"],
-            "requires":["anonymous-client-ip-when-cross-origin"]
+            "urls":["{url}?uuid={uuid}&page={page}&str={strparam}"]
           }}
         ]
       }}
@@ -38,8 +39,10 @@ def main(request, response):
         content = ""
     elif valid_json != "true":
         content = "invalid json"
-    elif sec_fetch_dest is None or sec_fetch_dest != "script":
-        content = "normal document"
+    elif sec_fetch_dest is None:
+        content = "Missing Sec-Fetch-Dest"
+    elif sec_fetch_dest != "speculationrules":
+        content = "Unexpected Sec-Fetch-Dest " + sec_fetch_dest
 
     headers = [(b"Content-Type", content_type)]
     if fail_cors != "true":

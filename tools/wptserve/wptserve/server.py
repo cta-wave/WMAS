@@ -1,16 +1,20 @@
 # mypy: allow-untyped-defs
 
 import errno
+import http
 import http.server
+import ipaddress
 import os
+import platform
+import selectors
 import socket
+import socketserver
 import ssl
 import sys
 import threading
 import time
 import traceback
 import uuid
-from collections import OrderedDict
 from queue import Empty, Queue
 from typing import Dict
 
@@ -23,8 +27,8 @@ from h2.utilities import extract_method_header
 
 from urllib.parse import urlsplit, urlunsplit
 
-from mod_pywebsocket import dispatch
-from mod_pywebsocket.handshake import HandshakeException, AbortedByUserException
+from pywebsocket3 import dispatch
+from pywebsocket3.handshake import HandshakeException, AbortedByUserException
 
 from . import routes as default_routes
 from .config import ConfigBuilder
@@ -130,7 +134,9 @@ class RequestRewriter:
 
 class WebTestServer(http.server.ThreadingHTTPServer):
     allow_reuse_address = True
-    acceptable_errors = (errno.EPIPE, errno.ECONNABORTED)
+    # Older versions of Python might throw `OSError: [Errno 0] Error`
+    # instead of `SSLEOFError`.
+    acceptable_errors = (errno.EPIPE, errno.ECONNABORTED, 0)
     request_queue_size = 2000
 
     # Ensure that we don't hang on shutdown waiting for requests
@@ -176,10 +182,13 @@ class WebTestServer(http.server.ThreadingHTTPServer):
         :param latency: Delay in ms to wait before serving each response, or
                         callable that returns a delay in ms
         """
+        self._shutdown_event = threading.Event()
+        self._shutdown_write_sock = None
+
         self.router = router
         self.rewriter = rewriter
 
-        self.scheme = "http2" if http2 else "https" if use_ssl else "http"
+        self.scheme = "http2" if http2 else "https" if use_ssl and not encrypt_after_connect else "http"
         self.logger = get_logger()
 
         self.latency = latency
@@ -214,13 +223,84 @@ class WebTestServer(http.server.ThreadingHTTPServer):
                 ssl_context.load_cert_chain(keyfile=self.key_file, certfile=self.certificate)
                 ssl_context.set_alpn_protocols(['h2'])
                 self.socket = ssl_context.wrap_socket(self.socket,
+                                                      do_handshake_on_connect=False,
                                                       server_side=True)
 
             else:
                 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
                 ssl_context.load_cert_chain(keyfile=self.key_file, certfile=self.certificate)
                 self.socket = ssl_context.wrap_socket(self.socket,
+                                                      do_handshake_on_connect=False,
                                                       server_side=True)
+
+    def server_bind(self):
+        if platform.system() != "Darwin":
+            super().server_bind()
+        else:
+            # We override this on macOS to workaround gethostbyaddr triggering the local
+            # network alert even when passed "localhost" (rdar://153097791); this should
+            # be the same as the superclass implementation except for the addition of
+            # our check.
+            socketserver.TCPServer.server_bind(self)
+            host, port = self.server_address[:2]
+            if (
+                ipaddress.ip_address(host).is_loopback and
+                ipaddress.ip_address(socket.gethostbyname("localhost")).is_loopback
+            ):
+                self.server_name = "localhost"
+            else:
+                self.server_name = socket.getfqdn(host)
+            self.server_port = port
+
+    def serve_forever(self, poll_interval=0.5):
+        """Handle one request at a time until shutdown.
+
+        This overrides the superclass implementation to use a socket pair to process
+        shutdown requests, avoiding waiting the poll_interval before shutting down.
+        It does, however, still call service_actions() every poll_interval.
+
+        """
+        shutdown_read_sock, self._shutdown_write_sock = socket.socketpair()
+        self._shutdown_event.clear()
+
+        try:
+            with selectors.DefaultSelector() as selector:
+                selector.register(self, selectors.EVENT_READ)
+                selector.register(shutdown_read_sock, selectors.EVENT_READ)
+
+                while True:
+                    events = selector.select(timeout=poll_interval)
+
+                    # Handle shutdown requests before any request
+                    if any(
+                        key.fileobj == shutdown_read_sock and mask == selectors.EVENT_READ
+                        for key, mask in events
+                    ):
+                        shutdown_read_sock.recv(1)
+                        break
+
+                    for key, mask in events:
+                        if key.fileobj == self and mask == selectors.EVENT_READ:
+                            super()._handle_request_noblock()
+                        else:
+                            assert False, "unreachable"
+                    else:
+                        self.service_actions()
+
+        finally:
+            shutdown_read_sock.close()
+            self._shutdown_write_sock.close()
+            self._shutdown_event.set()
+
+    def shutdown(self):
+        """Stops the serve_forever loop and waits for it to finish."""
+        self._shutdown_write_sock.send(b'x')
+        self._shutdown_event.wait()
+
+    def finish_request(self, request, client_address):
+        if isinstance(self.socket, ssl.SSLSocket):
+            request.do_handshake()
+        super().finish_request(request, client_address)
 
     def handle_error(self, request, client_address):
         error = sys.exc_info()[1]
@@ -229,7 +309,11 @@ class WebTestServer(http.server.ThreadingHTTPServer):
              isinstance(error.args, tuple) and
              error.args[0] in self.acceptable_errors) or
             (isinstance(error, IOError) and
-             error.errno in self.acceptable_errors)):
+             error.errno in self.acceptable_errors) or
+            # `SSLEOFError` and `SSLError` may occur when a client
+            # (e.g., wptrunner's `TestEnvironment`) tests for connectivity
+            # but doesn't perform the handshake.
+            isinstance(error, ssl.SSLEOFError) or isinstance(error, ssl.SSLError)):
             pass  # remote hang up before the result is sent
         else:
             msg = traceback.format_exc()
@@ -240,9 +324,13 @@ class WebTestServer(http.server.ThreadingHTTPServer):
 class BaseWebTestRequestHandler(http.server.BaseHTTPRequestHandler):
     """RequestHandler for WebTestHttpd"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request, client_address, server):
         self.logger = get_logger()
-        super().__init__(*args, **kwargs)
+        # The scheme of requests on this connection. This starts out as the
+        # server's scheme, and changes to https once a CONNECT request has
+        # switched the connection to TLS.
+        self.scheme = server.scheme
+        super().__init__(request, client_address, server)
 
     def finish_handling_h1(self, request_line_is_valid):
 
@@ -327,7 +415,57 @@ class BaseWebTestRequestHandler(http.server.BaseHTTPRequestHandler):
             self.request = ssl_context.wrap_socket(self.connection,
                                                    server_side=True)
             self.setup()
+            self.scheme = "https"
+            # parse_request() decided whether to keep the connection open
+            # based on the CONNECT request itself, e.g. an HTTP/1.0 CONNECT
+            # closes it by default. The tunnel needs to stay open for the
+            # requests that follow over TLS, so override that decision.
+            self.close_connection = False
         return
+
+    def finish(self):
+        super().finish()
+        # socketserver only shuts down and closes the socket it accepted,
+        # which wrap_socket() in handle_connect() has detached, so close the
+        # TLS socket here. Without this, the client never sees the end of a
+        # response that is delimited by closing the connection. Send a TLS
+        # close_notify first so that the client sees a clean close, but don't
+        # wait long for the client's reply.
+        if isinstance(self.request, ssl.SSLSocket) and self.server.encrypt_after_connect:
+            try:
+                self.request.settimeout(1)
+                self.request.unwrap()
+            except (OSError, ValueError):
+                pass
+            self.request.close()
+
+    def log_request(self, code="-", size="-"):
+        if isinstance(code, http.HTTPStatus):
+            code = code.value
+
+        self.logger.debug(
+            "{} - - [{}] {!r} {!s} {!s}".format(
+                self.address_string(),
+                self.log_date_time_string(),
+                self.requestline,
+                code,
+                size,
+            )
+        )
+
+    def log_error(self, format, *args):
+        self.logger.error(
+            "{} - - [{}] {}".format(
+                self.address_string(), self.log_date_time_string(), format % args
+            )
+        )
+
+    def log_message(self, format, *args):
+        self.logger.info(
+            "{} - - [{}] {}".format(
+                self.address_string(), self.log_date_time_string(), format % args
+            )
+        )
 
 
 class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
@@ -335,10 +473,10 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
 
     def handle_one_request(self):
         """
-        This is the main HTTP/2.0 Handler.
+        This is the main HTTP/2 Handler.
 
         When a browser opens a connection to the server
-        on the HTTP/2.0 port, the server enters this which will initiate the h2 connection
+        on the HTTP/2 port, the server enters this which will initiate the h2 connection
         and keep running throughout the duration of the interaction, and will read/write directly
         from the socket.
 
@@ -380,7 +518,7 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
         try:
             while not self.close_connection:
                 data = self.request.recv(window_size)
-                if data == '':
+                if data == b'':
                     self.logger.debug('(%s) Socket Closed' % self.uid)
                     self.close_connection = True
                     continue
@@ -388,6 +526,11 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
                 with self.conn as connection:
                     frames = connection.receive_data(data)
                     window_size = connection.remote_settings.initial_window_size
+                    non_closed_streams = {
+                        stream_id
+                        for stream_id, stream in connection.streams.items()
+                        if not stream.closed
+                    }
 
                 self.logger.debug('(%s) Frames Received: ' % self.uid + str(frames))
 
@@ -400,17 +543,24 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
                         for stream_id, (thread, queue) in stream_queues.items():
                             queue.put(frame)
 
-                    elif hasattr(frame, 'stream_id'):
+                    elif hasattr(frame, 'stream_id') and frame.stream_id != 0:
+                        # Stream ID 0 is reserved for connection control messages (RFC 9113 § 5.1.1)
+                        # and is handled directly by h2, so we only create streams for stream IDs > 0
                         if frame.stream_id not in stream_queues:
                             queue = Queue()
                             stream_queues[frame.stream_id] = (self.start_stream_thread(frame, queue), queue)
                         stream_queues[frame.stream_id][1].put(frame)
 
-                        if isinstance(frame, StreamEnded) or getattr(frame, "stream_ended", False):
-                            del stream_queues[frame.stream_id]
+                for closed_id in set(stream_queues.keys()) - non_closed_streams:
+                    self.logger.debug(f'({self.uid}) Stream {closed_id} is closed, removing queue')
+                    del stream_queues[closed_id]
 
         except OSError as e:
             self.logger.error(f'({self.uid}) Closing Connection - \n{str(e)}')
+            if not self.close_connection:
+                self.close_connection = True
+        except ProtocolError as e:
+            self.logger.debug(f'H2 protocol error - {str(e)}')
             if not self.close_connection:
                 self.close_connection = True
         except Exception as e:
@@ -494,9 +644,9 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
             # wire. Flush the headers here.
             try:
                 h2response.write_status_headers()
-            except StreamClosedError:
+            except (StreamClosedError, ProtocolError):
                 # work around https://github.com/web-platform-tests/wpt/issues/27786
-                # The stream was already closed.
+                # The stream or connection was already closed.
                 return
 
             request_wrapper._dispatcher = dispatcher
@@ -624,9 +774,12 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
             if getattr(frame, "stream_ended", False):
                 try:
                     self.finish_handling(request, response, req_handler)
-                except StreamClosedError:
-                    self.logger.debug('(%s - %s) Unable to write response; stream closed' %
-                                    (self.uid, stream_id))
+                except (StreamClosedError, ProtocolError):
+                    # The stream or connection was closed before we could
+                    # finish writing the response.
+                    self.logger.debug(
+                        '(%s - %s) Unable to write response; stream or '
+                        'connection closed' % (self.uid, stream_id))
                 break
 
         cleanup()
@@ -645,11 +798,10 @@ class Http2WebTestRequestHandler(BaseWebTestRequestHandler):
 
 class H2ConnectionGuard:
     """H2Connection objects are not threadsafe, so this keeps thread safety"""
-    lock = threading.Lock()
-
     def __init__(self, obj):
         assert isinstance(obj, H2Connection)
         self.obj = obj
+        self.lock = threading.Lock()
 
     def __enter__(self):
         self.lock.acquire()
@@ -661,7 +813,7 @@ class H2ConnectionGuard:
 
 class H2Headers(Dict[bytes, bytes]):
     def __init__(self, headers):
-        self.raw_headers = OrderedDict()
+        self.raw_headers = {}
         for key, val in headers:
             key = isomorphic_decode(key)
             val = isomorphic_decode(val)
@@ -686,6 +838,7 @@ class H2HandlerCopy:
         self.path = self.headers['path']
         self.h2_stream_id = req_frame.stream_id
         self.server = handler.server
+        self.scheme = handler.scheme
         self.protocol_version = handler.protocol_version
         self.client_address = handler.client_address
         self.raw_requestline = ''

@@ -3,11 +3,9 @@ import webdriver.bidi.error as error
 from webdriver.bidi.modules.network import AuthCredentials
 from webdriver.error import TimeoutException
 
-from tests.support.sync import AsyncPoll
 from .. import (
     assert_response_event,
     AUTH_REQUIRED_EVENT,
-    PAGE_EMPTY_TEXT,
     RESPONSE_COMPLETED_EVENT,
 )
 
@@ -15,27 +13,46 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_cancel(
-    setup_blocked_request, subscribe_events, wait_for_event, bidi_session, url
+    setup_blocked_request, subscribe_events, wait_for_event, bidi_session, wait_for_bidi_events, wait_for_future_safe
 ):
     request = await setup_blocked_request("authRequired")
+
+    # Additionally subscribe to network.responseCompleted
     await subscribe_events(events=[RESPONSE_COMPLETED_EVENT])
+
+    # Track all received network.responseCompleted events in the events array
+    events = []
+
+    async def on_event(method, data):
+        events.append(data)
+
+    remove_listener = bidi_session.add_event_listener(
+        RESPONSE_COMPLETED_EVENT, on_event
+    )
 
     on_response_completed = wait_for_event(RESPONSE_COMPLETED_EVENT)
     await bidi_session.network.continue_with_auth(request=request, action="cancel")
-    await on_response_completed
+    response_event = await wait_for_future_safe(on_response_completed)
 
-    response_event = await on_response_completed
     assert_response_event(
         response_event,
-        expected_response={
-            "status": 401,
-            "statusText": "Unauthorized",
+        expected_event={
+            "response": {
+                "status": 401,
+                "statusText": "Unauthorized",
+            }
         },
     )
 
+    # check no other responseCompleted event was received
+    with pytest.raises(TimeoutException):
+        await wait_for_bidi_events(events, 2, timeout=0.5)
+
+    remove_listener()
+
 
 async def test_default(
-    setup_blocked_request, subscribe_events, wait_for_event, bidi_session, url
+    setup_blocked_request, subscribe_events, bidi_session, wait_for_bidi_events
 ):
     request = await setup_blocked_request("authRequired")
 
@@ -56,15 +73,14 @@ async def test_default(
     # prompt and no new network event should be generated.
     await bidi_session.network.continue_with_auth(request=request, action="default")
 
-    wait = AsyncPoll(bidi_session, timeout=0.5)
     with pytest.raises(TimeoutException):
-        await wait.until(lambda _: len(events) > 0)
+        await wait_for_bidi_events(events, 1, timeout=0.5)
 
     remove_listener()
 
 
 async def test_provideCredentials(
-    setup_blocked_request, subscribe_events, bidi_session, url
+    setup_blocked_request, subscribe_events, wait_for_event, bidi_session, wait_for_bidi_events, wait_for_future_safe
 ):
     # Setup unique username / password because browsers cache credentials.
     username = "test_provideCredentials"
@@ -85,23 +101,32 @@ async def test_provideCredentials(
     )
 
     credentials = AuthCredentials(username=username, password=password)
+
+    on_response_completed = wait_for_event(RESPONSE_COMPLETED_EVENT)
     await bidi_session.network.continue_with_auth(
         request=request, action="provideCredentials", credentials=credentials
     )
+    response_event = await wait_for_future_safe(on_response_completed)
 
-    # TODO: At the moment, the specification does not expect to receive a
-    # responseCompleted event for each authentication attempt, so only assert
-    # the last event. See https://github.com/w3c/webdriver-bidi/issues/627
+    assert_response_event(
+        response_event,
+        expected_event={
+            "response": {
+                "status": 200,
+                "statusText": "OK",
+            }
+        },
+    )
 
-    # Wait until a a responseCompleted event with status 200 OK is received.
-    wait = AsyncPoll(bidi_session, message="Didn't receive response completed events")
-    await wait.until(lambda _: len(events) > 0 and events[-1]["response"]["status"] == 200)
+    # check no other responseCompleted event was received
+    with pytest.raises(TimeoutException):
+        await wait_for_bidi_events(events, 2, timeout=0.5)
 
     remove_listener()
 
 
 async def test_provideCredentials_wrong_credentials(
-    setup_blocked_request, subscribe_events, bidi_session, wait_for_event, url
+    setup_blocked_request, subscribe_events, bidi_session, wait_for_event, wait_for_bidi_events, wait_for_future_safe
 ):
     # Setup unique username / password because browsers cache credentials.
     username = "test_provideCredentials_wrong_credentials"
@@ -129,20 +154,29 @@ async def test_provideCredentials_wrong_credentials(
     )
 
     # We expect to get another authRequired event after providing wrong credentials
-    await on_auth_required
+    await wait_for_future_safe(on_auth_required)
 
     # Continue with the correct credentials
     correct_credentials = AuthCredentials(username=username, password=password)
+
+    on_response_completed = wait_for_event(RESPONSE_COMPLETED_EVENT)
     await bidi_session.network.continue_with_auth(
         request=request, action="provideCredentials", credentials=correct_credentials
     )
+    response_event = await wait_for_future_safe(on_response_completed)
 
-    # TODO: At the moment, the specification does not expect to receive a
-    # responseCompleted event for each authentication attempt, so only assert
-    # the last event. See https://github.com/w3c/webdriver-bidi/issues/627
+    assert_response_event(
+        response_event,
+        expected_event={
+            "response": {
+                "status": 200,
+                "statusText": "OK",
+            }
+        },
+    )
 
-    # Wait until a a responseCompleted event with status 200 OK is received.
-    wait = AsyncPoll(bidi_session, message="Didn't receive response completed events")
-    await wait.until(lambda _: len(events) > 0 and events[-1]["response"]["status"] == 200)
+    # check no other responseCompleted event was received
+    with pytest.raises(TimeoutException):
+        await wait_for_bidi_events(events, 2, timeout=0.5)
 
     remove_listener()

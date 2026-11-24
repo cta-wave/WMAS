@@ -1,6 +1,7 @@
 # mypy: allow-untyped-defs, allow-untyped-calls
 
 import logging
+import sys
 from os.path import join, dirname
 
 import pytest
@@ -29,7 +30,7 @@ def test_webkitgtk_certificate_domain_list(product):
     if product not in ["epiphany", "webkit", "webkitgtk_minibrowser"]:
         pytest.skip("%s doesn't support certificate_domain_list" % product)
 
-    product_data = products.Product({}, product)
+    product_data = products.Product.from_product_name(product)
 
     cert_file = "/home/user/wpt/tools/certs/cacert.pem"
     valid_domains_test = ["a.example.org", "b.example.org", "example.org",
@@ -47,6 +48,7 @@ def test_webkitgtk_certificate_domain_list(product):
     kwargs["pause_on_unexpected"] = False
     kwargs["debug_test"] = False
     kwargs["subsuite"] = testloader.Subsuite("", config={})
+    kwargs["headless"] = True
     with ConfigBuilder(logger,
                        browser_host="example.net",
                        alternate_hosts={"alt": "example.org"},
@@ -63,7 +65,7 @@ def test_webkitgtk_certificate_domain_list(product):
         executor_args = product_data.get_executor_kwargs(None,
                                                          None,
                                                          MockEnvironment(env_config),
-                                                         {},
+                                                         {"os": sys.platform},
                                                          **kwargs)
         assert 'capabilities' in executor_args
         assert 'webkitgtk:browserOptions' in executor_args['capabilities']

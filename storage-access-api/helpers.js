@@ -29,8 +29,16 @@ async function CreateFrameHelper(setUpFrame, fetchTests) {
 // Create an iframe element with content loaded from `sourceURL`, append it to
 // the document, and optionally fetch tests. Returns the loaded frame, once
 // ready.
-function CreateFrame(sourceURL, fetchTests = false) {
+function CreateFrame(
+  sourceURL, fetchTests = false, frameSandboxAttribute = undefined, frameAllowAttribute = undefined) {
   return CreateFrameHelper((frame) => {
+    if (frameSandboxAttribute !== undefined) {
+      frame.sandbox = frameSandboxAttribute;
+    }
+    if (frameAllowAttribute !== undefined) {
+      frame.setAttribute("allow", frameAllowAttribute);
+    }
+
     frame.src = sourceURL;
     document.body.appendChild(frame);
   }, fetchTests);
@@ -38,8 +46,8 @@ function CreateFrame(sourceURL, fetchTests = false) {
 
 // Create a new iframe with content loaded from `sourceURL`, and fetches tests.
 // Returns the loaded frame, once ready.
-function RunTestsInIFrame(sourceURL) {
-  return CreateFrame(sourceURL, true);
+function RunTestsInIFrame(sourceURL, frameSandboxAttribute = undefined) {
+  return CreateFrame(sourceURL, true, frameSandboxAttribute);
 }
 
 function RunTestsInNestedIFrame(sourceURL) {
@@ -125,42 +133,31 @@ async function DeleteCookieInFrame(frame, name, params) {
   assert_false(cookieStringHasCookie(name, '0', await GetJSCookiesFromFrame(frame)), `Verify that cookie '${name}' has been deleted.`);
 }
 
-// Tests whether the frame can write cookies via document.cookie. Note that this
-// overwrites, then optionally deletes, cookies named "cookie" and "foo".
-//
-// This function requires the caller to have included
-// /cookies/resources/cookie-helper.sub.js.
-async function CanFrameWriteCookies(frame, keep_after_writing = false) {
-  const cookie_suffix = "Secure;SameSite=None;Path=/";
-  await DeleteCookieInFrame(frame, "cookie", cookie_suffix);
-  await DeleteCookieInFrame(frame, "foo", cookie_suffix);
+// Sets a cookie in an unpartitioned context by opening a window that
+// writes a cookie using document.cookie.
+async function SetFirstPartyCookie(origin, cookie="cookie=unpartitioned;Secure;SameSite=None;Path=/") {
+  return new Promise((resolve) => {
+    const onMessage = (event) => {
+      // Ignore unrelated messages (e.g. the `{type: "complete"}` message that
+      // testharness.js posts to ancestor windows from embedded frames when
+      // their harness timeout fires). Only remove this listener once the
+      // expected message has been processed; do not use `{ once: true }`, as
+      // that would detach the listener on the first unrelated message and the
+      // returned promise would never resolve.
+      if (event && event.data === 'set-document-cookie-complete') {
+        window.removeEventListener('message', onMessage);
+        resolve();
+      }
+    };
+    window.addEventListener('message', onMessage);
 
-  await SetDocumentCookieFromFrame(frame, `cookie=monster;${cookie_suffix}`);
-  await SetDocumentCookieFromFrame(frame, `foo=bar;${cookie_suffix}`);
-
-  const cookies = await GetJSCookiesFromFrame(frame);
-  const can_write = cookieStringHasCookie("cookie", "monster", cookies) &&
-      cookieStringHasCookie("foo", "bar", cookies);
-
-  if (!keep_after_writing) {
-    await DeleteCookieInFrame(frame, "cookie", cookie_suffix);
-    await DeleteCookieInFrame(frame, "foo", cookie_suffix);
-  }
-
-  return can_write;
+    RunCallbackWithGesture(() => {
+      window.open(`${origin}/storage-access-api/resources/set-document-cookie.html?${cookie}`);
+    });
+  });
 }
 
-// Sets a cookie in an unpartitioned context by creating a new frame
-// and requesting storage access in the frame.
-async function SetFirstPartyCookieAndUnsetStorageAccessPermission(origin) {
-  let frame = await CreateFrame(`${origin}/storage-access-api/resources/script-with-cookie-header.py?script=embedded_responder.js`);
-  await SetPermissionInFrame(frame, [{ name: 'storage-access' }, 'granted']);
-  await RequestStorageAccessInFrame(frame);
-  await SetDocumentCookieFromFrame(frame, `cookie=unpartitioned;Secure;SameSite=None;Path=/`);
-  await SetPermissionInFrame(frame, [{ name: 'storage-access' }, 'prompt']);
-}
-
-// Tests for the presence of the unpartitioned cookie set by SetFirstPartyCookieAndUnsetStorageAccessPermission
+// Tests for the presence of the unpartitioned cookie set by SetFirstPartyCookie
 // in both the `document.cookie` variable and same-origin subresource \
 // Request Headers in the given frame
 async function HasUnpartitionedCookie(frame) {
@@ -175,7 +172,7 @@ async function HasUnpartitionedCookie(frame) {
 // Tests whether the current frame can read and write cookies via HTTP headers.
 // This deletes, writes, reads, then deletes a cookie named "cookie".
 async function CanAccessCookiesViaHTTP() {
-  // We avoid reusing SetFirstPartyCookieAndUnsetStorageAccessPermission here, since that bypasses the
+  // We avoid reusing SetFirstPartyCookie here, since that bypasses the
   // cookie-accessibility settings that we want to check here.
   await fetch(`${window.location.origin}/storage-access-api/resources/set-cookie-header.py?cookie=1;path=/;SameSite=None;Secure`);
   const http_cookies = await fetch(`${window.location.origin}/storage-access-api/resources/echo-cookie-header.py`)
@@ -221,6 +218,11 @@ function RequestStorageAccessInFrame(frame) {
       { command: "requestStorageAccess" }, frame.contentWindow);
 }
 
+function GetPermissionInFrame(frame) {
+  return PostMessageAndAwaitReply(
+    { command: "get_permission" }, frame.contentWindow);
+}
+
 // Executes test_driver.set_permission in the given frame, with the provided
 // arguments.
 function SetPermissionInFrame(frame, args = []) {
@@ -264,10 +266,10 @@ function FetchFromFrame(frame, url) {
     { command: "cors fetch", url }, frame.contentWindow);
 }
 
-// Makes a subresource request to the provided host in the given frame with
-// the mode set to 'no-cors'
-function NoCorsSubresourceCookiesFromFrame(frame, host) {
-  const url = `${host}/storage-access-api/resources/echo-cookie-header.py`;
+// Makes a subresource request to the provided host in the given frame with the
+// mode set to 'no-cors'. Returns a promise that resolves with undefined, since
+// no-cors responses are opaque to JavaScript.
+function NoCorsFetchFromFrame(frame, url) {
   return PostMessageAndAwaitReply(
     { command: "no-cors fetch", url }, frame.contentWindow);
 }
@@ -285,6 +287,13 @@ async function MaybeSetStorageAccess(origin, embedding_origin, value) {
     // by default. If this failed without default blocking we'll notice it later
     // in the test.
   }
+}
+
+
+// Navigate the inner iframe using the given frame.
+function NavigateChild(frame, url) {
+  return PostMessageAndAwaitReply(
+    { command: "navigate_child", url }, frame.contentWindow);
 }
 
 // Starts a dedicated worker in the given frame.

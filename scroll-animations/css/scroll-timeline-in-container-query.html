@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <title>scroll-timeline and container queries</title>
 <link rel="help" src="https://drafts.csswg.org/scroll-animations-1/#scroll-timeline-shorthand">
-<link rel="help" src="https://drafts.csswg.org/css-contain-3/#container-queries">
+<link rel="help" src="https://drafts.csswg.org/css-conditional-5/#container-queries">
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 <script src="/web-animations/testcommon.js"></script>
@@ -61,11 +61,12 @@
     element.offsetTop;
     scroller.scrollTop = (scroller.scrollHeight - scroller.clientHeight) / 2;
     await waitForNextFrame();
-    // Unknown timeline, time held at zero.
-    assert_equals(getComputedStyle(element).backgroundColor, 'rgb(100, 100, 100)');
+    // Unknown timeline, no effect produced.
+    // https://github.com/w3c/csswg-drafts/issues/9256
+    assert_equals(getComputedStyle(element).backgroundColor, 'rgb(0, 0, 0)');
     // This causes the timeline to be created.
     outer.style.width = '250px';
-    // Check value with getComputedStyle immediately, which is the unanimated
+    // Check value with getComputedStyle immediately, which is the same
     // value since the scroll timeline is inactive before the next frame.
     assert_equals(getComputedStyle(element).backgroundColor, 'rgb(0, 0, 0)');
     // Also check value after one frame.

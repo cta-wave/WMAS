@@ -155,16 +155,16 @@ REMOTE_VALUES: list[tuple[str, dict]] = [
     ("new WeakSet()", {"type": "weakset", },),
     ("new Error('SOME_ERROR_TEXT')", {"type": "error"},),
     ("[1, 2][Symbol.iterator]()", {
-        "type": "iterator",
+        "type": "object",
     }),
     ("'mystring'[Symbol.iterator]()", {
-        "type": "iterator",
+        "type": "object",
     }),
     ("(new Set([1,2]))[Symbol.iterator]()", {
-        "type": "iterator",
+        "type": "object",
     }),
     ("(new Map([[1,2]]))[Symbol.iterator]()", {
-        "type": "iterator",
+        "type": "object",
     }),
     ("new Proxy({}, {})", {
         "type": "proxy",
@@ -224,3 +224,32 @@ async def create_sandbox(bidi_session, context, sandbox_name="Test", method="eva
         raise Exception(f"Unsupported method to create a sandbox: {method}")
 
     return result["realm"]
+
+
+# Expressions used for script evaluate and call_function CSP tentative tests.
+CSP_EXPRESSIONS = {
+    "default": "2 + 1",
+    "eval": "eval('2 + 1')",
+    "new Function": "new Function('return 2 + 1')()",
+    "promise eval": """
+      new Promise(r => {
+        setTimeout(() => {
+          r(eval('2 + 1'));
+        }, 0);
+      })
+    """,
+    "async eval": """
+      (async () => {
+        await new Promise(r => setTimeout(r, 0));
+        return eval("2 + 1");
+      })()
+    """,
+    "eval from inline script": "window.inlineScriptEval()",
+    "eval from preload script": "window.preloadScriptEval()",
+    "async eval from preload script": "window.preloadScriptAsyncEval()",
+    "eval from event handler": "window.document.body.onclick()",
+    "nested eval": "eval(\"eval('2+1')\")",
+    "nested new Function": "new Function(\"return new Function('return 2 + 1')()\")()",
+    "new Function nested in eval": "eval(\"new Function('return 2 + 1')()\")",
+    "eval nested in new Function": "new Function(\"return eval('2+1')\")()",
+}

@@ -1072,4 +1072,35 @@ var browserTests = [
     "abc<i><b>def</b></i>ghi",
     [true,true],
     {}],
+
+// Should not change the style of the non-editable nodes so that only the
+// visible and editable nodes are wrapped into the <b> elements.
+['{ <span contenteditable="false">A</span> ; <span contenteditable="false">B</span> ; <span contenteditable="false">C</span> }',
+    [["stylewithcss","false"],["bold",""]],
+    ' <span contenteditable="false">A</span><b> ; </b><span contenteditable="false">B</span><b> ; </b><span contenteditable="false">C</span> ',
+    [true,true],
+    {}],
+
+// <b> shouldn't be inserted into the non-editable nodes, but should be applied
+// to editable nodes in the range.
+[`ab[c<span contenteditable="false">d]ef</span>`,
+    [["stylewithcss","false"],["bold",""]],
+    `ab<b>c</b><span contenteditable="false">def</span>`,
+    [true,true],
+    {}],
+[`<span contenteditable="false">ab[c</span>d]ef`,
+    [["stylewithcss","false"],["bold",""]],
+    `<span contenteditable="false">abc</span><b>d</b>ef`,
+    [true,true],
+    {}],
+[`ab[c<span contenteditable="false">def</span>g]hi`,
+    [["stylewithcss","false"],["bold",""]],
+    `ab<b>c</b><span contenteditable="false">def</span><b>g</b>hi`,
+    [true,true],
+    {}],
+[`<span contenteditable="false">ab[c</span>def<span contenteditable="false">g]hi</span>`,
+    [["stylewithcss","false"],["bold",""]],
+    `<span contenteditable="false">abc</span><b>def</b><span contenteditable="false">ghi</span>`,
+    [true,true],
+    {}],
 ]

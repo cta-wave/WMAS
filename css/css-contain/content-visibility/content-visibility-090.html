@@ -1,6 +1,7 @@
 <!doctype HTML>
 <html>
 <meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Content Visibility: scrollLeft/scrollTop/scrollWidth/scrollHeight measure correctly</title>
 <link rel="author" title="Rob Buis" href="mailto:rbuis@igalia.com">
 <link rel="help" href="https://drafts.csswg.org/css-contain/#content-visibility">
@@ -40,7 +41,7 @@ test(() => {
 
   outer.scrollLeft = 25;
   assert_equals(outer.scrollLeft, 25, "left");
-  assert_equals(outer.scrollWidth, 275, "width");
+  assert_equals(outer.scrollWidth, 300, "width");
 
   outer.scrollTop = 25;
   assert_equals(outer.scrollTop, 25, "top");

@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -20,7 +20,9 @@ RUN apt-get -qqy update \
     glib-networking-services \
     gstreamer1.0-plugins-bad \
     gstreamer1.0-gl \
-    libegl1-mesa-dev \
+    libatspi2.0-dev \
+    libcairo2-dev \
+    libgirepository1.0-dev \
     libosmesa6-dev \
     libproxy1-plugin-webkit \
     libvirt-daemon-system \
@@ -36,6 +38,7 @@ RUN apt-get -qqy update \
     python3-venv \
     software-properties-common \
     qemu-kvm \
+    tini \
     tzdata \
     sudo \
     unzip \
@@ -77,6 +80,11 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+
+# Setup on-demand pulseaudio with a "Dummy Output" audio sink.
+# This simply creates a file containing autospawn=yes at
+# /run/pulseaudio-enable-autospawn, linked from /etc/pulse/client.conf.d/
+RUN /etc/init.d/pulseaudio-enable-autospawn start
 
 RUN useradd test \
          --shell /bin/bash  \

@@ -15,6 +15,7 @@ content_types = utils.invert_dict({
     "image/bmp": ["bmp"],
     "image/gif": ["gif"],
     "image/jpeg": ["jpg", "jpeg"],
+    "image/jxl": ["jxl"],
     "image/png": ["png"],
     "image/svg+xml": ["svg"],
     "text/cache-manifest": ["manifest"],
@@ -25,7 +26,6 @@ content_types = utils.invert_dict({
     "text/plain": ["txt", "md"],
     "text/vtt": ["vtt"],
     "video/mp4": ["mp4", "m4v"],
-    "video/ogg": ["ogg", "ogv"],
     "video/webm": ["webm"],
 })
 

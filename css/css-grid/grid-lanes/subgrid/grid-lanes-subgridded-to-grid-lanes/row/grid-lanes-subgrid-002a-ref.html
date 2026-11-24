@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html><head>
+  <meta charset="utf-8">
+  <style>
+    html,body {
+      color:black; background-color:white; font:10px/1 monospace; padding:0; margin:0;
+    }
+
+    grid-lanes {
+      display: inline grid-lanes;
+      grid-template-rows: 40px 30px 20px;
+      gap: 4px;
+      padding: 1px 3px 5px 7px;
+      border: solid;
+      border-width: 3px 5px 1px 1px;
+      background: lightgrey content-box;
+    }
+    item {
+      background: grey;
+      width: 3ch;
+      position: relative;
+    }
+    item:nth-child(2n) { background:purple; width:auto; }
+    item:nth-child(1) {
+      border: solid;
+      border-width: 3px 5px 1px 1px;
+      margin: 7px 1px 5px 3px;
+    }
+    subgrid {
+      display: grid;
+      grid-row: auto/span 2;
+      /* The second row packs 4b (2ch) and 4c (3ch) with a 4px gap. */
+      grid: subgrid / 2ch 3ch;
+      gap: 4px;
+      background: yellow;
+    }
+  </style>
+</head>
+<body>
+<grid-lanes>
+  <item>1</item>
+  <item>2</item>
+  <item>3</item>
+  <subgrid>
+    <item style="grid-area: 1 / 1 / 2 / 3">4a</item>
+    <item style="grid-area: 2 / 1">4b</item>
+    <item style="grid-area: 2 / 2">4c</item>
+  </subgrid>
+  <item>5</item>
+</grid-lanes>
+</body>
+</html>

@@ -41,6 +41,44 @@ promise_test(async t => {
 
 
 promise_test(async t => {
+  let fmt = 'I420';
+  const i420_planes = [0xAA, 0xBB, 0xCC];
+  let data = new Uint8Array(i420_planes);
+  let init = {
+    format: fmt,
+    timestamp: 1234,
+    codedWidth: 1,
+    codedHeight: 1,
+    visibleRect: {x: 0, y: 0, width: 1, height: 1},
+    transfer: [data.buffer]
+  };
+
+  let frame = new VideoFrame(data, init);
+  assert_equals(data.length, 0, 'data.length after detach');
+
+  const options = {
+    rect: {x: 0, y: 0, width: init.codedWidth, height: init.codedHeight}
+  };
+  let size = frame.allocationSize(options);
+  let output_data = new Uint8Array(size);
+  let layout = await frame.copyTo(output_data, options);
+  let expected_data = new Uint8Array(i420_planes);
+  assert_equals(expected_data.length, size, 'expected_data size');
+  assert_equals(layout[0].stride, 1, 'layout[0].stride');
+  assert_equals(layout[0].offset, 0, 'layout[0].offset');
+  assert_equals(layout[1].stride, 1, 'layout[1].stride');
+  assert_equals(layout[1].offset, 1, 'layout[1].offset');
+  assert_equals(layout[2].stride, 1, 'layout[2].stride');
+  assert_equals(layout[2].offset, 2, 'layout[2].offset');
+  assert_equals(expected_data.length, size, 'expected_data size');
+  for (let i = 0; i < size; i++) {
+    assert_equals(expected_data[i], output_data[i], `expected_data[${i}]`);
+  }
+
+  frame.close();
+}, 'Test transfering buffers to VideoFrame with uneven samples');
+
+promise_test(async t => {
   const rgb_plane = [
     0xBA, 0xDF, 0x00, 0xD0, 0xBA, 0xDF, 0x01, 0xD0, 0xBA, 0xDF, 0x02, 0xD0,
     0xBA, 0xDF, 0x03, 0xD0
@@ -130,7 +168,7 @@ promise_test(async t => {
   }
   // `data.buffer` didn't get detached
   assert_equals(data.length, 16, 'data.length');
-}, 'Test transfering same array buffer twice');
+}, 'Test transfering same array buffer twice to VideoFrame');
 
 promise_test(async t => {
   const bytes = [ 0xBA, 0xDF, 0x00, 0xD0, 0xBA, 0xDF, 0x01, 0xD0, 0xBA, 0xDF ];
@@ -279,3 +317,82 @@ promise_test(async t => {
   assert_equals(result.image.displayWidth, 320);
   assert_equals(result.image.displayHeight, 240);
 }, 'Test transfering ArrayBuffer to ImageDecoder.');
+
+promise_test(async t => {
+  // Not a valid PNG but that shouldn't matter.
+  let arraybuffer = new ArrayBuffer(16);
+  let data = new Uint8Array(arraybuffer);
+  let init = {
+    type: 'image/png',
+    data: data,
+    transfer: [arraybuffer, arraybuffer]
+  };
+
+  assert_throws_dom('DataCloneError', () => new ImageDecoder(init));
+  // `data.buffer` didn't get detached
+  assert_equals(data.length, 16, 'data.length');
+}, 'Test transfering same array buffer twice to ImageDecoder');
+
+promise_test(async t => {
+  for (const bad_sample_rate of [0, -1]) {
+    let buffer = new ArrayBuffer(32);
+    let unused_buffer = new ArrayBuffer(16);
+    assert_throws_js(TypeError, () => new AudioData({
+                                  format: 'f32',
+                                  sampleRate: bad_sample_rate,
+                                  numberOfFrames: 8,
+                                  numberOfChannels: 1,
+                                  timestamp: 0,
+                                  data: buffer,
+                                  transfer: [buffer, unused_buffer]
+                                }),
+                     `sampleRate ${bad_sample_rate} should throw TypeError`);
+    assert_equals(buffer.byteLength, 32, 'buffer should not be detached');
+    assert_equals(unused_buffer.byteLength, 16,
+                  'unused_buffer should not be detached');
+
+    // Verify the buffer is still usable and transferable on a subsequent valid
+    // call.
+    let audio_data = new AudioData({
+      format: 'f32',
+      sampleRate: 48000,
+      numberOfFrames: 8,
+      numberOfChannels: 1,
+      timestamp: 0,
+      data: buffer,
+      transfer: [buffer, unused_buffer]
+    });
+    assert_equals(buffer.byteLength, 0, 'buffer detached after valid call');
+    assert_equals(unused_buffer.byteLength, 0,
+                  'unused_buffer detached after valid call');
+    audio_data.close();
+  }
+}, 'Test throwing AudioData constructor does not detach transfer buffers');
+
+promise_test(async t => {
+  let unused_buffer = new ArrayBuffer(32);
+  assert_throws_js(TypeError, () => new ImageDecoder({
+                                data: new Uint8Array(0),
+                                type: 'image/png',
+                                transfer: [unused_buffer]
+                              }));
+  assert_equals(unused_buffer.byteLength, 32,
+                'unused_buffer should not be detached');
+}, 'Test throwing ImageDecoder constructor does not detach transfer buffers');
+
+promise_test(async t => {
+  let buffer = new ArrayBuffer(32);
+  let unused_buffer = new ArrayBuffer(16);
+  assert_throws_js(TypeError, () => new VideoFrame(buffer, {
+                                format: 'I420',
+                                codedWidth: 4,
+                                codedHeight: 4,
+                                displayWidth: 0,
+                                displayHeight: 4,
+                                timestamp: 0,
+                                transfer: [buffer, unused_buffer]
+                              }));
+  assert_equals(buffer.byteLength, 32, 'buffer should not be detached');
+  assert_equals(unused_buffer.byteLength, 16,
+                'unused_buffer should not be detached');
+}, 'Test throwing VideoFrame constructor does not detach transfer buffers');

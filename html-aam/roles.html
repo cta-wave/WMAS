@@ -45,17 +45,22 @@
 <!-- el-dd -->
 <dl>
   <dt>x</dt>
+  <!-- dt/dd pending listitemkey and listitemvalue roles: https://github.com/w3c/aria/issues/1662 -->
   <dd data-testname="el-dd" data-expectedrole="definition" class="ex">x</dd>
 </dl>
 
 <del data-testname="el-del" data-expectedrole="deletion" class="ex">x</del>
 <details data-testname="el-details" data-expectedrole="group" class="ex"><summary>x</summary>x</details>
 <dfn data-testname="el-dfn" data-expectedrole="term" class="ex">x</dfn>
+<!-- todo: dialog(modal) -> needs to be tested in a separate file so background inertness won't break the other tests  -->
+<dialog open data-testname="el-dialog-non-modal" data-expectedrole="dialog" class="ex">x</dialog>
+<!-- dir -> ./dir-role.tentative.html -->
 <!-- div -> ./roles-generic.html -->
 <!-- todo: dl -->
 
 <!-- el-dt -->
 <dl>
+  <!-- dt/dd pending listitemkey and listitemvalue roles: https://github.com/w3c/aria/issues/1662 -->
   <dt data-testname="el-dt" data-expectedrole="term" class="ex">x</dt>
   <dd>x</dd>
 </dl>
@@ -66,7 +71,7 @@
 <!-- todo: figcaption -->
 <figure data-testname="el-figure" data-expectedrole="figure" class="ex"><img alt="x" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="><figcaption>x</figcaption></figure>
 <!-- footer -> ./roles-contextual.html -->
-<form data-testname="el-form" data-expectedrole="form" class="ex"><input></form>
+<form aria-label="form" data-testname="el-form" data-expectedrole="form" class="ex"><input></form>
 <!-- todo: form-associated custom element -->
 
 <!-- el-h1-h6 -->
@@ -91,8 +96,13 @@
 <img alt data-testname="el-img-alt-no-value" class="ex-generic" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
 <img alt="" data-testname="el-img-empty-alt" class="ex-generic" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
 
+<!-- img with empty alt but other naming mechanism -> ./roles-contextual.html -->
+
 <input type="button" value="x" data-testname="el-input-button" data-expectedrole="button" class="ex">
 <input type="checkbox" data-testname="el-input-checkbox" data-expectedrole="checkbox" class="ex">
+<input type="checkbox" role="switch checkbox" data-testname="el-input-checkbox-with-role" data-expectedrole="switch" class="ex">
+<input type="checkbox" switch data-testname="el-input-checkbox-switch" data-expectedrole="switch" class="ex">
+<input type="checkbox" switch role="checkbox" data-testname="el-input-checkbox-switch-with-role" data-expectedrole="checkbox" class="ex">
 <!-- todo: input type="color" -->
 <!-- todo: input type="date" -->
 <!-- todo: input type="datetime" -->
@@ -110,6 +120,8 @@
 <input type="range" data-testname="el-input-range" data-expectedrole="slider" class="ex">
 <input type="reset" value="x" data-testname="el-input-reset" data-expectedrole="button" class="ex">
 <input type="search" data-testname="el-input-search" data-expectedrole="searchbox" class="ex">
+<!-- An ARIA role should override type="search". -->
+<input type="search" role="combobox" data-testname="el-input-search-with-role" data-expectedrole="combobox" class="ex">
 <input type="submit" value="x" data-testname="el-input-submit" data-expectedrole="button" class="ex">
 <input type="tel" data-testname="el-input-tel" data-expectedrole="textbox" class="ex">
 <input type="text" data-testname="el-input-text" data-expectedrole="textbox" class="ex">
@@ -143,7 +155,7 @@
 <!-- optgroup -> ./fragile/optgroup-role.html -->
 
 <!-- option -->
-<select>
+<select size="2">
   <option data-testname="el-option" data-expectedrole="option" class="ex">x</option>
   <option>x</option>
 </select>
@@ -176,7 +188,7 @@
 <strong data-testname="el-strong" data-expectedrole="strong" class="ex">x</strong>
 <!-- style (not mapped) -->
 <sub data-testname="el-sub" data-expectedrole="subscript" class="ex">x</sub>
-<!-- todo: summary -->
+<!-- summary -> ./summary.html -->
 <sup data-testname="el-sup" data-expectedrole="superscript" class="ex">x</sup>
 <!-- todo: svg (see /graphics-aam and /svg-aam tests) -->
 <!-- table -> ./table-roles.html -->

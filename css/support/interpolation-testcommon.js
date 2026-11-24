@@ -45,6 +45,23 @@
       target.style.animationDelay = '-50s';
       target.style.animationTimingFunction = createEasing(at);
     },
+    interpolateWithComposition: function(property, from, fromComposite, to, toComposite, at, target) {
+      const id = cssAnimationsData.nextID++;
+      if (!cssAnimationsData.sharedStyle) {
+        cssAnimationsData.sharedStyle = createElement(document.body, 'style');
+      }
+      cssAnimationsData.sharedStyle.textContent += '' +
+        '@keyframes animation' + id + ' {' +
+          (isNeutralKeyframe(from)
+              ? '' : `from {${property}:${from};animation-composition:${fromComposite}}`) +
+          (isNeutralKeyframe(to)
+              ? '' : `to {${property}:${to};animation-composition:${toComposite}}`) +
+        '}';
+      target.style.animationName = 'animation' + id;
+      target.style.animationDuration = '100s';
+      target.style.animationDelay = '-50s';
+      target.style.animationTimingFunction = createEasing(at);
+    },
   };
 
   var cssTransitionsInterpolation = {
@@ -104,6 +121,59 @@
     },
   };
 
+  var cssTransitionsInterpolationAllowDiscrete = {
+    name: 'CSS Transitions with transition-behavior:allow-discrete',
+    isSupported: function() {return true;},
+    supportsProperty: function() {return true;},
+    supportsValue: function() {return true;},
+    setup: function(property, from, target) {
+      target.style.setProperty(property, isNeutralKeyframe(from) ? '' : from);
+    },
+    nonInterpolationExpectations: function(from, to) {
+      return expectFlip(from, to, 0.5);
+    },
+    notAnimatableExpectations: function(from, to, underlying) {
+      return expectFlip(from, to, -Infinity);
+    },
+    interpolate: function(property, from, to, at, target, behavior) {
+      // Force a style recalc on target to set the 'from' value.
+      getComputedStyle(target).getPropertyValue(property);
+      target.style.transitionDuration = '100s';
+      target.style.transitionDelay = '-50s';
+      target.style.transitionTimingFunction = createEasing(at);
+      target.style.transitionProperty = property;
+      target.style.transitionBehavior = 'allow-discrete';
+      target.style.setProperty(property, isNeutralKeyframe(to) ? '' : to);
+    },
+  };
+
+  var cssTransitionAllInterpolationAllowDiscrete = {
+    name: 'CSS Transitions with transition-property:all and transition-behavor:allow-discrete',
+    isSupported: function() {return true;},
+    // The 'all' value doesn't cover custom properties.
+    supportsProperty: function(property) {return property.indexOf('--') !== 0;},
+    supportsValue: function() {return true;},
+    setup: function(property, from, target) {
+      target.style.setProperty(property, isNeutralKeyframe(from) ? '' : from);
+    },
+    nonInterpolationExpectations: function(from, to) {
+      return expectFlip(from, to, 0.5);
+    },
+    notAnimatableExpectations: function(from, to, underlying) {
+      return expectFlip(from, to, -Infinity);
+    },
+    interpolate: function(property, from, to, at, target, behavior) {
+      // Force a style recalc on target to set the 'from' value.
+      getComputedStyle(target).getPropertyValue(property);
+      target.style.transitionDuration = '100s';
+      target.style.transitionDelay = '-50s';
+      target.style.transitionTimingFunction = createEasing(at);
+      target.style.transitionProperty = 'all';
+      target.style.transitionBehavior = 'allow-discrete';
+      target.style.setProperty(property, isNeutralKeyframe(to) ? '' : to);
+    },
+  };
+
   var webAnimationsInterpolation = {
     name: 'Web Animations',
     isSupported: function() {return 'animate' in Element.prototype;},
@@ -117,9 +187,9 @@
       return expectFlip(underlying, underlying, -Infinity);
     },
     interpolate: function(property, from, to, at, target) {
-      this.interpolateComposite(property, from, 'replace', to, 'replace', at, target);
+      this.interpolateWithComposition(property, from, 'replace', to, 'replace', at, target);
     },
-    interpolateComposite: function(property, from, fromComposite, to, toComposite, at, target) {
+    interpolateWithComposition: function(property, from, fromComposite, to, toComposite, at, target) {
       // This case turns into a test error later on.
       if (!this.isSupported())
         return;
@@ -261,6 +331,7 @@
     var property = interpolationTest.options.property;
     var from = interpolationTest.options.from;
     var to = interpolationTest.options.to;
+    let underlying = interpolationTest.options.underlying;
     var comparisonFunction = interpolationTest.options.comparisonFunction;
     var behavior = interpolationTest.options.behavior;
 
@@ -301,9 +372,7 @@
       }
       var target = actualTargetContainer.target;
       if (applyUnderlying) {
-        let underlying = interpolationTest.options.underlying;
         assert_true(typeof underlying !== 'undefined', '\'underlying\' value must be provided');
-        assert_true(CSS.supports(property, underlying), '\'underlying\' value must be supported');
         target.style.setProperty(property, underlying);
       }
       interpolationMethod.setup(property, from, target);
@@ -343,7 +412,7 @@
     });
   }
 
-  function createCompositionTestTargets(compositionContainer, compositionTest) {
+  function createCompositionTestTargets(compositionMethod, compositionMethodContainer, compositionTest) {
     var options = compositionTest.options;
     var property = options.property;
     var underlying = options.underlying;
@@ -363,8 +432,8 @@
       }, `Composition tests must have valid setup`);
     }
 
-    var testText = `Compositing: property <${property}> underlying [${underlying}] from ${fromComposite} [${from}] to ${toComposite} [${to}]`;
-    var testContainer = createElement(compositionContainer, 'div');
+    var testText = `Compositing ${compositionMethod.name}: property <${property}> underlying [${underlying}] from ${fromComposite} [${from}] to ${toComposite} [${to}]`;
+    var testContainer = createElement(compositionMethodContainer, 'div');
     createElement(testContainer);
 
     // Setup a standard equality function if an override is not provided.
@@ -384,7 +453,7 @@
       var target = actualTargetContainer.target;
       target.style.setProperty(property, underlying);
       target.interpolate = function() {
-        webAnimationsInterpolation.interpolateComposite(property, from, fromComposite, to, toComposite, expectation.at, target);
+        compositionMethod.interpolateWithComposition(property, from, fromComposite, to, toComposite, expectation.at, target);
       };
       target.measure = function() {
         var expectedValue = getComputedStyle(expectedTargetContainer.target).getPropertyValue(property);
@@ -411,7 +480,7 @@
 
 
 
-  function createTestTargets(interpolationMethods, interpolationTests, compositionTests, container) {
+  function createTestTargets(interpolationMethods, interpolationTests, compositionMethods, compositionTests, container) {
     var targets = [];
     for (var interpolationMethod of interpolationMethods) {
       var interpolationMethodContainer = createElement(container);
@@ -422,9 +491,11 @@
           }
       }
     }
-    var compositionContainer = createElement(container);
-    for (var compositionTest of compositionTests) {
-      [].push.apply(targets, createCompositionTestTargets(compositionContainer, compositionTest));
+    for (var compositionMethod of compositionMethods) {
+      var compositionContainer = createElement(container);
+      for (var compositionTest of compositionTests) {
+        [].push.apply(targets, createCompositionTestTargets(compositionMethod, compositionContainer, compositionTest));
+      }
     }
     return targets;
   }
@@ -435,15 +506,27 @@
   function test_not_animatable(options) {
     test_interpolation(options, expectNotAnimatable);
   }
-  function create_tests() {
+  function create_tests(addAllowDiscreteTests) {
     var interpolationMethods = [
       cssTransitionsInterpolation,
       cssTransitionAllInterpolation,
       cssAnimationsInterpolation,
       webAnimationsInterpolation,
     ];
+    var compositionMethods = [
+      cssAnimationsInterpolation,
+      webAnimationsInterpolation,
+    ];
+    if (addAllowDiscreteTests) {
+      interpolationMethods = [
+        cssTransitionsInterpolationAllowDiscrete,
+        cssTransitionAllInterpolationAllowDiscrete,
+      ].concat(interpolationMethods);
+    }
     var container = createElement(document.body);
-    var targets = createTestTargets(interpolationMethods, interpolationTests, compositionTests, container);
+    var targets = createTestTargets(interpolationMethods, interpolationTests,
+                                    compositionMethods, compositionTests,
+                                    container);
     // Separate interpolation and measurement into different phases to avoid O(n^2) of the number of targets.
     for (var target of targets) {
       target.interpolate();
@@ -456,7 +539,7 @@
 
   function test_interpolation(options, expectations) {
     interpolationTests.push({options, expectations});
-    create_tests();
+    create_tests(expectations === expectNoInterpolation || expectations === expectNotAnimatable);
     interpolationTests = [];
   }
   function test_composition(options, expectations) {

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<link rel=author href="mailto:jarhar@chromium.org">
+<link rel=help href="https://w3c.github.io/touch-events/#touchevent-interface">
+<title>TouchEvent retargeting does not leak closed shadow root nodes to host</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/resources/testdriver.js"></script>
+<script src="/resources/testdriver-actions.js"></script>
+<script src="/resources/testdriver-vendor.js"></script>
+<style>
+  #host {
+    width: 100px;
+    height: 100px;
+    background: red;
+  }
+</style>
+
+<div id="host">
+  <template shadowrootmode="closed">
+    <div id="closed-inner" style="width: 100%; height: 100%; background: blue;"></div>
+  </template>
+</div>
+
+<script>
+"use strict";
+
+for (const event_phase of ['capturing', 'bubbling']) {
+  promise_test(async (t) => {
+    const host = document.getElementById('host');
+
+    const eventTargets = [];
+    const changedTouchTargets = [];
+
+    const listener = function(e) {
+      eventTargets.push(e.target);
+      if (e.changedTouches.length > 0) {
+        changedTouchTargets.push(e.changedTouches[0].target);
+      }
+    };
+
+    const listener_options = { capture: event_phase === "capturing" };
+    window.addEventListener('touchstart', listener, listener_options);
+    t.add_cleanup(() => {
+      window.removeEventListener('touchstart', listener, listener_options);
+    });
+
+    // Use test_driver to touch the center of the host element
+    await new test_driver.Actions()
+      .addPointer("touch_pointer", "touch")
+      .pointerMove(0, 0, {origin: host})
+      .pointerDown()
+      .pointerUp()
+      .send();
+
+    for (const target of eventTargets) {
+      assert_equals(target, host, "Event target should be retargeted to host");
+    }
+    for (const target of changedTouchTargets) {
+      assert_equals(target, host, "Touch target should be retargeted to host");
+    }
+  }, `TouchEvent retargeting does not leak closed shadow-dom nodes to host during ${event_phase}`);
+}
+</script>

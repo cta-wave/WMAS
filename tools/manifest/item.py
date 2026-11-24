@@ -125,6 +125,10 @@ class URLManifestItem(ManifestItem):
         return "h2" in self._flags
 
     @property
+    def websocket_h3(self) -> bool:
+        return "websocket-h3" in self._flags
+
+    @property
     def subdomain(self) -> bool:
         # Note: this is currently hard-coded to check for `www`, rather than
         # all possible valid subdomains. It can be extended if needed.
@@ -166,7 +170,11 @@ class TestharnessTest(URLManifestItem):
         return self._extras.get("pac")
 
     @property
-    def testdriver(self) -> Optional[Text]:
+    def testdriver_features(self) -> Optional[List[Text]]:
+        return self._extras.get("testdriver_features")
+
+    @property
+    def testdriver(self) -> Optional[bool]:
         return self._extras.get("testdriver")
 
     @property
@@ -183,6 +191,8 @@ class TestharnessTest(URLManifestItem):
             rv[-1]["timeout"] = self.timeout
         if self.pac is not None:
             rv[-1]["pac"] = self.pac
+        if self.testdriver_features is not None:
+            rv[-1]["testdriver_features"] = self.testdriver_features
         if self.testdriver:
             rv[-1]["testdriver"] = self.testdriver
         if self.jsshell:
@@ -190,6 +200,12 @@ class TestharnessTest(URLManifestItem):
         if self.script_metadata:
             rv[-1]["script_metadata"] = [(k, v) for (k,v) in self.script_metadata]
         return rv
+
+
+class Test262Test(TestharnessTest):
+    __slots__ = ()
+
+    item_type = "test262"
 
 
 class RefTest(URLManifestItem):
@@ -240,6 +256,10 @@ class RefTest(URLManifestItem):
             rv[key] = v
         return rv
 
+    @property
+    def testdriver(self) -> Optional[bool]:
+        return self._extras.get("testdriver")
+
     def to_json(self) -> Tuple[Optional[Text], List[Tuple[Text, Text]], Dict[Text, Any]]:  # type: ignore
         rel_url = None if self._url == self.path else self._url
         rv: Tuple[Optional[Text], List[Tuple[Text, Text]], Dict[Text, Any]] = (rel_url, self.references, {})
@@ -252,6 +272,8 @@ class RefTest(URLManifestItem):
             extras["dpi"] = self.dpi
         if self.fuzzy:
             extras["fuzzy"] = list(self.fuzzy.items())
+        if self.testdriver:
+            extras["testdriver"] = self.testdriver
         return rv
 
     @classmethod
@@ -279,7 +301,7 @@ class PrintRefTest(RefTest):
 
     @property
     def page_ranges(self) -> PageRanges:
-        return self._extras.get("page_ranges", {})
+        return cast(PageRanges, self._extras.get("page_ranges", {}))
 
     def to_json(self):  # type: ignore
         rv = super().to_json()
@@ -315,11 +337,37 @@ class CrashTest(URLManifestItem):
     def timeout(self) -> Optional[Text]:
         return None
 
+    @property
+    def testdriver(self) -> Optional[bool]:
+        return self._extras.get("testdriver")
+
+    def to_json(self):  # type: ignore
+        rel_url, extras = super().to_json()
+        if self.testdriver:
+            extras["testdriver"] = self.testdriver
+        return rel_url, extras
+
 
 class WebDriverSpecTest(URLManifestItem):
     __slots__ = ()
 
     item_type = "wdspec"
+
+    @property
+    def timeout(self) -> Optional[Text]:
+        return self._extras.get("timeout")
+
+    def to_json(self) -> Tuple[Optional[Text], Dict[Text, Any]]:
+        rv = super().to_json()
+        if self.timeout is not None:
+            rv[-1]["timeout"] = self.timeout
+        return rv
+
+
+class AccessibilityAPIMappingTest(URLManifestItem):
+    __slots__ = ()
+
+    item_type = "aamtest"
 
     @property
     def timeout(self) -> Optional[Text]:

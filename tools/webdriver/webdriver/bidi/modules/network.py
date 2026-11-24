@@ -1,11 +1,18 @@
+from enum import Enum
 from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Union
 
 from ._module import BidiModule, command
+from ..undefined import UNDEFINED, Maybe
 
 
 class AuthCredentials(Dict[str, Any]):
     def __init__(self, username: str, password: str):
         dict.__init__(self, type="password", username=username, password=password)
+
+
+class CacheBehavior(Enum):
+    BYPASS = "bypass"
+    DEFAULT = "default"
 
 
 class NetworkBase64Value(Dict[str, Any]):
@@ -105,8 +112,38 @@ URLPattern = Union[URLPatternPattern, URLPatternString]
 
 class Network(BidiModule):
     @command
+    def add_data_collector(
+            self,
+            data_types: List[str],
+            max_encoded_data_size: int,
+            collector_type: Optional[str] = None,
+            contexts: Optional[List[str]] = None,
+            user_contexts: Optional[List[str]] = None) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {
+            "dataTypes": data_types,
+            "maxEncodedDataSize": max_encoded_data_size,
+        }
+
+        if collector_type is not None:
+            params["collectorType"] = collector_type
+
+        if contexts is not None:
+            params["contexts"] = contexts
+
+        if user_contexts is not None:
+            params["userContexts"] = user_contexts
+
+        return params
+
+    @add_data_collector.result
+    def _add_data_collector(self, result: Mapping[str, Any]) -> Any:
+        assert isinstance(result["collector"], str)
+
+        return result["collector"]
+
+    @command
     def add_intercept(
-        self, phases: List[str], url_patterns: Optional[List[URLPattern]] = None
+        self, phases: List[str], url_patterns: Optional[List[URLPattern]] = None, contexts: Optional[List[str]] = None
     ) -> Mapping[str, Any]:
         params: MutableMapping[str, Any] = {
             "phases": phases,
@@ -115,29 +152,16 @@ class Network(BidiModule):
         if url_patterns is not None:
             params["urlPatterns"] = url_patterns
 
+        if contexts is not None:
+            params["contexts"] = contexts
+
         return params
 
     @add_intercept.result
     def _add_intercept(self, result: Mapping[str, Any]) -> Any:
-        assert result["intercept"] is not None
+        assert isinstance(result["intercept"], str)
+
         return result["intercept"]
-
-    @command
-    def continue_with_auth(
-        self,
-        request: str,
-        action: str,
-        credentials: Optional[AuthCredentials] = None
-    ) -> Mapping[str, Any]:
-        params: MutableMapping[str, Any] = {
-            "request": request,
-            "action": action,
-        }
-
-        if action == "provideCredentials" and credentials is not None:
-            params["credentials"] = credentials
-
-        return params
 
     @command
     def continue_request(self,
@@ -200,19 +224,88 @@ class Network(BidiModule):
         return params
 
     @command
+    def continue_with_auth(
+        self,
+        request: str,
+        action: str,
+        credentials: Optional[AuthCredentials] = None
+    ) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {
+            "request": request,
+            "action": action,
+        }
+
+        if action == "provideCredentials" and credentials is not None:
+            params["credentials"] = credentials
+
+        return params
+
+    @command
+    def disown_data(
+            self,
+            request: str,
+            data_type: str,
+            collector: str) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {
+            "request": request,
+            "dataType": data_type,
+            "collector": collector,
+        }
+        return params
+
+    @command
     def fail_request(self, request: str) -> Mapping[str, Any]:
         params: MutableMapping[str, Any] = {"request": request}
         return params
 
     @command
+    def get_data(
+            self,
+            request: str,
+            data_type: str,
+            collector: Optional[str] = None,
+            disown: Optional[bool] = None) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {
+            "request": request,
+            "dataType": data_type,
+        }
+
+        if collector is not None:
+            params["collector"] = collector
+
+        if disown is not None:
+            params["disown"] = disown
+
+        return params
+
+    @get_data.result
+    def _get_data(self, result: Mapping[str, Any]) -> Any:
+        assert isinstance(result["bytes"]["type"], str)
+        assert isinstance(result["bytes"]["value"], str)
+
+        return result["bytes"]
+
+    @command
     def provide_response(
             self,
             request: str,
+            body: Optional[NetworkBytesValue] = None,
+            cookies: Optional[List[SetCookieHeader]] = None,
+            headers: Optional[List[Header]] = None,
             reason_phrase: Optional[str] = None,
             status_code: Optional[int] = None) -> Mapping[str, Any]:
         params: MutableMapping[str, Any] = {
             "request": request,
         }
+
+        if body is not None:
+            params["body"] = body
+
+        if cookies is not None:
+            params["cookies"] = cookies
+
+        if headers is not None:
+            params["headers"] = headers
 
         if reason_phrase is not None:
             params["reasonPhrase"] = reason_phrase
@@ -220,11 +313,39 @@ class Network(BidiModule):
         if status_code is not None:
             params["statusCode"] = status_code
 
-        # TODO: Add support for missing parameters: body, cookies, headers
-
         return params
 
     @command
     def remove_intercept(self, intercept: str) -> Mapping[str, Any]:
         params: MutableMapping[str, Any] = {"intercept": intercept}
         return params
+
+    @command
+    def remove_data_collector(self, collector: str) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {"collector": collector}
+        return params
+
+    @command
+    def set_cache_behavior(
+            self,
+            cache_behavior: CacheBehavior,
+            contexts: Optional[List[str]] = None) -> Mapping[str, Any]:
+        params: MutableMapping[str, Any] = {"cacheBehavior": cache_behavior}
+
+        if contexts is not None:
+            params["contexts"] = contexts
+
+        return params
+
+    @command
+    def set_extra_headers(
+            self,
+            headers: List[Dict[str, Any]],
+            contexts: Maybe[List[str]] = UNDEFINED,
+            user_contexts: Maybe[List[str]] = UNDEFINED,
+    ) -> Mapping[str, Any]:
+        return {
+            "headers": headers,
+            "contexts": contexts,
+            "userContexts": user_contexts,
+        }

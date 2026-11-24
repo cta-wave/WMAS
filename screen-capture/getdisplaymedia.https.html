@@ -35,6 +35,33 @@ promise_test(t => {
     'getDisplayMedia should have returned an already-rejected promise.');
 }, `getDisplayMedia() must require user activation`);
 
+promise_test(async t => {
+  await test_driver.bless('getDisplayMedia()');
+  assert_true(navigator.userActivation.isActive, 'precondition');
+  const p1 = navigator.mediaDevices.getDisplayMedia({video: true});
+  t.add_cleanup(async () => {
+    try { stopTracks(await p1) } catch {}
+  });
+  assert_false(navigator.userActivation.isActive,
+               'getDisplayMedia() must consume user activation');
+  const p2 = navigator.mediaDevices.getDisplayMedia({video: true});
+  t.add_cleanup(async () => {
+    try { stopTracks(await p2) } catch {}
+  });
+  await promise_rejects_dom(t, 'InvalidStateError', p2);
+  await p1;
+  assert_true(navigator.userActivation.isActive,
+              'getDisplayMedia() success must restore transient activation');
+}, `getDisplayMedia() consumes user activation and restores it on success`);
+
+promise_test(async t => {
+  await test_driver.bless('getDisplayMedia()');
+  await promise_rejects_js(
+    t, TypeError, navigator.mediaDevices.getDisplayMedia({video: false}));
+  assert_true(navigator.userActivation.isActive,
+              'early TypeError must not consume user activation');
+}, `getDisplayMedia() rejecting early doesn't consume user activation`);
+
 [
  {video: true},
  {video: true, audio: false},
@@ -59,7 +86,6 @@ promise_test(t => {
  {video: {height: {exact: 240}}},
  {video: {frameRate: {min: 4}}},
  {video: {frameRate: {exact: 4}}},
- {video: false, audio: true},
 ].forEach(constraints => promise_test(async t => {
   await test_driver.bless('getDisplayMedia()');
   const p = navigator.mediaDevices.getDisplayMedia(constraints);
@@ -165,6 +191,30 @@ promise_test(async t => {
   assert_unreached('getDisplayMedia should have failed');
 }, `getDisplayMedia(${j(constraints)}) must fail with OverconstrainedError`));
 
+[
+ {width: {max: 0}},
+ {height: {max: 0}},
+ {frameRate: {max: 0}},
+ {width: {max: -1}},
+ {height: {max: -1}},
+ {frameRate: {max: -1}},
+ {width: {min: 100, max: 10}},
+ {height: {min: 100, max: 10}},
+ {frameRate: {min: 100, max: 10}},
+].forEach(constraints => promise_test(async t => {
+  const stream = await getDisplayMedia();
+  t.add_cleanup(() => stopTracks(stream));
+  const [track] = stream.getTracks();
+  try {
+    await track.applyConstraints(constraints);
+  } catch (err) {
+    assert_equals(err.name, 'OverconstrainedError', err.message);
+    assert_equals(err.constraint, Object.keys(constraints)[0], "Constraint is set");
+    return;
+  }
+  assert_unreached('applyConstraints hould have failed');
+}, `applyConstraints(${j(constraints)}) for display media must fail with OverconstrainedError`));
+
 // Content shell picks a fake desktop device by default.
 promise_test(async t => {
   const stream = await getDisplayMedia({video: true});
@@ -214,6 +264,10 @@ promise_test(async t => {
  {surfaceSwitching: "exclude"},
  {systemAudio: "include"},
  {systemAudio: "exclude"},
+ {windowAudio: "exclude"},
+ {windowAudio: "window"},
+ {windowAudio: "system"},
+ {audioSelection: "preferred"},
 ].forEach(constraints => promise_test(async t => {
   const stream = await getDisplayMedia(constraints);
   t.add_cleanup(() => stopTracks(stream));
@@ -223,7 +277,9 @@ promise_test(async t => {
  {selfBrowserSurface: "invalid"},
  {surfaceSwitching: "invalid"},
  {systemAudio: "invalid"},
+ {windowAudio: "invalid"},
  {monitorTypeSurfaces: "invalid"},
+ {audioSelection: "invalid"},
 ].forEach(constraints => promise_test(async t => {
   await test_driver.bless('getDisplayMedia()');
   const p = navigator.mediaDevices.getDisplayMedia(constraints);

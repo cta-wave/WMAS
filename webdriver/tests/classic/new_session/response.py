@@ -1,7 +1,7 @@
 import uuid
 import pytest
 
-from tests.support.asserts import assert_success
+from tests.support.classic.asserts import assert_success
 
 
 def test_sessionid(new_session, add_browser_capabilities):
@@ -42,3 +42,10 @@ def test_capability_default_value(session, capability, default_value):
     assert isinstance(session.capabilities, dict)
     assert capability in session.capabilities
     assert session.capabilities[capability] == default_value
+
+
+def test_capability_user_agent(session):
+    assert isinstance(session.capabilities, dict)
+    assert "userAgent" in session.capabilities
+    assert type(session.capabilities["userAgent"]) == str
+    assert len(session.capabilities["userAgent"]) > 0

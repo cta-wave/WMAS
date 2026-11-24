@@ -30,11 +30,6 @@ valid_data = [
     ("strictFileInteractability", [
         True, False, None,
     ]),
-    ("unhandledPromptBehavior", [
-        "dismiss",
-        "accept",
-        None,
-    ]),
     ("test:extension", [
         None, False, "abc", 123, [],
         {"key": "value"},
@@ -88,7 +83,6 @@ invalid_data = [
         {"page load": 10},
         {" pageLoad": 10},
         {"pageLoad ": 10},
-        {"pageLoad": None},
         {"pageLoad": False},
         {"pageLoad": []},
         {"pageLoad": "10"},
@@ -102,12 +96,18 @@ invalid_data = [
         1, [], {}, "false",
     ]),
     ("unhandledPromptBehavior", [
-        1, [], {}, False,
-        "DISMISS",
-        "dismissABC",
-        "Accept",
-        " dismiss",
-        "dismiss ",
+        False, 1, [],
+        "Dismiss",
+        "ACCEPT",
+        "ignore ",
+        "dismiss and Notify",
+        "accept and NOTIFY",
+        {"foo": "accept"},
+        {"beforeunload": "bar"},
+        {"alert": None},
+        {"confirm": False},
+        {"prompt": 1},
+        {"beforeUnload": []},
     ])
 ]
 

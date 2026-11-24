@@ -184,11 +184,11 @@ def test_parser_with_path_provided_abs_path():
     assert args.path == f"{os.path.abspath(os.sep)}manifest-path"
 
 def populate_test_web_features_map(web_features_map):
-    web_features_map.add("grid", [
+    web_features_map.add(["grid"], [
         Mock(spec=URLManifestItem, url="/grid_test1.js"),
         Mock(spec=URLManifestItem, url="/grid_test2.js"),
     ])
-    web_features_map.add("avif", [Mock(spec=URLManifestItem, url="/avif_test1.js")])
+    web_features_map.add(["avif"], [Mock(spec=URLManifestItem, url="/avif_test1.js")])
 
 
 def test_valid_schema():
@@ -202,8 +202,7 @@ def test_valid_schema():
         write_manifest_file("test_file.json", web_features_map)
         mock_file.assert_called_once_with("test_file.json", "w")
         mock_file.return_value.write.assert_called_once_with(
-            ('{"version": 1,'
-            ' "data": {"grid": ["/grid_test1.js", "/grid_test2.js"], "avif": ["/avif_test1.js"]}}'))
+            '{"data": {"avif": ["/avif_test1.js"], "grid": ["/grid_test1.js", "/grid_test2.js"]}, "version": 1}')
         args = mock_file.return_value.write.call_args
         file_dict = json.loads(args[0][0])
         # Should not throw an exception

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSS Mixins: Parsing</title>
+    <link rel="help" href="https://drafts.csswg.org/css-mixins-1/#defining-mixins">
+    <link rel="help" href="https://github.com/w3c/csswg-drafts/issues/12417">
+    <script src="/resources/testharness.js"></script>
+    <script src="/resources/testharnessreport.js"></script>
+  </head>
+  <body>
+
+  <script>
+    function test_child(css, is_valid, description) {
+      test(() => {
+        let sheet = new CSSStyleSheet();
+        sheet.replaceSync(css);
+        assert_equals(sheet.cssRules.length, 1, 'mixin is present'); // @mixin
+        assert_equals(sheet.cssRules[0].cssRules.length, (is_valid ? 1 : 0), 'child count');
+      }, `${description} is ${is_valid ? 'valid' : 'invalid'} in @mixin`);
+    }
+    function test_valid_child(css, description) {
+      return test_child(css, /*is_valid=*/true, description);
+    }
+    function test_invalid_child(css, description) {
+      return test_child(css, /*is_valid=*/false, description);
+    }
+
+    test_invalid_child('@mixin --m() { @layer bar; }', '@layer (statement)');
+    test_invalid_child('@mixin --m() { @layer bar {} }', '@layer (block)');
+    test_invalid_child('@mixin --m() { @layer {} }', '@layer (anonymous)');
+
+    test_invalid_child('@mixin --m() { @result { color: red; } }', '@result');
+    test_invalid_child('@mixin --m() { result: red; }', 'result descriptor');
+    test_valid_child('@mixin --m() { color: green; }', 'declaration');
+    test_valid_child('@mixin --m() { --color: green; }', 'custom property');
+    test_valid_child('@mixin --m() { div {} }', 'style rule');
+    test_valid_child('@mixin --m() { > div {} }', 'style rule (relative)');
+    test_valid_child('@mixin --m() { @media (width) {} }', '@media');
+    test_valid_child('@mixin --m() { @supports (width:0) {} }', '@supports');
+    test_valid_child('@mixin --m() { @container (width) {} }', '@container');
+    test_valid_child('@mixin --m() { @starting-style {} }', '@starting-style');
+    test_valid_child('@mixin --m() { @scope (.foo) {} }', '@scope');
+    test_valid_child('@mixin --m() { @scope {} }', '@scope (implicit)');
+
+    // @layer is invalid inside mixins, so it must be dropped at any depth. The
+    // green sibling rule must survive, proving only the @layer was dropped and
+    // not its enclosing container.
+    function test_layer_dropped(css, description) {
+      test(() => {
+        let sheet = new CSSStyleSheet();
+        sheet.replaceSync(css);
+        assert_equals(sheet.cssRules.length, 1, 'mixin is present');
+        let mixin_text = sheet.cssRules[0].cssText;
+        assert_true(mixin_text.includes('color: green'), `sibling rule retained: ${mixin_text}`);
+        assert_false(/@layer/i.test(mixin_text), `@layer dropped: ${mixin_text}`);
+      }, `@layer is dropped within ${description}`);
+    }
+
+    test_layer_dropped('@mixin --m() { @layer bar; div { color: green } }', 'the mixin body (statement)');
+    test_layer_dropped('@mixin --m() { @layer bar {} div { color: green } }', 'the mixin body (block)');
+    test_layer_dropped('@mixin --m() { div { @layer bar; color: green } }', 'a nested style rule');
+    test_layer_dropped('@mixin --m() { @media (width) { @layer bar; div { color: green } } }', '@media');
+    test_layer_dropped('@mixin --m() { @supports (width: 0) { @layer bar; div { color: green } } }', '@supports');
+    test_layer_dropped('@mixin --m() { @container (width) { @layer bar; div { color: green } } }', '@container');
+    test_layer_dropped('@mixin --m() { @scope (.foo) { @layer bar; div { color: green } } }', '@scope');
+
+    // @mixin is valid wherever @keyframes is valid.
+    function test_mixin_location(rule, description) {
+      test(() => {
+        let sheet = new CSSStyleSheet();
+        sheet.replaceSync(`${rule} {
+          @keyframes --k {}
+          @mixin --m() {}
+        }`);
+        assert_equals(sheet.cssRules.length, 1);
+        assert_equals(sheet.cssRules[0].cssRules.length, 2);
+        assert_true(
+            sheet.cssRules[0].cssRules[0].cssText.startsWith('@keyframes'));
+        assert_true(
+            sheet.cssRules[0].cssRules[1].cssText.startsWith('@mixin'));
+      }, `@mixin and @keyframes are valid within ${description}`);
+    }
+
+    test_mixin_location('@media (width)', '@media');
+    test_mixin_location('@container (width)', '@container');
+    test_mixin_location('@supports (width: 0)', '@supports');
+    test_mixin_location('@navigation (at: --foo)', '@navigation');
+    test_mixin_location('@layer foo', '@layer');
+
+  </script>
+
+  </body>
+</html>

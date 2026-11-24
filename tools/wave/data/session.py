@@ -7,6 +7,9 @@ ABORTED = "aborted"
 PENDING = "pending"
 UNKNOWN = "unknown"
 
+WMAS = "wmas"
+DPCTF = "dpctf"
+
 
 class Session(object):
     def __init__(

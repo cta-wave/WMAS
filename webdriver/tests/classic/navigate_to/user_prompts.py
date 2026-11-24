@@ -3,13 +3,9 @@
 import pytest
 from webdriver import error
 
-from tests.support.asserts import assert_error, assert_success, assert_dialog_handled
+from tests.support.classic.asserts import assert_error, assert_success, assert_dialog_handled
 
-
-def navigate_to(session, url):
-    return session.transport.send(
-        "POST", "session/{session_id}/url".format(**vars(session)),
-        {"url": url})
+from . import navigate_to
 
 
 @pytest.fixture
@@ -42,7 +38,7 @@ def check_user_prompt_closed_without_exception(session, create_dialog, inline):
     def check_user_prompt_closed_without_exception(dialog_type, retval):
         url = inline("<div/>")
 
-        create_dialog(dialog_type, text=dialog_type)
+        create_dialog(dialog_type, text="cheese")
 
         response = navigate_to(session, url)
         assert_success(response)
@@ -59,10 +55,11 @@ def check_user_prompt_closed_with_exception(session, create_dialog, inline):
     def check_user_prompt_closed_with_exception(dialog_type, retval):
         url = inline("<div/>")
 
-        create_dialog(dialog_type, text=dialog_type)
+        create_dialog(dialog_type, text="cheese")
 
         response = navigate_to(session, url)
-        assert_error(response, "unexpected alert open")
+        assert_error(response, "unexpected alert open",
+                     data={"text": "cheese"})
 
         assert_dialog_handled(session, expected_text=dialog_type, expected_retval=retval)
 
@@ -76,12 +73,13 @@ def check_user_prompt_not_closed_but_exception(session, create_dialog, inline):
     def check_user_prompt_not_closed_but_exception(dialog_type):
         url = inline("<div/>")
 
-        create_dialog(dialog_type, text=dialog_type)
+        create_dialog(dialog_type, text="cheese")
 
         response = navigate_to(session, url)
-        assert_error(response, "unexpected alert open")
+        assert_error(response, "unexpected alert open",
+                     data={"text": "cheese"})
 
-        assert session.alert.text == dialog_type
+        assert session.alert.text == "cheese"
         session.alert.dismiss()
 
         assert session.url != url

@@ -110,6 +110,7 @@ Document includes NonElementParentNode;
 DocumentFragment includes NonElementParentNode;
 
 interface mixin DocumentOrShadowRoot {
+  readonly attribute CustomElementRegistry? customElementRegistry;
 };
 Document includes DocumentOrShadowRoot;
 ShadowRoot includes DocumentOrShadowRoot;
@@ -123,6 +124,8 @@ interface mixin ParentNode {
   [CEReactions, Unscopable] undefined prepend((Node or DOMString)... nodes);
   [CEReactions, Unscopable] undefined append((Node or DOMString)... nodes);
   [CEReactions, Unscopable] undefined replaceChildren((Node or DOMString)... nodes);
+
+  [CEReactions] undefined moveBefore(Node node, Node? child);
 
   Element? querySelector(DOMString selectors);
   [NewObject] NodeList querySelectorAll(DOMString selectors);
@@ -237,7 +240,7 @@ interface Node : EventTarget {
   [CEReactions] attribute DOMString? textContent;
   [CEReactions] undefined normalize();
 
-  [CEReactions, NewObject] Node cloneNode(optional boolean deep = false);
+  [CEReactions, NewObject] Node cloneNode(optional boolean subtree = false);
   boolean isEqualNode(Node? otherNode);
   boolean isSameNode(Node? otherNode); // legacy alias of ===
 
@@ -291,7 +294,7 @@ interface Document : Node {
   [NewObject] Comment createComment(DOMString data);
   [NewObject] ProcessingInstruction createProcessingInstruction(DOMString target, DOMString data);
 
-  [CEReactions, NewObject] Node importNode(Node node, optional boolean deep = false);
+  [CEReactions, NewObject] Node importNode(Node node, optional (boolean or ImportNodeOptions) options = false);
   [CEReactions] Node adoptNode(Node node);
 
   [NewObject] Attr createAttribute(DOMString localName);
@@ -310,16 +313,22 @@ interface Document : Node {
 interface XMLDocument : Document {};
 
 dictionary ElementCreationOptions {
+  CustomElementRegistry? customElementRegistry;
   DOMString is;
+};
+
+dictionary ImportNodeOptions {
+  CustomElementRegistry customElementRegistry;
+  boolean selfOnly = false;
 };
 
 [Exposed=Window]
 interface DOMImplementation {
-  [NewObject] DocumentType createDocumentType(DOMString qualifiedName, DOMString publicId, DOMString systemId);
+  [NewObject] DocumentType createDocumentType(DOMString name, DOMString publicId, DOMString systemId);
   [NewObject] XMLDocument createDocument(DOMString? namespace, [LegacyNullToEmptyString] DOMString qualifiedName, optional DocumentType? doctype = null);
   [NewObject] Document createHTMLDocument(optional DOMString title);
 
-  boolean hasFeature(); // useless; always returns true
+  boolean hasFeature(); // historical; always returns true
 };
 
 [Exposed=Window]
@@ -338,9 +347,11 @@ interface DocumentFragment : Node {
 interface ShadowRoot : DocumentFragment {
   readonly attribute ShadowRootMode mode;
   readonly attribute boolean delegatesFocus;
+  readonly attribute boolean serializable;
   readonly attribute SlotAssignmentMode slotAssignment;
   readonly attribute boolean clonable;
   readonly attribute Element host;
+
   attribute EventHandler onslotchange;
 };
 
@@ -364,8 +375,8 @@ interface Element : Node {
   sequence<DOMString> getAttributeNames();
   DOMString? getAttribute(DOMString qualifiedName);
   DOMString? getAttributeNS(DOMString? namespace, DOMString localName);
-  [CEReactions] undefined setAttribute(DOMString qualifiedName, DOMString value);
-  [CEReactions] undefined setAttributeNS(DOMString? namespace, DOMString qualifiedName, DOMString value);
+  [CEReactions] undefined setAttribute(DOMString qualifiedName, (TrustedType or DOMString) value);
+  [CEReactions] undefined setAttributeNS(DOMString? namespace, DOMString qualifiedName, (TrustedType or DOMString) value);
   [CEReactions] undefined removeAttribute(DOMString qualifiedName);
   [CEReactions] undefined removeAttributeNS(DOMString? namespace, DOMString localName);
   [CEReactions] boolean toggleAttribute(DOMString qualifiedName, optional boolean force);
@@ -380,6 +391,8 @@ interface Element : Node {
 
   ShadowRoot attachShadow(ShadowRootInit init);
   readonly attribute ShadowRoot? shadowRoot;
+
+  readonly attribute CustomElementRegistry? customElementRegistry;
 
   Element? closest(DOMString selectors);
   boolean matches(DOMString selectors);
@@ -396,8 +409,10 @@ interface Element : Node {
 dictionary ShadowRootInit {
   required ShadowRootMode mode;
   boolean delegatesFocus = false;
+  boolean serializable = false;
   SlotAssignmentMode slotAssignment = "named";
   boolean clonable = false;
+  CustomElementRegistry? customElementRegistry;
 };
 
 [Exposed=Window,
@@ -423,7 +438,7 @@ interface Attr : Node {
 
   readonly attribute Element? ownerElement;
 
-  readonly attribute boolean specified; // useless; always returns true
+  readonly attribute boolean specified; // historical; always returns true
 };
 [Exposed=Window]
 interface CharacterData : Node {
@@ -449,7 +464,17 @@ interface CDATASection : Text {
 };
 [Exposed=Window]
 interface ProcessingInstruction : CharacterData {
+  constructor(DOMString target, optional DOMString data = "");
+
   readonly attribute DOMString target;
+
+  boolean hasAttributes();
+  sequence<DOMString> getAttributeNames();
+  DOMString? getAttribute(DOMString name);
+  undefined setAttribute(DOMString name, DOMString value);
+  undefined removeAttribute(DOMString name);
+  boolean toggleAttribute(DOMString name, optional boolean force);
+  boolean hasAttribute(DOMString name);
 };
 [Exposed=Window]
 interface Comment : CharacterData {
@@ -458,11 +483,15 @@ interface Comment : CharacterData {
 
 [Exposed=Window]
 interface AbstractRange {
-  readonly attribute Node startContainer;
   readonly attribute unsigned long startOffset;
-  readonly attribute Node endContainer;
   readonly attribute unsigned long endOffset;
   readonly attribute boolean collapsed;
+};
+
+[Exposed=Window]
+interface NodeRange : AbstractRange {
+  readonly attribute Node startContainer;
+  readonly attribute Node endContainer;
 };
 
 dictionary StaticRangeInit {
@@ -473,12 +502,12 @@ dictionary StaticRangeInit {
 };
 
 [Exposed=Window]
-interface StaticRange : AbstractRange {
+interface StaticRange : NodeRange {
   constructor(StaticRangeInit init);
 };
 
 [Exposed=Window]
-interface Range : AbstractRange {
+interface Range : NodeRange {
   constructor();
 
   readonly attribute Node commonAncestorContainer;

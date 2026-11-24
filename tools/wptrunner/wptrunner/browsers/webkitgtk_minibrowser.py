@@ -6,7 +6,7 @@ from .base import (NullBrowser,  # noqa: F401
                    maybe_add_args)
 from .webkit import WebKitBrowser
 from ..executors import executor_kwargs as base_executor_kwargs
-from ..executors.base import WdspecExecutor  # noqa: F401
+from ..executors.base import PytestExecutor  # noqa: F401
 from ..executors.executorwebdriver import (WebDriverTestharnessExecutor,  # noqa: F401
                                            WebDriverRefTestExecutor,  # noqa: F401
                                            WebDriverCrashtestExecutor)  # noqa: F401
@@ -17,8 +17,9 @@ __wptrunner__ = {"product": "webkitgtk_minibrowser",
                  "browser_kwargs": "browser_kwargs",
                  "executor": {"testharness": "WebDriverTestharnessExecutor",
                               "reftest": "WebDriverRefTestExecutor",
-                              "wdspec": "WdspecExecutor",
-                              "crashtest": "WebDriverCrashtestExecutor"},
+                              "wdspec": "PytestExecutor",
+                              "crashtest": "WebDriverCrashtestExecutor",
+                              "test262": "WebDriverTestharnessExecutor"},
                  "executor_kwargs": "executor_kwargs",
                  "env_extras": "env_extras",
                  "env_options": "env_options",
@@ -42,7 +43,6 @@ def browser_kwargs(logger, test_type, run_info_data, config, **kwargs):
 def capabilities(server_config, **kwargs):
     browser_required_args = ["--automation",
                              "--javascript-can-open-windows-automatically=true",
-                             "--enable-xss-auditor=false",
                              "--enable-media-capabilities=true",
                              "--enable-encrypted-media=true",
                              "--enable-media-stream=true",

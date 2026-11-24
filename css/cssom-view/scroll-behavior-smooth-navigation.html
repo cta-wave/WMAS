@@ -50,7 +50,7 @@
       window.onhashchange = function() {
         instantHistoryNavigationTest.step(function() {
           assert_equals(location.hash, "", "Shouldn't be scrolled to a fragment.");
-          assert_equals(window.scrollY, 0, "Shouldn't be scrolled back to top yet.");
+          assert_equals(window.scrollY, 0, "Should be scrolled to top.");
         });
         p.remove();
         instantHistoryNavigationTest.done();
@@ -70,7 +70,6 @@
     });
     location.hash = "foo";
   };
-  instant();
 
   function smooth() {
     document.documentElement.className = "";
@@ -110,4 +109,9 @@
   };
 
   testContainer.style.display = "none";
+
+  // Setting location.hash while loading results in a replace load, which we don't want.
+  window.onload = () => {
+    step_timeout(instant, 0);
+  }
 </script>

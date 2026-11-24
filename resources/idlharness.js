@@ -189,6 +189,7 @@ self.IdlArray = function()
      * dependency (to retroactively process them).
      */
     this.skipped = new Map();
+    this.test_filter = null;
 };
 
 IdlArray.prototype.add_idls = function(raw_idls, options)
@@ -504,6 +505,14 @@ IdlArray.prototype.prevent_multiple_testing = function(name)
     this.members[name].prevent_multiple_testing = true;
 };
 
+IdlArray.prototype.set_test_filter = function(filter)
+{
+    if (typeof filter !== "function") {
+        throw new TypeError("The test filter must be a function.");
+    }
+    this.test_filter = filter;
+};
+
 IdlArray.prototype.is_json_type = function(type)
 {
     /**
@@ -566,6 +575,7 @@ IdlArray.prototype.is_json_type = function(type)
        case "Uint8ClampedArray":
        case "BigInt64Array":
        case "BigUint64Array":
+       case "Float16Array":
        case "Float32Array":
        case "Float64Array":
        case "ArrayBuffer":
@@ -733,13 +743,24 @@ IdlArray.prototype.test = function()
 
     Object.getOwnPropertyNames(this.members).forEach(function(memberName) {
         var member = this.members[memberName];
-        if (!(member instanceof IdlInterface)) {
+        if (!(member instanceof IdlInterface || member instanceof IdlNamespace)) {
             return;
         }
 
         var globals = exposure_set(member);
         member.exposed = exposed_in(globals);
         member.exposureSet = globals;
+
+        if (this.test_filter && member instanceof IdlInterface) {
+            if (!this.test_filter(memberName)) {
+                member.filtered = true;
+            }
+            for (const idlMember of member.members) {
+                if (!this.test_filter(memberName, idlMember.name)) {
+                    idlMember.filtered = true;
+                }
+            }
+        }
     }.bind(this));
 
     // Now run test() on every member, and test_object() for every object.
@@ -781,6 +802,10 @@ IdlArray.prototype.merge_partials = function()
             partialTestName = `${partialTestName}[${partialTestCount}]`;
         }
         testedPartials.set(parsed_idl.name, partialTestCount);
+
+        if (!self.shouldRunSubTest(partialTestName)) {
+            return;
+        }
 
         if (!parsed_idl.untested) {
             test(function () {
@@ -870,6 +895,7 @@ IdlArray.prototype.merge_mixins = function()
     {
         const lhs = parsed_idl.target;
         const rhs = parsed_idl.includes;
+        const testName = lhs + " includes " + rhs + ": member names are unique";
 
         var errStr = lhs + " includes " + rhs + ", but ";
         if (!(lhs in this.members)) throw errStr + lhs + " is undefined.";
@@ -877,7 +903,7 @@ IdlArray.prototype.merge_mixins = function()
         if (!(rhs in this.members)) throw errStr + rhs + " is undefined.";
         if (!(this.members[rhs] instanceof IdlInterface)) throw errStr + rhs + " is not an interface.";
 
-        if (this.members[rhs].members.length) {
+        if (this.members[rhs].members.length && self.shouldRunSubTest(testName)) {
             test(function () {
                 var clash = this.members[rhs].members.find(function(member) {
                     return this.members[lhs].members.find(function(m) {
@@ -891,7 +917,7 @@ IdlArray.prototype.merge_mixins = function()
                     this.members[lhs].members.push(new IdlInterfaceMember(member));
                 }.bind(this));
                 assert_true(!clash, "member " + (clash && clash.name) + " is unique");
-            }.bind(this), lhs + " includes " + rhs + ": member names are unique");
+            }.bind(this), testName);
         }
     }
     this.includes = [];
@@ -911,15 +937,19 @@ IdlArray.prototype.are_duplicate_members = function(m1, m2) {
 
 IdlArray.prototype.assert_type_is = function(value, type)
 {
-    if (type.idlType in this.members
-    && this.members[type.idlType] instanceof IdlTypedef) {
-        this.assert_type_is(value, this.members[type.idlType].idlType);
-        return;
-    }
-
+    // Must run before typedef substitution below: `type.nullable` reflects
+    // the "?" at this reference (e.g. `DOMHighResTimeStamp?`), not on the
+    // typedef's own declaration, so it would otherwise be lost when we
+    // recurse into `this.members[type.idlType].idlType`.
     if (type.nullable && value === null)
     {
         // This is fine
+        return;
+    }
+
+    if (type.idlType in this.members
+    && this.members[type.idlType] instanceof IdlTypedef) {
+        this.assert_type_is(value, this.members[type.idlType].idlType);
         return;
     }
 
@@ -1318,6 +1348,31 @@ IdlInterface.prototype.get_interface_object = function() {
     return this.get_interface_object_owner()[this.name];
 };
 
+/**
+ * With Source Phase Imports, the WebAssembly ESM Integration requires the
+ * WebAssembly.Module interface object and interface prototype object to
+ * inherit from %AbstractModuleSource% and %AbstractModuleSource.prototype%.
+ * This is specified in prose, as Web IDL cannot express inheritance from an
+ * ECMAScript intrinsic, so it is special-cased here like DOMException.
+ *
+ * %AbstractModuleSource% is not a global, so it is only reachable through
+ * WebAssembly.Module itself. Returns it if present, or undefined for
+ * implementations without Source Phase Imports.
+ *
+ * https://webassembly.github.io/esm-integration/js-api/#modules
+ * https://github.com/whatwg/webidl/issues/1322
+ */
+IdlInterface.prototype.get_abstract_module_source = function() {
+    if (this.get_qualified_name() !== "WebAssembly.Module") {
+        return undefined;
+    }
+    var parent = Object.getPrototypeOf(this.get_interface_object());
+    if (parent === Function.prototype || parent.name !== "AbstractModuleSource") {
+        return undefined;
+    }
+    return parent;
+};
+
 IdlInterface.prototype.get_qualified_name = function() {
     // https://webidl.spec.whatwg.org/#qualified-name
     var legacyNamespace = this.get_legacy_namespace();
@@ -1392,7 +1447,7 @@ IdlInterface.prototype.default_to_json_operation = function() {
         if (I.has_default_to_json_regular_operation()) {
             isDefault = true;
             for (const m of I.members) {
-                if (m.special !== "static" && m.type == "attribute" && I.array.is_json_type(m.idlType)) {
+                if (!m.untested && m.special !== "static" && m.type == "attribute" && I.array.is_json_type(m.idlType)) {
                     map.set(m.name, m.idlType);
                 }
             }
@@ -1417,28 +1472,30 @@ IdlInterface.prototype.test = function()
     // tested either, but objects could still be tested in |test_object|.
     if (!this.exposed)
     {
-        if (!this.untested)
+        if (!this.untested && !this.filtered)
         {
             subsetTestByKey(this.name, test, function() {
-                assert_false(this.name in self);
+                assert_false(this.name in self, this.name + " interface should not exist");
             }.bind(this), this.name + " interface: existence and properties of interface object");
         }
         return;
     }
 
-    if (!this.untested)
+    if (!this.untested && !this.filtered)
     {
         // First test things to do with the exception/interface object and
         // exception/interface prototype object.
         this.test_self();
     }
     // Then test things to do with its members (constants, fields, attributes,
-    // operations, . . .).  These are run even if .untested is true, because
-    // members might themselves be marked as .untested.  This might happen to
-    // interfaces if the interface itself is untested but a partial interface
-    // that extends it is tested -- then the interface itself and its initial
-    // members will be marked as untested, but the members added by the partial
-    // interface are still tested.
+    // operations, . . .).  These are run even if .untested or .filtered is
+    // true, because members might themselves be marked as such.  This might
+    // happen to interfaces if the interface itself is untested but a partial
+    // interface that extends it is tested -- then the interface itself and its
+    // initial members will be marked as untested, but the members added by the
+    // partial interface are still tested.  (.untested marks dependencies from
+    // other specs; .filtered marks what set_test_filter() rejected, which, unlike
+    // .untested, does not change the expected default toJSON() keys.)
     this.test_members();
 };
 
@@ -1517,6 +1574,9 @@ IdlInterface.prototype.test_self = function()
                               'prototype of ' + this.name + ' is not ' +
                               this.base);
             }
+        } else if (this.get_abstract_module_source()) {
+            assert_equals(Object.getPrototypeOf(prototype), Function.prototype,
+                          "prototype of AbstractModuleSource is not Function.prototype");
         } else {
             // "If the interface doesn't inherit from any other interface, the
             // value of [[Prototype]] is %FunctionPrototype% ([ECMA-262],
@@ -1833,6 +1893,9 @@ IdlInterface.prototype.test_self = function()
             } else if (this.name === "DOMException") {
                 inherit_interface = 'Error';
                 inherit_interface_interface_object = self.Error;
+            } else if (this.get_abstract_module_source()) {
+                inherit_interface = 'AbstractModuleSource';
+                inherit_interface_interface_object = this.get_abstract_module_source();
             } else {
                 inherit_interface = 'Object';
                 inherit_interface_interface_object = self.Object;
@@ -2673,7 +2736,7 @@ IdlInterface.prototype.test_members = function()
     for (var i = 0; i < this.members.length; i++)
     {
         var member = this.members[i];
-        if (member.untested) {
+        if (member.untested || member.filtered) {
             continue;
         }
 
@@ -2795,7 +2858,7 @@ IdlInterface.prototype.test_primary_interface_of = function(desc, obj, exception
 {
     // Only the object itself, not its members, are tested here, so if the
     // interface is untested, there is nothing to do.
-    if (this.untested)
+    if (this.untested || this.filtered)
     {
         return;
     }
@@ -2864,7 +2927,7 @@ IdlInterface.prototype.test_interface_of = function(desc, obj, exception, expect
     for (var i = 0; i < this.members.length; i++)
     {
         var member = this.members[i];
-        if (member.untested) {
+        if (member.untested || member.filtered) {
             continue;
         }
         if (!exposed_in(exposure_set(member, this.exposureSet)))
@@ -3450,6 +3513,17 @@ IdlNamespace.prototype.test_self = function ()
 
 IdlNamespace.prototype.test = function ()
 {
+    // If the namespace object is not exposed, only test that. Members can't be
+    // tested either
+    if (!this.exposed) {
+        if (!this.untested) {
+            subsetTestByKey(this.name, test, function() {
+                assert_false(this.name in self, this.name + " namespace should not exist");
+            }.bind(this), this.name + " namespace: existence and properties of namespace object");
+        }
+        return;
+    }
+
     if (!this.untested) {
         this.test_self();
     }
@@ -3497,7 +3571,7 @@ function idl_test(srcs, deps, idl_setup_func) {
             "require-exposed"
         ];
         return Promise.all(
-            srcs.concat(deps).map(fetch_spec))
+            srcs.concat(deps).map(globalThis.fetch_spec))
             .then(function(results) {
                 const astArray = results.map(result =>
                     WebIDL2.parse(result.idl, { sourceName: result.spec })
@@ -3538,9 +3612,11 @@ function idl_test(srcs, deps, idl_setup_func) {
             });
     }, 'idl_test setup');
 }
+globalThis.idl_test = idl_test;
 
 /**
  * fetch_spec is a shorthand for a Promise that fetches the spec's content.
+ * Note: ShadowRealm-specific implementation in testharness-shadowrealm-inner.js
  */
 function fetch_spec(spec) {
     var url = '/interfaces/' + spec + '.idl';

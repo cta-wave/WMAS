@@ -11,18 +11,43 @@ import re
     [
         (
             {
-                "features": [
+                "rules": [
                     {
-                        "name": "feature1",
-                        "files": ["file1", "file2"],
+                        "file1": ["feature1"]
+                    },
+                    {
+                        "file2": ["feature1"]
                     }
                 ]
             },
             {
-                "features": [
+                "rules": [
                     {
-                        "name": "feature1",
-                        "files": ["file1", "file2"],
+                        "feature_ids": ["feature1"],
+                        "file": "file1"
+                    },
+                    {
+                        "feature_ids": ["feature1"],
+                        "file": "file2"
+                    }
+                ]
+            },
+            None,
+            None
+        ),
+        (
+            {
+                "rules": [
+                    {
+                        "**": ["feature1"]
+                    }
+                ]
+            },
+            {
+                "rules": [
+                    {
+                        "feature_ids": ["feature1"],
+                        "file": SpecialFileEnum.RECURSIVE,
                     }
                 ]
             },
@@ -33,17 +58,17 @@ import re
             {},
             None,
             ValueError,
-            "Object missing required keys: ['features']"
+            "Object missing required keys: ['rules']"
         ),
         (
             {
-                "features": [
+                "rules": [
                     {}
                 ]
             },
             None,
             ValueError,
-            "Object missing required keys: ['files', 'name']"
+            "Input value {} contains zero keys"
         ),
     ])
 def test_web_features_file(input, expected_result, expected_exception_type, exception_message):
@@ -57,11 +82,11 @@ def test_web_features_file(input, expected_result, expected_exception_type, exce
     "input,expected_result",
     [
         (
-            FeatureEntry({"name": "test1", "files":["file1"]}),
+            FeatureEntry({"file1": ["test1"]}),
             False
         ),
         (
-            FeatureEntry({"name": "test2", "files": SpecialFileEnum.RECURSIVE}),
+            FeatureEntry({SpecialFileEnum.RECURSIVE.value: ["test2"]}),
             True
         ),
     ])
@@ -74,17 +99,17 @@ def test_does_feature_apply_recursively(input, expected_result):
         (
             FeatureFile("*"),
             ["test.html", "TEST.HTML"],
-            ["test.html", "TEST.HTML"]
+            ["test.html", "TEST.HTML"],
         ),
         (
             FeatureFile("test.html"),
             ["test.html", "TEST.HTML"],
-            ["test.html"]
+            ["test.html"],
         ),
         (
             FeatureFile("test*.html"),
             ["test.html", "test1.html", "TEST1.HTML", "test2.html", "test-2.html", "foo.html"],
-            ["test.html", "test1.html", "test2.html", "test-2.html"]
+            ["test.html", "test1.html", "test2.html", "test-2.html"],
         ),
     ])
 def test_feature_file_match_files(input_feature, input_files, expected_result):

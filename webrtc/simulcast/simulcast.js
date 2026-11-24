@@ -187,14 +187,19 @@ async function doAnswerToSendSimulcast(offerer, answerer) {
   sections.shift();
   const mids = sections.map(section => SDPUtils.getMid(section));
   let nonSimulcastAnswer = ridToMid(answerer.localDescription, mids);
-  // Restore MID RTP header extension.
-  const localParameters = SDPUtils.parseRtpParameters(sections[0]);
 
-  const localMidExtension = localParameters.headerExtensions
-    .find(ext => ext.uri === 'urn:ietf:params:rtp-hdrext:sdes:mid');
-  if (localMidExtension) {
-    nonSimulcastAnswer += SDPUtils.writeExtmap(localMidExtension);
+  // Restore MID RTP header extension if it has been removed
+  if (!nonSimulcastAnswer.match(
+    /^a=extmap:[0-9]+(\/[a-z]+)? urn:ietf:params:rtp-hdrext:sdes:mid\s*$/mg)) {
+    const localParameters = SDPUtils.parseRtpParameters(sections[0]);
+
+    const localMidExtension = localParameters.headerExtensions
+      .find(ext => ext.uri === 'urn:ietf:params:rtp-hdrext:sdes:mid');
+    if (localMidExtension) {
+      nonSimulcastAnswer += SDPUtils.writeExtmap(localMidExtension);
+    }
   }
+
   await offerer.setRemoteDescription({
     type: 'answer',
     sdp: nonSimulcastAnswer,
@@ -220,7 +225,7 @@ function swapRidAndMidExtensionsInSimulcastAnswer(answer, localDescription, rids
 }
 
 async function negotiateSimulcastAndWaitForVideo(
-    t, rids, pc1, pc2, codec, scalabilityMode = undefined) {
+    t, stream, rids, pc1, pc2, codec, scalabilityMode = undefined) {
   exchangeIceCandidates(pc1, pc2);
 
   const metadataToBeLoaded = [];
@@ -251,10 +256,6 @@ async function negotiateSimulcastAndWaitForVideo(
     scaleResolutionDownBy *= 2;
   }
 
-  // Use getUserMedia as getNoiseStream does not have enough entropy to ramp-up.
-  await setMediaPermission();
-  const stream = await navigator.mediaDevices.getUserMedia({video: {width: 1280, height: 720}});
-  t.add_cleanup(() => stream.getTracks().forEach(track => track.stop()));
   const transceiver = pc1.addTransceiver(stream.getVideoTracks()[0], {
     streams: [stream],
     sendEncodings: sendEncodings,
@@ -277,4 +278,12 @@ async function negotiateSimulcastAndWaitForVideo(
   });
   assert_equals(metadataToBeLoaded.length, rids.length);
   return Promise.all(metadataToBeLoaded);
+}
+
+async function getCameraStream(t) {
+  // Use getUserMedia as getNoiseStream does not have enough entropy to ramp-up.
+  await setMediaPermission();
+  const stream = await navigator.mediaDevices.getUserMedia({video: {width: 640, height: 480}});
+  t.add_cleanup(() => stream.getTracks().forEach(track => track.stop()));
+  return stream;
 }

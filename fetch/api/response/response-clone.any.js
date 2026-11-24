@@ -38,7 +38,7 @@ test(function() {
 
 promise_test(function(test) {
   return validateStreamFromString(response.body.getReader(), body);
-}, "Check orginal response's body after cloning");
+}, "Check original response's body after cloning");
 
 promise_test(function(test) {
   return validateStreamFromString(clonedResponse.body.getReader(), body);
@@ -104,7 +104,7 @@ function testReadableStreamClone(initialBuffer, bufferType)
         }).then(function(data) {
             assert_false(data.done);
             if (initialBuffer instanceof ArrayBuffer) {
-              assert_true(data.value instanceof ArrayBuffer, "Cloned buffer is ArrayBufer");
+              assert_true(data.value instanceof ArrayBuffer, "Cloned buffer is ArrayBuffer");
               assert_equals(initialBuffer.byteLength, data.value.byteLength, "Length equal");
               assert_array_equals(new Uint8Array(data.value), new Uint8Array(initialBuffer), "Cloned buffer chunks have the same content");
             } else if (initialBuffer instanceof DataView) {
@@ -135,6 +135,7 @@ testReadableStreamClone(new Uint16Array(arrayBuffer, 2), "Uint16Array");
 testReadableStreamClone(new Uint32Array(arrayBuffer), "Uint32Array");
 testReadableStreamClone(typeof BigInt64Array === "function" ? new BigInt64Array(arrayBuffer) : undefined, "BigInt64Array");
 testReadableStreamClone(typeof BigUint64Array === "function" ? new BigUint64Array(arrayBuffer) : undefined, "BigUint64Array");
+testReadableStreamClone(typeof Float16Array === "function" ? new Float16Array(arrayBuffer) : undefined, "Float16Array");
 testReadableStreamClone(new Float32Array(arrayBuffer), "Float32Array");
 testReadableStreamClone(new Float64Array(arrayBuffer), "Float64Array");
 testReadableStreamClone(new DataView(arrayBuffer, 2, 8), "DataView");

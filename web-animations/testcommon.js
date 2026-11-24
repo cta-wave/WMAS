@@ -166,8 +166,8 @@ function waitForAnimationFramesWithDelay(minDelay) {
 
 function runAndWaitForFrameUpdate(callback) {
   return new Promise(resolve => {
-    window.requestAnimationFrame(() => {
-      callback();
+    window.requestAnimationFrame(async () => {
+      await callback();
       window.requestAnimationFrame(resolve);
     });
   });
@@ -297,11 +297,20 @@ function assert_phase(animation, phase) {
 
   if (phase === 'active') {
     // If the fill mode is 'none', then progress will only be non-null if we
-    // are in the active phase.
+    // are in the active phase, except for progress-based timelines where
+    // currentTime = 100% is still 'active'.
     animation.effect.updateTiming({ fill: 'none' });
-    assert_not_equals(animation.effect.getComputedTiming().progress, null,
-                      'Animation effect is in active phase when current time ' +
-                      `is ${currentTime}.`);
+    if ('ScrollTimeline' in window && animation.timeline instanceof ScrollTimeline) {
+        const isActive = animation.currentTime?.toString() == "100%" ||
+                         animation.effect.getComputedTiming().progress != null;
+        assert_true(isActive,
+                    'Animation effect is in active phase when current time ' +
+                    `is ${currentTime}.`);
+    } else {
+      assert_not_equals(animation.effect.getComputedTiming().progress, null,
+                        'Animation effect is in active phase when current time ' +
+                        `is ${currentTime}.`);
+    }
   } else {
     // The easiest way to distinguish between the 'before' phase and the 'after'
     // phase is to toggle the fill mode. For example, if the progress is null
@@ -331,12 +340,20 @@ function assert_phase(animation, phase) {
 // crbug.com/1378671
 async function waitForCompositorReady() {
   const animation =
-      document.body.animate({ opacity: [ 1, 1 ] }, {duration: 1 });
+      document.body.animate({ opacity: [ 0, 1 ] }, {duration: 1 });
   return animation.finished;
 }
 
-async function takeScreenshotOnAnimationsReady() {
-  await Promise.all(document.getAnimations().map(a => a.ready));
-  requestAnimationFrame(() => requestAnimationFrame(takeScreenshot));
+/**
+ * Wrapper that takes a sequence of N animations and returns:
+ *
+ *   Promise.all([animations[0].ready, animations[1].ready, ... animations[N-1].ready]);
+ */
+function waitForAllAnimations(animations) {
+  return Promise.all(animations.map(animation => animation.ready));
 }
 
+async function takeScreenshotOnAnimationsReady() {
+  await waitForAllAnimations(document.getAnimations());
+  requestAnimationFrame(() => requestAnimationFrame(takeScreenshot));
+}

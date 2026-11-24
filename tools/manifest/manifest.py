@@ -3,12 +3,13 @@ from atomicwrites import atomic_write
 from copy import deepcopy
 from logging import Logger
 from multiprocessing import Pool
-from typing import (Any, Callable, Container, Dict, IO, Iterator, Iterable, Optional, Set, Text, Tuple, Type,
-                    Union)
+from typing import (Any, Callable, Container, Dict, IO, Iterator, Iterable, List, Optional, Set, Text,
+                    Tuple, Type, Union)
 
 from . import jsonlib
 from . import vcs
-from .item import (ConformanceCheckerTest,
+from .item import (AccessibilityAPIMappingTest,
+                   ConformanceCheckerTest,
                    CrashTest,
                    ManifestItem,
                    ManualTest,
@@ -17,6 +18,7 @@ from .item import (ConformanceCheckerTest,
                    SpecItem,
                    SupportFile,
                    TestharnessTest,
+                   Test262Test,
                    VisualTest,
                    WebDriverSpecTest)
 from .log import get_logger
@@ -25,7 +27,7 @@ from .sourcefile import SourceFile
 from .typedata import TypeData
 
 
-CURRENT_VERSION: int = 8
+CURRENT_VERSION: int = 9
 
 
 class ManifestError(Exception):
@@ -46,10 +48,12 @@ item_classes: Dict[Text, Type[ManifestItem]] = {"testharness": TestharnessTest,
                                                 "crashtest": CrashTest,
                                                 "manual": ManualTest,
                                                 "wdspec": WebDriverSpecTest,
+                                                "aamtest": AccessibilityAPIMappingTest,
                                                 "conformancechecker": ConformanceCheckerTest,
                                                 "visual": VisualTest,
                                                 "spec": SpecItem,
-                                                "support": SupportFile}
+                                                "support": SupportFile,
+                                                "test262": Test262Test}
 
 
 def compute_manifest_items(source_file: SourceFile) -> Optional[Tuple[Tuple[Text, ...], Text, Set[ManifestItem], Text]]:
@@ -363,6 +367,7 @@ def load_and_update(tests_root: Text,
                     url_base: Text,
                     update: bool = True,
                     rebuild: bool = False,
+                    paths_to_update: Optional[List[Text]] = None,
                     metadata_path: Optional[Text] = None,
                     cache_root: Optional[Text] = None,
                     working_copy: bool = True,
@@ -401,7 +406,7 @@ def load_and_update(tests_root: Text,
         for retry in range(2):
             try:
                 tree = vcs.get_tree(tests_root, manifest, manifest_path, cache_root,
-                                    working_copy, rebuild)
+                                    paths_to_update, working_copy, rebuild)
                 changed = manifest.update(tree, parallel)
                 break
             except InvalidCacheError:
