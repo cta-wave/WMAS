@@ -296,7 +296,32 @@ rm -rf $WPTBASEDIR/partitioned-popins
 rm -rf $WPTBASEDIR/print
 rm -rf $WPTBASEDIR/screen-details
 rm -rf $WPTBASEDIR/top-level-storage-access-api
-rm -rf $WPTBASEDIR/viewport
+rm -rf $WPTBASEDIR/viewport-segments
+# New top-level dirs present at the wmas2024 WPT baseline (de6fd7758b0c) that
+# postdate the research's exclude diff (computed at pin 100f9048d8f8) —
+# none are covered by WMAS2024
+rm -rf $WPTBASEDIR/aria
+rm -rf $WPTBASEDIR/audio-session
+rm -rf $WPTBASEDIR/connection-allowlist
+rm -rf $WPTBASEDIR/container-timing
+rm -rf $WPTBASEDIR/cookiestore
+rm -rf $WPTBASEDIR/cpu-performance
+rm -rf $WPTBASEDIR/cssom
+rm -rf $WPTBASEDIR/device-bound-session-credentials
+rm -rf $WPTBASEDIR/gif
+rm -rf $WPTBASEDIR/gpc
+rm -rf $WPTBASEDIR/hsts
+rm -rf $WPTBASEDIR/html-ruby-extensions
+rm -rf $WPTBASEDIR/mathml-aam
+rm -rf $WPTBASEDIR/payment-method-manifest
+rm -rf $WPTBASEDIR/scroll-performance-timing
+rm -rf $WPTBASEDIR/third_party
+rm -rf $WPTBASEDIR/web-based-payment-handler
+rm -rf $WPTBASEDIR/web-extensions
+rm -rf $WPTBASEDIR/web-install
+rm -rf $WPTBASEDIR/webmcp
+rm -rf $WPTBASEDIR/web-monetization
+rm -rf $WPTBASEDIR/xml
 rm -rf $DISTDIR
 mkdir -p $DISTDIR
 cd $DISTDIR
